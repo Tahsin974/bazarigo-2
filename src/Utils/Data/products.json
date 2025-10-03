@@ -1,0 +1,87 @@
+[
+  {
+    "name": "Portable Bluetooth Speaker",
+    "oldPrice": 110,
+    "price": 85,
+    "discount": 23,
+    "rating": 5,
+    "img": "img",
+    "isBestSeller": true,
+    "isHot": true,
+    "isNew": true
+  },
+  {
+    "name": "Classic Low-Top Sneakers",
+    "oldPrice": 90,
+    "price": 75,
+    "discount": 17,
+    "rating": 4,
+    "img": "https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers",
+    "isBestSeller": true,
+    "isTrending": true
+  },
+  {
+    "name": "Automatic Drip Coffee Maker",
+    "oldPrice": 72,
+    "price": 50,
+    "discount": 31,
+    "rating": 5,
+    "img": "https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker",
+    "isBestSeller": true,
+    "isNew": true
+  },
+  {
+    "name": "Insulated Travel Mug",
+    "oldPrice": 35,
+    "price": 25,
+    "discount": 29,
+    "rating": 4,
+    "img": "https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug",
+    "isHot": true
+  },
+  {
+    "name": "Smart LED Desk Lamp",
+    "oldPrice": 60,
+    "price": 45,
+    "discount": 25,
+    "rating": 5,
+    "img": "https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp",
+    "isNew": true
+  },
+  {
+    "name": "Wireless Earbuds Pro",
+    "oldPrice": 165,
+    "price": 149,
+    "discount": 10,
+    "rating": 5,
+    "img": "https://placehold.co/400x400/00C48C/ffffff?text=Earbuds",
+    "isLimitedStock": true
+  },
+  {
+    "name": "Premium Office Chair",
+    "oldPrice": 260,
+    "price": 210,
+    "discount": 19,
+    "rating": 4,
+    "img": "https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair"
+  },
+  {
+    "name": "4K Ultra HD Monitor",
+    "oldPrice": 399,
+    "price": 299,
+    "discount": 25,
+    "rating": 5,
+    "img": "https://placehold.co/400x400/007BFF/ffffff?text=Monitor",
+    "isTrending": true,
+    "isNew": true
+  },
+  {
+    "name": "Luxury Wristwatch",
+    "oldPrice": 650,
+    "price": 420,
+    "discount": 35,
+    "rating": 5,
+    "img": "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
+    "isExclusive": true
+  }
+]
