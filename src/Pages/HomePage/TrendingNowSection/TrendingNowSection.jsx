@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import ProductCard from "../../../components/ProductCard/ProductCard";
+import { Link } from "react-router";
 
 const products = [
   {
@@ -89,7 +90,9 @@ export default function TrendingNowSection() {
               whileHover={{ scale: 1.03 }}
               className="cursor-pointer"
             >
-              <ProductCard item={product} />
+              <Link to="/product">
+                <ProductCard item={product} />
+              </Link>
             </motion.div>
           ))}
         </div>

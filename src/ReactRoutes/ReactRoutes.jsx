@@ -6,6 +6,10 @@ import FlashSalePage from "../Pages/FlashSalePage/FlashSalePage";
 import JustArrivedPage from "../Pages/JustArrivedPage/JustArrivedPage";
 import TrendingNowPage from "../Pages/TrendingNowPage/TrendingNowPage";
 import ProductPage from "../Pages/ProductPage/ProductPage";
+import CartPage from "../Pages/CartPage/CartPage";
+import CheckOutPage from "../Pages/CheckoutPage/CheckoutPage";
+import ThankYouPage from "../Pages/ThankYouPage/ThankYouPage";
+import SignUpPage from "../Pages/SignUpPage/SignUpPage";
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +39,22 @@ export const router = createBrowserRouter([
       {
         path: "/product",
         element: <ProductPage />,
+      },
+      {
+        path: "/cart",
+        element: <CartPage />,
+      },
+      {
+        path: "/checkout",
+        element: <CheckOutPage />,
+      },
+      {
+        path: "/thank-you",
+        element: <ThankYouPage />,
+      },
+      {
+        path: "/sign-up",
+        element: <SignUpPage />,
       },
     ],
   },

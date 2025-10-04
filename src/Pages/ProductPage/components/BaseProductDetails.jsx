@@ -5,6 +5,7 @@ import CustomerReviews from "./CustomerReviews";
 import ProductCard from "./ProductCard";
 import { RatingStars } from "./RatingStars";
 import VariantSelection from "./VariantSelection";
+import { Link } from "react-router";
 
 export default function BaseProductDetails({
   product = {},
@@ -86,9 +87,12 @@ export default function BaseProductDetails({
             <Button className="bg-[#FF0055] text-white px-8 py-4 rounded-full shadow-md hover:bg-[#e6004e] transition flex items-center">
               <ShoppingBag className="w-5 h-5 mr-2" /> Add to Cart
             </Button>
-            <Button className="bg-gray-200 text-gray-800 px-8 py-4 rounded-full shadow hover:bg-gray-300 transition">
-              Buy Now
-            </Button>
+            <Link to="/checkout">
+              <Button className="bg-gray-200 text-gray-800 px-8 py-4 rounded-full shadow hover:bg-gray-300 transition">
+                Buy Now
+              </Button>
+            </Link>
+
             <Button className="bg-gray-100 text-gray-600 px-4 py-4 rounded-full shadow hover:bg-gray-200 transition">
               <Heart className="w-5 h-5" />
             </Button>
