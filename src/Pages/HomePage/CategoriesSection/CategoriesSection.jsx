@@ -93,7 +93,7 @@ export default function CategoriesSection() {
                   <Home size={32} />
                 </div>
               </div>
-              <span className="font-semibold text-gray-800">Decor</span>
+              <span className="font-semibold text-gray-800">Home & Living</span>
             </Card>
           </motion.div>
         </div>

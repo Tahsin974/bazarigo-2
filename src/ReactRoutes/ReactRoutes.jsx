@@ -10,8 +10,19 @@ import CartPage from "../Pages/CartPage/CartPage";
 import CheckOutPage from "../Pages/CheckoutPage/CheckoutPage";
 import ThankYouPage from "../Pages/ThankYouPage/ThankYouPage";
 import SignUpPage from "../Pages/SignUpPage/SignUpPage";
+import UserAccountDashboard from "../Pages/Dashboard/UserAccountDashboard/UserAccountDashboard";
+import DashBoardLayOut from "../LayOut/DashBoardLayOut";
+import AdminPanelDashboard from "../Pages/Dashboard/AdminPanelDashboard/AdminPanelDashboard";
 
 export const router = createBrowserRouter([
+  {
+    path: "/dashboard",
+    element: <DashBoardLayOut />,
+    children: [
+      { path: "/dashboard", element: <UserAccountDashboard /> },
+      { path: "/dashboard/admin", element: <AdminPanelDashboard /> },
+    ],
+  },
   {
     path: "/",
     element: <MainLayOut />,

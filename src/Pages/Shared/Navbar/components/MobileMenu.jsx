@@ -1,5 +1,6 @@
-import { ShoppingBag, User } from "lucide-react";
+import { House, ShoppingBag, ShoppingCart, User } from "lucide-react";
 import SearchBar from "./SearchBar";
+import { Link } from "react-router";
 
 export default function MobileMenu({ isMenuOpen }) {
   if (!isMenuOpen) return null;
@@ -10,20 +11,30 @@ export default function MobileMenu({ isMenuOpen }) {
         <SearchBar className="w-full" />
         <div className="flex flex-col gap-4 pt-4 border-t">
           <div className="flex justify-around items-center">
-            <a
-              href="#"
+            <Link
+              title="Home"
+              to="/"
               aria-label="Shopping Cart"
               className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
             >
-              <ShoppingBag size={22} />
-            </a>
-            <a
-              href="#"
+              <House size={22} />
+            </Link>
+            <Link
+              title="Cart"
+              to="/cart"
+              aria-label="Shopping Cart"
+              className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
+            >
+              <ShoppingCart size={22} />
+            </Link>
+            <Link
+              title="User"
+              to="/sign-up"
               aria-label="User Account"
               className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
             >
               <User size={22} />
-            </a>
+            </Link>
           </div>
           <a
             href="#"

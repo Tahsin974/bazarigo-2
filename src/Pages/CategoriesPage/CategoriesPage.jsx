@@ -38,14 +38,20 @@ export default function CategoriesPage() {
     },
     { name: "Fashion", sub: ["Men", "Women", "Shoes", "Bags"] },
     {
-      name: "Books",
-      sub: ["Fiction", "Non-Fiction", "Children", "Educational"],
+      name: "Groceries",
+      sub: ["Beverages", "Snacks", "Fresh Produce", "Household"],
     },
+
     {
-      name: "Home & Kitchen",
+      name: "Health & Beauty",
       sub: ["Furniture", "Appliances", "Cookware", "Decor"],
     },
-    { name: "Decor", sub: ["Wall Art", "Lighting", "Plants", "Rugs"] },
+    {
+      name: "Home & Living",
+      sub: ["Furniture", "Appliances", "Cookware", "Decor"],
+    },
+
+    { name: "Sports", sub: ["Fitness", "Outdoor", "Cycling", "Accessories"] },
   ];
   const products = Array.from({ length: 60 }, (_, i) => ({
     id: i + 1,

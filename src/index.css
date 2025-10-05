@@ -1,2 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: #d1d5dc; /* custom default border color */
+  }
+}
