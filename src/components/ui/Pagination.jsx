@@ -7,7 +7,7 @@ export default function Pagination({
   renderPageNumbers,
 }) {
   return (
-    <div className="flex justify-center items-center gap-3 mt-12">
+    <div className="flex justify-center items-center gap-3 mt-5">
       <motion.div
         whileHover={{ scale: currentPage > 1 ? 1.1 : 1 }}
         className={`p-2 border shadow-sm rounded-md ${

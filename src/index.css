@@ -8,3 +8,7 @@
     border-color: #d1d5dc; /* custom default border color */
   }
 }
+
+button {
+  cursor: pointer;
+}

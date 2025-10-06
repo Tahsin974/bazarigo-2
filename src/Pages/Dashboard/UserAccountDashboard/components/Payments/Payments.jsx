@@ -155,6 +155,7 @@ export default function Payments({
                 <label className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
+                    className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                     checked={newPayment.makePrimary}
                     onChange={(e) =>
                       setNewPayment((prev) => ({

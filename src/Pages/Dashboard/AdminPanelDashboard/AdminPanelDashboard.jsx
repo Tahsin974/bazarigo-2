@@ -88,6 +88,25 @@ export default function AdminPanelDashboard() {
     exportAsCSV(rows, `${active}_export`);
   };
 
+  const selectAll = () => {
+    if (active === "Products") {
+      const id = products.map((p) => p.id);
+      setSelected(selected.length === id.length ? [] : id);
+    }
+    if (active === "Orders") {
+      const id = orders.map((o) => o.id);
+      setSelected(selected.length === id.length ? [] : id);
+    }
+    if (active === "Customers") {
+      const id = customers.map((c) => c.id);
+      setSelected(selected.length === id.length ? [] : id);
+    }
+    if (active === "Sellers") {
+      const id = sellers.map((s) => s.id);
+      setSelected(selected.length === id.length ? [] : id);
+    }
+  };
+
   const handleBulkUpload = async (file) => {
     if (!file) return;
     try {
@@ -189,7 +208,7 @@ export default function AdminPanelDashboard() {
                           onClick={() =>
                             fileRef.current && fileRef.current.click()
                           }
-                          className="px-3 py-2 rounded-md border"
+                          className="px-3 py-2 rounded-md border bg-[#00C853] hover:bg-[#00B34A] text-white"
                         >
                           Bulk Upload
                         </button>
@@ -198,15 +217,9 @@ export default function AdminPanelDashboard() {
 
                     <button
                       onClick={handleExport}
-                      className="px-3 py-2 rounded-md bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
+                      className="px-3 py-2 rounded-md bg-[#F59E0B] hover:bg-[#D97706] text-white"
                     >
                       Export
-                    </button>
-                    <button
-                      onClick={bulkDelete}
-                      className="px-3 py-2 rounded-md bg-red-600 text-white"
-                    >
-                      Bulk Delete
                     </button>
                   </>
                 )}
@@ -232,6 +245,11 @@ export default function AdminPanelDashboard() {
                   openNewProductModal={openNewProductModal}
                   openEditProductModal={openEditProductModal}
                   setProducts={setProducts}
+                  allSelected={
+                    selected.length === products.length && products.length > 0
+                  }
+                  toggleSelectAll={selectAll}
+                  bulkDelete={bulkDelete}
                 />
               )}
 
@@ -242,6 +260,11 @@ export default function AdminPanelDashboard() {
                   selected={selected}
                   toggleSelect={toggleSelect}
                   setOrders={setOrders}
+                  allSelected={
+                    selected.length === orders.length && orders.length > 0
+                  }
+                  toggleSelectAll={selectAll}
+                  bulkDelete={bulkDelete}
                 />
               )}
 
@@ -251,6 +274,11 @@ export default function AdminPanelDashboard() {
                   selected={selected}
                   toggleSelect={toggleSelect}
                   onAdd={() => setShowCustomerModal(true)}
+                  allSelected={
+                    selected.length === customers.length && customers.length > 0
+                  }
+                  toggleSelectAll={selectAll}
+                  bulkDelete={bulkDelete}
                 />
               )}
 
@@ -260,6 +288,11 @@ export default function AdminPanelDashboard() {
                   selected={selected}
                   toggleSelect={toggleSelect}
                   onAdd={() => setShowSellerModal(true)}
+                  allSelected={
+                    selected.length === sellers.length && sellers.length > 0
+                  }
+                  toggleSelectAll={selectAll}
+                  bulkDelete={bulkDelete}
                 />
               )}
 

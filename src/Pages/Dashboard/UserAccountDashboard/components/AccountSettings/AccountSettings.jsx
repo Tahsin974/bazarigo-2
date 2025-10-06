@@ -29,6 +29,7 @@ export default function AccountSettings({
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              className="checkbox checkbox-secondary checkbox-xs rounded-sm"
               checked={settings.notifications}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -42,6 +43,7 @@ export default function AccountSettings({
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
+              className="checkbox checkbox-secondary checkbox-xs rounded-sm"
               checked={settings.twoFactor}
               onChange={(e) =>
                 setSettings((prev) => ({

@@ -116,7 +116,7 @@ export const sampleProducts = () => [
     category: "Electronics",
     description: "A smartwatch.",
     stock: 24,
-    images: [],
+    images: ["https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch"],
     extras: { brand: "Acme", warranty: "1 year" },
   },
   {
@@ -126,7 +126,7 @@ export const sampleProducts = () => [
     category: "Fashion",
     description: "Comfortable shoes.",
     stock: 40,
-    images: [],
+    images: ["https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch"],
     extras: { size: "6,7,8,9", color: "black,white", material: "canvas" },
   },
   {
@@ -136,7 +136,7 @@ export const sampleProducts = () => [
     category: "Home & Kitchen",
     description: "Keeps drinks hot.",
     stock: 120,
-    images: [],
+    images: ["https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch"],
     extras: { material: "stainless steel" },
   },
 ];

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getExtrasByCategory } from "../../helpers/helpers";
+import { Upload } from "lucide-react";
 
 export default function ProductModal({ product = {}, onClose, onSave }) {
   const [form, setForm] = useState(() => ({
@@ -40,7 +41,7 @@ export default function ProductModal({ product = {}, onClose, onSave }) {
           })
       )
     ).then((imgs) =>
-      setForm((s) => ({ ...s, images: [...(s.images || []), ...imgs] }))
+      setForm((s) => ({ ...s, images: [...imgs, ...(s.images || [])] }))
     );
   };
 
@@ -61,17 +62,6 @@ export default function ProductModal({ product = {}, onClose, onSave }) {
         <div className="flex items-center justify-between p-4 border-b">
           <div className="font-semibold">
             {form.id ? "Edit Product" : "New Product"}
-          </div>
-          <div className="flex gap-2">
-            <button onClick={onClose} className="px-3 py-1 rounded border">
-              Close
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-3 py-1 rounded bg-[#FF0055] text-white"
-            >
-              Save
-            </button>
           </div>
         </div>
         <div className="p-4 space-y-4">
@@ -161,14 +151,18 @@ export default function ProductModal({ product = {}, onClose, onSave }) {
           </div>
 
           <div>
-            <label className="block text-sm">Images </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              className="mt-2"
-              onChange={onImageChange}
-            />
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Upload size={18} />
+              <span className="text-sm">Upload Images</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={onImageChange}
+              />
+            </label>
+
             <div className="mt-3 grid grid-cols-4 gap-2">
               {(form.images || []).map((src, i) => (
                 <div
@@ -183,6 +177,17 @@ export default function ProductModal({ product = {}, onClose, onSave }) {
                 </div>
               ))}
             </div>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <button onClick={onClose} className="px-3 py-1 rounded border">
+              Close
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-3 py-1 rounded bg-[#FF0055] text-white"
+            >
+              Save
+            </button>
           </div>
         </div>
       </div>

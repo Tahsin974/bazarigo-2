@@ -8,6 +8,7 @@ export default function Sidebar({
   sellers,
   payments,
   promotions,
+  items = [],
 }) {
   const getCount = (item, stores) => {
     switch (item) {
@@ -38,17 +39,7 @@ export default function Sidebar({
           </div>
         </div>
         <nav className="p-4 space-y-1">
-          {[
-            "Dashboard",
-            "Products",
-            "Orders",
-            "Customers",
-            "Sellers",
-            "Payments",
-            "Promotions",
-            "Reports",
-            "Settings",
-          ].map((item) => (
+          {items.map((item) => (
             <button
               key={item}
               onClick={() => setActive(item)}

@@ -276,6 +276,7 @@ export default function CategoriesPage() {
                   <label className="flex items-center gap-2 text-gray-600">
                     <input
                       type="checkbox"
+                      className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                       checked={autoLoad}
                       onChange={() => setAutoLoad(!autoLoad)}
                     />

@@ -13,6 +13,7 @@ import SignUpPage from "../Pages/SignUpPage/SignUpPage";
 import UserAccountDashboard from "../Pages/Dashboard/UserAccountDashboard/UserAccountDashboard";
 import DashBoardLayOut from "../LayOut/DashBoardLayOut";
 import AdminPanelDashboard from "../Pages/Dashboard/AdminPanelDashboard/AdminPanelDashboard";
+import SellerPanelDashboard from "../Pages/Dashboard/SellerPanelDashboard/SellerPanelDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/dashboard", element: <UserAccountDashboard /> },
       { path: "/dashboard/admin", element: <AdminPanelDashboard /> },
+      { path: "/dashboard/seller", element: <SellerPanelDashboard /> },
     ],
   },
   {

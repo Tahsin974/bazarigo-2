@@ -1,6 +1,17 @@
 import React from "react";
+import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
+import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 
-function OrdersView({ orders, returns, selected, toggleSelect, setOrders }) {
+function OrdersView({
+  orders,
+  returns,
+  selected,
+  toggleSelect,
+  setOrders,
+  allSelected,
+  toggleSelectAll,
+  bulkDelete,
+}) {
   const markAsReturned = (id) =>
     setOrders((os) =>
       os.map((o) => (o.id === id ? { ...o, status: "returned" } : o))
@@ -9,7 +20,19 @@ function OrdersView({ orders, returns, selected, toggleSelect, setOrders }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-semibold">Active Orders ({orders.length})</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <SelectAllCheckbox
+              selected={selected}
+              allSelected={allSelected}
+              toggleSelectAll={toggleSelectAll}
+              isShowCounter={false}
+            />
+            <h3 className="font-semibold">Active Orders ({orders.length})</h3>
+          </div>
+          <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+        </div>
+
         <div className="mt-3 bg-white p-3 rounded shadow-sm">
           {orders.length === 0 && (
             <div className="text-sm text-gray-500">No orders</div>
@@ -22,6 +45,7 @@ function OrdersView({ orders, returns, selected, toggleSelect, setOrders }) {
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
+                  className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                   checked={selected.includes(o.id)}
                   onChange={() => toggleSelect(o.id)}
                 />

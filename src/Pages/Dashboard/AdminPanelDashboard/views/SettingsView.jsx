@@ -45,16 +45,34 @@ function SettingsView() {
       <h3 className="font-semibold text-lg">Notification Settings</h3>
       <div className="bg-white p-4 rounded shadow space-y-2">
         <label className="flex items-center gap-2">
-          <input type="checkbox" defaultChecked /> Email Notifications
+          <input
+            type="checkbox"
+            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+            defaultChecked
+          />{" "}
+          Email Notifications
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" /> SMS Notifications
+          <input
+            type="checkbox"
+            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+          />{" "}
+          SMS Notifications
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" defaultChecked /> Order Updates
+          <input
+            type="checkbox"
+            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+            defaultChecked
+          />{" "}
+          Order Updates
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" /> Marketing Promotions
+          <input
+            type="checkbox"
+            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+          />{" "}
+          Marketing Promotions
         </label>
       </div>
       <h3 className="font-semibold text-lg">Payment Gateway</h3>
@@ -85,10 +103,19 @@ function SettingsView() {
       <h3 className="font-semibold text-lg">Security</h3>
       <div className="bg-white p-4 rounded shadow space-y-3">
         <label className="flex items-center gap-2">
-          <input type="checkbox" defaultChecked /> Two-Factor Authentication
+          <input
+            type="checkbox"
+            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+            defaultChecked
+          />{" "}
+          Two-Factor Authentication
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" /> Allow IP Whitelisting
+          <input
+            type="checkbox"
+            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+          />{" "}
+          Allow IP Whitelisting
         </label>
         <div>
           <label className="block text-sm font-medium">Password Policy</label>
