@@ -1,4 +1,6 @@
 import React from "react";
+import AddBtn from "../../../../components/ui/AddBtn";
+import SelectField from "../../../../components/ui/SelectField";
 
 function SettingsView() {
   return (
@@ -8,34 +10,40 @@ function SettingsView() {
         <div>
           <label className="block text-sm font-medium">Store Name</label>
           <input
-            className="border w-full rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
             defaultValue="Your Store"
           />
         </div>
         <div>
           <label className="block text-sm font-medium">Currency</label>
-          <select className="border w-full rounded px-3 py-2">
+          <SelectField
+            selectValue={"USD"}
+            selectValueChange={() => {}}
+            isWide={true}
+          >
             <option>USD</option>
             <option>BDT</option>
             <option>EUR</option>
-          </select>
+          </SelectField>
         </div>
         <div>
           <label className="block text-sm font-medium">Theme</label>
-          <select className="border w-full rounded px-3 py-2">
+          <SelectField
+            selectValue={"Light"}
+            selectValueChange={() => {}}
+            isWide={true}
+          >
             <option>Light</option>
             <option>Dark</option>
             <option>System Default</option>
-          </select>
+          </SelectField>
         </div>
       </div>
       <h3 className="font-semibold text-lg">User Management</h3>
       <div className="bg-white p-4 rounded shadow space-y-3">
         <div className="flex items-center justify-between">
           <span>Admin Users</span>
-          <button className="px-3 py-1 bg-[#FF0055] text-white rounded">
-            Add User
-          </button>
+          <AddBtn btnHandler={() => alert("Add User Clicked")}>Add User</AddBtn>
         </div>
         <ul className="text-sm text-gray-700 list-disc pl-5">
           <li>admin@example.com</li>
@@ -79,23 +87,27 @@ function SettingsView() {
       <div className="bg-white p-4 rounded shadow space-y-3">
         <div>
           <label className="block text-sm font-medium">Gateway Provider</label>
-          <select className="border w-full rounded px-3 py-2">
+          <SelectField
+            selectValue={"Stripe"}
+            selectValueChange={() => {}}
+            isWide={true}
+          >
             <option>Stripe</option>
             <option>PayPal</option>
             <option>SSLCommerz</option>
-          </select>
+          </SelectField>
         </div>
         <div>
           <label className="block text-sm font-medium">API Key</label>
           <input
-            className="border w-full rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
             placeholder="Enter API Key"
           />
         </div>
         <div>
           <label className="block text-sm font-medium">Secret Key</label>
           <input
-            className="border w-full rounded px-3 py-2"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
             placeholder="Enter Secret Key"
           />
         </div>
@@ -119,10 +131,14 @@ function SettingsView() {
         </label>
         <div>
           <label className="block text-sm font-medium">Password Policy</label>
-          <select className="border w-full rounded px-3 py-2">
+          <SelectField
+            selectValue={"Standard"}
+            selectValueChange={() => {}}
+            isWide={true}
+          >
             <option>Standard</option>
             <option>Strong (8+ chars, special symbols)</option>
-          </select>
+          </SelectField>
         </div>
       </div>
     </div>

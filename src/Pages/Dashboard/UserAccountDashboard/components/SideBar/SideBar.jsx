@@ -17,13 +17,10 @@ export default function SideBar({
   unreadCount,
   activeTab,
   setActiveTab,
-  isOpen,
 }) {
   return (
     <aside
-      className={`hidden md:flex flex-col ${
-        isOpen && "w-[0px] overflow-hidden"
-      }  w-72 duration-250 bg-white shadow-lg`}
+      className={`hidden md:flex flex-col   w-72 duration-250 bg-white shadow-lg`}
     >
       <div className="px-6 py-3  border-b border-gray-300">
         <div>
@@ -39,7 +36,7 @@ export default function SideBar({
           onClick={() => setActiveTab("overview")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "overview"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -49,7 +46,7 @@ export default function SideBar({
           onClick={() => setActiveTab("orders")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "orders"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -59,7 +56,7 @@ export default function SideBar({
           onClick={() => setActiveTab("cart")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "cart"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -69,7 +66,7 @@ export default function SideBar({
           onClick={() => setActiveTab("payments")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "payments"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -79,7 +76,7 @@ export default function SideBar({
           onClick={() => setActiveTab("returns")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "returns"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -89,7 +86,7 @@ export default function SideBar({
           onClick={() => setActiveTab("addresses")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "addresses"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -99,7 +96,7 @@ export default function SideBar({
           onClick={() => setActiveTab("notifications")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "notifications"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -112,7 +109,7 @@ export default function SideBar({
           onClick={() => setActiveTab("account")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "account"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >
@@ -125,7 +122,7 @@ export default function SideBar({
           onClick={() => setActiveTab("settings")}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
             activeTab === "settings"
-              ? "bg-[#FF0055] text-white"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
               : "hover:bg-gray-100"
           }`}
         >

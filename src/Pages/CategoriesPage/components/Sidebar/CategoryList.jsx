@@ -13,10 +13,10 @@ export default function CategoryList({
       <li>
         <button
           onClick={() => setActiveCategory("All Products")}
-          className={`w-full text-left font-medium ${
+          className={`w-full text-left font-medium px-3 py-2 rounded-md hover:bg-gray-100 ${
             activeCategory === "All Products"
-              ? "text-[#FF0055]"
-              : "text-gray-700 hover:text-[#FF0055]"
+              ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white "
+              : "text-gray-700  "
           }`}
         >
           All Products
@@ -27,7 +27,7 @@ export default function CategoryList({
           <div className="flex items-center justify-between">
             <button
               onClick={() => setOpenDropdown(openDropdown === idx ? null : idx)}
-              className="text-gray-700 font-medium flex-1 text-left hover:text-[#FF0055]"
+              className="text-gray-700 font-medium flex-1 text-left   w-full px-3 py-2 rounded-md hover:bg-gray-100"
             >
               {cat.name}
             </button>
@@ -48,10 +48,10 @@ export default function CategoryList({
                 <li key={s}>
                   <button
                     onClick={() => setActiveCategory(s)}
-                    className={`text-sm ${
+                    className={`text-sm w-full px-3 py-2 rounded-md text-left hover:bg-gray-100 ${
                       activeCategory === s
-                        ? "text-[#FF0055]"
-                        : "text-gray-600 hover:text-[#FF0055]"
+                        ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
+                        : "text-gray-600  "
                     }`}
                   >
                     {s}

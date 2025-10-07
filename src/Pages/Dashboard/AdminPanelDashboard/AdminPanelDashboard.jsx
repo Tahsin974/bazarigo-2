@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   exportAsCSV,
   parseCSV,
@@ -9,7 +9,6 @@ import {
   samplePromos,
   sampleSellers,
 } from "./helpers/helpers";
-import Sidebar from "./components/Sidebar/Sidebar";
 import DashboardView from "./views/DashboardView";
 import ProductsView from "./views/ProductsView";
 import OrdersView from "./views/OrdersView";
@@ -21,6 +20,8 @@ import ReportsView from "./views/ReportsView";
 import SettingsView from "./views/SettingsView";
 import AddModal from "./components/AddModal/AddModal";
 import ProductModal from "./components/ProductModal/ProductModal";
+import ExportBtn from "../../../components/ui/ExportBtn";
+import Sidebar from "../../../components/Sidebar/Sidebar";
 
 export default function AdminPanelDashboard() {
   const [active, setActive] = useState("Dashboard");
@@ -33,6 +34,32 @@ export default function AdminPanelDashboard() {
   const [promotions, setPromotions] = useState(samplePromos());
 
   const [selected, setSelected] = useState([]);
+
+  // Shared states for search/sort
+  const [productSearch, setProductSearch] = useState("");
+  const [productSort, setProductSort] = useState("name");
+  const [orderSearch, setOrderSearch] = useState("");
+  const [returnOrderSearch, setReturnOrderSearch] = useState("");
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [sellerSearch, setSellerSearch] = useState("");
+  const [paymentSearch, setPaymentSearch] = useState("");
+  const [promoSearch, setPromoSearch] = useState("");
+
+  // Pagination states
+  const [orderPage, setOrderPage] = useState(1);
+  const [returnOrderPage, setReturnOrderPage] = useState(1);
+  const [customerPage, setCustomerPage] = useState(1);
+  const [sellerPage, setSellerPage] = useState(1);
+  const [paymentPage, setPaymentPage] = useState(1);
+  const [promoPage, setPromoPage] = useState(1);
+  const [productPage, setProductPage] = useState(1);
+  const productPageSize = 6;
+  const orderPageSize = 6;
+  const returnOrderPageSize = 6;
+  const customerPageSize = 6;
+  const sellerPageSize = 6;
+  const paymentPageSize = 6;
+  const promoPageSize = 6;
 
   // Modal controls
   const [productModalOpen, setProductModalOpen] = useState(false);
@@ -172,209 +199,430 @@ export default function AdminPanelDashboard() {
 
   const returnOrders = orders.filter((o) => o.status === "returned");
   const normalOrders = orders.filter((o) => o.status !== "returned");
+
+  console.log(products);
+
+  const filteredProducts = useMemo(() => {
+    let data = [...products];
+    if (productSearch) {
+      const q = productSearch.toLowerCase();
+      data = data.filter(
+        (p) =>
+          (p.name || "").toLowerCase().includes(q) ||
+          (p.category || "").toLowerCase().includes(q)
+      );
+    }
+    if (productSort === "price")
+      data.sort((a, b) => (a.price || 0) - (b.price || 0));
+    else if (productSort === "stock")
+      data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+    else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    return data;
+  }, [products, productSearch, productSort]);
+
+  // 📦 Orders Filtering & Sorting
+  const filteredOrders = useMemo(() => {
+    let data = [...orders];
+    if (orderSearch) {
+      const q = orderSearch.toLowerCase();
+      data = data.filter(
+        (o) =>
+          (o.id || "").toLowerCase().includes(q) ||
+          (o.status || "").toLowerCase().includes(q) ||
+          (o.customer || "").toLowerCase().includes(q)
+      );
+    }
+    data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    return data;
+  }, [orders, orderSearch]);
+
+  const filteredReturnOrders = useMemo(() => {
+    let data = [...returnOrders];
+    if (returnOrderSearch) {
+      const q = returnOrderSearch.toLowerCase();
+      data = data.filter(
+        (o) =>
+          (o.id || "").toLowerCase().includes(q) ||
+          (o.status || "").toLowerCase().includes(q) ||
+          (o.customer || "").toLowerCase().includes(q)
+      );
+    }
+    data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    return data;
+  }, [returnOrders, returnOrderSearch]);
+
+  // 👥 Customers Filtering & Sorting
+  const filteredCustomers = useMemo(() => {
+    let data = [...customers];
+    if (customerSearch) {
+      const q = customerSearch.toLowerCase();
+      data = data.filter(
+        (c) =>
+          (c.name || "").toLowerCase().includes(q) ||
+          (c.email || "").toLowerCase().includes(q)
+      );
+    }
+    data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    return data;
+  }, [customers, customerSearch]);
+
+  // 🧑‍💼 Sellers Filtering & Sorting
+  const filteredSellers = useMemo(() => {
+    let data = [...sellers];
+    if (sellerSearch) {
+      const q = sellerSearch.toLowerCase();
+      data = data.filter(
+        (s) =>
+          (s.name || "").toLowerCase().includes(q) ||
+          (s.email || "").toLowerCase().includes(q)
+      );
+    }
+    data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    return data;
+  }, [sellers, sellerSearch]);
+
+  // 💳 Payments Filtering & Sorting
+  const filteredPayments = useMemo(() => {
+    let data = [...payments];
+    if (paymentSearch) {
+      const q = paymentSearch.toLowerCase();
+      data = data.filter(
+        (p) =>
+          (p.id || "").toLowerCase().includes(q) ||
+          (p.method || "").toLowerCase().includes(q) ||
+          (p.status || "").toLowerCase().includes(q)
+      );
+    }
+    data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    return data;
+  }, [payments, paymentSearch]);
+  //  🎟️ Promotions Filtering & Sorting
+  const filteredPromotions = useMemo(() => {
+    let data = [...promotions];
+    if (promoSearch) {
+      const q = promoSearch.toLowerCase();
+      data = data.filter(
+        (p) =>
+          (p.code || "").toLowerCase().includes(q) ||
+          (p.discount || "").toLowerCase().includes(q)
+      );
+    }
+    data.sort((a, b) => (a.code || "").localeCompare(b.code || ""));
+    return data;
+  }, [promotions, promoSearch]);
+
+  const paginatedProducts = filteredProducts.slice(
+    (productPage - 1) * productPageSize,
+    productPage * productPageSize
+  );
+  const paginatedOrders = filteredOrders.slice(
+    (orderPage - 1) * orderPageSize,
+    orderPage * orderPageSize
+  );
+  const paginatedReturnOrders = filteredReturnOrders.slice(
+    (returnOrderPage - 1) * returnOrderPageSize,
+    returnOrderPage * returnOrderPageSize
+  );
+  const paginatedCustomers = filteredCustomers.slice(
+    (customerPage - 1) * customerPageSize,
+    customerPage * customerPageSize
+  );
+  const paginatedSellers = filteredSellers.slice(
+    (sellerPage - 1) * sellerPageSize,
+    sellerPage * sellerPageSize
+  );
+  const paginatedPayments = filteredPayments.slice(
+    (paymentPage - 1) * paymentPageSize,
+    paymentPage * paymentPageSize
+  );
+  const paginatedPromotions = filteredPromotions.slice(
+    (promoPage - 1) * 6,
+    promoPage * 6
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
-      <div className="flex flex-col md:flex-row">
-        <Sidebar
-          active={active}
-          setActive={setActive}
-          products={products}
-          orders={orders}
-          customers={customers}
-          sellers={sellers}
-          payments={payments}
-          promotions={promotions}
-        />
-        <div className="flex-1 p-6">
-          <main>
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold">{active}</h1>
-              <div className="flex items-center gap-3">
-                {active !== "Dashboard" && (
-                  <>
-                    {active === "Products" && (
+      {products.length === 0 ||
+      orders.length === 0 ||
+      customers.length === 0 ||
+      sellers.length === 0 ? (
+        <div>
+          <div className="flex flex-col items-center justify-center min-h-screen">
+            <span className="loading loading-spinner loading-xl"></span>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col md:flex-row">
+            <Sidebar
+              active={active}
+              setActive={setActive}
+              products={products}
+              orders={orders}
+              payments={payments}
+              customers={customers}
+              sellers={sellers}
+              promotions={promotions}
+              items={[
+                "Dashboard",
+                "Products",
+                "Orders",
+                "Customers",
+                "Sellers",
+                "Payments",
+                "Promotions",
+                "Reports",
+                "Settings",
+              ]}
+            />
+
+            <div className="flex-1 p-6">
+              <main>
+                <div className="flex items-center justify-between mb-6">
+                  <h1 className="text-2xl font-bold">{active}</h1>
+                  <div className="flex items-center gap-3">
+                    {active !== "Dashboard" && (
                       <>
-                        <input
-                          ref={fileRef}
-                          type="file"
-                          accept=".csv"
-                          className="hidden"
-                          onChange={(e) =>
-                            e.target.files &&
-                            handleBulkUpload(e.target.files[0])
-                          }
-                        />
-                        <button
-                          onClick={() =>
-                            fileRef.current && fileRef.current.click()
-                          }
-                          className="px-3 py-2 rounded-md border bg-[#00C853] hover:bg-[#00B34A] text-white"
-                        >
-                          Bulk Upload
-                        </button>
+                        {active === "Products" && (
+                          <>
+                            <input
+                              ref={fileRef}
+                              type="file"
+                              accept=".csv"
+                              className="hidden"
+                              onChange={(e) =>
+                                e.target.files &&
+                                handleBulkUpload(e.target.files[0])
+                              }
+                            />
+                            <button
+                              onClick={() =>
+                                fileRef.current && fileRef.current.click()
+                              }
+                              className="px-3 py-2 rounded-md border bg-[#00C853] hover:bg-[#00B34A] text-white"
+                            >
+                              Bulk Upload
+                            </button>
+                          </>
+                        )}
+                        <ExportBtn exportBtnHandler={handleExport} />
                       </>
                     )}
 
-                    <button
-                      onClick={handleExport}
-                      className="px-3 py-2 rounded-md bg-[#F59E0B] hover:bg-[#D97706] text-white"
-                    >
-                      Export
-                    </button>
-                  </>
-                )}
+                    <div className="bg-white px-3 py-2 rounded-md">Admin</div>
+                  </div>
+                </div>
 
-                <div className="bg-white px-3 py-2 rounded-md">Admin</div>
-              </div>
+                <div className="bg-white rounded-lg shadow-sm p-4">
+                  {active === "Dashboard" && (
+                    <DashboardView
+                      products={products}
+                      orders={orders}
+                      payments={payments}
+                    />
+                  )}
+
+                  {active === "Products" && (
+                    <ProductsView
+                      products={products}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      openNewProductModal={openNewProductModal}
+                      openEditProductModal={openEditProductModal}
+                      setProducts={setProducts}
+                      allSelected={
+                        selected.length === products.length &&
+                        products.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      productPage={productPage}
+                      productPageSize={productPageSize}
+                      setProductPage={setProductPage}
+                      filteredProducts={filteredProducts}
+                      paginatedProducts={paginatedProducts}
+                      productSearch={productSearch}
+                      setProductSearch={setProductSearch}
+                      productSort={productSort}
+                      setProductSort={setProductSort}
+                    />
+                  )}
+
+                  {active === "Orders" && (
+                    <OrdersView
+                      orders={normalOrders}
+                      returns={returnOrders}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      setOrders={setOrders}
+                      allSelected={
+                        selected.length === orders.length && orders.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      orderPage={orderPage}
+                      setOrderPage={setOrderPage}
+                      orderPageSize={orderPageSize}
+                      paginatedOrders={paginatedOrders}
+                      orderSearch={orderSearch}
+                      setOrderSearch={setOrderSearch}
+                      filteredOrders={filteredOrders}
+                      returnOrderSearch={returnOrderSearch}
+                      setReturnOrderSearch={setReturnOrderSearch}
+                      filteredReturnOrders={filteredReturnOrders}
+                      paginatedReturnOrders={paginatedReturnOrders}
+                      returnOrderPage={returnOrderPage}
+                      setReturnOrderPage={setReturnOrderPage}
+                      returnOrderPageSize={returnOrderPageSize}
+                    />
+                  )}
+
+                  {active === "Customers" && (
+                    <CustomersView
+                      customers={customers}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      onAdd={() => setShowCustomerModal(true)}
+                      allSelected={
+                        selected.length === customers.length &&
+                        customers.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      customerPage={customerPage}
+                      setCustomerPage={setCustomerPage}
+                      customerPageSize={customerPageSize}
+                      paginatedCustomers={paginatedCustomers}
+                      filteredCustomers={filteredCustomers}
+                      customerSearch={customerSearch}
+                      setCustomerSearch={setCustomerSearch}
+                    />
+                  )}
+
+                  {active === "Sellers" && (
+                    <SellersView
+                      sellers={sellers}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      onAdd={() => setShowSellerModal(true)}
+                      allSelected={
+                        selected.length === sellers.length && sellers.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      sellerPage={sellerPage}
+                      setSellerPage={setSellerPage}
+                      sellerPageSize={sellerPageSize}
+                      paginatedSellers={paginatedSellers}
+                      filteredSellers={filteredSellers}
+                      sellerSearch={sellerSearch}
+                      setSellerSearch={setSellerSearch}
+                    />
+                  )}
+
+                  {active === "Payments" && (
+                    <PaymentsView
+                      payments={payments}
+                      paymentPage={paymentPage}
+                      setPaymentPage={setPaymentPage}
+                      paymentSearch={paymentSearch}
+                      setPaymentSearch={setPaymentSearch}
+                      paymentPageSize={paymentPageSize}
+                      filteredPayments={filteredPayments}
+                      paginatedPayments={paginatedPayments}
+                    />
+                  )}
+
+                  {active === "Promotions" && (
+                    <PromotionsView
+                      promotions={promotions}
+                      onAdd={() => setShowPromoModal(true)}
+                      setPromotions={setPromotions}
+                      promoPage={promoPage}
+                      setPromoPage={setPromoPage}
+                      promoSearch={promoSearch}
+                      setPromoSearch={setPromoSearch}
+                      promoPageSize={promoPageSize}
+                      filteredPromotions={filteredPromotions}
+                      paginatedPromotions={paginatedPromotions}
+                    />
+                  )}
+
+                  {active === "Reports" && (
+                    <ReportsView
+                      products={products}
+                      orders={orders}
+                      customers={customers}
+                      sellers={sellers}
+                      payments={payments}
+                    />
+                  )}
+
+                  {active === "Settings" && <SettingsView />}
+                </div>
+              </main>
             </div>
+          </div>
+          {productModalOpen && (
+            <ProductModal
+              product={editingProduct}
+              onClose={() => setProductModalOpen(false)}
+              onSave={saveProduct}
+            />
+          )}
 
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              {active === "Dashboard" && (
-                <DashboardView
-                  products={products}
-                  orders={orders}
-                  payments={payments}
-                />
-              )}
+          {showCustomerModal && (
+            <AddModal
+              title="Add Customer"
+              fields={[
+                { key: "name", label: "Name", required: true },
+                { key: "email", label: "Email", required: true },
+              ]}
+              onClose={() => setShowCustomerModal(false)}
+              onSave={(d) => addCustomer(d)}
+            />
+          )}
 
-              {active === "Products" && (
-                <ProductsView
-                  products={products}
-                  selected={selected}
-                  toggleSelect={toggleSelect}
-                  openNewProductModal={openNewProductModal}
-                  openEditProductModal={openEditProductModal}
-                  setProducts={setProducts}
-                  allSelected={
-                    selected.length === products.length && products.length > 0
-                  }
-                  toggleSelectAll={selectAll}
-                  bulkDelete={bulkDelete}
-                />
-              )}
+          {showSellerModal && (
+            <AddModal
+              title="Add Seller"
+              fields={[
+                { key: "name", label: "Name", required: true },
+                { key: "email", label: "Email", required: true },
+              ]}
+              onClose={() => setShowSellerModal(false)}
+              onSave={(d) => addSeller(d)}
+            />
+          )}
 
-              {active === "Orders" && (
-                <OrdersView
-                  orders={normalOrders}
-                  returns={returnOrders}
-                  selected={selected}
-                  toggleSelect={toggleSelect}
-                  setOrders={setOrders}
-                  allSelected={
-                    selected.length === orders.length && orders.length > 0
-                  }
-                  toggleSelectAll={selectAll}
-                  bulkDelete={bulkDelete}
-                />
-              )}
-
-              {active === "Customers" && (
-                <CustomersView
-                  customers={customers}
-                  selected={selected}
-                  toggleSelect={toggleSelect}
-                  onAdd={() => setShowCustomerModal(true)}
-                  allSelected={
-                    selected.length === customers.length && customers.length > 0
-                  }
-                  toggleSelectAll={selectAll}
-                  bulkDelete={bulkDelete}
-                />
-              )}
-
-              {active === "Sellers" && (
-                <SellersView
-                  sellers={sellers}
-                  selected={selected}
-                  toggleSelect={toggleSelect}
-                  onAdd={() => setShowSellerModal(true)}
-                  allSelected={
-                    selected.length === sellers.length && sellers.length > 0
-                  }
-                  toggleSelectAll={selectAll}
-                  bulkDelete={bulkDelete}
-                />
-              )}
-
-              {active === "Payments" && <PaymentsView payments={payments} />}
-
-              {active === "Promotions" && (
-                <PromotionsView
-                  promotions={promotions}
-                  onAdd={() => setShowPromoModal(true)}
-                  setPromotions={setPromotions}
-                />
-              )}
-
-              {active === "Reports" && (
-                <ReportsView
-                  products={products}
-                  orders={orders}
-                  customers={customers}
-                  sellers={sellers}
-                  payments={payments}
-                />
-              )}
-
-              {active === "Settings" && <SettingsView />}
-            </div>
-          </main>
-        </div>
-      </div>
-      {productModalOpen && (
-        <ProductModal
-          product={editingProduct}
-          onClose={() => setProductModalOpen(false)}
-          onSave={saveProduct}
-        />
-      )}
-
-      {showCustomerModal && (
-        <AddModal
-          title="Add Customer"
-          fields={[
-            { key: "name", label: "Name", required: true },
-            { key: "email", label: "Email", required: true },
-          ]}
-          onClose={() => setShowCustomerModal(false)}
-          onSave={(d) => addCustomer(d)}
-        />
-      )}
-
-      {showSellerModal && (
-        <AddModal
-          title="Add Seller"
-          fields={[
-            { key: "name", label: "Name", required: true },
-            { key: "email", label: "Email", required: true },
-          ]}
-          onClose={() => setShowSellerModal(false)}
-          onSave={(d) => addSeller(d)}
-        />
-      )}
-
-      {showPromoModal && (
-        <AddModal
-          title="New Promotion"
-          fields={[
-            { key: "code", label: "Code", required: true },
-            { key: "discount", label: "Discount (e.g. 10%)", required: true },
-            {
-              key: "start",
-              label: "Start Date",
-              required: false,
-              placeholder: "YYYY-MM-DD",
-            },
-            {
-              key: "end",
-              label: "End Date",
-              required: false,
-              placeholder: "YYYY-MM-DD",
-            },
-          ]}
-          onClose={() => setShowPromoModal(false)}
-          onSave={(d) => addPromo(d)}
-        />
+          {showPromoModal && (
+            <AddModal
+              title="New Promotion"
+              fields={[
+                { key: "code", label: "Code", required: true },
+                {
+                  key: "discount",
+                  label: "Discount (e.g. 10%)",
+                  required: true,
+                },
+                {
+                  key: "start",
+                  label: "Start Date",
+                  required: false,
+                  placeholder: "YYYY-MM-DD",
+                },
+                {
+                  key: "end",
+                  label: "End Date",
+                  required: false,
+                  placeholder: "YYYY-MM-DD",
+                },
+              ]}
+              onClose={() => setShowPromoModal(false)}
+              onSave={(d) => addPromo(d)}
+            />
+          )}
+        </>
       )}
     </div>
   );

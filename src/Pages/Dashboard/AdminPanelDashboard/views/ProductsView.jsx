@@ -1,6 +1,11 @@
 import React from "react";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
+import AddBtn from "../../../../components/ui/AddBtn";
+import Pagination from "../../../../components/ui/Pagination";
+import { MoreHorizontal } from "lucide-react";
+import SearchField from "../../../../components/ui/SearchField";
+import SelectField from "../../../../components/ui/SelectField";
 
 function ProductsView({
   products,
@@ -12,10 +17,67 @@ function ProductsView({
   allSelected,
   toggleSelectAll,
   bulkDelete,
+  productPage,
+  setProductPage,
+  productPageSize = 10,
+  filteredProducts,
+
+  paginatedProducts,
+  productSearch,
+  setProductSearch,
+  productSort,
+  setProductSort,
 }) {
-  console.log(allSelected);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / productPageSize)
+  );
+  const renderPageNumbers = () => {
+    const maxVisible = 5; // show up to 5 buttons
+    const totalPages = Math.max(
+      1,
+      Math.ceil(filteredProducts.length / productPageSize)
+    );
+    const startPage = Math.max(1, productPage - Math.floor(maxVisible / 2));
+    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    const pages = [];
+
+    if (startPage > 1) {
+      pages.push(
+        <MoreHorizontal
+          key="start-ellipsis"
+          className="w-5 h-5 text-gray-400"
+        />
+      );
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => setProductPage(i)}
+          className={`px-3 py-1 w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
+            productPage === i
+              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300 "
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      pages.push(
+        <MoreHorizontal key="end-ellipsis" className="w-5 h-5 text-gray-400" />
+      );
+    }
+
+    return pages;
+  };
   return (
-    <div className="space-y-4">
+    <div className="space-y-10">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
           <SelectAllCheckbox
@@ -25,20 +87,36 @@ function ProductsView({
           />
           <div className="font-medium">Products ({products.length})</div>
         </div>
+        <div>
+          <div className="flex items-center gap-3">
+            <SearchField
+              placeholder="Search products..."
+              searchValue={productSearch}
+              searchValueChange={(e) => {
+                setProductSearch(e.target.value);
+                setProductPage(1);
+              }}
+            />
+            <SelectField
+              selectValue={productSort}
+              selectValueChange={(e) => setProductSort(e.target.value)}
+            >
+              <option value="name">Sort by Name</option>
+              <option value="price">Sort by Price</option>
+              <option value="stock">Sort by Stock</option>
+            </SelectField>
+          </div>
+        </div>
 
         <div className="flex gap-2">
-          <button
-            onClick={openNewProductModal}
-            className="px-3 py-2 rounded bg-[#00C853] hover:bg-[#00B34A] text-white"
-          >
-            New Product
-          </button>
+          <AddBtn onClick={openNewProductModal}>Add Product</AddBtn>
+
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((p) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
+        {paginatedProducts.map((p) => (
           <div key={p.id} className="bg-white rounded shadow-sm p-3">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
@@ -88,6 +166,14 @@ function ProductsView({
             </div>
           </div>
         ))}
+      </div>
+      <div className=" flex items-center justify-center">
+        <Pagination
+          currentPage={productPage}
+          totalPages={totalPages}
+          setCurrentPage={setProductPage}
+          renderPageNumbers={renderPageNumbers}
+        />
       </div>
     </div>
   );

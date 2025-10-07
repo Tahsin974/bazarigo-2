@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import SelectField from "../../../../components/ui/SelectField";
 
 export default function SettingsView({
   active,
@@ -47,18 +48,19 @@ export default function SettingsView({
                       bankName: e.target.value,
                     }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <label className="block text-sm">Account Number</label>
                 <input
                   value={bankSettings.accountNumber}
+                  type="number"
                   onChange={(e) =>
                     setBankSettings((prev) => ({
                       ...prev,
                       accountNumber: e.target.value,
                     }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <label className="block text-sm">Routing Number / SWIFT</label>
                 <input
@@ -69,7 +71,7 @@ export default function SettingsView({
                       routingNumber: e.target.value,
                     }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <div className="flex justify-end mt-3">
                   <button
@@ -87,6 +89,7 @@ export default function SettingsView({
                 </h3>
                 <label className="block text-sm">bKash Number</label>
                 <input
+                  type="number"
                   value={bdSettings.bkash}
                   onChange={(e) =>
                     setBdSettings((prev) => ({
@@ -94,11 +97,12 @@ export default function SettingsView({
                       bkash: e.target.value,
                     }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                   placeholder="01XXXXXXXXX"
                 />
                 <label className="block text-sm">Nagad Number</label>
                 <input
+                  type="number"
                   value={bdSettings.nagad}
                   onChange={(e) =>
                     setBdSettings((prev) => ({
@@ -106,11 +110,12 @@ export default function SettingsView({
                       nagad: e.target.value,
                     }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                   placeholder="01XXXXXXXXX"
                 />
                 <label className="block text-sm">Rocket Number</label>
                 <input
+                  type="number"
                   value={bdSettings.rocket}
                   onChange={(e) =>
                     setBdSettings((prev) => ({
@@ -118,7 +123,7 @@ export default function SettingsView({
                       rocket: e.target.value,
                     }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                   placeholder="01XXXXXXXXX"
                 />
                 <div className="flex justify-end mt-3">
@@ -142,7 +147,7 @@ export default function SettingsView({
                       shopName: e.target.value,
                     }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <label className="block text-sm">Email</label>
                 <input
@@ -150,15 +155,16 @@ export default function SettingsView({
                   onChange={(e) =>
                     setProfile((prev) => ({ ...prev, email: e.target.value }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <label className="block text-sm">Phone</label>
                 <input
+                  type="number"
                   value={profile.phone}
                   onChange={(e) =>
                     setProfile((prev) => ({ ...prev, phone: e.target.value }))
                   }
-                  className="w-full border rounded px-3 py-2 mb-2"
+                  className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <div className="flex justify-end mt-3">
                   <button
@@ -178,6 +184,7 @@ export default function SettingsView({
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                     checked={notifications.orderAlerts}
                     onChange={(e) =>
                       setNotifications((prev) => ({
@@ -192,6 +199,7 @@ export default function SettingsView({
                   <input
                     type="checkbox"
                     checked={notifications.paymentAlerts}
+                    className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                     onChange={(e) =>
                       setNotifications((prev) => ({
                         ...prev,
@@ -204,6 +212,7 @@ export default function SettingsView({
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                     checked={notifications.weeklyReports}
                     onChange={(e) =>
                       setNotifications((prev) => ({
@@ -224,52 +233,64 @@ export default function SettingsView({
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="font-semibold mb-4">Security</h3>
-                <label className="block text-sm">Old Password</label>
-                <input
-                  type="password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  className="w-full border rounded px-3 py-2 mb-2"
-                />
-                <label className="block text-sm">New Password</label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full border rounded px-3 py-2 mb-2"
-                />
-                <label className="block text-sm">Confirm Password</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full border rounded px-3 py-2 mb-2"
-                />
-                <label className="block text-sm">
-                  Two-Factor Authentication
-                </label>
-                <select
-                  value={twoFA}
-                  onChange={(e) => setTwoFA(e.target.value)}
-                  className="w-full border rounded px-3 py-2 mb-2"
-                >
-                  <option>Disabled</option>
-                  <option>Email</option>
-                  <option>SMS</option>
-                  <option>Authenticator App</option>
-                </select>
-                <label className="block text-sm">Login Alerts</label>
-                <select
-                  value={loginAlert}
-                  onChange={(e) => setLoginAlert(e.target.value)}
-                  className="w-full border rounded px-3 py-2 mb-2"
-                >
-                  <option>Disabled</option>
-                  <option>Email</option>
-                  <option>SMS</option>
-                </select>
+              <div className="bg-white p-6 rounded-lg shadow-md space-y-2">
+                <h3 className="font-semibold mb-2">Security</h3>
+                <div>
+                  <label className="block text-sm">Old Password</label>
+                  <input
+                    type="password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm">New Password</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className=" w-full border border-gray-300 rounded-lg px-3 py-2 mb-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm">
+                    Two-Factor Authentication
+                  </label>
+                  <SelectField
+                    selectValue={twoFA}
+                    selectValueChange={(e) => setTwoFA(e.target.value)}
+                    isWide={true}
+                  >
+                    <option>Disabled</option>
+                    <option>Email</option>
+                    <option>SMS</option>
+                    <option>Authenticator App</option>
+                  </SelectField>
+                </div>
+
+                <div>
+                  <label className="block text-sm">Login Alerts</label>
+                  <SelectField
+                    selectValue={loginAlert}
+                    selectValueChange={(e) => setLoginAlert(e.target.value)}
+                    isWide={true}
+                  >
+                    <option>Disabled</option>
+                    <option>Email</option>
+                    <option>SMS</option>
+                  </SelectField>
+                </div>
+
                 <div className="flex justify-end mt-3">
                   <button
                     onClick={saveSecurity}

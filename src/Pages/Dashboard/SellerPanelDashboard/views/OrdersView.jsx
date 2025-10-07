@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
+import SearchField from "../../../../components/ui/SearchField";
+import SelectField from "../../../../components/ui/SelectField";
 
 export default function OrdersView({
   active,
@@ -32,26 +34,22 @@ export default function OrdersView({
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 border rounded px-3 py-2">
-                <Search className="text-gray-400" />
-                <input
-                  value={orderSearch}
-                  onChange={(e) => {
-                    setOrderSearch(e.target.value);
-                    setOrderPage(1);
-                  }}
-                  placeholder="Search orders..."
-                  className="outline-none"
-                />
-              </div>
-              <select
-                value={orderSort}
-                onChange={(e) => setOrderSort(e.target.value)}
-                className="border rounded px-3 py-2"
+              <SearchField
+                searchValue={orderSearch}
+                searchValueChange={(e) => {
+                  setOrderSearch(e.target.value);
+                  setOrderPage(1);
+                }}
+                placeholder="Search orders..."
+              />
+
+              <SelectField
+                selectValue={orderSort}
+                selectValueChange={(e) => setOrderSort(e.target.value)}
               >
                 <option value="customer">Sort by Customer</option>
                 <option value="total">Sort by Total</option>
-              </select>
+              </SelectField>
             </div>
 
             <div className="flex items-center gap-2">

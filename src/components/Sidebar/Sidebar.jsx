@@ -1,4 +1,5 @@
 import logo from "@/assets/Bazarigo.svg";
+import { LogOut } from "lucide-react";
 export default function Sidebar({
   active,
   setActive,
@@ -63,6 +64,20 @@ export default function Sidebar({
             </button>
           ))}
         </nav>
+        <div className="p-4 border-t border-gray-300 space-y-2">
+          <button
+            onClick={() => alert("Logging out (demo)")}
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-100"
+          >
+            <LogOut size={18} /> Log out
+          </button>
+          <a
+            href="/"
+            className="block w-full text-center px-4 py-2 rounded-md bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
+          >
+            Go to Home Page
+          </a>
+        </div>
       </aside>
     </div>
   );

@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ChevronDown,
   Download,
   MoreHorizontal,
   PlusCircle,
@@ -10,6 +11,10 @@ import {
 import ProductModal from "../components/ProductModal/ProductModal";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import Pagination from "../../../../components/ui/Pagination";
+import SearchField from "../../../../components/ui/SearchField";
+import SelectField from "../../../../components/ui/SelectField";
+import AddBtn from "../../../../components/ui/AddBtn";
+import ExportBtn from "../../../../components/ui/ExportBtn";
 
 export default function ProductsView({
   active,
@@ -101,12 +106,9 @@ export default function ProductsView({
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
-              <button
-                onClick={openNewProductModal}
-                className="inline-flex items-center gap-2 bg-[#00C853] hover:bg-[#00B34A] text-white px-4 py-2 rounded shadow"
-              >
+              <AddBtn btnHandler={openNewProductModal}>
                 <PlusCircle /> Add Product
-              </button>
+              </AddBtn>
               <label className="inline-flex items-center gap-2 cursor-pointer bg-[#00C853] hover:bg-[#00B34A] text-white  px-4 py-2 rounded shadow ">
                 <UploadCloud /> Bulk Upload
                 <input
@@ -118,37 +120,29 @@ export default function ProductsView({
                 />
               </label>
               <div className="flex gap-2">
-                <button
-                  onClick={() => exportProductsExcel(products)}
-                  className="inline-flex items-center gap-2 bg-[#F59E0B] hover:bg-[#D97706] text-gray-300   px-4 py-2 rounded shadow"
-                >
-                  <Download /> Export
-                </button>
+                <ExportBtn
+                  exportBtnHandler={() => exportProductsExcel(products)}
+                />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 border rounded px-3 py-2">
-                <Search className="text-gray-400" />
-                <input
-                  value={productSearch}
-                  onChange={(e) => {
-                    setProductSearch(e.target.value);
-                    setProductPage(1);
-                  }}
-                  placeholder="Search products..."
-                  className="outline-none"
-                />
-              </div>
-              <select
-                value={productSort}
-                onChange={(e) => setProductSort(e.target.value)}
-                className="border rounded px-3 py-2"
+              <SearchField
+                placeholder="Search products..."
+                searchValue={productSearch}
+                searchValueChange={(e) => {
+                  setProductSearch(e.target.value);
+                  setProductPage(1);
+                }}
+              />
+              <SelectField
+                selectValue={productSort}
+                selectValueChange={(e) => setProductSort(e.target.value)}
               >
                 <option value="name">Sort by Name</option>
                 <option value="price">Sort by Price</option>
                 <option value="stock">Sort by Stock</option>
-              </select>
+              </SelectField>
             </div>
           </div>
 

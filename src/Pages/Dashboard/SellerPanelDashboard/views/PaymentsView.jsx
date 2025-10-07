@@ -1,5 +1,8 @@
 import { motion } from "framer-motion";
 import { Download, Search } from "lucide-react";
+import SearchField from "../../../../components/ui/SearchField";
+import SelectField from "../../../../components/ui/SelectField";
+import ExportBtn from "../../../../components/ui/ExportBtn";
 
 export default function PaymentsView({
   active,
@@ -23,34 +26,25 @@ export default function PaymentsView({
           transition={{ duration: 0.3 }}
         >
           <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
-            <div className="flex items-center gap-2 border rounded px-3 py-2">
-              <Search className="text-gray-400" />
-              <input
-                value={paymentSearch}
-                onChange={(e) => {
-                  setPaymentSearch(e.target.value);
-                  setPaymentPage(1);
-                }}
-                placeholder="Search by method or status..."
-                className="outline-none"
-              />
-            </div>
-            <select
-              value={paymentSort}
-              onChange={(e) => setPaymentSort(e.target.value)}
-              className="border rounded px-3 py-2"
+            <SearchField
+              searchValue={paymentSearch}
+              searchValueChange={(e) => {
+                setPaymentSearch(e.target.value);
+                setPaymentPage(1);
+              }}
+              placeholder="Search by method or status..."
+            />
+            <SelectField
+              selectValue={paymentSort}
+              selectValueChange={(e) => setPaymentSort(e.target.value)}
             >
               <option value="date">Sort by Date</option>
               <option value="amount">Sort by Amount</option>
               <option value="status">Sort by Status</option>
-            </select>
+            </SelectField>
+
             <div className="flex gap-2">
-              <button
-                onClick={exportPaymentsExcel}
-                className="flex items-center gap-1 bg-[#FF0055] text-white px-3 py-2 rounded"
-              >
-                <Download size={16} /> Export
-              </button>
+              <ExportBtn exportBtnHandler={exportPaymentsExcel} />
             </div>
           </div>
 

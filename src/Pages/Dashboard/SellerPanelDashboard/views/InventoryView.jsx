@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import AddBtn from "../../../../components/ui/AddBtn";
 export default function InventoryView({ active, inventory, setInventory }) {
   return (
     <div>
@@ -10,16 +11,16 @@ export default function InventoryView({ active, inventory, setInventory }) {
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <button
-                onClick={() =>
+              <AddBtn
+                btnHandler={() =>
                   setInventory((prev) =>
                     prev.map((it) => ({ ...it, stock: it.stock + 10 }))
                   )
                 }
-                className="px-3 py-2 bg-[#FF0055] text-white rounded"
               >
                 + Add 10 to all
-              </button>
+              </AddBtn>
+
               <button
                 onClick={() =>
                   setInventory((prev) =>
@@ -29,7 +30,7 @@ export default function InventoryView({ active, inventory, setInventory }) {
                     }))
                   )
                 }
-                className="px-3 py-2 bg-white border rounded"
+                className="px-3 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white  rounded"
               >
                 - Remove 10 from all
               </button>
