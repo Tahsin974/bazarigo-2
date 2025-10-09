@@ -1,5 +1,5 @@
 import logo from "@/assets/Bazarigo.svg";
-import { LogOut } from "lucide-react";
+import { LogOut, X } from "lucide-react";
 export default function Sidebar({
   active,
   setActive,
@@ -12,6 +12,7 @@ export default function Sidebar({
   notifications = [],
   cart = [],
   items = [],
+  handleMenu,
 }) {
   const getCount = (item, stores) => {
     switch (item) {
@@ -43,12 +44,18 @@ export default function Sidebar({
   return (
     <div>
       <aside className="w-80 md:w-64 bg-white border-r shadow-sm ">
-        <div className="p-6 border-b">
+        <div className="p-6 border-b flex justify-between items-center">
           <div>
             <a href="/#" aria-label="E-commerce Home">
               <img src={logo} className="h-10 w-auto" alt="logo" />
             </a>
           </div>
+          <button
+            onClick={handleMenu}
+            className="btn bg-transparent border-transparent text-[#1D2345] btn-ghost ms-auto text-2xl font-bold cursor-pointer shadow-none lg:hidden"
+          >
+            <X />
+          </button>
         </div>
         <nav className="p-4 space-y-1">
           {items.map((item) => (

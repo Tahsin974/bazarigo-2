@@ -1,6 +1,7 @@
-import { Home, Menu, User } from "lucide-react";
+import { Home, Menu, User, X } from "lucide-react";
 import Sidebar from "../Sidebar/Sidebar";
 import Topbar from "../Topbar/Topbar";
+import { useEffect, useRef } from "react";
 
 export default function Drawer({
   user,
@@ -17,9 +18,27 @@ export default function Drawer({
   items,
   children,
 }) {
+  // menu close handle function
+  const drawerRef = useRef(null);
+  const handleMenu = () => {
+    if (drawerRef.current) {
+      drawerRef.current.checked = false;
+    }
+  };
+
+  useEffect(() => {
+    if (drawerRef.current) {
+      drawerRef.current.checked = false;
+    }
+  }, [activeTab]);
   return (
     <div className="drawer">
-      <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
+      <input
+        ref={drawerRef}
+        id="my-drawer-3"
+        type="checkbox"
+        className="drawer-toggle"
+      />
       <div className="drawer-content flex flex-col">
         {/* Navbar */}
 
@@ -39,6 +58,7 @@ export default function Drawer({
           aria-label="close sidebar"
           className="drawer-overlay"
         ></label>
+
         <Sidebar
           active={activeTab}
           setActive={setActiveTab}
@@ -51,6 +71,7 @@ export default function Drawer({
           payments={payments}
           promotions={promotions}
           items={items}
+          handleMenu={handleMenu}
         />
       </div>
     </div>
