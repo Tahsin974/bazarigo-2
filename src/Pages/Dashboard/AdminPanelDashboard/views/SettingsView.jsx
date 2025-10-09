@@ -50,7 +50,8 @@ function SettingsView() {
           <li>manager@example.com</li>
         </ul>
       </div>
-      <h3 className="font-semibold text-lg">Notification Settings</h3>
+      {/* Notification Settings */}
+      {/* <h3 className="font-semibold text-lg">Notification Settings</h3>
       <div className="bg-white p-4 rounded shadow space-y-2">
         <label className="flex items-center gap-2">
           <input
@@ -82,8 +83,10 @@ function SettingsView() {
           />{" "}
           Marketing Promotions
         </label>
-      </div>
-      <h3 className="font-semibold text-lg">Payment Gateway</h3>
+      </div> */}
+
+      {/* Payment Gateway */}
+      {/* <h3 className="font-semibold text-lg">Payment Gateway</h3>
       <div className="bg-white p-4 rounded shadow space-y-3">
         <div>
           <label className="block text-sm font-medium">Gateway Provider</label>
@@ -111,7 +114,7 @@ function SettingsView() {
             placeholder="Enter Secret Key"
           />
         </div>
-      </div>
+      </div> */}
       <h3 className="font-semibold text-lg">Security</h3>
       <div className="bg-white p-4 rounded shadow space-y-3">
         <label className="flex items-center gap-2">

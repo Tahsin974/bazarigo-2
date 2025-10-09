@@ -8,7 +8,9 @@ export default function SelectField({
 }) {
   return (
     <div
-      className={`relative inline-flex items-center ${isWide && "w-full"}  `}
+      className={`relative w-auto inline-flex items-center ${
+        isWide && "w-full "
+      }  `}
     >
       <select
         value={selectValue}

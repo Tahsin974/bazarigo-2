@@ -9,7 +9,7 @@ export default function InventoryView({ active, inventory, setInventory }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between mb-4 gap-3">
             <div className="flex items-center gap-2">
               <AddBtn
                 btnHandler={() =>
@@ -30,7 +30,7 @@ export default function InventoryView({ active, inventory, setInventory }) {
                     }))
                   )
                 }
-                className="px-3 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white  rounded"
+                className="px-3 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white sm:text-base text-xs  rounded"
               >
                 - Remove 10 from all
               </button>
@@ -40,22 +40,23 @@ export default function InventoryView({ active, inventory, setInventory }) {
             </div>
           </div>
 
-          <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table className="min-w-full text-left">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
+            <table className="table  text-center">
+              {/* head */}
+              <thead className="text-black">
                 <tr>
-                  <th className="px-4 py-2">Item</th>
-                  <th className="px-4 py-2">Stock</th>
-                  <th className="px-4 py-2">Actions</th>
+                  <th>Item</th>
+                  <th>Stock</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="">
                 {inventory.map((it) => (
-                  <tr key={it.id} className="border-t">
-                    <td className="px-4 py-2">{it.name}</td>
-                    <td className="px-4 py-2">{it.stock}</td>
-                    <td className="px-4 py-2">
-                      <div className="flex gap-2">
+                  <tr key={it.id}>
+                    <td>{it.name}</td>
+                    <td>{it.stock}</td>
+                    <td>
+                      <div className="flex justify-center items-center gap-2">
                         <button
                           onClick={() =>
                             setInventory((prev) =>

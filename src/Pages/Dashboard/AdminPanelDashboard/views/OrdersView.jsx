@@ -134,29 +134,42 @@ function OrdersView({
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <SelectAllCheckbox
-              selected={selected}
-              allSelected={allSelected}
-              toggleSelectAll={toggleSelectAll}
-              isShowCounter={false}
-            />
-            <h3 className="font-semibold">Active Orders ({orders.length})</h3>
-          </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <SearchField
-                placeholder="Search orders..."
-                searchValue={orderSearch}
-                searchValueChange={(e) => {
-                  setOrderSearch(e.target.value);
-                  setOrderPage(1);
-                }}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+          {/* Left: SelectAll + Title + small screen DeleteAll */}
+          <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
+            <div className="flex items-center gap-2">
+              <SelectAllCheckbox
+                selected={selected}
+                allSelected={allSelected}
+                toggleSelectAll={toggleSelectAll}
+                isShowCounter={false}
               />
+              <h3 className="font-semibold sm:text-base text-sm">
+                Active Orders ({orders.length})
+              </h3>
+            </div>
+            {/* DeleteAllBtn only on small screens */}
+            <div className="ml-2 md:hidden">
+              <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
             </div>
           </div>
-          <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+
+          {/* Middle: Search field */}
+          <div className="order-2 md:order-2 w-full md:flex-1 md:flex md:justify-center">
+            <SearchField
+              placeholder="Search orders..."
+              searchValue={orderSearch}
+              searchValueChange={(e) => {
+                setOrderSearch(e.target.value);
+                setOrderPage(1);
+              }}
+            />
+          </div>
+
+          {/* Right: DeleteAllBtn on large screens */}
+          <div className="hidden md:flex order-3">
+            <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+          </div>
         </div>
 
         <div className="mt-3 bg-white p-3 rounded shadow-sm">
@@ -206,8 +219,10 @@ function OrdersView({
       </div>
 
       <div>
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold">Return Orders ({returns.length})</h3>
+        <div className="flex flex-wrap gap-3 items-center justify-between">
+          <h3 className="font-semibold sm:text-base text-sm">
+            Return Orders ({returns.length})
+          </h3>
           <div>
             <SearchField
               placeholder="Search return orders..."

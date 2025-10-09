@@ -8,10 +8,13 @@ export default function Orders({
 }) {
   return (
     <div>
-      {activeTab === "orders" && (
+      {activeTab === "Orders" && (
         <div className="space-y-6">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white p-6 rounded-2xl shadow-md">
+            <div
+              key={order.id}
+              className="bg-white sm:p-6 p-3 rounded-2xl shadow-md"
+            >
               <div className="flex justify-between items-center mb-4">
                 <div>
                   <h3 className="font-semibold">Order #{order.id}</h3>
@@ -41,8 +44,10 @@ export default function Orders({
                         className="w-20 h-20 object-cover rounded"
                       />
                       <div>
-                        <div className="font-medium">{prod.name}</div>
-                        <div className="text-sm text-gray-500">
+                        <div className="font-medium sm:text-base text-sm">
+                          {prod.name}
+                        </div>
+                        <div className="sm:text-sm text-xs text-gray-500">
                           ৳{prod.price}
                         </div>
                       </div>
@@ -84,7 +89,7 @@ export default function Orders({
                             done
                               ? "text-[#FF0055] font-medium"
                               : "text-gray-400"
-                          } text-xs mt-1`}
+                          } sm:text-xs text-[8px] mt-1`}
                         >
                           {step}
                         </p>

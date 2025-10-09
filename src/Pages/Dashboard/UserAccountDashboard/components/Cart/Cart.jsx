@@ -10,44 +10,51 @@ export default function Cart({
 }) {
   return (
     <div>
-      {activeTab === "cart" && (
-        <div className="bg-white p-6 rounded-2xl shadow-md">
+      {activeTab === "Cart" && (
+        <div className="bg-white sm:p-6 p-3 rounded-2xl shadow-md">
           <h3 className="text-lg font-semibold mb-4">Shopping Cart</h3>
           <div className="space-y-4">
             {cart.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-4 border p-3 rounded-lg items-center"
+                className="flex flex-col sm:flex-row sm:items-center gap-4 border p-3 rounded-lg"
               >
                 <img
                   src={item.img}
                   alt={item.title}
-                  className="w-24 h-24 object-cover rounded"
+                  className="w-full sm:w-24 h-40 sm:h-24 object-cover rounded"
                 />
+
                 <div className="flex-1">
-                  <div className="font-medium">{item.title}</div>
+                  <div className="font-medium text-base sm:text-lg">
+                    {item.title}
+                  </div>
                   <div className="text-sm text-gray-500">৳{item.price}</div>
+
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() => updateCartQty(item.id, item.qty - 1)}
-                      className="px-2 py-1 bg-gray-200 rounded"
+                      className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
                     >
                       -
                     </button>
                     <span>{item.qty}</span>
                     <button
                       onClick={() => updateCartQty(item.id, item.qty + 1)}
-                      className="px-2 py-1 bg-gray-200 rounded"
+                      className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
                     >
                       +
                     </button>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-semibold">৳{item.price * item.qty}</div>
+
+                <div className="text-left sm:text-right ">
+                  <div className="font-semibold mt-2 sm:mt-0">
+                    ৳{item.price * item.qty}
+                  </div>
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    className="text-xs text-red-600 mt-2 flex items-center gap-1"
+                    className="text-xs text-red-600 mt-2 flex items-center gap-1 hover:text-red-800 transition"
                   >
                     <Trash2 size={14} /> Remove
                   </button>
@@ -62,12 +69,12 @@ export default function Cart({
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button className="px-4 py-2 rounded-md bg-[#FF0055] text-white">
+            <button className="btn sm:btn-md btn-sm rounded-md bg-[#FF0055] text-white border-none">
               Proceed to Checkout
             </button>
             <button
               onClick={() => setActiveTab("payments")}
-              className="px-4 py-2 rounded-md border"
+              className="btn sm:btn-md btn-sm rounded-md btn-outline"
             >
               Choose Payment
             </button>

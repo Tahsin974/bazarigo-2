@@ -63,7 +63,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/about#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   About
@@ -71,7 +71,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/contact-us#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Contact
@@ -84,7 +84,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="#"
+                  href="/privacy-policy#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Privacy Policy
@@ -92,7 +92,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/terms-conditions#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Terms And Conditions
@@ -100,10 +100,10 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/return-refund#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Refund Policy
+                  Return & Refund
                 </a>
               </li>
             </ul>

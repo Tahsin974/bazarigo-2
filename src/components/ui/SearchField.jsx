@@ -6,7 +6,7 @@ export default function SearchField({
   placeholder,
 }) {
   return (
-    <div className="relative w-full sm:w-80">
+    <div className="relative w-full xl:w-80 ">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
       <input
         type="text"

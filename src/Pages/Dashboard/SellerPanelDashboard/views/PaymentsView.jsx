@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Download, Search } from "lucide-react";
+import { Download, MoreHorizontal, Search } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import ExportBtn from "../../../../components/ui/ExportBtn";
+import Pagination from "../../../../components/ui/Pagination";
 
 export default function PaymentsView({
   active,
@@ -17,6 +18,55 @@ export default function PaymentsView({
   filteredPayments,
   exportPaymentsExcel,
 }) {
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredPayments.length / paymentPageSize)
+  );
+
+  const renderPageNumbers = () => {
+    const maxVisible = 5; // show up to 5 buttons
+    const totalPages = Math.max(
+      1,
+      Math.ceil(filteredPayments.length / paymentPageSize)
+    );
+    const startPage = Math.max(1, paymentPage - Math.floor(maxVisible / 2));
+    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    const pages = [];
+
+    if (startPage > 1) {
+      pages.push(
+        <MoreHorizontal
+          key="start-ellipsis"
+          className="w-5 h-5 text-gray-400"
+        />
+      );
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => setPaymentPage(i)}
+          className={`px-3 py-1 w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
+            paymentPage === i
+              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300 "
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    if (endPage < totalPages) {
+      pages.push(
+        <MoreHorizontal key="end-ellipsis" className="w-5 h-5 text-gray-400" />
+      );
+    }
+
+    return pages;
+  };
   return (
     <div>
       {active === "Payments" && (
@@ -25,7 +75,7 @@ export default function PaymentsView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+          <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
             <SearchField
               searchValue={paymentSearch}
               searchValueChange={(e) => {
@@ -47,54 +97,39 @@ export default function PaymentsView({
               <ExportBtn exportBtnHandler={exportPaymentsExcel} />
             </div>
           </div>
-
-          <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table className="min-w-full text-left">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
+            <table className="table  text-center">
+              {/* head */}
+              <thead className="text-black">
                 <tr>
-                  <th className="px-4 py-2">Payment ID</th>
-                  <th className="px-4 py-2">Date</th>
-                  <th className="px-4 py-2">Amount</th>
-                  <th className="px-4 py-2">Method</th>
-                  <th className="px-4 py-2">Status</th>
+                  <th>Payment ID</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedPayments.map((p) => (
-                  <tr key={p.id} className="border-t">
-                    <td className="px-4 py-2">{p.id}</td>
-                    <td className="px-4 py-2">{p.date}</td>
-                    <td className="px-4 py-2">${p.amount}</td>
-                    <td className="px-4 py-2">{p.method}</td>
-                    <td className="px-4 py-2">{p.status}</td>
+                  <tr key={p.id}>
+                    <td>{p.id}</td>
+                    <td>{p.date}</td>
+                    <td>${p.amount}</td>
+                    <td>{p.method}</td>
+                    <td>{p.status}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4">
-            {Array.from(
-              {
-                length: Math.max(
-                  1,
-                  Math.ceil(filteredPayments.length / paymentPageSize)
-                ),
-              },
-              (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPaymentPage(i + 1)}
-                  className={`px-3 py-1 rounded border ${
-                    paymentPage === i + 1
-                      ? "bg-[#FF0055] text-white"
-                      : "bg-white"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              )
-            )}
+          <div className="flex justify-center gap-2 mt-4">
+            <Pagination
+              currentPage={paymentPage}
+              totalPages={totalPages}
+              setCurrentPage={setPaymentPage}
+              renderPageNumbers={renderPageNumbers}
+            />
           </div>
         </motion.div>
       )}

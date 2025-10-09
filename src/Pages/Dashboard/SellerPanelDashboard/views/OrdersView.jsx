@@ -24,6 +24,7 @@ export default function OrdersView({
   returns,
   setReturns,
 }) {
+  console.log(paginatedOrders);
   return (
     <div>
       {active === "Orders" && (
@@ -32,8 +33,8 @@ export default function OrdersView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between mb-4 gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <SearchField
                 searchValue={orderSearch}
                 searchValueChange={(e) => {
@@ -59,21 +60,7 @@ export default function OrdersView({
               >
                 Mark Shipped
               </button>
-              {/* <button
-                onClick={() => {
-                  const selected = orders.filter((o) =>
-                    selectedOrderIds.includes(o.id)
-                  );
-                  if (!selected.length) return alert("No orders selected");
-                  const ids = selected.map((s) => s.id);
-                  setOrders((prev) => prev.filter((o) => !ids.includes(o.id)));
-                  setSelectedOrderIds([]);
-                  alert("Deleted selected orders");
-                }}
-                className="px-3 py-2 bg-white border rounded"
-              >
-                Bulk Delete
-              </button> */}
+
               <DeleteAllBtn
                 selected={selectedOrderIds}
                 bulkDelete={() => {
@@ -89,18 +76,18 @@ export default function OrdersView({
               />
             </div>
           </div>
-
-          <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table className="min-w-full text-left">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
+            <table className="table  text-center">
+              {/* head */}
+              <thead className="text-black">
                 <tr>
-                  <th className="px-4 py-3">
+                  <th>
                     <input
                       type="checkbox"
                       className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                       onChange={(e) =>
                         setSelectedOrderIds(
-                          e.target.checked ? orders.map((o) => o.id) : []
+                          e.target.checked ? orders.map((o) => o.orderId) : []
                         )
                       }
                       checked={
@@ -109,30 +96,30 @@ export default function OrdersView({
                       }
                     />
                   </th>
-                  <th className="px-4 py-3">Order #</th>
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-4 py-3">Total</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Actions</th>
+                  <th># Order</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="">
                 {paginatedOrders.map((o) => (
-                  <tr key={o.id} className="border-t">
-                    <td className="px-4 py-3">
+                  <tr key={o.orderId} className="border-t">
+                    <td>
                       <input
                         type="checkbox"
                         className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                        checked={selectedOrderIds.includes(o.id)}
-                        onChange={() => toggleSelectOrder(o.id)}
+                        checked={selectedOrderIds.includes(o.orderId)}
+                        onChange={() => toggleSelectOrder(o.orderId)}
                       />
                     </td>
-                    <td className="px-4 py-3">{o.number}</td>
-                    <td className="px-4 py-3">{o.customer}</td>
-                    <td className="px-4 py-3">${o.total}</td>
-                    <td className="px-4 py-3">{o.status}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
+                    <td>{o.number} </td>
+                    <td>{o.customer}</td>
+                    <td>${o.total}</td>
+                    <td>{o.status}</td>
+                    <td>
+                      <div className="flex justify-center items-center gap-2">
                         <button
                           onClick={() => alert(JSON.stringify(o, null, 2))}
                           className="px-3 py-1 border rounded"

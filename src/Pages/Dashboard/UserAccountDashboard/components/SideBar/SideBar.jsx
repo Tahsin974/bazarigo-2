@@ -19,9 +19,7 @@ export default function SideBar({
   setActiveTab,
 }) {
   return (
-    <aside
-      className={`hidden md:flex flex-col   w-72 duration-250 bg-white shadow-lg`}
-    >
+    <aside className="w-80  bg-white shadow-lg min-h-full">
       <div className="px-6 py-3  border-b border-gray-300">
         <div>
           <a href="/#" aria-label="E-commerce Home">
@@ -139,7 +137,7 @@ export default function SideBar({
         </button>
         <a
           href="/"
-          className="block w-full text-center px-4 py-2 rounded-md bg-[#FF0055] text-white hover:bg-[#e6004d]"
+          className="block w-full text-center px-4 py-2 rounded-md bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white "
         >
           Go to Home Page
         </a>

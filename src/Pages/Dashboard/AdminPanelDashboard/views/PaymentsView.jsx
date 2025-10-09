@@ -58,18 +58,27 @@ function PaymentsView({
   };
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold mb-3">Payments ({payments.length})</h3>
+      <div className="flex flex-col sm:flex-row   sm:items-center sm:justify-between gap-4 mb-3">
+        {/* Left: Title (and mobile button if needed) */}
+        <div className="flex items-center justify-center w-full md:w-auto order-1">
+          <h3 className="font-semibold sm:text-md text-[15px]">
+            Payments ({payments.length})
+          </h3>
+        </div>
 
-        <SearchField
-          placeholder="Search payments..."
-          searchValue={paymentSearch}
-          searchValueChange={(e) => {
-            setPaymentSearch(e.target.value);
-            setPaymentPage(1);
-          }}
-        />
+        {/* Middle: Search field */}
+        <div className="order-2 w-full md:flex-1 md:flex md:justify-end">
+          <SearchField
+            placeholder="Search payments..."
+            searchValue={paymentSearch}
+            searchValueChange={(e) => {
+              setPaymentSearch(e.target.value);
+              setPaymentPage(1);
+            }}
+          />
+        </div>
       </div>
+
       <div className="bg-white p-3 rounded shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">

@@ -122,7 +122,7 @@ export default function OrderSummary({
                 Apply
               </Button>
             </div>
-            {Object.keys(promoCodes).length > 0 && (
+            {/* {Object.keys(promoCodes).length > 0 && (
               <p className="text-sm text-gray-500 mt-2">
                 Try codes:{" "}
                 {Object.entries(promoCodes).map(
@@ -138,7 +138,7 @@ export default function OrderSummary({
                   )
                 )}
               </p>
-            )}
+            )} */}
           </div>
         )}
       </CardContent>

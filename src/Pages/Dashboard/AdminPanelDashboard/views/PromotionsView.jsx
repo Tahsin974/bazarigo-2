@@ -70,25 +70,41 @@ function PromotionsView({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold">Promotions ({promotions.length})</h3>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-3">
+        {/* Left (Title + Button on small screens) */}
+        <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
+          <h3 className="font-semibold sm:text-md text-[15px]">
+            Promotions ({promotions.length})
+          </h3>
+          {/* Hide this button on md+, show only on sm */}
+          <div className="ml-2 lg:hidden">
+            <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
+          </div>
+        </div>
 
-        <SearchField
-          placeholder="Search customers..."
-          searchValue={promoSearch}
-          searchValueChange={(e) => {
-            setPromoSearch(e.target.value);
-            setPromoPage(1);
-          }}
-        />
+        {/* Middle (Search field, center on large screens) */}
+        <div className="order-2 md:order-2 w-full md:flex-1 md:flex md:justify-center">
+          <SearchField
+            placeholder="Search customers..."
+            searchValue={promoSearch}
+            searchValueChange={(e) => {
+              setPromoSearch(e.target.value);
+              setPromoPage(1);
+            }}
+          />
+        </div>
 
-        <AddBtn btnHandler={onAdd}> New Promotion</AddBtn>
+        {/* Right (Button on md+ only) */}
+        <div className="hidden lg:block order-3">
+          <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
+        </div>
       </div>
+
       <div className="bg-white rounded shadow-sm p-3">
         {promotions.map((p) => (
           <div
             key={p.id}
-            className="flex items-center justify-between border-b py-2"
+            className="flex flex-col xl:flex-row lg:flex-row md:flex-row items-center justify-between border-b py-2 gap-4"
           >
             <div>
               <div className="font-medium">

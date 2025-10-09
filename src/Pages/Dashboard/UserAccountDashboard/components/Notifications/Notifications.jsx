@@ -4,21 +4,22 @@ export default function Notifications({
   setActiveTab,
   markNotificationRead,
 }) {
+  console.log(notifications);
   return (
     <div>
-      {activeTab === "notifications" && (
-        <div className="bg-white p-6 rounded-2xl shadow-md space-y-4 max-w-2xl">
+      {activeTab === "Notifications" && (
+        <div className="bg-white sm:p-6 p-3 rounded-2xl shadow-md space-y-4 max-w-2xl">
           <h3 className="text-lg font-semibold">Notifications</h3>
-          <div className="flex gap-3 mb-4">
-            {["All", "Orders", "Payments", "Promotions"].map((cat) => (
+          <div className="flex flex-wrap gap-3 mb-4">
+            {["all", "orders", "payments", "promotions"].map((cat) => (
               <button
                 key={cat}
                 onClick={() =>
                   setActiveTab("notifications") || setActiveTab(cat)
                 }
-                className={`px-3 py-1 rounded-md border text-sm ${
-                  cat === "All"
-                    ? "bg-[#FF0055] text-white"
+                className={`px-3 py-1 rounded-md border  text-sm capitalize ${
+                  cat === "all"
+                    ? "bg-[#FF0055] border-[#FF0055] text-white"
                     : "hover:bg-gray-100"
                 }`}
               >
@@ -30,7 +31,7 @@ export default function Notifications({
             {notifications.map((n) => (
               <div
                 key={n.id}
-                className={`border rounded-lg p-3 flex items-center justify-between ${
+                className={`border rounded-lg p-3 flex flex-wrap gap-3 items-center justify-between ${
                   n.read ? "opacity-70" : ""
                 }`}
               >

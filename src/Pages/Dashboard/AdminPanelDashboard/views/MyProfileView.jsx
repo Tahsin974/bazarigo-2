@@ -1,4 +1,4 @@
-export default function MyProfile({ user, activeTab, setShowEditProfile }) {
+export default function MyProfileView({ user, activeTab, setShowEditProfile }) {
   return (
     <div>
       {activeTab === "My Account" && (

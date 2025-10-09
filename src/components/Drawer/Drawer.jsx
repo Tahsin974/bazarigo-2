@@ -1,25 +1,20 @@
-import {
-  Bell,
-  CreditCard,
-  Home,
-  LogOut,
-  MapPin,
-  Menu,
-  Package,
-  RotateCcw,
-  Settings,
-  ShoppingBag,
-  User,
-} from "lucide-react";
-import logo from "../../assets/Bazarigo.svg";
+import { Home, Menu, User } from "lucide-react";
+import Sidebar from "../Sidebar/Sidebar";
+import Topbar from "../Topbar/Topbar";
 
 export default function Drawer({
   user,
-  cart,
-  unreadCount,
   activeTab,
   setActiveTab,
-
+  products = [],
+  orders = [],
+  customers = [],
+  sellers = [],
+  payments = [],
+  promotions = [],
+  notifications = [],
+  cart = [],
+  items,
   children,
 }) {
   return (
@@ -28,73 +23,13 @@ export default function Drawer({
       <div className="drawer-content flex flex-col">
         {/* Navbar */}
 
-        <header className="bg-white shadow-sm px-6 py-6 flex items-center justify-between gap-6">
-          <div className=" flex items-center">
-            <div className="flex-none lg:hidden">
-              <label
-                htmlFor="my-drawer-3"
-                aria-label="open sidebar"
-                className="btn btn-square bg-white  active:bg-[#FF0055] active:border-[#FF0055] border-gray-300 shadow-none"
-              >
-                <Menu
-                  size={24}
-                  className="text-gray-800 active:text-white cursor-pointer"
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="flex items-center ms-auto gap-6">
-            <a
-              href="/"
-              className="flex items-center gap-2 px-3 py-1 rounded-md bg-red-50 text-[#FF0055] border border-red-100"
-            >
-              <Home size={16} /> Home
-            </a>
-
-            <div className="hidden sm:flex items-center gap-4">
-              <button
-                onClick={() => setActiveTab("account")}
-                className={`text-sm font-medium flex items-center gap-2 cursor-pointer ${
-                  activeTab === "account" ? "text-[#FF0055]" : "text-gray-700"
-                }`}
-              >
-                <span>
-                  <User size={16} />
-                </span>{" "}
-                <span>My Account</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("notifications")}
-                className={`text-sm font-medium flex items-center  cursor-pointer ${
-                  activeTab === "notifications"
-                    ? "text-[#FF0055]"
-                    : "text-gray-700"
-                }`}
-              >
-                <span>Notifications</span>{" "}
-                {unreadCount > 0 && (
-                  <span className="ml-1 text-xs bg-red-100 text-red-700 px-1 rounded">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab("cart")}
-                className={`text-sm font-medium flex items-center gap-2 cursor-pointer ${
-                  activeTab === "cart" ? "text-[#FF0055]" : "text-gray-700"
-                }`}
-              >
-                <span>Cart</span> <span>({cart.length})</span>
-              </button>
-            </div>
-
-            <div className="text-right">
-              <div className="font-medium">{user.name}</div>
-              <div className="text-xs text-gray-500">{user.email}</div>
-            </div>
-          </div>
-        </header>
+        <Topbar
+          user={user}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          notifications={notifications}
+          cart={cart}
+        />
         {/* Page content here */}
         {children}
       </div>
@@ -104,8 +39,27 @@ export default function Drawer({
           aria-label="close sidebar"
           className="drawer-overlay"
         ></label>
-        <aside className="menu bg-white min-h-full w-80 p-4">
-          {/* Sidebar content here */}
+        <Sidebar
+          active={activeTab}
+          setActive={setActiveTab}
+          notifications={notifications}
+          orders={orders}
+          cart={cart}
+          products={products}
+          customers={customers}
+          sellers={sellers}
+          payments={payments}
+          promotions={promotions}
+          items={items}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* 
+<aside className=" bg-white min-h-full w-80 ">
+         
           <div className="px-6 py-3  border-b border-gray-300">
             <div>
               <a href="/#" aria-label="E-commerce Home">
@@ -122,7 +76,7 @@ export default function Drawer({
               onClick={() => setActiveTab("overview")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "overview"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -132,7 +86,7 @@ export default function Drawer({
               onClick={() => setActiveTab("orders")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "orders"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -142,7 +96,7 @@ export default function Drawer({
               onClick={() => setActiveTab("cart")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "cart"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -152,7 +106,7 @@ export default function Drawer({
               onClick={() => setActiveTab("payments")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "payments"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -162,7 +116,7 @@ export default function Drawer({
               onClick={() => setActiveTab("returns")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "returns"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -172,7 +126,7 @@ export default function Drawer({
               onClick={() => setActiveTab("addresses")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "addresses"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -182,7 +136,7 @@ export default function Drawer({
               onClick={() => setActiveTab("notifications")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "notifications"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -195,7 +149,7 @@ export default function Drawer({
               onClick={() => setActiveTab("account")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "account"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -208,7 +162,7 @@ export default function Drawer({
               onClick={() => setActiveTab("settings")}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
                 activeTab === "settings"
-                  ? "bg-[#FF0055] text-white"
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                   : "hover:bg-gray-100"
               }`}
             >
@@ -225,13 +179,9 @@ export default function Drawer({
             </button>
             <a
               href="/"
-              className="block w-full text-center px-4 py-2 rounded-md bg-[#FF0055] text-white hover:bg-[#e6004d]"
+              className="block w-full text-center px-4 py-2 rounded-md bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white hover:bg-[#e6004d]"
             >
               Go to Home Page
             </a>
           </div>
-        </aside>
-      </div>
-    </div>
-  );
-}
+        </aside> */

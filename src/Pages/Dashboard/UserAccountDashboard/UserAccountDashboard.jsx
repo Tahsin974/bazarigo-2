@@ -8,14 +8,14 @@ import Returns from "./components/Returns/Returns";
 import Addresses from "./components/Addresses/Addresses";
 import Notifications from "./components/Notifications/Notifications";
 import AccountSettings from "./components/AccountSettings/AccountSettings";
-import MyProfile from "./components/MyProfile/MyProfile";
-import EditProfileModal from "./components/EditProfileModal/EditProfileModal";
-import SideBar from "./components/Sidebar/Sidebar";
+
 import Drawer from "../../../components/Drawer/Drawer";
+import Sidebar from "../../../components/Sidebar/Sidebar";
+import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
+import MyProfileView from "../../../components/MyProfileView/MyProfileView";
 
 export default function UserAccountDashboard() {
   // Open/Close Menu
-  const [isOpen, setIsOpen] = useState(false);
   // User
   const [user, setUser] = useState({
     name: "রাহিম উদ্দিন",
@@ -40,6 +40,8 @@ export default function UserAccountDashboard() {
       img: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
     },
   ]);
+
+  // Payments
 
   // Orders
   const [orders, setOrders] = useState([
@@ -112,7 +114,7 @@ export default function UserAccountDashboard() {
       read: false,
     },
   ]);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("Overview");
   // Edit profile modal
   const [showEditProfile, setShowEditProfile] = useState(false);
   // Payments
@@ -143,7 +145,6 @@ export default function UserAccountDashboard() {
 
   // Derived
   const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // ----- Cart helpers -----
   const updateCartQty = (id, qty) =>
@@ -250,10 +251,6 @@ export default function UserAccountDashboard() {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
-  const filteredNotifications = (cat) =>
-    cat === "All"
-      ? notifications
-      : notifications.filter((n) => n.category === cat);
 
   // ----- Profile helpers -----
   const handleAvatarChange = (e) => {
@@ -286,13 +283,26 @@ export default function UserAccountDashboard() {
     <div className="min-h-screen flex bg-gray-50">
       {/* Side Bar */}
 
-      <SideBar
-        user={user}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        unreadCount={unreadCount}
-        isOpen={isOpen}
-      />
+      <div className="hidden lg:flex">
+        <Sidebar
+          active={activeTab}
+          setActive={setActiveTab}
+          notifications={notifications}
+          orders={orders}
+          cart={cart}
+          items={[
+            "Overview",
+            "Orders",
+            "Cart",
+            "Payments",
+            "Returns",
+            "Addresses",
+            "Notifications",
+            "My Account",
+            "Settings",
+          ]}
+        />
+      </div>
 
       {/* Main Column */}
       <div className="flex-1 flex flex-col">
@@ -300,17 +310,29 @@ export default function UserAccountDashboard() {
         {/* Top Bar */}
         <Drawer
           user={user}
-          cart={cart}
-          unreadCount={unreadCount}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          notifications={notifications}
+          orders={orders}
+          cart={cart}
+          items={[
+            "Overview",
+            "Orders",
+            "Cart",
+            "Payments",
+            "Returns",
+            "Addresses",
+            "Notifications",
+            "My Account",
+            "Settings",
+          ]}
         >
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3 overflow-auto">
             {/* Overview */}
             <Overview
               orders={orders}
               cart={cart}
-              unreadCount={unreadCount}
+              unreadCount={notifications.length}
               activeTab={activeTab}
               cartTotal={cartTotal}
             />
@@ -361,9 +383,7 @@ export default function UserAccountDashboard() {
             />
             {/* Notifications */}
             <Notifications
-              notifications={filteredNotifications(
-                activeTab === "notifications" ? "All" : activeTab
-              )}
+              notifications={notifications}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               markNotificationRead={markNotificationRead}
@@ -376,7 +396,7 @@ export default function UserAccountDashboard() {
               saveSettings={saveSettings}
             />
             {/* My Profile */}
-            <MyProfile
+            <MyProfileView
               user={user}
               setShowEditProfile={setShowEditProfile}
               activeTab={activeTab}

@@ -44,15 +44,15 @@ export default function DashboardView({
           transition={{ duration: 0.3 }}
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white  sm:p-6 p-3 rounded-lg shadow-md">
               <div className="text-sm text-gray-500">Products</div>
               <div className="text-2xl font-bold">{products.length}</div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white sm:p-6 p-3 rounded-lg shadow-md">
               <div className="text-sm text-gray-500">Orders</div>
               <div className="text-2xl font-bold">{orders.length}</div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white sm:p-6 p-3 rounded-lg shadow-md">
               <div className="text-sm text-gray-500">Revenue</div>
               <div className="text-2xl font-bold">
                 ${orders.reduce((a, b) => a + (b.total || 0), 0)}
@@ -61,7 +61,7 @@ export default function DashboardView({
           </div>
 
           <div className="grid grid-cols-1  gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white sm:p-6 p-3 rounded-lg shadow-md">
               <h3 className="font-semibold mb-3">Recent Orders</h3>
               <ul className="space-y-2">
                 {orders.slice(0, 6).map((o) => (
@@ -81,7 +81,7 @@ export default function DashboardView({
               </ul>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white sm:p-6 p-3 rounded-lg shadow-md">
               <h3 className="font-semibold mb-3">Low Stock Items</h3>
               <ul className="space-y-2">
                 {inventory
@@ -106,7 +106,7 @@ export default function DashboardView({
           </div>
           <div className="grid grid-cols-1  gap-6 my-4">
             {/* Sales Chart */}
-            <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+            <div className="lg:col-span-2 bg-white sm:p-6 p-3 rounded-xl shadow-lg">
               <h4 className="text-lg font-semibold mb-4 text-gray-800">
                 Last 7 Days Sales Trend
               </h4>
@@ -146,7 +146,7 @@ export default function DashboardView({
             </div>
 
             {/* Order Status Pie Chart */}
-            <div className="bg-white p-6 rounded-xl shadow-lg">
+            <div className="bg-white sm:p-6 p-3 rounded-xl shadow-lg">
               <h4 className="text-lg font-semibold mb-4 text-gray-800">
                 Order Status Distribution
               </h4>

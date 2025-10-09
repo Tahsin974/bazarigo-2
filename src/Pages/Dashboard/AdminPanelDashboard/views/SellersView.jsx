@@ -68,34 +68,46 @@ function SellersView({
   };
   return (
     <div>
-      <div className="flex justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <SelectAllCheckbox
-            selected={selected}
-            allSelected={allSelected}
-            toggleSelectAll={toggleSelectAll}
-          />
-          <h3 className="font-semibold">Sellers ({sellers.length})</h3>
-        </div>
-        <div>
-          <div className="flex items-center gap-3">
-            <SearchField
-              placeholder="Search sellers..."
-              searchValue={sellerSearch}
-              searchValueChange={(e) => {
-                setSellerSearch(e.target.value);
-                setSellerPage(1);
-              }}
+      <div className="flex flex-col  lg:flex-row lg:items-center lg:justify-between gap-4 mb-3">
+        {/* Left: Title + Select All */}
+        <div className="flex flex-wrap items-center gap-2 justify-between w-full md:w-auto order-1">
+          <div className="flex items-center gap-2">
+            <SelectAllCheckbox
+              selected={selected}
+              allSelected={allSelected}
+              toggleSelectAll={toggleSelectAll}
             />
+            <h3 className="font-semibold sm:text-md text-[15px]">
+              Sellers ({sellers.length})
+            </h3>
+          </div>
+
+          {/* Add/Delete buttons visible only on small screens */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <AddBtn btnHandler={onAdd}>Add Seller</AddBtn>
+            <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <AddBtn btnHandler={onAdd}>Add Seller</AddBtn>
+        {/* Middle: Search field (centered on large screens) */}
+        <div className="order-2 w-full md:flex-1 md:flex md:justify-center">
+          <SearchField
+            placeholder="Search sellers..."
+            searchValue={sellerSearch}
+            searchValueChange={(e) => {
+              setSellerSearch(e.target.value);
+              setSellerPage(1);
+            }}
+          />
+        </div>
 
+        {/* Right: Add/Delete buttons (visible on large screens) */}
+        <div className="hidden lg:flex items-center gap-2 order-3">
+          <AddBtn btnHandler={onAdd}>Add Seller</AddBtn>
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredSellers.map((s) => (
           <div

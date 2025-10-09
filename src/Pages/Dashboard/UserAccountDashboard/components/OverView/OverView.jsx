@@ -7,7 +7,7 @@ export default function Overview({
 }) {
   return (
     <div>
-      {activeTab === "overview" && (
+      {activeTab === "Overview" && (
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-white p-6 rounded-2xl shadow">
             <h4 className="font-semibold">Orders Summary</h4>

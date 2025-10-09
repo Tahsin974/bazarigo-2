@@ -1,3 +1,5 @@
+import SelectField from "../../../../../components/ui/SelectField";
+
 export default function AccountSettings({
   activeTab,
   settings,
@@ -7,25 +9,28 @@ export default function AccountSettings({
   return (
     <div>
       {/* Settings */}
-      {activeTab === "settings" && (
+      {activeTab === "Settings" && (
         <form
           onSubmit={saveSettings}
           className="bg-white p-6 rounded-2xl shadow-md space-y-4 max-w-md"
         >
           <h3 className="text-lg font-semibold">Settings</h3>
-          <label className="block">
-            Language
-            <select
-              value={settings.language}
-              onChange={(e) =>
-                setSettings((prev) => ({ ...prev, language: e.target.value }))
-              }
-              className="w-full border px-3 py-2 rounded-md mt-1"
-            >
-              <option>English</option>
-              <option>বাংলা</option>
-            </select>
+          <label className="flex flex-col gap-1">
+            <span>Language</span>
+            <div>
+              <SelectField
+                selectValue={settings.language}
+                selectValueChange={(e) =>
+                  setSettings((prev) => ({ ...prev, language: e.target.value }))
+                }
+                isWide={true}
+              >
+                <option>English</option>
+                <option>বাংলা</option>
+              </SelectField>
+            </div>
           </label>
+
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -66,7 +71,7 @@ export default function AccountSettings({
                 }))
               }
               placeholder="Old password"
-              className="w-full border px-3 py-2 rounded-md mt-1"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white mt-1"
             />
           </label>
           <label className="block">
@@ -78,7 +83,7 @@ export default function AccountSettings({
                 setSettings((prev) => ({ ...prev, password: e.target.value }))
               }
               placeholder="New password"
-              className="w-full border px-3 py-2 rounded-md mt-1"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white mt-1"
             />
           </label>
           <button

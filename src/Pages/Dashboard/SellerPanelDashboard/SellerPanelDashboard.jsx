@@ -16,10 +16,22 @@ import PaymentsView from "./views/PaymentsView";
 import ReportsView from "./views/ReportsView";
 import SettingsView from "./views/SettingsView";
 import * as XLSX from "xlsx";
+import Drawer from "../../../components/Drawer/Drawer";
+import MyProfile from "./views/MyProfileView";
+import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
+import MyProfileView from "../../../components/MyProfileView/MyProfileView";
 
 export default function SellerPanelDashboard() {
+  const [user, setUser] = useState({
+    name: "রাহিম উদ্দিন",
+    email: "rahim@example.com",
+    phone: "01712345678",
+    avatar: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
+  });
   // --- Navigation + global data ---
   const [active, setActive] = useState("Dashboard");
+
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   // Core data
   const [products, setProducts] = useState(sampleProducts());
@@ -592,150 +604,199 @@ export default function SellerPanelDashboard() {
     return chartData;
   };
   const salesData = useMemo(() => calculateSalesData(orders), [orders]);
+  const handleProfileSave = (e) => {
+    e && e.preventDefault();
+    setShowEditProfile(false);
+    alert("Profile updated");
+  };
+  // ----- Profile helpers -----
+  const handleAvatarChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setUser((prev) => ({ ...prev, avatar: url }));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
-      <div className="flex flex-col md:flex-row">
-        <Sidebar
-          active={active}
-          setActive={setActive}
-          products={products}
-          orders={orders}
-          payments={payments}
-          items={[
-            "Dashboard",
-            "Products",
-            "Orders",
-            "Inventory",
-            "Payments",
-            "Reports",
-            "Settings",
-          ]}
-        />
-
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
-          <header>
-            <TopBar active={active} />
-          </header>
-          <DashboardView
+      <div className="flex ">
+        <div className="hidden lg:flex">
+          <Sidebar
+            user={user}
             active={active}
+            setActive={setActive}
             products={products}
             orders={orders}
-            inventory={inventory}
-            salesData={salesData}
+            payments={payments}
+            items={[
+              "Dashboard",
+              "Products",
+              "Orders",
+              "Inventory",
+              "Payments",
+              "Reports",
+              "My Account",
+              "Settings",
+            ]}
           />
-          <ProductsView
-            active={active}
-            products={products}
-            setProducts={setProducts}
-            productModalOpen={productModalOpen}
-            setProductModalOpen={setProductModalOpen}
-            editingProduct={editingProduct}
-            setEditingProduct={setEditingProduct}
-            productForm={productForm}
-            setProductForm={setProductForm}
-            fileInputRef={fileInputRef}
-            selectedProductIds={selectedProductIds}
-            setSelectedProductIds={setSelectedProductIds}
-            toggleSelectProduct={toggleSelectProduct}
-            bulkDeleteProducts={bulkDeleteProducts}
-            openNewProductModal={openNewProductModal}
-            openEditProductModal={openEditProductModal}
-            saveProduct={saveProduct}
-            productSearch={productSearch}
-            setProductSearch={setProductSearch}
-            productSort={productSort}
-            setProductSort={setProductSort}
-            productPage={productPage}
-            setProductPage={setProductPage}
-            productPageSize={productPageSize}
-            filteredProducts={filteredProducts}
-            paginatedProducts={paginatedProducts}
-            categorySchemas={categorySchemas}
-            handleBulkUploadFile={handleBulkUploadFile}
-            exportProductsExcel={exportProductsExcel}
-          />
-          <OrdersView
-            active={active}
-            orders={orders}
-            setOrders={setOrders}
-            returns={returns}
-            setReturns={setReturns}
-            selectedOrderIds={selectedOrderIds}
-            setSelectedOrderIds={setSelectedOrderIds}
-            toggleSelectOrder={toggleSelectOrder}
-            bulkMarkShipped={bulkMarkShipped}
-            orderSearch={orderSearch}
-            setOrderSearch={setOrderSearch}
-            orderSort={orderSort}
-            setOrderSort={setOrderSort}
-            orderPage={orderPage}
-            setOrderPage={setOrderPage}
-            orderPageSize={orderPageSize}
-            filteredOrders={filteredOrders}
-            paginatedOrders={paginatedOrders}
-          />
-          <InventoryView
-            active={active}
-            inventory={inventory}
-            setInventory={setInventory}
-          />
-          <PaymentsView
-            active={active}
-            filteredPayments={filteredPayments}
-            paginatedPayments={paginatedPayments}
-            paymentSearch={paymentSearch}
-            setPaymentSearch={setPaymentSearch}
-            paymentSort={paymentSort}
-            setPaymentSort={setPaymentSort}
-            paymentPage={paymentPage}
-            setPaymentPage={setPaymentPage}
-            paymentPageSize={paymentPageSize}
-            exportPaymentsExcel={exportPaymentsExcel}
-          />
-          <ReportsView
-            active={active}
-            totalRevenue={totalRevenue}
-            products={products}
-            filteredOrdersForReport={filteredOrdersForReport}
-            reportFilter={reportFilter}
-            setReportFilter={setReportFilter}
-            startDate={startDate}
-            setStartDate={setStartDate}
-            endDate={endDate}
-            setEndDate={setEndDate}
-            exportReportsExcel={exportReportsExcel}
-            ordersByStatus={ordersByStatus}
-            revenueBreakdown={revenueBreakdown}
-          />
-          <SettingsView
-            active={active}
-            bankSettings={bankSettings}
-            setBankSettings={setBankSettings}
-            bdSettings={bdSettings}
-            setBdSettings={setBdSettings}
-            profile={profile}
-            setProfile={setProfile}
+        </div>
+        <div className=" flex-1">
+          <Drawer
+            user={user}
+            activeTab={active}
+            setActiveTab={setActive}
             notifications={notifications}
-            setNotifications={setNotifications}
-            oldPassword={oldPassword}
-            setOldPassword={setOldPassword}
-            newPassword={newPassword}
-            setNewPassword={setNewPassword}
-            confirmPassword={confirmPassword}
-            setConfirmPassword={setConfirmPassword}
-            twoFA={twoFA}
-            setTwoFA={setTwoFA}
-            loginAlert={loginAlert}
-            setLoginAlert={setLoginAlert}
-            savePaymentSettings={savePaymentSettings}
-            saveProfileSettings={saveProfileSettings}
-            saveNotificationSettings={saveNotificationSettings}
-            saveSecurity={saveSecurity}
-            generatePaymentQR={generatePaymentQR}
-          />
-        </main>
+            products={products}
+            orders={orders}
+            payments={payments}
+            items={[
+              "Dashboard",
+              "Products",
+              "Orders",
+              "Inventory",
+              "Payments",
+              "Reports",
+              "My Account",
+              "Settings",
+            ]}
+          >
+            <main className=" xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3">
+              <DashboardView
+                active={active}
+                products={products}
+                orders={orders}
+                inventory={inventory}
+                salesData={salesData}
+              />
+              <ProductsView
+                active={active}
+                products={products}
+                setProducts={setProducts}
+                productModalOpen={productModalOpen}
+                setProductModalOpen={setProductModalOpen}
+                editingProduct={editingProduct}
+                setEditingProduct={setEditingProduct}
+                productForm={productForm}
+                setProductForm={setProductForm}
+                fileInputRef={fileInputRef}
+                selectedProductIds={selectedProductIds}
+                setSelectedProductIds={setSelectedProductIds}
+                toggleSelectProduct={toggleSelectProduct}
+                bulkDeleteProducts={bulkDeleteProducts}
+                openNewProductModal={openNewProductModal}
+                openEditProductModal={openEditProductModal}
+                saveProduct={saveProduct}
+                productSearch={productSearch}
+                setProductSearch={setProductSearch}
+                productSort={productSort}
+                setProductSort={setProductSort}
+                productPage={productPage}
+                setProductPage={setProductPage}
+                productPageSize={productPageSize}
+                filteredProducts={filteredProducts}
+                paginatedProducts={paginatedProducts}
+                categorySchemas={categorySchemas}
+                handleBulkUploadFile={handleBulkUploadFile}
+                exportProductsExcel={exportProductsExcel}
+              />
+              <OrdersView
+                active={active}
+                orders={orders}
+                setOrders={setOrders}
+                returns={returns}
+                setReturns={setReturns}
+                selectedOrderIds={selectedOrderIds}
+                setSelectedOrderIds={setSelectedOrderIds}
+                toggleSelectOrder={toggleSelectOrder}
+                bulkMarkShipped={bulkMarkShipped}
+                orderSearch={orderSearch}
+                setOrderSearch={setOrderSearch}
+                orderSort={orderSort}
+                setOrderSort={setOrderSort}
+                orderPage={orderPage}
+                setOrderPage={setOrderPage}
+                orderPageSize={orderPageSize}
+                filteredOrders={filteredOrders}
+                paginatedOrders={paginatedOrders}
+              />
+              <InventoryView
+                active={active}
+                inventory={inventory}
+                setInventory={setInventory}
+              />
+              <PaymentsView
+                active={active}
+                filteredPayments={filteredPayments}
+                paginatedPayments={paginatedPayments}
+                paymentSearch={paymentSearch}
+                setPaymentSearch={setPaymentSearch}
+                paymentSort={paymentSort}
+                setPaymentSort={setPaymentSort}
+                paymentPage={paymentPage}
+                setPaymentPage={setPaymentPage}
+                paymentPageSize={paymentPageSize}
+                exportPaymentsExcel={exportPaymentsExcel}
+              />
+              <ReportsView
+                active={active}
+                totalRevenue={totalRevenue}
+                products={products}
+                filteredOrdersForReport={filteredOrdersForReport}
+                reportFilter={reportFilter}
+                setReportFilter={setReportFilter}
+                startDate={startDate}
+                setStartDate={setStartDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
+                exportReportsExcel={exportReportsExcel}
+                ordersByStatus={ordersByStatus}
+                revenueBreakdown={revenueBreakdown}
+              />
+              <MyProfileView
+                user={user}
+                setShowEditProfile={setShowEditProfile}
+                activeTab={active}
+              />
+              <SettingsView
+                active={active}
+                bankSettings={bankSettings}
+                setBankSettings={setBankSettings}
+                bdSettings={bdSettings}
+                setBdSettings={setBdSettings}
+                profile={profile}
+                setProfile={setProfile}
+                notifications={notifications}
+                setNotifications={setNotifications}
+                oldPassword={oldPassword}
+                setOldPassword={setOldPassword}
+                newPassword={newPassword}
+                setNewPassword={setNewPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+                twoFA={twoFA}
+                setTwoFA={setTwoFA}
+                loginAlert={loginAlert}
+                setLoginAlert={setLoginAlert}
+                savePaymentSettings={savePaymentSettings}
+                saveProfileSettings={saveProfileSettings}
+                saveNotificationSettings={saveNotificationSettings}
+                saveSecurity={saveSecurity}
+                generatePaymentQR={generatePaymentQR}
+              />
+            </main>
+          </Drawer>
+        </div>
       </div>
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        user={user}
+        setUser={setUser}
+        showEditProfile={showEditProfile}
+        setShowEditProfile={setShowEditProfile}
+        handleProfileSave={handleProfileSave}
+        handleAvatarChange={handleAvatarChange}
+      />
     </div>
   );
 }

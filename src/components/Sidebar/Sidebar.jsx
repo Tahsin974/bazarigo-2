@@ -3,36 +3,47 @@ import { LogOut } from "lucide-react";
 export default function Sidebar({
   active,
   setActive,
-  products,
-  orders,
-  customers,
-  sellers,
-  payments,
-  promotions,
+  products = [],
+  orders = [],
+  customers = [],
+  sellers = [],
+  payments = [],
+  promotions = [],
+  notifications = [],
+  cart = [],
   items = [],
 }) {
   const getCount = (item, stores) => {
     switch (item) {
       case "Products":
-        return stores.products.length;
+        return stores.products.length === 0 ? "" : stores.products.length;
       case "Orders":
-        return stores.orders.length;
+        return stores.orders.length === 0 ? "" : stores.orders.length;
       case "Customers":
-        return stores.customers.length;
+        return stores.customers.length === 0 ? "" : stores.customers.length;
       case "Sellers":
-        return stores.sellers.length;
+        return stores.sellers.length === 0 ? "" : stores.sellers.length;
       case "Payments":
-        return stores.payments.length;
+        return stores.payments.length === 0 ? "" : stores.payments.length;
       case "Promotions":
-        return stores.promotions.length;
+        return stores.promotions.length === 0 ? "" : stores.promotions.length;
+      case "Notifications":
+        return stores.notifications.length === 0
+          ? ""
+          : stores.notifications.length;
+      case "Cart":
+        return stores.cart.length === 0 ? "" : stores.cart.length;
+
       default:
         return "";
     }
   };
+
+  console.log(notifications);
   return (
     <div>
-      <aside className="w-full md:w-64 bg-white border-r shadow-sm ">
-        <div className="p-4 border-b">
+      <aside className="w-80 md:w-64 bg-white border-r shadow-sm ">
+        <div className="p-6 border-b">
           <div>
             <a href="/#" aria-label="E-commerce Home">
               <img src={logo} className="h-10 w-auto" alt="logo" />
@@ -59,6 +70,8 @@ export default function Sidebar({
                   sellers,
                   payments,
                   promotions,
+                  notifications,
+                  cart,
                 })}
               </span>
             </button>

@@ -78,17 +78,29 @@ function ProductsView({
   };
   return (
     <div className="space-y-10">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <SelectAllCheckbox
-            selected={selected}
-            allSelected={allSelected}
-            toggleSelectAll={toggleSelectAll}
-          />
-          <div className="font-medium">Products ({products.length})</div>
+      <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
+        {/* Left: SelectAll + Title + small screen Add/Delete buttons */}
+        <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1  gap-4">
+          <div className="flex items-center gap-4">
+            <SelectAllCheckbox
+              selected={selected}
+              allSelected={allSelected}
+              toggleSelectAll={toggleSelectAll}
+            />
+            <div className="font-medium sm:text-md text-[15px]">
+              Products ({products.length})
+            </div>
+          </div>
+          {/* Small screen buttons */}
+          <div className="ml-2 lg:hidden flex gap-2">
+            <AddBtn btnHandler={openNewProductModal}>Add Product</AddBtn>
+            <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+          </div>
         </div>
-        <div>
-          <div className="flex items-center gap-3">
+
+        {/* Middle: Search + Sort */}
+        <div className="order-2    flex flex-wrap   gap-3 items-center ">
+          <div className="w-full order-2 xl:w-auto lg:w-auto md:w-auto xl:order-1 lg:order-1 md:order-1 ">
             <SearchField
               placeholder="Search products..."
               searchValue={productSearch}
@@ -97,6 +109,8 @@ function ProductsView({
                 setProductPage(1);
               }}
             />
+          </div>
+          <div className="xl:order-2 lg:order-2 md:order-2 order-1 ">
             <SelectField
               selectValue={productSort}
               selectValueChange={(e) => setProductSort(e.target.value)}
@@ -108,9 +122,9 @@ function ProductsView({
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <AddBtn onClick={openNewProductModal}>Add Product</AddBtn>
-
+        {/* Right: Buttons on large screens */}
+        <div className="hidden lg:flex gap-2 order-3 ">
+          <AddBtn btnHandler={openNewProductModal}>Add Product</AddBtn>
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>

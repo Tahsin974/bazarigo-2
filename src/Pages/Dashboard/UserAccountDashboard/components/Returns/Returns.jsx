@@ -10,7 +10,7 @@ export default function Returns({
 }) {
   return (
     <div>
-      {activeTab === "returns" && (
+      {activeTab === "Returns" && (
         <div className="bg-white p-6 rounded-2xl shadow-md space-y-4">
           <h3 className="text-lg font-semibold">Return Requests</h3>
           <ReturnForm

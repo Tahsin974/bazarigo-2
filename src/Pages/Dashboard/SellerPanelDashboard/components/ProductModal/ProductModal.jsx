@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 export default function ProductModal({
   productModalOpen,
   setProductModalOpen,
@@ -38,7 +38,7 @@ export default function ProductModal({
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-center">
                 <div>
                   <label className="text-sm font-medium">Category</label>
                   <select
@@ -73,21 +73,23 @@ export default function ProductModal({
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Images</label>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      const urls = files.map((f) => URL.createObjectURL(f));
-                      setProductForm((prev) => ({
-                        ...prev,
-                        images: [...(prev.images || []), ...urls],
-                      }));
-                    }}
-                    className="w-full"
-                  />
+                  <label className="flex items-center gap-2 cursor-pointer  px-3 py-2 rounded">
+                    <Upload size={16} /> Change photo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        const urls = files.map((f) => URL.createObjectURL(f));
+                        setProductForm((prev) => ({
+                          ...prev,
+                          images: [...(prev.images || []), ...urls],
+                        }));
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+
                   <div className="mt-2 flex gap-2 flex-wrap">
                     {(productForm.images || []).map((src, idx) => (
                       <div
@@ -146,7 +148,7 @@ export default function ProductModal({
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setProductModalOpen(false)}
-                  className="px-4 py-2 border rounded"
+                  className="px-4 py-2 border rounded "
                 >
                   Cancel
                 </button>

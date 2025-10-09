@@ -1,3 +1,5 @@
+import SelectField from "../../../../../components/ui/SelectField";
+
 export default function Addresses({
   addresses,
   activeTab,
@@ -9,28 +11,28 @@ export default function Addresses({
 }) {
   return (
     <div>
-      {activeTab === "addresses" && (
-        <div className="bg-white p-6 rounded-2xl shadow-md space-y-4 max-w-2xl">
+      {activeTab === "Addresses" && (
+        <div className="bg-white sm:p-6 p-3 rounded-2xl shadow-md space-y-4 max-w-2xl">
           <h3 className="text-lg font-semibold">Saved Addresses</h3>
-          <form onSubmit={addAddress} className="flex gap-3">
-            <select
-              value={newAddress.type}
-              onChange={(e) =>
+          <form onSubmit={addAddress} className="flex flex-wrap gap-3">
+            <SelectField
+              selectValue={newAddress.type}
+              selectValueChange={(e) =>
                 setNewAddress((prev) => ({ ...prev, type: e.target.value }))
               }
-              className="border px-3 py-2 rounded-md"
             >
               <option>Home</option>
               <option>Office</option>
               <option>Other</option>
-            </select>
+            </SelectField>
+
             <input
               value={newAddress.details}
               onChange={(e) =>
                 setNewAddress((prev) => ({ ...prev, details: e.target.value }))
               }
               placeholder="Address details"
-              className="flex-1 border px-3 py-2 rounded-md"
+              className="md:w-96 w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white "
             />
             <button
               type="submit"

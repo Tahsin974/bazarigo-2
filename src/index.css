@@ -9,6 +9,18 @@
   }
 }
 
+thead {
+  background-color: rgb(240, 240, 240);
+}
+
+tr {
+  border-bottom: 1px solid #d1d5dc;
+}
+
+tbody > tr:hover {
+  background-color: #f9fafb;
+}
+
 button {
   cursor: pointer;
 }

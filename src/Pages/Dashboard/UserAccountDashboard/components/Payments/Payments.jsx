@@ -11,15 +11,16 @@ export default function Payments({
 }) {
   return (
     <div>
-      {activeTab === "payments" && (
-        <div className="bg-white p-6 rounded-2xl shadow-md">
+      {activeTab === "Payments" && (
+        <div className="bg-white sm:p-6 p-3 rounded-2xl shadow-md">
           <h3 className="text-lg font-semibold mb-4">Payment Methods</h3>
           <div className="grid gap-3 md:grid-cols-2">
             {paymentMethods.map((pm) => (
               <div
                 key={pm.id}
-                className="border rounded-lg p-4 flex justify-between items-center"
+                className="border rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
               >
+                {/* Left Section */}
                 <div className="flex items-center gap-3">
                   <div className="bg-gray-100 p-2 rounded-md">
                     {pm.type === "card" ? (
@@ -29,21 +30,27 @@ export default function Payments({
                     )}
                   </div>
                   <div>
-                    <div className="font-medium text-sm">{pm.label}</div>
-                    <div className="text-xs text-gray-500">{pm.type}</div>
+                    <div className="font-medium text-sm sm:text-base">
+                      {pm.label}
+                    </div>
+                    <div className="text-xs text-gray-500 capitalize">
+                      {pm.type}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Right Section */}
+                <div className="flex items-center gap-2 sm:justify-end">
                   {pm.primary && <Star className="text-yellow-400" size={16} />}
                   <button
                     onClick={() => setPrimaryPayment(pm.id)}
-                    className="text-xs px-2 py-1 rounded-md border"
+                    className="text-xs px-2 py-1 rounded-md border hover:bg-gray-100 transition"
                   >
                     Set Primary
                   </button>
                   <button
                     onClick={() => removePayment(pm.id)}
-                    className="text-xs px-2 py-1 rounded-md border text-red-600"
+                    className="text-xs px-2 py-1 rounded-md border text-red-600 hover:bg-red-50 transition"
                   >
                     Remove
                   </button>

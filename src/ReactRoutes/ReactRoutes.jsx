@@ -14,6 +14,11 @@ import UserAccountDashboard from "../Pages/Dashboard/UserAccountDashboard/UserAc
 import DashBoardLayOut from "../LayOut/DashBoardLayOut";
 import AdminPanelDashboard from "../Pages/Dashboard/AdminPanelDashboard/AdminPanelDashboard";
 import SellerPanelDashboard from "../Pages/Dashboard/SellerPanelDashboard/SellerPanelDashboard";
+import TermsConditionsPage from "../Pages/TermsConditionsPage/TermsConditionsPage";
+import PrivacyPolicyPage from "../Pages/PrivacyPolicyPage/PrivacyPolicyPage";
+import ReturnRefundPolicyPage from "../Pages/ReturnRefundPolicyPage/ReturnRefundPolicyPage";
+import ContactUsPage from "../Pages/ContactUsPage/ContactUsPage";
+import AboutPage from "../Pages/AboutPage/AboutPage";
 
 export const router = createBrowserRouter([
   {
@@ -62,12 +67,32 @@ export const router = createBrowserRouter([
         element: <CheckOutPage />,
       },
       {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
+        path: "/contact-us",
+        element: <ContactUsPage />,
+      },
+      {
         path: "/thank-you",
         element: <ThankYouPage />,
       },
       {
         path: "/sign-up",
         element: <SignUpPage />,
+      },
+      {
+        path: "/terms-conditions",
+        element: <TermsConditionsPage />,
+      },
+      {
+        path: "/privacy-policy",
+        element: <PrivacyPolicyPage />,
+      },
+      {
+        path: "/return-refund",
+        element: <ReturnRefundPolicyPage />,
       },
     ],
   },

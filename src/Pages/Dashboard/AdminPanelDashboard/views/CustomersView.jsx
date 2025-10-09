@@ -68,9 +68,20 @@ function CustomersView({
   };
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold">Customers ({customers.length})</h3>
-        <div>
+      <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
+        {/* Left: Title + small screen button */}
+        <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
+          <h3 className="font-semibold sm:text-md text-[15px]">
+            Customers ({customers.length})
+          </h3>
+          {/* Add button only on small screens */}
+          <div className="ml-2 md:hidden">
+            <AddBtn btnHandler={onAdd}>Add Customer</AddBtn>
+          </div>
+        </div>
+
+        {/* Middle: Search field */}
+        <div className="order-2  w-full md:flex-1 md:flex md:justify-center">
           <SearchField
             placeholder="Search customers..."
             searchValue={customerSearch}
@@ -80,17 +91,20 @@ function CustomersView({
             }}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <AddBtn btnHandler={onAdd}>Add Customer</AddBtn>
 
+        {/* Right: Buttons visible on large screens */}
+        <div className="hidden md:flex items-center gap-2 order-3 lg:order-2">
+          <AddBtn btnHandler={onAdd}>Add Customer</AddBtn>
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>
-      <div className="bg-white rounded shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
+
+      <div className="overflow-x-auto">
+        <table className="table">
+          {/* head */}
           <thead className="bg-gray-50">
             <tr>
-              <th className="p-2">
+              <th>
                 <SelectAllCheckbox
                   selected={selected}
                   allSelected={allSelected}
@@ -98,15 +112,15 @@ function CustomersView({
                   isShowCounter={false}
                 />
               </th>
-              <th className="p-2 text-left">Name</th>
-              <th className="p-2 text-left">Email</th>
-              <th className="p-2 text-left">Orders</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Orders</th>
             </tr>
           </thead>
           <tbody>
             {paginatedCustomers.map((c) => (
-              <tr key={c.id} className="border-b">
-                <td className="p-2 text-center">
+              <tr key={c.id}>
+                <td>
                   <input
                     type="checkbox"
                     className="checkbox checkbox-secondary checkbox-xs rounded-sm"
@@ -114,14 +128,15 @@ function CustomersView({
                     onChange={() => toggleSelect(c.id)}
                   />
                 </td>
-                <td className="p-2">{c.name}</td>
-                <td className="p-2">{c.email}</td>
-                <td className="p-2">{c.orders}</td>
+                <td>{c.name}</td>
+                <td>{c.email}</td>
+                <td>{c.orders}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
       <Pagination
         currentPage={customerPage}
         totalPages={totalPages}
