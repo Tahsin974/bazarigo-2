@@ -89,7 +89,7 @@ export default function SellerTermsConditionsPage() {
           </section>
 
           {/* Commission Structure */}
-          <section>
+          {/* <section>
             <h2 className="text-xl font-semibold mb-2">
               6. Commission Structure
             </h2>
@@ -131,6 +131,88 @@ export default function SellerTermsConditionsPage() {
               Bazarigo reserves the right to modify commission rates with prior
               notice. Any new commission rates will apply to all future sales.
             </p>
+          </section> */}
+          <section>
+            <h2 className="text-xl font-semibold mb-2">
+              6. Commission Structure
+            </h2>
+            <p>
+              Bazarigo charges a commission on every product sold through the
+              platform. Commission rates vary by product category and are
+              designed to balance profitability for sellers and the platform.
+            </p>
+
+            {/* Commission Rates Table */}
+            <div className="overflow-x-auto mt-2">
+              <table className="table text-center">
+                <thead className="bg-gray-100 text-black">
+                  <tr>
+                    <th className="px-4 py-2 border">Category</th>
+                    <th className="px-4 py-2 border">Commission Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t">
+                    <td className="px-4 py-2 border">Fashions</td>
+                    <td className="px-4 py-2 border">10%</td>
+                  </tr>
+                  <tr className="border-t">
+                    <td className="px-4 py-2 border">Electronics</td>
+                    <td className="px-4 py-2 border">5%</td>
+                  </tr>
+                  <tr className="border-t">
+                    <td className="px-4 py-2 border">Health & Beauty</td>
+                    <td className="px-4 py-2 border">12%</td>
+                  </tr>
+                  <tr className="border-t">
+                    <td className="px-4 py-2 border">Sports</td>
+                    <td className="px-4 py-2 border">8%</td>
+                  </tr>
+                  <tr className="border-t">
+                    <td className="px-4 py-2 border">Groceries</td>
+                    <td className="px-4 py-2 border">3%</td>
+                  </tr>
+                  <tr className="border-t">
+                    <td className="px-4 py-2 border">Home & Living</td>
+                    <td className="px-4 py-2 border">7%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Seller Benefits & Rewards */}
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold mb-2">
+                Seller Benefits & Rewards
+              </h3>
+              <ul className="list-disc ml-6 space-y-1">
+                <li>
+                  New Seller Bonus: Enjoy 2% reduced commission for your first 3
+                  months.
+                </li>
+                <li>
+                  High Performance Reward: Sellers with monthly sales above
+                  500,000 BDT get 1% commission rebate.
+                </li>
+                <li>
+                  Promotional Support: Bazarigo promotes top sellers in
+                  marketing campaigns.
+                </li>
+                <li>
+                  Logistics Assistance: Certain logistic and return support
+                  included in commission.
+                </li>
+              </ul>
+            </div>
+
+            {/* Motivational Message */}
+            <div className="mt-4 bg-gray-50 p-4 rounded border-l-4 border-[#FF0055]">
+              <p className="italic">
+                We value every seller as part of the Bazarigo family. Together,
+                let's create an ecosystem of trust, transparency, and mutual
+                success. Join us today and grow your business with confidence.
+              </p>
+            </div>
           </section>
 
           {/* Shipping & Delivery */}
