@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { HashLink } from "react-router-hash-link";
 
 export default function HeroSection() {
   return (
@@ -30,11 +30,11 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-8"
         >
-          <Link to="/categories">
+          <HashLink to="/categories/All Products#">
             <Button className="bg-white text-[#FF0055] font-semibold px-6 py-5 rounded-full shadow-lg hover:bg-gray-100 transition-colors transform hover:scale-105 cursor-pointer">
               Shop the Collection
             </Button>
-          </Link>
+          </HashLink>
         </motion.div>
       </div>
     </section>

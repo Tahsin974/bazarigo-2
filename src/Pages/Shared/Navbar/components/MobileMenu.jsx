@@ -29,7 +29,7 @@ export default function MobileMenu({ isMenuOpen }) {
             </Link>
             <Link
               title="User"
-              to="/sign-up"
+              to="/dashboard"
               aria-label="User Account"
               className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
             >
@@ -37,7 +37,7 @@ export default function MobileMenu({ isMenuOpen }) {
             </Link>
           </div>
           <a
-            href="#"
+            href="/seller-registration#"
             className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white font-semibold px-5 py-2 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-center"
           >
             Become a Seller

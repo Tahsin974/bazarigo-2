@@ -40,10 +40,9 @@ export default function Sidebar({
     }
   };
 
-  console.log(notifications);
   return (
     <div>
-      <aside className="w-80 md:w-64 bg-white border-r shadow-sm ">
+      <aside className="w-80 md:w-64 bg-white border-r shadow-sm min-h-full">
         <div className="p-6 border-b flex justify-between items-center">
           <div>
             <a href="/#" aria-label="E-commerce Home">

@@ -100,6 +100,14 @@ export default function Footer() {
               </li>
               <li>
                 <a
+                  href="/seller-terms-conditions#"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Seller Terms And Conditions
+                </a>
+              </li>
+              <li>
+                <a
                   href="/return-refund#"
                   className="text-gray-400 hover:text-white transition-colors"
                 >

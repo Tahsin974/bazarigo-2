@@ -1,13 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 import {
   buildInventoryFromProducts,
-  sampleOrders,
   samplePayments,
-  sampleProducts,
-  sampleReturns,
 } from "./SellerHelpers/SellerHelpers";
 import Sidebar from "../../../components/Sidebar/Sidebar";
-import TopBar from "./components/TopBar/TopBar";
 import DashboardView from "./views/DashboardView";
 import ProductsView from "./views/ProductsView";
 import OrdersView from "./views/OrdersView";
@@ -17,9 +13,14 @@ import ReportsView from "./views/ReportsView";
 import SettingsView from "./views/SettingsView";
 import * as XLSX from "xlsx";
 import Drawer from "../../../components/Drawer/Drawer";
-import MyProfile from "./views/MyProfileView";
 import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
 import MyProfileView from "../../../components/MyProfileView/MyProfileView";
+import ProductModal from "../../../components/ProductModal/ProductModal";
+import {
+  sampleOrders,
+  sampleProducts,
+  sampleReturns,
+} from "../../../Utils/Helpers/Helpers";
 
 export default function SellerPanelDashboard() {
   const [user, setUser] = useState({
@@ -27,6 +28,7 @@ export default function SellerPanelDashboard() {
     email: "rahim@example.com",
     phone: "01712345678",
     avatar: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
+    role: "seller",
   });
   // --- Navigation + global data ---
   const [active, setActive] = useState("Dashboard");
@@ -45,11 +47,6 @@ export default function SellerPanelDashboard() {
   // Product UI state
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [productForm, setProductForm] = useState({
-    category: "Fashion",
-    images: [],
-    stock: 0,
-  });
   const fileInputRef = useRef(null);
   const [selectedProductIds, setSelectedProductIds] = useState([]);
 
@@ -65,6 +62,10 @@ export default function SellerPanelDashboard() {
   const [orderPage, setOrderPage] = useState(1);
   const orderPageSize = 6;
   const [selectedOrderIds, setSelectedOrderIds] = useState([]);
+
+  const [returnOrderSearch, setReturnOrderSearch] = useState("");
+  const [returnOrderPage, setReturnOrderPage] = useState(1);
+  const returnOrderPageSize = 6;
 
   // Payments filters/pagination
   const [paymentSearch, setPaymentSearch] = useState("");
@@ -106,37 +107,6 @@ export default function SellerPanelDashboard() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [twoFA, setTwoFA] = useState("Disabled");
   const [loginAlert, setLoginAlert] = useState("Disabled");
-
-  // Category schema (dynamic product modal)
-  const categorySchemas = {
-    Fashion: [
-      { key: "name", label: "Name", type: "text" },
-      { key: "price", label: "Price", type: "number" },
-      { key: "description", label: "Description", type: "textarea" },
-      { key: "brand", label: "Brand", type: "text" },
-      { key: "size", label: "Size", type: "text" },
-      { key: "color", label: "Color", type: "text" },
-    ],
-    Electronics: [
-      { key: "name", label: "Name", type: "text" },
-      { key: "price", label: "Price", type: "number" },
-      { key: "description", label: "Description", type: "textarea" },
-      { key: "model", label: "Model", type: "text" },
-      { key: "warranty", label: "Warranty (months)", type: "number" },
-    ],
-    "Home & Kitchen": [
-      { key: "name", label: "Name", type: "text" },
-      { key: "price", label: "Price", type: "number" },
-      { key: "description", label: "Description", type: "textarea" },
-      { key: "material", label: "Material", type: "text" },
-      { key: "dimensions", label: "Dimensions", type: "text" },
-    ],
-    Default: [
-      { key: "name", label: "Name", type: "text" },
-      { key: "price", label: "Price", type: "number" },
-      { key: "description", label: "Description", type: "textarea" },
-    ],
-  };
 
   // --- Derived lists ---
   const filteredProducts = useMemo(() => {
@@ -184,6 +154,27 @@ export default function SellerPanelDashboard() {
     orderPage * orderPageSize
   );
 
+  const filteredReturnOrders = useMemo(() => {
+    let data = [...returns];
+    if (returnOrderSearch) {
+      const q = returnOrderSearch.toLowerCase();
+      data = data.filter(
+        (o) =>
+          (o.id || "").toLowerCase().includes(q) ||
+          (o.status || "").toLowerCase().includes(q) ||
+          (o.customer || "").toLowerCase().includes(q)
+      );
+    }
+    data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    return data;
+  }, [returns, returnOrderSearch]);
+
+  const paginatedReturnOrders = filteredReturnOrders.slice(
+    (returnOrderPage - 1) * returnOrderPageSize,
+    returnOrderPage * returnOrderPageSize
+  );
+  console.log(returns, "seller");
+
   const filteredPayments = useMemo(() => {
     let data = [...payments];
     if (paymentSearch) {
@@ -222,31 +213,49 @@ export default function SellerPanelDashboard() {
   }, [orders, reportFilter, startDate, endDate]);
 
   // --- Handlers & helpers ---
-  function openNewProductModal() {
-    setEditingProduct(null);
-    setProductForm({ category: "Fashion", images: [], stock: 0 });
+  const openNewProductModal = () => {
+    setEditingProduct({
+      id: null,
+      name: "",
+      price: "",
+      category: "Fashion",
+      description: "",
+      stock: 0,
+      images: [],
+      extras: {},
+    });
     setProductModalOpen(true);
-  }
-  function openEditProductModal(p) {
-    setEditingProduct(p);
-    setProductForm({ ...p, images: p.images || [], stock: p.stock || 0 });
+  };
+
+  const openEditProductModal = (p) => {
+    setEditingProduct({ ...p });
     setProductModalOpen(true);
-  }
-  function saveProduct() {
-    if (!productForm.name || !productForm.price)
-      return alert("Name and price required");
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((x) =>
-          x.id === editingProduct.id ? { ...x, ...productForm } : x
-        )
-      );
-    } else {
-      const newP = { id: Date.now().toString(), ...productForm };
-      setProducts((prev) => [newP, ...prev]);
+  };
+  const saveProduct = (product) => {
+    if (!product.name) return alert("Product name required");
+    if (product.id)
+      setProducts((ps) => ps.map((x) => (x.id === product.id ? product : x)));
+    else {
+      product.id = `p_${Date.now()}`;
+      setProducts((ps) => [product, ...ps]);
     }
     setProductModalOpen(false);
-  }
+  };
+  // function saveProduct() {
+  //   if (!productForm.name || !productForm.price)
+  //     return alert("Name and price required");
+  //   if (editingProduct) {
+  //     setProducts((prev) =>
+  //       prev.map((x) =>
+  //         x.id === editingProduct.id ? { ...x, ...productForm } : x
+  //       )
+  //     );
+  //   } else {
+  //     const newP = { id: Date.now().toString(), ...productForm };
+  //     setProducts((prev) => [newP, ...prev]);
+  //   }
+  //   setProductModalOpen(false);
+  // }
 
   function toggleSelectProduct(id) {
     setSelectedProductIds((s) =>
@@ -673,12 +682,6 @@ export default function SellerPanelDashboard() {
                 active={active}
                 products={products}
                 setProducts={setProducts}
-                productModalOpen={productModalOpen}
-                setProductModalOpen={setProductModalOpen}
-                editingProduct={editingProduct}
-                setEditingProduct={setEditingProduct}
-                productForm={productForm}
-                setProductForm={setProductForm}
                 fileInputRef={fileInputRef}
                 selectedProductIds={selectedProductIds}
                 setSelectedProductIds={setSelectedProductIds}
@@ -686,7 +689,6 @@ export default function SellerPanelDashboard() {
                 bulkDeleteProducts={bulkDeleteProducts}
                 openNewProductModal={openNewProductModal}
                 openEditProductModal={openEditProductModal}
-                saveProduct={saveProduct}
                 productSearch={productSearch}
                 setProductSearch={setProductSearch}
                 productSort={productSort}
@@ -696,7 +698,6 @@ export default function SellerPanelDashboard() {
                 productPageSize={productPageSize}
                 filteredProducts={filteredProducts}
                 paginatedProducts={paginatedProducts}
-                categorySchemas={categorySchemas}
                 handleBulkUploadFile={handleBulkUploadFile}
                 exportProductsExcel={exportProductsExcel}
               />
@@ -719,6 +720,13 @@ export default function SellerPanelDashboard() {
                 orderPageSize={orderPageSize}
                 filteredOrders={filteredOrders}
                 paginatedOrders={paginatedOrders}
+                returnOrderSearch={returnOrderSearch}
+                setReturnOrderSearch={setReturnOrderSearch}
+                filteredReturnOrders={filteredReturnOrders}
+                paginatedReturnOrders={paginatedReturnOrders}
+                returnOrderPage={returnOrderPage}
+                setReturnOrderPage={setReturnOrderPage}
+                returnOrderPageSize={returnOrderPageSize}
               />
               <InventoryView
                 active={active}
@@ -788,6 +796,7 @@ export default function SellerPanelDashboard() {
           </Drawer>
         </div>
       </div>
+
       {/* Edit Profile Modal */}
       <EditProfileModal
         user={user}
@@ -797,6 +806,15 @@ export default function SellerPanelDashboard() {
         handleProfileSave={handleProfileSave}
         handleAvatarChange={handleAvatarChange}
       />
+
+      {productModalOpen && (
+        <ProductModal
+          user={user}
+          product={editingProduct}
+          onClose={() => setProductModalOpen(false)}
+          onSave={saveProduct}
+        />
+      )}
     </div>
   );
 }

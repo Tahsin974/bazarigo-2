@@ -114,7 +114,7 @@ export default function PaymentsView({
                   <tr key={p.id}>
                     <td>{p.id}</td>
                     <td>{p.date}</td>
-                    <td>${p.amount}</td>
+                    <td>৳{p.amount}</td>
                     <td>{p.method}</td>
                     <td>{p.status}</td>
                   </tr>

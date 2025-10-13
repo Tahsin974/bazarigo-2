@@ -58,7 +58,6 @@ export default function ReportsView({
       potentialValue: (p.stock * p.price).toFixed(2),
     }));
 
-  console.log(reportFilter);
   return (
     <div>
       {/* {active === "Reports" && (
@@ -247,13 +246,13 @@ export default function ReportsView({
                           {p.category}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${p.price.toFixed(2)}
+                          ৳{p.price.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                           {p.stock}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#FF0055]">
-                          ${p.potentialValue}
+                          ৳{p.potentialValue}
                         </td>
                       </tr>
                     ))}

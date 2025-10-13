@@ -30,7 +30,7 @@ export default function CartPage() {
                 <div>
                   <h3 className="font-semibold text-gray-800">{item.name}</h3>
                   <p className="text-[#FF0055] font-bold">
-                    ${item.price.toFixed(2)}
+                    ৳{item.price.toFixed(2)}
                   </p>
                   <div className="mt-2 flex items-center gap-2">
                     <label className="text-sm text-gray-600">Qty:</label>

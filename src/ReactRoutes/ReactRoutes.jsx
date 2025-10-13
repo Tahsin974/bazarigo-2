@@ -19,6 +19,8 @@ import PrivacyPolicyPage from "../Pages/PrivacyPolicyPage/PrivacyPolicyPage";
 import ReturnRefundPolicyPage from "../Pages/ReturnRefundPolicyPage/ReturnRefundPolicyPage";
 import ContactUsPage from "../Pages/ContactUsPage/ContactUsPage";
 import AboutPage from "../Pages/AboutPage/AboutPage";
+import SellerRegistrationPage from "../Pages/SellerRegistration/SellerRegistration";
+import SellerTermsConditionsPage from "../Pages/SellerTermsConditionsPage/SellerTermsConditionsPage";
 
 export const router = createBrowserRouter([
   {
@@ -39,7 +41,7 @@ export const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/categories",
+        path: "/categories/:categoryName",
         element: <CategoriesPage />,
       },
       {
@@ -83,8 +85,16 @@ export const router = createBrowserRouter([
         element: <SignUpPage />,
       },
       {
+        path: "/seller-registration",
+        element: <SellerRegistrationPage />,
+      },
+      {
         path: "/terms-conditions",
         element: <TermsConditionsPage />,
+      },
+      {
+        path: "/seller-terms-conditions",
+        element: <SellerTermsConditionsPage />,
       },
       {
         path: "/privacy-policy",

@@ -1,5 +1,5 @@
 import FlashSaleCountdown from "../../Shared/FlashSaleCountdown/FlashSaleCountdown";
-import CallToActionSection from "../CallToActionSection/CallToActionSection";
+// import CallToActionSection from "../CallToActionSection/CallToActionSection";
 import CategoriesSection from "../CategoriesSection/CategoriesSection";
 import HeroSection from "../HeroSection/HeroSection";
 import JustArrivedSection from "../JustArrivedSection/JustArrivedSection";
@@ -14,7 +14,7 @@ export default function HomePage() {
       <FlashSaleCountdown isButtonVisible={true} />
       <JustArrivedSection />
       <TrendingNowSection />
-      <CallToActionSection />
+      {/* <CallToActionSection /> */}
     </div>
   );
 }

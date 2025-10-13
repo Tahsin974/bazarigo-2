@@ -5,7 +5,7 @@ export default function ProductPage() {
   const SAMPLE = {
     electronics: {
       name: "Sleek Wireless Headphones",
-      price: "$120.00",
+      price: "৳120.00",
       rating: 4,
       reviews: 87,
       stock: 12,
@@ -16,7 +16,7 @@ export default function ProductPage() {
       related: [
         {
           name: "Portable Bluetooth Speaker",
-          price: "$85.00",
+          price: "৳85.00",
           img: "https://placehold.co/400x400/F39C12/ffffff?text=Speaker",
         },
       ],
@@ -37,7 +37,7 @@ export default function ProductPage() {
     },
     fashion: {
       name: "Classic Cotton Shirt",
-      price: "$35.00",
+      price: "৳35.00",
       rating: 5,
       stock: 30,
       img: "https://placehold.co/600x600/00C48C/fff?text=Shirt",
@@ -50,7 +50,7 @@ export default function ProductPage() {
     },
     book: {
       name: "The Modern Developer",
-      price: "$22.00",
+      price: "৳22.00",
       rating: 4,
       stock: 5,
       img: "https://placehold.co/600x600/9B59B6/fff?text=Book",
@@ -63,7 +63,7 @@ export default function ProductPage() {
     },
     home: {
       name: "Ceramic Coffee Mug",
-      price: "$12.00",
+      price: "৳12.00",
       rating: 4,
       stock: 100,
       img: "https://placehold.co/600x600/FF7B7B/fff?text=Mug",
@@ -76,7 +76,7 @@ export default function ProductPage() {
     },
     decor: {
       name: "Minimalist Wall Clock",
-      price: "$48.00",
+      price: "৳48.00",
       rating: 4,
       stock: 7,
       img: "https://placehold.co/600x600/E5FFFF/333?text=Clock",

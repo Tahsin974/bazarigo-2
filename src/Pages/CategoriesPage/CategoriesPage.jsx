@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 import InfiniteControls from "./components/Controls/InfiniteControls";
 import Pagination from "../../components/ui/Pagination";
+import { useParams } from "react-router";
+import { sampleProducts } from "../../Utils/Helpers/Helpers";
 
 // Final compiled, responsive Categories page
 // Features:
@@ -20,7 +22,10 @@ import Pagination from "../../components/ui/Pagination";
 
 export default function CategoriesPage() {
   // State & logic ...existing code...
-  const [activeCategory, setActiveCategory] = useState("All Products");
+  const { categoryName } = useParams();
+  const [activeCategory, setActiveCategory] = useState(
+    categoryName || "All Products"
+  );
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sortOption, setSortOption] = useState("Newest");
@@ -34,41 +39,103 @@ export default function CategoriesPage() {
   const categories = [
     {
       name: "Electronics",
-      sub: ["Laptops", "Smartphones", "Audio", "Accessories"],
+
+      sub: [
+        "Accessories",
+        "Audio & Headphones",
+        "Cameras & Photography",
+        "Gaming Consoles",
+        "Laptops & Computers",
+        "Mobile Phones",
+        "TV & Home Theater",
+        "Wearables",
+      ],
     },
-    { name: "Fashion", sub: ["Men", "Women", "Shoes", "Bags"] },
+    {
+      name: "Fashion",
+
+      sub: [
+        "Accessories",
+        "Bags & Backpacks",
+        "Ethnic & Traditional Wear",
+        "Footwear",
+        "Kid’s Clothing",
+        "Men’s Clothing",
+        "Watches",
+        "Women’s Clothing",
+      ],
+    },
     {
       name: "Groceries",
-      sub: ["Beverages", "Snacks", "Fresh Produce", "Household"],
-    },
 
+      sub: [
+        "Accessories",
+        "Beverages",
+        "Cooking Essentials",
+        "Dairy & Eggs",
+        "Fresh Fruits & Vegetables",
+        "Frozen Foods",
+        "Meat & Seafood",
+        "Packaged & Snacks",
+      ],
+    },
     {
       name: "Health & Beauty",
-      sub: ["Furniture", "Appliances", "Cookware", "Decor"],
+
+      sub: [
+        "Accessories",
+        "Fragrances",
+        "Haircare",
+        "Makeup & Cosmetics",
+        "Skincare",
+        "Vitamins & Supplements",
+      ],
     },
     {
       name: "Home & Living",
-      sub: ["Furniture", "Appliances", "Cookware", "Decor"],
-    },
 
-    { name: "Sports", sub: ["Fitness", "Outdoor", "Cycling", "Accessories"] },
+      sub: [
+        "Accessories",
+        "Bedding & Bath",
+        "Cleaning Supplies",
+        "Furniture",
+        "Home Decor",
+        "Kitchen & Dining",
+        "Lighting",
+        "Storage & Organization",
+      ],
+    },
+    {
+      name: "Sports",
+
+      sub: [
+        "Accessories",
+        "Cycling & Scooters",
+        "Gym & Fitness Equipment",
+        "Outdoor Sports",
+        "Sportswear & Footwear",
+        "Water Sports",
+      ],
+    },
   ];
-  const products = Array.from({ length: 60 }, (_, i) => ({
-    id: i + 1,
-    name: `Product ${i + 1}`,
-    price: `$${((i + 1) * 7).toFixed(2)}`,
-    rating: Math.floor(Math.random() * 5) + 1,
-    category:
-      i % 3 === 0 ? "Electronics" : i % 3 === 1 ? "Fashion" : "Home & Kitchen",
-    img: `https://placehold.co/600x600/${
-      i % 3 === 0 ? "007BFF" : i % 3 === 1 ? "FF0055" : "F39C12"
-    }/ffffff?text=Product+${i + 1}`,
-    createdAt: Date.now() - i * 1000 * 60 * 60 * 24,
-  }));
+
+  // const products = Array.from({ length: 60 }, (_, i) => ({
+  //   id: i + 1,
+  //   name: `Product ${i + 1}`,
+  //   price: `$${((i + 1) * 7).toFixed(2)}`,
+  //   rating: Math.floor(Math.random() * 5) + 1,
+  //   category:
+  //     i % 3 === 0 ? "Electronics" : i % 3 === 1 ? "Fashion" : "Home & Kitchen",
+  //   img: `https://placehold.co/600x600/${
+  //     i % 3 === 0 ? "007BFF" : i % 3 === 1 ? "FF0055" : "F39C12"
+  //   }/ffffff?text=Product+${i + 1}`,
+  //   createdAt: Date.now() - i * 1000 * 60 * 60 * 24,
+  // }));
+  const products = sampleProducts();
   const filteredProducts =
     activeCategory === "All Products"
       ? products
-      : products.filter((p) => p.category === activeCategory);
+      : products.filter((p) => p.subcategory === activeCategory);
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "Price: Low to High")
       return (
@@ -117,20 +184,26 @@ export default function CategoriesPage() {
     setCurrentPage(1);
     setVisibleCount(itemsPerPage);
   }, [activeCategory, sortOption, mode]);
+  useEffect(() => {
+    if (categoryName) {
+      setActiveCategory(categoryName);
+    }
+  }, [categoryName]);
   const productsToRender =
     mode === "pagination" ? pageProducts : visibleProducts;
   // Main layout
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
-    const maxVisible = 5;
-    let start = Math.max(1, currentPage - 2);
-    let end = Math.min(totalPages, currentPage + 2);
+    const maxVisible = 3; // maximum buttons to show
+    let start = Math.max(1, currentPage - 1); // show one before current
+    let end = Math.min(totalPages, currentPage + 1); // show one after current
 
+    // Adjust if we are at the start or end
     if (end - start < maxVisible - 1) {
-      if (currentPage < totalPages / 2) {
+      if (currentPage === 1) {
         end = Math.min(totalPages, start + maxVisible - 1);
-      } else {
+      } else if (currentPage === totalPages) {
         start = Math.max(1, end - maxVisible + 1);
       }
     }
@@ -150,11 +223,13 @@ export default function CategoriesPage() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setCurrentPage(i)}
-          className={`w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
-            currentPage === i
-              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055]"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          className={`flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md 
+    w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 
+    ${
+      currentPage === i
+        ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055]"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
         >
           {i}
         </motion.div>
@@ -168,6 +243,7 @@ export default function CategoriesPage() {
 
     return pageNumbers;
   };
+
   return (
     <div className="w-full bg-gray-50 text-gray-800 min-h-screen py-12">
       <div className="container mx-auto px-6 lg:px-12">

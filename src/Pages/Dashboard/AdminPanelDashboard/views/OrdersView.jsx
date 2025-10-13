@@ -32,7 +32,7 @@ function OrdersView({
 }) {
   const markAsReturned = (id) =>
     setOrders((os) =>
-      os.map((o) => (o.id === id ? { ...o, status: "returned" } : o))
+      os.map((o) => (o.orderId === id ? { ...o, status: "returned" } : o))
     );
 
   const totalPages = Math.max(
@@ -130,7 +130,41 @@ function OrdersView({
 
     return pages;
   };
+  const updateStatus = (orderId, newStatus) => {
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.orderId === orderId ? { ...order, status: newStatus } : order
+      )
+    );
+  };
+  // Function to calculate estimated delivery date
+  function getEstimatedDelivery(orderDateStr) {
+    const orderDate = new Date(orderDateStr);
+    const minDays = 5; // minimum delivery days
+    const maxDays = 7; // maximum delivery days
 
+    const minDate = new Date(orderDate);
+    minDate.setDate(minDate.getDate() + minDays);
+
+    const maxDate = new Date(orderDate);
+    maxDate.setDate(maxDate.getDate() + maxDays);
+
+    const options = { month: "short", day: "numeric" };
+    return `${minDate.toLocaleDateString(
+      "en-US",
+      options
+    )} – ${maxDate.toLocaleDateString("en-US", options)}`;
+  }
+
+  const activeOrders = paginatedOrders.filter(
+    (order) => order.status !== "Cancelled"
+  );
+
+  // Add estimated delivery to each order
+  const ordersWithEstDelivery = activeOrders.map((order) => ({
+    ...order,
+    estDelivery: getEstimatedDelivery(order.date),
+  }));
   return (
     <div className="space-y-6">
       <div>
@@ -138,12 +172,6 @@ function OrdersView({
           {/* Left: SelectAll + Title + small screen DeleteAll */}
           <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
             <div className="flex items-center gap-2">
-              <SelectAllCheckbox
-                selected={selected}
-                allSelected={allSelected}
-                toggleSelectAll={toggleSelectAll}
-                isShowCounter={false}
-              />
               <h3 className="font-semibold sm:text-base text-sm">
                 Active Orders ({orders.length})
               </h3>
@@ -176,39 +204,85 @@ function OrdersView({
           {orders.length === 0 && (
             <div className="text-sm text-gray-500">No orders</div>
           )}
-          {paginatedOrders.map((o) => (
-            <div
-              key={o.id}
-              className="flex items-center justify-between border-b py-2"
-            >
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                  checked={selected.includes(o.id)}
-                  onChange={() => toggleSelect(o.id)}
-                />
-                <div>
-                  <div className="font-medium">{o.id}</div>
-                  <div className="text-xs text-gray-500">{o.customer}</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div>${o.total}</div>
-                <div className="text-xs text-gray-500">{o.status}</div>
-                <div className="mt-2 flex gap-2 justify-end">
-                  {o.status !== "returned" && (
-                    <button
-                      onClick={() => markAsReturned(o.id)}
-                      className="px-2 py-1 rounded bg-yellow-400"
-                    >
-                      Mark Returned
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+          <div className="overflow-x-auto bg-white rounded-box  ">
+            <table className="table  text-center">
+              {/* head */}
+              <thead className="text-black">
+                <tr>
+                  <th>
+                    <SelectAllCheckbox
+                      selected={selected}
+                      allSelected={allSelected}
+                      toggleSelectAll={toggleSelectAll}
+                      isShowCounter={false}
+                    />
+                  </th>
+                  <th># Order</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Est. Delivery</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody className="">
+                {ordersWithEstDelivery.map((o) => (
+                  <tr key={o.orderId} className="border-t">
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                        checked={selected.includes(o.id)}
+                        onChange={() => toggleSelect(o.id)}
+                      />
+                    </td>
+                    <td>{o.number} </td>
+                    <td>{o.customer}</td>
+                    <td>৳{o.total}</td>
+                    <td>
+                      <SelectField
+                        selectValue={o.status}
+                        selectValueChange={(e) =>
+                          updateStatus(o.orderId, e.target.value)
+                        }
+                      >
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Out for Delivery">
+                          Out for Delivery
+                        </option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="returned">Returned</option>
+                      </SelectField>
+                    </td>
+                    <td>{o.estDelivery}</td>
+                    <td>
+                      <div className="flex justify-center items-center gap-2">
+                        <button
+                          onClick={() => alert(JSON.stringify(o, null, 2))}
+                          className="px-3 py-1 border rounded"
+                        >
+                          View
+                        </button>
+                        <div className=" flex gap-2 justify-end">
+                          {o.status !== "returned" ? (
+                            <button
+                              onClick={() => markAsReturned(o.orderId)}
+                              className="px-3 py-1 border rounded"
+                            >
+                              Mark Returned
+                            </button>
+                          ) : (
+                            <p className="text-green-400"> {o.status}</p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <Pagination
           currentPage={orderPage}
@@ -235,24 +309,33 @@ function OrdersView({
           </div>
         </div>
         <div className="mt-3 bg-white p-3 rounded shadow-sm">
-          {returns.length === 0 && (
+          {returns.length === 0 ? (
             <div className="text-sm text-gray-500">No return orders</div>
-          )}
-          {paginatedReturnOrders.map((o) => (
-            <div
-              key={o.id}
-              className="flex items-center justify-between border-b py-2"
-            >
-              <div>
-                <div className="font-medium">{o.id}</div>
-                <div className="text-xs text-gray-500">{o.customer}</div>
-              </div>
-              <div className="text-right">
-                <div>${o.total}</div>
-                <div className="text-xs text-gray-500">Returned</div>
-              </div>
+          ) : (
+            <div className="overflow-x-auto bg-white rounded-box">
+              <table className="table text-center">
+                {/* head */}
+                <thead className="bg-gray-50 ">
+                  <tr className="text-black">
+                    <th className="px-4 py-3">Return ID</th>
+                    <th className="px-4 py-3">Order #</th>
+                    <th className="px-4 py-3">Customer</th>
+                    <th className="px-4 py-3">Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedReturnOrders.map((r) => (
+                    <tr key={r.returnId} className="border-t">
+                      <td className="px-4 py-3">{r.returnId}</td>
+                      <td className="px-4 py-3">{r.number}</td>
+                      <td className="px-4 py-3">{r.customer}</td>
+                      <td className="px-4 py-3">{r.reason || "N/A"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
+          )}
         </div>
         <Pagination
           currentPage={returnOrderPage}

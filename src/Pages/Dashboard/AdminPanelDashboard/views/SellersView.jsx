@@ -21,6 +21,7 @@ function SellersView({
   sellerPageSize = 10,
   filteredSellers,
 }) {
+  console.log(filteredSellers);
   const totalPages = Math.max(
     1,
     Math.ceil(filteredSellers.length / sellerPageSize)
@@ -72,11 +73,6 @@ function SellersView({
         {/* Left: Title + Select All */}
         <div className="flex flex-wrap items-center gap-2 justify-between w-full md:w-auto order-1">
           <div className="flex items-center gap-2">
-            <SelectAllCheckbox
-              selected={selected}
-              allSelected={allSelected}
-              toggleSelectAll={toggleSelectAll}
-            />
             <h3 className="font-semibold sm:text-md text-[15px]">
               Sellers ({sellers.length})
             </h3>
@@ -107,29 +103,65 @@ function SellersView({
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredSellers.map((s) => (
-          <div
-            key={s.id}
-            className="bg-white p-3 rounded shadow-sm flex items-center justify-between"
-          >
-            <div>
-              <div className="font-medium">{s.name}</div>
-              <div className="text-xs text-gray-500">{s.email}</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                checked={selected.includes(s.id)}
-                onChange={() => toggleSelect(s.id)}
-              />
-              <button className="px-3 py-1 rounded border">View</button>
-            </div>
+      <div className="mt-3 bg-white p-3 rounded shadow-sm">
+        {sellers.length === 0 ? (
+          <div className="text-sm text-gray-500">No return orders</div>
+        ) : (
+          <div className="overflow-x-auto bg-white rounded-box">
+            <table className="table text-center">
+              {/* head */}
+              <thead className="bg-gray-50 ">
+                <tr className="text-black">
+                  <th className="px-4 py-3">
+                    <SelectAllCheckbox
+                      selected={selected}
+                      allSelected={allSelected}
+                      toggleSelectAll={toggleSelectAll}
+                      isShowCounter={false}
+                    />
+                  </th>
+                  <th className="px-4 py-3">Seller ID</th>
+                  <th className="px-4 py-3">Seller Name</th>
+                  <th className="px-4 py-3">Seller Email</th>
+                  <th className="px-4 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSellers.map((s) => (
+                  <tr key={s.id} className="border-t">
+                    <td className="px-4 py-3">
+                      {" "}
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                        checked={selected.includes(s.id)}
+                        onChange={() => toggleSelect(s.id)}
+                      />
+                    </td>
+                    <td className="px-4 py-3">{s.id}</td>
+                    <td className="px-4 py-3">{s.fullName}</td>
+                    <td className="px-4 py-3">{s.email}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2 justify-center">
+                        <button className="px-3 py-1 rounded border">
+                          View
+                        </button>
+                        <button className="px-3 py-1  rounded bg-[#00C853] hover:bg-[#00B34A] text-white">
+                          Accept
+                        </button>
+                        <button className="px-3 py-1  rounded bg-[#DC2626] hover:bg-[#B91C1C] text-white">
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ))}
+        )}
       </div>
+
       <Pagination
         currentPage={sellerPage}
         totalPages={totalPages}

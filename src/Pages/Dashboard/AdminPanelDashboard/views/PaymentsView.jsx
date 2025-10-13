@@ -94,7 +94,7 @@ function PaymentsView({
               <tr key={p.id} className="border-b">
                 <td className="p-2">{p.id}</td>
                 <td className="p-2">{p.method}</td>
-                <td className="p-2">${p.amount}</td>
+                <td className="p-2">৳{p.amount}</td>
                 <td className="p-2">{p.date}</td>
               </tr>
             ))}

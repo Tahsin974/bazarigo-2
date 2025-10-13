@@ -1,5 +1,6 @@
-import { Upload } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import UploadImages from "../../../../../components/ui/UploadImages";
+import { X } from "lucide-react";
 
 export default function ReturnForm({ prefillOrderId, onSubmit }) {
   const [orderId, setOrderId] = useState(prefillOrderId || "");
@@ -15,17 +16,25 @@ export default function ReturnForm({ prefillOrderId, onSubmit }) {
     const urls = files.map((f) => URL.createObjectURL(f));
     setImages((prev) => [...prev, ...urls]);
   };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(orderId.trim(), reason.trim(), images);
+    setOrderId("");
+    setReason("");
+    setImages([]);
+  };
+  // Function to remove image by index
+  const removeImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+  const handleReset = () => {
+    setOrderId("");
+    setReason("");
+    setImages([]);
+  };
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit(orderId.trim(), reason.trim(), images);
-        setOrderId("");
-        setReason("");
-        setImages([]);
-      }}
-      className="space-y-3"
-    >
+    <form onSubmit={handleSubmit} className="space-y-3">
       <input
         value={orderId}
         onChange={(e) => setOrderId(e.target.value)}
@@ -40,27 +49,29 @@ export default function ReturnForm({ prefillOrderId, onSubmit }) {
       />
 
       <div>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <Upload size={18} />
-          <span className="text-sm">Upload Images</span>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-        </label>
-        <div className="flex gap-2 mt-2 flex-wrap">
-          {images.map((img, idx) => (
-            <img
-              key={idx}
-              src={img}
-              alt={`preview-${idx}`}
-              className="w-20 h-20 object-cover rounded"
-            />
-          ))}
-        </div>
+        <UploadImages handleImageUpload={handleImageUpload}>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {(images || []).map((src, i) => (
+              <div
+                key={i}
+                className="w-full h-24 rounded overflow-hidden relative"
+              >
+                <img
+                  src={src}
+                  alt={`product-${i}`}
+                  className="w-full h-full object-cover"
+                />
+                {/* ❌ X Button */}
+                <button
+                  onClick={() => removeImage(i)}
+                  className="absolute top-1 right-1 w-6 h-6  text-gray-500 rounded-full flex items-center justify-center text-sm  transition"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </UploadImages>
       </div>
 
       <div className="flex gap-3">
@@ -72,11 +83,7 @@ export default function ReturnForm({ prefillOrderId, onSubmit }) {
         </button>
         <button
           type="button"
-          onClick={() => {
-            setOrderId("");
-            setReason("");
-            setImages([]);
-          }}
+          onClick={handleReset}
           className="px-4 py-2 rounded-md border"
         >
           Reset

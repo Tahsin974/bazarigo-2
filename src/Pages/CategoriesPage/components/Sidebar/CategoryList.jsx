@@ -1,5 +1,5 @@
-import React from "react";
 import { ChevronDown } from "lucide-react";
+import { useEffect } from "react";
 
 export default function CategoryList({
   categories,
@@ -8,6 +8,19 @@ export default function CategoryList({
   openDropdown,
   setOpenDropdown,
 }) {
+  useEffect(() => {
+    categories.forEach((cat, idx) => {
+      // Match the category name with the route param (case-insensitive)
+      if (cat.name === activeCategory) {
+        setOpenDropdown(idx); // open the matching dropdown
+        if (cat.sub && cat.sub.length > 0) {
+          setActiveCategory(cat.sub[0]); // select the first subcategory
+        } else {
+          setActiveCategory(cat.name); // or the main category
+        }
+      }
+    });
+  }, [categories]);
   return (
     <ul className="space-y-3">
       <li>

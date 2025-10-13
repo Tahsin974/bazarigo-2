@@ -1,87 +1,225 @@
 [
-  {
-    "name": "Portable Bluetooth Speaker",
-    "oldPrice": 110,
-    "price": 85,
-    "discount": 23,
-    "rating": 5,
-    "img": "img",
-    "isBestSeller": true,
-    "isHot": true,
-    "isNew": true
-  },
-  {
-    "name": "Classic Low-Top Sneakers",
-    "oldPrice": 90,
-    "price": 75,
-    "discount": 17,
-    "rating": 4,
-    "img": "https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers",
-    "isBestSeller": true,
-    "isTrending": true
-  },
-  {
-    "name": "Automatic Drip Coffee Maker",
-    "oldPrice": 72,
-    "price": 50,
-    "discount": 31,
-    "rating": 5,
-    "img": "https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker",
-    "isBestSeller": true,
-    "isNew": true
-  },
-  {
-    "name": "Insulated Travel Mug",
-    "oldPrice": 35,
-    "price": 25,
-    "discount": 29,
-    "rating": 4,
-    "img": "https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug",
-    "isHot": true
-  },
-  {
-    "name": "Smart LED Desk Lamp",
-    "oldPrice": 60,
-    "price": 45,
-    "discount": 25,
-    "rating": 5,
-    "img": "https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp",
-    "isNew": true
-  },
-  {
-    "name": "Wireless Earbuds Pro",
-    "oldPrice": 165,
-    "price": 149,
-    "discount": 10,
-    "rating": 5,
-    "img": "https://placehold.co/400x400/00C48C/ffffff?text=Earbuds",
-    "isLimitedStock": true
-  },
-  {
-    "name": "Premium Office Chair",
-    "oldPrice": 260,
-    "price": 210,
-    "discount": 19,
-    "rating": 4,
-    "img": "https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair"
-  },
-  {
-    "name": "4K Ultra HD Monitor",
-    "oldPrice": 399,
-    "price": 299,
-    "discount": 25,
-    "rating": 5,
-    "img": "https://placehold.co/400x400/007BFF/ffffff?text=Monitor",
-    "isTrending": true,
-    "isNew": true
-  },
-  {
-    "name": "Luxury Wristwatch",
-    "oldPrice": 650,
-    "price": 420,
-    "discount": 35,
-    "rating": 5,
-    "img": "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
-    "isExclusive": true
-  }
+  [
+    {
+      "id": "",
+      "name": "",
+      "oldPrice": 0,
+      "price": 0,
+      "discount": 0,
+      "rating": 0,
+      "isBestSeller": true,
+      "isHot": true,
+      "isNew": true,
+      "isTrending": false,
+      "Limited Stock": false,
+      "Exclusive": false,
+      "category": "Fashion",
+      "subcategory": "",
+      "description": "",
+      "stock": 0,
+      "images": [],
+      "extras": {}
+    }
+  ],
+  [
+    {
+      "id": "p1",
+      "name": "Galaxy S24 Ultra 5G",
+      "oldPrice": 1499,
+      "price": 1299,
+      "discount": 13,
+      "rating": 4.8,
+      "isBestSeller": true,
+      "isHot": false,
+      "isNew": false,
+      "isTrending": true,
+      "isLimitedStock": false,
+      "isExclusive": false,
+      "category": "Electronics",
+      "subcategory": "Mobile Phones",
+      "description": "Experience cutting-edge performance with the Galaxy S24 Ultra, featuring a 200MP camera and a 5000mAh battery.",
+      "stock": 45,
+      "images": [
+        "https://placehold.co/300x300/1E3A8A/FFFFFF?text=Galaxy+S24",
+        "https://placehold.co/300x300/312E81/FFFFFF?text=Back+View"
+      ],
+      "extras": {
+        "brand": "Samsung",
+        "model": "S24 Ultra",
+        "storage": "512GB",
+        "battery": "5000mAh",
+        "camera": "200MP + 12MP + 10MP"
+      }
+    },
+    {
+      "id": "p2",
+      "name": "Dell XPS 15 Laptop",
+      "oldPrice": 1899,
+      "price": 1699,
+      "discount": 10,
+      "rating": 4.7,
+      "isBestSeller": true,
+      "isHot": true,
+      "isNew": false,
+      "isTrending": true,
+      "isLimitedStock": false,
+      "isExclusive": true,
+      "category": "Electronics",
+      "subcategory": "Laptops & Computers",
+      "description": "Dell XPS 15 combines stunning visuals with exceptional power — perfect for creators and professionals.",
+      "stock": 32,
+      "images": [
+        "https://placehold.co/300x300/065F46/FFFFFF?text=Dell+XPS+15",
+        "https://placehold.co/300x300/064E3B/FFFFFF?text=Side+View"
+      ],
+      "extras": {
+        "brand": "Dell",
+        "processor": "Intel Core i7 13th Gen",
+        "ram": "32GB",
+        "storage": "1TB SSD",
+        "graphics": "NVIDIA RTX 4060"
+      }
+    },
+    {
+      "id": "p3",
+      "name": "Men’s Cotton T-Shirt",
+      "oldPrice": 35,
+      "price": 25,
+      "discount": 28,
+      "rating": 4.4,
+      "isBestSeller": false,
+      "isHot": true,
+      "isNew": true,
+      "isTrending": true,
+      "isLimitedStock": false,
+      "isExclusive": false,
+      "category": "Fashion",
+      "subcategory": "Men’s Clothing",
+      "description": "Premium cotton t-shirt for men, offering comfort and durability with modern style.",
+      "stock": 150,
+      "images": [
+        "https://placehold.co/300x300/991B1B/FFFFFF?text=Men+Tshirt",
+        "https://placehold.co/300x300/7F1D1D/FFFFFF?text=Back+View"
+      ],
+      "extras": {
+        "size": ["S", "M", "L", "XL"],
+        "color": ["Black", "White", "Gray"],
+        "material": "100% Cotton",
+        "brand": "H&M"
+      }
+    },
+    {
+      "id": "p4",
+      "name": "Fresh Organic Apples (1kg)",
+      "oldPrice": 6,
+      "price": 4.5,
+      "discount": 25,
+      "rating": 4.6,
+      "isBestSeller": true,
+      "isHot": false,
+      "isNew": true,
+      "isTrending": false,
+      "isLimitedStock": true,
+      "isExclusive": false,
+      "category": "Groceries",
+      "subcategory": "Fresh Fruits & Vegetables",
+      "description": "Crisp and juicy organic apples sourced from trusted farms for the best taste and nutrition.",
+      "stock": 200,
+      "images": [
+        "https://placehold.co/300x300/15803D/FFFFFF?text=Apples",
+        "https://placehold.co/300x300/166534/FFFFFF?text=Basket"
+      ],
+      "extras": {
+        "expiry": "2025-12-01",
+        "weight": "1kg",
+        "organic": "Yes",
+        "brand": "Nature's Fresh"
+      }
+    },
+    {
+      "id": "p5",
+      "name": "Yoga Mat Pro 10mm",
+      "oldPrice": 49,
+      "price": 35,
+      "discount": 29,
+      "rating": 4.5,
+      "isBestSeller": false,
+      "isHot": true,
+      "isNew": true,
+      "isTrending": true,
+      "isLimitedStock": false,
+      "isExclusive": false,
+      "category": "Sports",
+      "subcategory": "Gym & Fitness Equipment",
+      "description": "Durable, non-slip yoga mat made from eco-friendly materials for optimal comfort and grip.",
+      "stock": 75,
+      "images": [
+        "https://placehold.co/300x300/1D4ED8/FFFFFF?text=Yoga+Mat",
+        "https://placehold.co/300x300/1E40AF/FFFFFF?text=Workout"
+      ],
+      "extras": {
+        "sportType": "Yoga",
+        "brand": "FitPro",
+        "material": "EVA Foam",
+        "size": "183cm x 61cm x 10mm",
+        "weight": "1.2kg"
+      }
+    },
+    {
+      "id": "p6",
+      "name": "Ergonomic Office Chair",
+      "oldPrice": 299,
+      "price": 249,
+      "discount": 17,
+      "rating": 4.7,
+      "isBestSeller": true,
+      "isHot": false,
+      "isNew": false,
+      "isTrending": true,
+      "isLimitedStock": false,
+      "isExclusive": false,
+      "category": "Home & Living",
+      "subcategory": "Furniture",
+      "description": "Comfortable ergonomic office chair with adjustable height and lumbar support for long working hours.",
+      "stock": 120,
+      "images": [
+        "https://placehold.co/300x300/374151/FFFFFF?text=Office+Chair",
+        "https://placehold.co/300x300/1F2937/FFFFFF?text=Side+View"
+      ],
+      "extras": {
+        "material": "Mesh & Steel",
+        "color": ["Black", "Gray"],
+        "weightCapacity": "120kg",
+        "brand": "ComfortLine"
+      }
+    },
+    {
+      "id": "p7",
+      "name": "Organic Vitamin C Serum",
+      "oldPrice": 39,
+      "price": 29,
+      "discount": 25,
+      "rating": 4.6,
+      "isBestSeller": false,
+      "isHot": true,
+      "isNew": true,
+      "isTrending": true,
+      "isLimitedStock": true,
+      "isExclusive": false,
+      "category": "Health & Beauty",
+      "subcategory": "Skin Care",
+      "description": "Brighten and rejuvenate your skin with our organic Vitamin C serum, packed with antioxidants and natural ingredients.",
+      "stock": 80,
+      "images": [
+        "https://placehold.co/300x300/059669/FFFFFF?text=Vitamin+C+Serum",
+        "https://placehold.co/300x300/047857/FFFFFF?text=Bottle"
+      ],
+      "extras": {
+        "size": "30ml",
+        "ingredients": ["Vitamin C", "Hyaluronic Acid", "Aloe Vera"],
+        "suitableFor": "All Skin Types",
+        "brand": "GlowNature"
+      }
+    }
+  ]
 ]

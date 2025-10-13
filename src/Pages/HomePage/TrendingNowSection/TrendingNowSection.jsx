@@ -11,7 +11,7 @@ const products = [
     price: 75,
     discount: 17, // 17% OFF
     rating: 4,
-    img: "https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers",
+    images: ["https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers"],
     isBestSeller: true,
     isTrending: true,
   },
@@ -21,7 +21,7 @@ const products = [
     price: 50,
     discount: 31, // 31% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker",
+    images: ["https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker"],
     isBestSeller: true,
   },
   {
@@ -30,7 +30,7 @@ const products = [
     price: 25,
     discount: 29, // 29% OFF
     rating: 4,
-    img: "https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug",
+    images: ["https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug"],
     isHot: true,
   },
   {
@@ -39,7 +39,7 @@ const products = [
     price: 45,
     discount: 25, // 25% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp",
+    images: ["https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp"],
   },
   {
     name: "Wireless Earbuds Pro",
@@ -47,7 +47,7 @@ const products = [
     price: 149,
     discount: 10, // 10% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/00C48C/ffffff?text=Earbuds",
+    images: ["https://placehold.co/400x400/00C48C/ffffff?text=Earbuds"],
     isLimitedStock: true,
   },
   {
@@ -56,7 +56,7 @@ const products = [
     price: 210,
     discount: 19, // 19% OFF
     rating: 4,
-    img: "https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair",
+    images: ["https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair"],
   },
   {
     name: "4K Ultra HD Monitor",
@@ -64,7 +64,7 @@ const products = [
     price: 299,
     discount: 25, // 25% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/007BFF/ffffff?text=Monitor",
+    images: ["https://placehold.co/400x400/007BFF/ffffff?text=Monitor"],
     isTrending: true,
   },
   {
@@ -73,7 +73,7 @@ const products = [
     price: 420,
     discount: 35, // 35% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
+    images: ["https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch"],
     isExclusive: true,
   },
 ];

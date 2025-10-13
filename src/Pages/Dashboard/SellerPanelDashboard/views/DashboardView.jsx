@@ -33,7 +33,6 @@ export default function DashboardView({
     value: d.count,
     color: ["#4F46E5", "#10B981", "#F59E0B", "#EF4444"][i % 4],
   }));
-  console.log(salesData);
 
   return (
     <div>
@@ -66,11 +65,11 @@ export default function DashboardView({
               <ul className="space-y-2">
                 {orders.slice(0, 6).map((o) => (
                   <li
-                    key={o.id}
+                    key={o.orderId}
                     className="p-3 border rounded flex justify-between"
                   >
                     <div>
-                      <div className="font-medium">{o.number || o.id}</div>
+                      <div className="font-medium">{o.number || o.orderId}</div>
                       <div className="text-sm text-gray-500">
                         {o.customer || "—"}
                       </div>

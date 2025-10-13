@@ -15,7 +15,7 @@ export default function TrendingNowPage() {
       price: 85,
       discount: 23, // 23% OFF
       rating: 5,
-      img: img,
+      images: [img],
 
       isBestSeller: true,
       isHot: true,
@@ -26,7 +26,7 @@ export default function TrendingNowPage() {
       price: 75,
       discount: 17, // 17% OFF
       rating: 4,
-      img: "https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers",
+      images: ["https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers"],
       isBestSeller: true,
       isTrending: true,
     },
@@ -36,7 +36,7 @@ export default function TrendingNowPage() {
       price: 50,
       discount: 31, // 31% OFF
       rating: 5,
-      img: "https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker",
+      images: ["https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker"],
       isBestSeller: true,
     },
     {
@@ -45,7 +45,7 @@ export default function TrendingNowPage() {
       price: 25,
       discount: 29, // 29% OFF
       rating: 4,
-      img: "https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug",
+      images: ["https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug"],
       isHot: true,
     },
     {
@@ -54,7 +54,7 @@ export default function TrendingNowPage() {
       price: 45,
       discount: 25, // 25% OFF
       rating: 5,
-      img: "https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp",
+      images: ["https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp"],
     },
     {
       name: "Wireless Earbuds Pro",
@@ -62,7 +62,7 @@ export default function TrendingNowPage() {
       price: 149,
       discount: 10, // 10% OFF
       rating: 5,
-      img: "https://placehold.co/400x400/00C48C/ffffff?text=Earbuds",
+      images: ["https://placehold.co/400x400/00C48C/ffffff?text=Earbuds"],
       isLimitedStock: true,
     },
     {
@@ -71,7 +71,7 @@ export default function TrendingNowPage() {
       price: 210,
       discount: 19, // 19% OFF
       rating: 4,
-      img: "https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair",
+      images: ["https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair"],
     },
     {
       name: "4K Ultra HD Monitor",
@@ -79,7 +79,7 @@ export default function TrendingNowPage() {
       price: 299,
       discount: 25, // 25% OFF
       rating: 5,
-      img: "https://placehold.co/400x400/007BFF/ffffff?text=Monitor",
+      images: ["https://placehold.co/400x400/007BFF/ffffff?text=Monitor"],
       isTrending: true,
     },
     {
@@ -88,7 +88,7 @@ export default function TrendingNowPage() {
       price: 420,
       discount: 35, // 35% OFF
       rating: 5,
-      img: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
+      images: ["https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch"],
       isExclusive: true,
     },
   ];

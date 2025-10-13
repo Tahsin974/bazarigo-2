@@ -34,7 +34,7 @@ function DashboardView({ products, orders, payments }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard title="Total Products" value={products.length} />
         <StatCard title="Total Orders" value={orders.length} />
-        <StatCard title="Total Sales" value={`$${totalSales.toFixed(2)}`} />
+        <StatCard title="Total Sales" value={`৳${totalSales.toFixed(2)}`} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -61,7 +61,7 @@ function DashboardView({ products, orders, payments }) {
                 <div className="text-xs text-gray-500">{o.customer}</div>
               </div>
               <div className="text-right">
-                <div className="font-semibold">${o.total}</div>
+                <div className="font-semibold">৳{o.total}</div>
                 <div className="text-xs text-gray-500">
                   {o.status} • {o.date}
                 </div>

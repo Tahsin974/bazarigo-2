@@ -11,7 +11,7 @@ export default function Sidebar({
   return (
     <aside className="w-full lg:w-72">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block sticky top-24">
+      <div className=" sticky top-24">
         <div className="bg-white rounded-2xl shadow p-6">
           <h3 className="font-semibold text-lg mb-4">Categories</h3>
           <CategoryList

@@ -1,4 +1,5 @@
 import { CreditCard, PlusCircle, ShoppingBag, Star } from "lucide-react";
+import SelectField from "../../../../../components/ui/SelectField";
 
 export default function Payments({
   paymentMethods,
@@ -103,7 +104,7 @@ export default function Payments({
                     }))
                   }
                   placeholder="Card Number"
-                  className="w-full border px-3 py-2 rounded-md"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <input
                   value={newPayment.brand}
@@ -114,7 +115,7 @@ export default function Payments({
                     }))
                   }
                   placeholder="Brand (Visa/Mastercard)"
-                  className="w-full border px-3 py-2 rounded-md"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <label className="flex items-center gap-2 text-sm">
                   <input
@@ -133,21 +134,22 @@ export default function Payments({
               </div>
             ) : (
               <div className="space-y-2">
-                <select
-                  value={newPayment.walletProvider}
-                  onChange={(e) =>
+                <SelectField
+                  selectValue={newPayment.walletProvider}
+                  selectValueChange={(e) =>
                     setNewPayment((prev) => ({
                       ...prev,
                       walletProvider: e.target.value,
                     }))
                   }
-                  className="w-full border px-3 py-2 rounded-md"
+                  isWide={true}
                 >
                   <option value="">Select Provider</option>
                   <option value="bKash">bKash</option>
                   <option value="Nagad">Nagad</option>
                   <option value="Rocket">Rocket</option>
-                </select>
+                </SelectField>
+
                 <input
                   value={newPayment.walletPhone}
                   onChange={(e) =>
@@ -157,7 +159,7 @@ export default function Payments({
                     }))
                   }
                   placeholder="Phone Number"
-                  className="w-full border px-3 py-2 rounded-md"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                 />
                 <label className="flex items-center gap-2 text-sm">
                   <input

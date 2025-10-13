@@ -1,14 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  ChevronDown,
-  Download,
-  MoreHorizontal,
-  PlusCircle,
-  Search,
-  Trash2,
-  UploadCloud,
-} from "lucide-react";
-import ProductModal from "../components/ProductModal/ProductModal";
+import { MoreHorizontal, PlusCircle, UploadCloud } from "lucide-react";
+
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import Pagination from "../../../../components/ui/Pagination";
 import SearchField from "../../../../components/ui/SearchField";
@@ -29,22 +21,15 @@ export default function ProductsView({
   productPageSize = 10,
   selectedProductIds,
   setSelectedProductIds,
-  productModalOpen,
-  setProductModalOpen,
-  productForm,
-  setProductForm,
-  editingProduct,
   fileInputRef,
   handleBulkUploadFile,
   openNewProductModal,
   openEditProductModal,
-  saveProduct,
   toggleSelectProduct,
   bulkDeleteProducts,
   paginatedProducts,
   filteredProducts,
   exportProductsExcel,
-  categorySchemas,
 }) {
   const totalPages = Math.max(
     1,
@@ -200,7 +185,7 @@ export default function ProductsView({
                     </td>
                     <td>{p.name}</td>
                     <td className="px-4 py-3">{p.category}</td>
-                    <td className="px-4 py-3">${p.price}</td>
+                    <td className="px-4 py-3">৳{p.price}</td>
                     <td>{p.stock}</td>
                     <td>
                       <div className="flex items-center gap-2 justify-center">
@@ -217,7 +202,7 @@ export default function ProductsView({
                                 prev.filter((x) => x.id !== p.id)
                               );
                           }}
-                          className="px-3 py-1 bg-white border rounded"
+                          className="px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded"
                         >
                           Delete
                         </button>
@@ -246,17 +231,6 @@ export default function ProductsView({
               />
             </div>
           </div>
-
-          {/* Product modal */}
-          <ProductModal
-            productModalOpen={productModalOpen}
-            setProductModalOpen={setProductModalOpen}
-            editingProduct={editingProduct}
-            productForm={productForm}
-            setProductForm={setProductForm}
-            saveProduct={saveProduct}
-            categorySchemas={categorySchemas}
-          />
         </motion.div>
       )}
     </div>

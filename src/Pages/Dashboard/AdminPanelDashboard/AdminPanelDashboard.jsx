@@ -3,11 +3,8 @@ import {
   exportAsCSV,
   parseCSV,
   sampleCustomers,
-  sampleOrders,
   samplePayments,
-  sampleProducts,
   samplePromos,
-  sampleSellers,
 } from "./helpers/helpers";
 import DashboardView from "./views/DashboardView";
 import ProductsView from "./views/ProductsView";
@@ -19,12 +16,20 @@ import PaymentsView from "./views/PaymentsView";
 import ReportsView from "./views/ReportsView";
 import SettingsView from "./views/SettingsView";
 import AddModal from "./components/AddModal/AddModal";
-import ProductModal from "./components/ProductModal/ProductModal";
+
 import ExportBtn from "../../../components/ui/ExportBtn";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
 import MyProfileView from "../../../components/MyProfileView/MyProfileView";
 import Drawer from "../../../components/Drawer/Drawer";
+import ProductModal from "../../../components/ProductModal/ProductModal";
+import {
+  sampleOrders,
+  sampleProducts,
+  sampleReturns,
+  sampleSellers,
+} from "../../../Utils/Helpers/Helpers";
+import AddSellerModal from "./components/AddSellerModal/AddSellerModal";
 
 export default function AdminPanelDashboard() {
   const [user, setUser] = useState({
@@ -38,6 +43,7 @@ export default function AdminPanelDashboard() {
 
   const [products, setProducts] = useState(sampleProducts());
   const [orders, setOrders] = useState(sampleOrders());
+  const [returns, setReturns] = useState(sampleReturns());
   const [customers, setCustomers] = useState(sampleCustomers());
   const [sellers, setSellers] = useState(sampleSellers());
   const [payments, setPayments] = useState(samplePayments());
@@ -102,7 +108,6 @@ export default function AdminPanelDashboard() {
       setSellers((s) => s.filter((x) => !selected.includes(x.id)));
     setSelected([]);
   };
-  console.log(showCustomerModal);
 
   const handleExport = () => {
     let rows = [];
@@ -180,6 +185,7 @@ export default function AdminPanelDashboard() {
     });
     setProductModalOpen(true);
   };
+  console.log(editingProduct);
 
   const openEditProductModal = (p) => {
     setEditingProduct({ ...p });
@@ -206,11 +212,6 @@ export default function AdminPanelDashboard() {
       { id: `promo_${Date.now()}`, active: true, ...data },
       ...p,
     ]);
-
-  const returnOrders = orders.filter((o) => o.status === "returned");
-  const normalOrders = orders.filter((o) => o.status !== "returned");
-
-  console.log(products);
 
   const filteredProducts = useMemo(() => {
     let data = [...products];
@@ -247,7 +248,7 @@ export default function AdminPanelDashboard() {
   }, [orders, orderSearch]);
 
   const filteredReturnOrders = useMemo(() => {
-    let data = [...returnOrders];
+    let data = [...returns];
     if (returnOrderSearch) {
       const q = returnOrderSearch.toLowerCase();
       data = data.filter(
@@ -259,7 +260,7 @@ export default function AdminPanelDashboard() {
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
     return data;
-  }, [returnOrders, returnOrderSearch]);
+  }, [returns, returnOrderSearch]);
 
   // 👥 Customers Filtering & Sorting
   const filteredCustomers = useMemo(() => {
@@ -500,8 +501,9 @@ export default function AdminPanelDashboard() {
 
                     {active === "Orders" && (
                       <OrdersView
-                        orders={normalOrders}
-                        returns={returnOrders}
+                        orders={orders}
+                        returns={returns}
+                        setReturns={setReturns}
                         selected={selected}
                         toggleSelect={toggleSelect}
                         setOrders={setOrders}
@@ -574,6 +576,7 @@ export default function AdminPanelDashboard() {
                     {active === "Payments" && (
                       <PaymentsView
                         payments={payments}
+                        setPayments={setPayments}
                         paymentPage={paymentPage}
                         setPaymentPage={setPaymentPage}
                         paymentSearch={paymentSearch}
@@ -652,13 +655,19 @@ export default function AdminPanelDashboard() {
             />
           )}
 
-          {showSellerModal && (
+          {/* {showSellerModal && (
             <AddModal
               title="Add Seller"
               fields={[
                 { key: "name", label: "Name", required: true },
                 { key: "email", label: "Email", required: true },
               ]}
+              onClose={() => setShowSellerModal(false)}
+              onSave={(d) => addSeller(d)}
+            />
+          )} */}
+          {showSellerModal && (
+            <AddSellerModal
               onClose={() => setShowSellerModal(false)}
               onSave={(d) => addSeller(d)}
             />

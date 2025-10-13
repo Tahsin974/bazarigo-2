@@ -10,7 +10,7 @@ const products = [
     price: 75,
     discount: 17, // 17% OFF
     rating: 4,
-    img: "https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers",
+    images: ["https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers"],
   },
   {
     name: "Automatic Drip Coffee Maker",
@@ -18,7 +18,7 @@ const products = [
     price: 50,
     discount: 31, // 31% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker",
+    images: ["https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker"],
     isBestSeller: true,
   },
   {
@@ -27,7 +27,7 @@ const products = [
     price: 25,
     discount: 29, // 29% OFF
     rating: 4,
-    img: "https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug",
+    images: ["https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug"],
   },
   {
     name: "Smart LED Desk Lamp",
@@ -35,7 +35,7 @@ const products = [
     price: 45,
     discount: 25, // 25% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp",
+    images: ["https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp"],
     isNew: true,
   },
   {
@@ -44,7 +44,7 @@ const products = [
     price: 149,
     discount: 10, // 10% OFF
     rating: 5,
-    img: "https://placehold.co/400x400/00C48C/ffffff?text=Earbuds",
+    images: ["https://placehold.co/400x400/00C48C/ffffff?text=Earbuds"],
   },
   {
     name: "Premium Office Chair",
@@ -52,7 +52,7 @@ const products = [
     price: 210,
     discount: 19, // 19% OFF
     rating: 4,
-    img: "https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair",
+    images: ["https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair"],
     isNew: true,
   },
 ];
@@ -60,7 +60,7 @@ const products = [
 export default function JustArrivedSection() {
   return (
     <section className="py-16 bg-white">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto xl:px-6 lg:px-6  px-4">
         <SectionTitle title={"Just Arrived"} link="/just-arrived" />
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product, index) => (

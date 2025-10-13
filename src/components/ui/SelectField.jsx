@@ -6,6 +6,26 @@ export default function SelectField({
   isWide = false,
   children,
 }) {
+  let colorClass =
+    "bg-white border border-gray-300 text-gray-700 text-gray-900 hover:border-gray-400  focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]";
+  switch (selectValue) {
+    case "Delivered":
+      colorClass = "bg-green-100 border-green-400 text-green-700";
+      break;
+    case "Shipped":
+    case "Out for Delivery":
+      colorClass = "bg-blue-100 border-blue-400 text-blue-700";
+      break;
+    case "Processing":
+      colorClass = "bg-yellow-100 border-yellow-400 text-yellow-700";
+      break;
+    case "returned":
+      colorClass = "bg-red-100 border-red-400 text-red-700";
+      break;
+    default:
+      // default is used for "Processing" or initial state
+      break;
+  }
   return (
     <div
       className={`relative w-auto inline-flex items-center ${
@@ -13,11 +33,11 @@ export default function SelectField({
       }  `}
     >
       <select
-        value={selectValue}
+        defaultValue={selectValue}
         onChange={selectValueChange}
-        className={`appearance-none bg-white border border-gray-300 rounded-lg py-2 pl-4 pr-10 text-base font-medium text-gray-900 shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055] transition duration-150 cursor-pointer ${
+        className={`appearance-none focus:outline-none rounded-lg py-2 pl-4 pr-10 text-base font-medium  shadow-sm  transition duration-150 cursor-pointer ${
           isWide && "w-full"
-        }`}
+        } ${colorClass}`}
       >
         {children}
       </select>

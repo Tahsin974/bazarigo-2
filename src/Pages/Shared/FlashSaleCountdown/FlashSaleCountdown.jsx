@@ -1,18 +1,18 @@
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
-import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import UseFlashSaleCountdown from "../../../Utils/Hooks/UseFlashSaleCountdown";
+import { HashLink } from "react-router-hash-link";
 
 export default function FlashSaleCountdown({ isButtonVisible = false }) {
   const { h, m, s, progress, getProgressColor } = UseFlashSaleCountdown(3600);
   return (
-    <section className="relative w-full min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white text-center px-6 py-16 overflow-hidden">
+    <section className="relative w-full min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white text-center xl:px-6 lg:px-6  px-4 py-16 overflow-hidden">
       <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="text-4xl sm:text-5xl md:text-6xl font-extrabold drop-shadow-md"
+        className="text-3xl sm:text-5xl md:text-6xl font-extrabold drop-shadow-md"
       >
         ⚡ Flash Sale is Live!
       </motion.h1>
@@ -72,11 +72,11 @@ export default function FlashSaleCountdown({ isButtonVisible = false }) {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-8"
         >
-          <Link to="/flash-sale">
+          <HashLink to="/flash-sale#">
             <Button className="bg-white text-[#FF0055] font-semibold px-6 py-5 rounded-full shadow-lg hover:bg-gray-100 transition-colors transform hover:scale-105 cursor-pointer">
               Flash Sale Deals
             </Button>
-          </Link>
+          </HashLink>
         </motion.div>
       )}
     </section>

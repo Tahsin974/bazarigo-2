@@ -104,7 +104,7 @@ export default function BaseProductDetails({
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-gray-700 border border-dashed p-4 rounded-lg border-gray-300">
             <div className="flex items-center gap-2">
               <Truck className="w-5 h-5 text-[#FF0055]" />
-              <span>Free delivery on orders over $50</span>
+              <span>Free delivery on orders over ৳50</span>
             </div>
             <div className="flex items-center gap-2">
               <RotateCcw className="w-5 h-5 text-[#FF0055]" />

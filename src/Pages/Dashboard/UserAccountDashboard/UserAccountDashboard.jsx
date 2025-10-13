@@ -13,6 +13,7 @@ import Drawer from "../../../components/Drawer/Drawer";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
 import MyProfileView from "../../../components/MyProfileView/MyProfileView";
+import { sampleOrders } from "../../../Utils/Helpers/Helpers";
 
 export default function UserAccountDashboard() {
   // Open/Close Menu
@@ -44,44 +45,7 @@ export default function UserAccountDashboard() {
   // Payments
 
   // Orders
-  const [orders, setOrders] = useState([
-    {
-      id: "o1",
-      date: "2025-09-01",
-      status: "Shipped",
-      steps: ["Processing", "Shipped", "Out for Delivery", "Delivered"],
-      currentStep: 2,
-      products: [
-        {
-          id: "p1",
-          name: "Wireless Headphones",
-          price: 3000,
-          img: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
-        },
-        {
-          id: "p2",
-          name: "Smart Watch",
-          price: 4500,
-          img: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
-        },
-      ],
-    },
-    {
-      id: "o2",
-      date: "2025-08-15",
-      status: "Delivered",
-      steps: ["Processing", "Shipped", "Out for Delivery", "Delivered"],
-      currentStep: 4,
-      products: [
-        {
-          id: "p3",
-          name: "Running Shoes",
-          price: 2500,
-          img: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
-        },
-      ],
-    },
-  ]);
+  const [orders, setOrders] = useState(sampleOrders());
 
   // Addresses
   const [addresses, setAddresses] = useState([

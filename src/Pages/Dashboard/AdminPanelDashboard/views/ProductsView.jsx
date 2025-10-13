@@ -82,11 +82,6 @@ function ProductsView({
         {/* Left: SelectAll + Title + small screen Add/Delete buttons */}
         <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1  gap-4">
           <div className="flex items-center gap-4">
-            <SelectAllCheckbox
-              selected={selected}
-              allSelected={allSelected}
-              toggleSelectAll={toggleSelectAll}
-            />
             <div className="font-medium sm:text-md text-[15px]">
               Products ({products.length})
             </div>
@@ -128,8 +123,80 @@ function ProductsView({
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>
+      <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
+        <table className="table  text-center">
+          {/* head */}
+          <thead className="text-black">
+            <tr>
+              <th>
+                <SelectAllCheckbox
+                  selected={selected}
+                  allSelected={allSelected}
+                  toggleSelectAll={toggleSelectAll}
+                  isShowCounter={false}
+                />
+              </th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody className="">
+            {paginatedProducts.map((p) => (
+              <tr key={p.id} className="border-t">
+                <td className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                    checked={selected.includes(p.id)}
+                    onChange={() => toggleSelect(p.id)}
+                  />
+                </td>
+                <td>
+                  <div className="flex items-center gap-3">
+                    <div className="avatar">
+                      <div className="mask mask-squircle h-12 w-12">
+                        <img src={p.images[0]} alt={p.name} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-bold">{p.name}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-3">{p.category}</td>
+                <td className="px-4 py-3">৳{p.price}</td>
+                <td>{p.stock}</td>
+                <td>
+                  <div className="flex items-center gap-2 justify-center">
+                    <button
+                      onClick={() => openEditProductModal(p)}
+                      className="px-3 py-1 bg-white border rounded"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("Delete product?"))
+                          setProducts((prev) =>
+                            prev.filter((x) => x.id !== p.id)
+                          );
+                      }}
+                      className="px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
         {paginatedProducts.map((p) => (
           <div key={p.id} className="bg-white rounded shadow-sm p-3">
             <div className="flex justify-between items-start">
@@ -180,7 +247,7 @@ function ProductsView({
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
       <div className=" flex items-center justify-center">
         <Pagination
           currentPage={productPage}

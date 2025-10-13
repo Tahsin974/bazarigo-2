@@ -2,92 +2,28 @@ import { useState } from "react";
 import SearchFilterSort from "./components/SearchFilterSort";
 import { motion } from "framer-motion";
 import { MoreHorizontal } from "lucide-react";
-import img from "../../assets/Products/BAJEAL T350 Luminous USB Keyboard & Mouse Set Computer Gaming Mechanical Feel Floating Rainbow Backli.jpg";
+
 import Pagination from "../../components/ui/Pagination";
 
 import FlashSaleCountdown from "../Shared/FlashSaleCountdown/FlashSaleCountdown";
 import ProductCard from "../../components/ProductCard/ProductCard";
+import { sampleProducts } from "../../Utils/Helpers/Helpers";
 
 export default function FlashSalePage() {
   const [sort, setSort] = useState("default");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState("Electronics");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
-  const allProducts = [
-    {
-      name: "Portable Bluetooth Speaker",
-      oldPrice: 110,
-      price: 85,
-      discount: 23, // 23% OFF
-      rating: 5,
-      img: img,
-    },
-    {
-      name: "Classic Low-Top Sneakers",
-      oldPrice: 90,
-      price: 75,
-      discount: 17, // 17% OFF
-      rating: 4,
-      img: "https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers",
-    },
-    {
-      name: "Automatic Drip Coffee Maker",
-      oldPrice: 72,
-      price: 50,
-      discount: 31, // 31% OFF
-      rating: 5,
-      img: "https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker",
-    },
-    {
-      name: "Insulated Travel Mug",
-      oldPrice: 35,
-      price: 25,
-      discount: 29, // 29% OFF
-      rating: 4,
-      img: "https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug",
-    },
-    {
-      name: "Smart LED Desk Lamp",
-      oldPrice: 60,
-      price: 45,
-      discount: 25, // 25% OFF
-      rating: 5,
-      img: "https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp",
-    },
-    {
-      name: "Wireless Earbuds Pro",
-      oldPrice: 165,
-      price: 149,
-      discount: 10, // 10% OFF
-      rating: 5,
-      img: "https://placehold.co/400x400/00C48C/ffffff?text=Earbuds",
-    },
-    {
-      name: "Premium Office Chair",
-      oldPrice: 260,
-      price: 210,
-      discount: 19, // 19% OFF
-      rating: 4,
-      img: "https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair",
-    },
-    {
-      name: "4K Ultra HD Monitor",
-      oldPrice: 399,
-      price: 299,
-      discount: 25, // 25% OFF
-      rating: 5,
-      img: "https://placehold.co/400x400/007BFF/ffffff?text=Monitor",
-    },
-    {
-      name: "Luxury Wristwatch",
-      oldPrice: 650,
-      price: 420,
-      discount: 35, // 35% OFF
-      rating: 5,
-      img: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
-    },
+  const allProducts = sampleProducts();
+  const categories = [
+    "Electronics",
+    "Fashion",
+    "Groceries",
+    "Health & Beauty",
+    "Home & Living",
+    "Sports",
   ];
 
   let products = allProducts.filter(
@@ -98,9 +34,9 @@ export default function FlashSalePage() {
       p.name.toLowerCase().includes(search.toLowerCase())
     );
   if (sort === "priceLow")
-    products = [...products].sort((a, b) => a.newPrice - b.newPrice);
+    products = [...products].sort((a, b) => a.price - b.price);
   if (sort === "priceHigh")
-    products = [...products].sort((a, b) => b.newPrice - a.newPrice);
+    products = [...products].sort((a, b) => b.price - a.price);
   if (sort === "rating")
     products = [...products].sort((a, b) => b.rating - a.rating);
 
@@ -162,6 +98,7 @@ export default function FlashSalePage() {
     <div className="w-full bg-white font-sans text-gray-800">
       <FlashSaleCountdown />
       <SearchFilterSort
+        categories={categories}
         category={category}
         setCategory={setCategory}
         search={search}

@@ -6,6 +6,7 @@ import UseCart from "../../Utils/Hooks/UseCart";
 
 export default function OrderSummary({
   items,
+  isCashOnDelivery,
   shipping = 10,
   allowPromo = false,
   showTitle = true,
@@ -46,7 +47,7 @@ export default function OrderSummary({
     setAppliedPromos(appliedPromos.filter((p) => p.code !== code));
 
   return (
-    <Card className="rounded-2xl shadow-lg">
+    <Card className="rounded-2xl shadow">
       <CardContent className="p-6 space-y-4">
         {showTitle && (
           <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
@@ -58,13 +59,13 @@ export default function OrderSummary({
                 {item.name}{" "}
                 <span className="text-sm text-gray-500">(x{item.qty})</span>
               </span>
-              <span>${(item.price * item.qty).toFixed(2)}</span>
+              <span>৳{(item.price * item.qty).toFixed(2)}</span>
             </div>
           ))}
         </div>
         <div className="flex justify-between text-gray-600 mt-4">
           <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>৳{subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-gray-600">
           <span>Shipping</span>
@@ -72,10 +73,16 @@ export default function OrderSummary({
             {isFreeShipping ? (
               <span className="text-green-600 font-medium">Free</span>
             ) : (
-              `$${shipping.toFixed(2)}`
+              `$ ${shipping.toFixed(2)}`
             )}
           </span>
         </div>
+        {isCashOnDelivery && (
+          <div className="flex justify-between text-gray-600">
+            <span>Cash On Delivery</span>
+          </div>
+        )}
+
         {appliedPromos.length > 0 && (
           <div className="space-y-2">
             {appliedPromos.map((p, idx) => (
@@ -103,7 +110,7 @@ export default function OrderSummary({
         )}
         <div className="flex justify-between font-bold text-gray-800 text-lg border-t pt-4">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>৳{total.toFixed(2)}</span>
         </div>
         {allowPromo && (
           <div className="mt-4">

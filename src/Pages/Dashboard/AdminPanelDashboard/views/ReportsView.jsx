@@ -36,7 +36,7 @@ function ReportsView({ products, orders, customers, sellers, payments }) {
         <div className="bg-white p-4 rounded shadow-sm">
           Revenue
           <br />
-          <div className="text-2xl font-bold">${revenue.toFixed(2)}</div>
+          <div className="text-2xl font-bold">৳{revenue.toFixed(2)}</div>
         </div>
         <div className="bg-white p-4 rounded shadow-sm">
           Orders

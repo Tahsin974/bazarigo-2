@@ -1,6 +1,8 @@
 import { ChevronDown, Filter, Search } from "lucide-react";
+import SelectField from "../../../components/ui/SelectField";
 
 export default function SearchFilterSort({
+  categories,
   category,
   setCategory,
   search,
@@ -12,7 +14,17 @@ export default function SearchFilterSort({
     <div className="container mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div className="flex items-center gap-2 order-1 sm:order-none">
         <Filter className="text-[#FF0055]" />
-        <div className="relative inline-block text-left z-10">
+        <SelectField
+          selectValue={category}
+          selectValueChange={(e) => setCategory(e.target.value)}
+        >
+          {categories.map((cat, idx) => (
+            <option key={idx} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </SelectField>
+        {/* <div className="relative inline-block text-left z-10">
           <div className="relative inline-flex items-center">
             <select
               id="sort-select"
@@ -27,7 +39,7 @@ export default function SearchFilterSort({
             </select>
             <ChevronDown className="pointer-events-none absolute right-3 h-5 w-5 text-gray-500" />
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="relative w-full sm:w-80 order-2 sm:order-none">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />

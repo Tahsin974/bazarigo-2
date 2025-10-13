@@ -21,6 +21,17 @@ export default function ProductCard({ product, viewMode }) {
               : "w-32 h-32 flex-shrink-0 overflow-hidden rounded-lg"
           }
         >
+          {product.images && product.images[0] ? (
+            <img
+              src={product.images[0]}
+              alt=""
+              className="w-full h-full  object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full  h-full   flex items-center justify-center text-gray-400  object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105">
+              No Image
+            </div>
+          )}
           <img
             src={product.img}
             alt={product.name}

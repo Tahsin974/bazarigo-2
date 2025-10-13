@@ -29,7 +29,7 @@ export default function DesktopIcons() {
         <User size={20} />
       </Link>
       <a
-        href="/sign-up"
+        href="/seller-registration#"
         className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white font-semibold px-5 py-2 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
         target="_blank"
       >

@@ -99,11 +99,11 @@ function CustomersView({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table">
+      <div className="overflow-x-auto bg-white rounded-box">
+        <table className="table text-center">
           {/* head */}
-          <thead className="bg-gray-50">
-            <tr>
+          <thead className="bg-gray-50 ">
+            <tr className="text-black">
               <th>
                 <SelectAllCheckbox
                   selected={selected}

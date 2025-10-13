@@ -9,8 +9,8 @@ export default function ThankYouPage() {
   const { cartItems } = UseCart();
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-6 py-12">
-      <div className="w-full max-w-3xl">
-        <div className="bg-white shadow-xl rounded-2xl p-10 text-center">
+      <div className="w-full max-w-3xl space-y-6">
+        <div className="bg-white shadow rounded-2xl p-10 text-center">
           <CheckCircle className="w-20 h-20 text-[#FF0055] mx-auto mb-6" />
           <h1 className="text-3xl font-bold text-gray-800">
             Thank You for Your Order!
