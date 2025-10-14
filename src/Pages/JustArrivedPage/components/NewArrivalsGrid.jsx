@@ -1,7 +1,14 @@
 import { motion } from "framer-motion";
 import ProductCard from "../../../components/ProductCard/ProductCard";
+import Pagination from "../../../components/ui/Pagination";
 
-export default function NewArrivalsGrid({ filtered }) {
+export default function NewArrivalsGrid({
+  filtered,
+  renderPageNumbers,
+  totalPages,
+  currentPage,
+  setCurrentPage,
+}) {
   return (
     <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
       <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
@@ -19,6 +26,12 @@ export default function NewArrivalsGrid({ filtered }) {
             </motion.div>
           ))}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          renderPageNumbers={renderPageNumbers}
+        />
       </div>
     </section>
   );

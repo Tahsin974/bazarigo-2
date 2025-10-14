@@ -4,94 +4,12 @@ import ControlsSection from "./components/ControlsSection";
 import ProductsGrid from "./components/ProductsGrid";
 import Pagination from "../../components/ui/Pagination";
 import { motion } from "framer-motion";
-import img from "../../assets/Products/BAJEAL T350 Luminous USB Keyboard & Mouse Set Computer Gaming Mechanical Feel Floating Rainbow Backli.jpg";
+
 import { MoreHorizontal } from "lucide-react";
+import { sampleProducts } from "../../Utils/Helpers/Helpers";
 
 export default function TrendingNowPage() {
-  const allProducts = [
-    {
-      name: "Portable Bluetooth Speaker",
-      oldPrice: 110,
-      price: 85,
-      discount: 23, // 23% OFF
-      rating: 5,
-      images: [img],
-
-      isBestSeller: true,
-      isHot: true,
-    },
-    {
-      name: "Classic Low-Top Sneakers",
-      oldPrice: 90,
-      price: 75,
-      discount: 17, // 17% OFF
-      rating: 4,
-      images: ["https://placehold.co/400x400/00C4B8/ffffff?text=Sneakers"],
-      isBestSeller: true,
-      isTrending: true,
-    },
-    {
-      name: "Automatic Drip Coffee Maker",
-      oldPrice: 72,
-      price: 50,
-      discount: 31, // 31% OFF
-      rating: 5,
-      images: ["https://placehold.co/400x400/FF0055/ffffff?text=Coffee+Maker"],
-      isBestSeller: true,
-    },
-    {
-      name: "Insulated Travel Mug",
-      oldPrice: 35,
-      price: 25,
-      discount: 29, // 29% OFF
-      rating: 4,
-      images: ["https://placehold.co/400x400/007BFF/ffffff?text=Travel+Mug"],
-      isHot: true,
-    },
-    {
-      name: "Smart LED Desk Lamp",
-      oldPrice: 60,
-      price: 45,
-      discount: 25, // 25% OFF
-      rating: 5,
-      images: ["https://placehold.co/400x400/9B59B6/ffffff?text=Desk+Lamp"],
-    },
-    {
-      name: "Wireless Earbuds Pro",
-      oldPrice: 165,
-      price: 149,
-      discount: 10, // 10% OFF
-      rating: 5,
-      images: ["https://placehold.co/400x400/00C48C/ffffff?text=Earbuds"],
-      isLimitedStock: true,
-    },
-    {
-      name: "Premium Office Chair",
-      oldPrice: 260,
-      price: 210,
-      discount: 19, // 19% OFF
-      rating: 4,
-      images: ["https://placehold.co/400x400/FF7B7B/ffffff?text=Office+Chair"],
-    },
-    {
-      name: "4K Ultra HD Monitor",
-      oldPrice: 399,
-      price: 299,
-      discount: 25, // 25% OFF
-      rating: 5,
-      images: ["https://placehold.co/400x400/007BFF/ffffff?text=Monitor"],
-      isTrending: true,
-    },
-    {
-      name: "Luxury Wristwatch",
-      oldPrice: 650,
-      price: 420,
-      discount: 35, // 35% OFF
-      rating: 5,
-      images: ["https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch"],
-      isExclusive: true,
-    },
-  ];
+  const allProducts = sampleProducts();
 
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,7 +18,14 @@ export default function TrendingNowPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredProducts = allProducts.filter((product) => {
-    const matchesTag = filterTag === "All" || product.tag === filterTag;
+    const matchesTag =
+      filterTag === "All" ||
+      (filterTag === "Best Seller" && product.isBestSeller) ||
+      (filterTag === "Hot" && product.isHot) ||
+      (filterTag === "Trending" && product.isTrending) ||
+      (filterTag === "Limited Stock" && product.isLimitedStock) ||
+      (filterTag === "Exclusive" && product.isExclusive);
+
     const matchesSearch = product.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -108,21 +33,10 @@ export default function TrendingNowPage() {
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortOption === "priceLowHigh") {
-      return (
-        parseFloat(a.price.replace("$", "")) -
-        parseFloat(b.price.replace("$", ""))
-      );
-    }
-    if (sortOption === "priceHighLow") {
-      return (
-        parseFloat(b.price.replace("$", "")) -
-        parseFloat(a.price.replace("$", ""))
-      );
-    }
-    if (sortOption === "ratingHighLow") {
-      return b.rating - a.rating;
-    }
+    if (sortOption === "priceLowHigh") return a.price - b.price;
+    if (sortOption === "priceHighLow") return b.price - a.price;
+    if (sortOption === "ratingHighLow") return b.rating - a.rating;
+
     return 0;
   });
 

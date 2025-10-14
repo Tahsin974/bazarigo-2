@@ -66,9 +66,9 @@ export default function CategoriesSection() {
                       {cat.icon}
                     </div>
                   </div>
-                  <span className="font-semibold text-gray-800 sm:text-base text-xs">
+                  <h3 className="font-semibold text-gray-800 sm:text-base text-xs">
                     {cat.name}
-                  </span>
+                  </h3>
                 </Card>
               </HashLink>
             </motion.div>

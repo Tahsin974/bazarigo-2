@@ -19,10 +19,7 @@ export default function ProductCard({ item }) {
           </div>
         )}
 
-        {(item.isHot ||
-          item.isTrending ||
-          item.isLimitedStock ||
-          item.isExclusive) && (
+        {item.isLimitedStock && (
           <span
             className={`absolute ${
               item.isBestSeller && item.isNew
@@ -32,15 +29,7 @@ export default function ProductCard({ item }) {
                 : "top-3 left-3"
             }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-pulse`}
           >
-            {item.isHot
-              ? "Hot"
-              : item.isTrending
-              ? "Trending"
-              : item.isLimitedStock
-              ? "Limited Stock"
-              : item.isExclusive
-              ? "Exclusive"
-              : ""}
+            Limited Stock
           </span>
         )}
         {item.isNew && (
@@ -50,7 +39,15 @@ export default function ProductCard({ item }) {
         )}
         {item.isBestSeller && (
           <span
-            className="absolute top-3 right-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-gradient"
+            className={`absolute  ${
+              item.isLimitedStock && item.isNew
+                ? "top-3 right-3"
+                : item.isNew
+                ? "top-3 right-3 "
+                : item.isLimitedStock
+                ? "top-3 right-3"
+                : "top-3 left-3"
+            }  text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-gradient`}
             style={{
               background: "linear-gradient(90deg, #FFD700 0%, #FFFACD 100%)",
               color: "#8B8000",
@@ -62,7 +59,7 @@ export default function ProductCard({ item }) {
         )}
       </div>
       <CardContent className="px-5 py-3 flex flex-col gap-3 flex-1 justify-between">
-        <h3 className="mt-4 font-bold text-gray-800">{item.name}</h3>
+        <h2 className="mt-4 font-bold text-gray-800">{item.name}</h2>
         <div className="flex items-center justify-between gap-2 mt-2">
           <div className="flex items-center gap-2">
             <p className="text-[#FF0055] font-bold">৳{item.price.toFixed(2)}</p>

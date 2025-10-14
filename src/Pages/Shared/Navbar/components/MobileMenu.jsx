@@ -36,11 +36,10 @@ export default function MobileMenu({ isMenuOpen }) {
               <User size={22} />
             </Link>
           </div>
-          <a
-            href="/seller-registration#"
-            className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white font-semibold px-5 py-2 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-center"
-          >
-            Become a Seller
+          <a href="/seller-registration#">
+            <button className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white font-semibold px-5 py-2 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-center cursor-pointer w-full">
+              Become a Seller
+            </button>
           </a>
         </div>
       </div>

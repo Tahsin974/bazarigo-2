@@ -12,10 +12,10 @@ export default function CheckOutPage() {
   const [isCashOnDelivery, setIsCashOnDelivery] = useState(false);
   console.log(isCashOnDelivery);
   return (
-    <div className="container mx-auto px-6 py-16">
+    <div className="container mx-auto md:px-6 px-2 py-16 ">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="flex  lg:flex-row flex-col gap-10">
+        <div className="flex-1 space-y-6">
           <Card className="rounded-2xl shadow-md">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-xl font-semibold">Billing Information</h2>

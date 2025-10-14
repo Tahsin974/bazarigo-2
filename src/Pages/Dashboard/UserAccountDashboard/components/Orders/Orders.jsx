@@ -150,7 +150,7 @@ export default function Orders({
                       Cancel Order
                     </button>
                   ) : (
-                    <button className="px-3 py-2 rounded-md bg-[#DC2626] hover:bg-[#B91C1C] text-white flex items-center gap-2  border-none shadow-none sm:text-base text-xs cursor-pointer">
+                    <button className="px-3 py-2 rounded-md bg-[#f72c2c] hover:bg-[#e92323] text-white flex items-center gap-2  border-none shadow-none sm:text-base text-xs cursor-pointer">
                       Cancel Order
                     </button>
                   )}

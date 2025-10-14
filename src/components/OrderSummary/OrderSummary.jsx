@@ -48,7 +48,7 @@ export default function OrderSummary({
 
   return (
     <Card className="rounded-2xl shadow">
-      <CardContent className="p-6 space-y-4">
+      <CardContent className="md:p-6 p-4 space-y-4">
         {showTitle && (
           <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
         )}
@@ -73,7 +73,7 @@ export default function OrderSummary({
             {isFreeShipping ? (
               <span className="text-green-600 font-medium">Free</span>
             ) : (
-              `$ ${shipping.toFixed(2)}`
+              `৳ ${shipping.toFixed(2)}`
             )}
           </span>
         </div>
@@ -114,17 +114,17 @@ export default function OrderSummary({
         </div>
         {allowPromo && (
           <div className="mt-4">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <input
                 type="text"
                 placeholder="Promo code"
                 value={promo}
                 onChange={(e) => setPromo(e.target.value)}
-                className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF0055] focus:outline-none"
+                className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF0055] focus:outline-none w-full sm:w-auto"
               />
               <Button
                 onClick={handleApplyPromo}
-                className="bg-[#FF0055] text-white px-4 py-2 rounded-lg hover:bg-[#e6004d] transition"
+                className="bg-[#FF0055] text-white px-4 py-2 rounded-md hover:bg-[#e6004d] transition "
               >
                 Apply
               </Button>

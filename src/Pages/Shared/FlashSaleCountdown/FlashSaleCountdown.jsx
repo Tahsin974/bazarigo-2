@@ -40,7 +40,7 @@ export default function FlashSaleCountdown({ isButtonVisible = false }) {
             className="bg-white/90 text-[#FF0055] px-6 py-4 rounded-lg shadow-lg border border-white/40 min-w-[80px]"
           >
             <AnimatePresence mode="wait">
-              <motion.span
+              <motion.p
                 key={item.value}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -49,11 +49,11 @@ export default function FlashSaleCountdown({ isButtonVisible = false }) {
                 className="text-3xl font-extrabold tracking-wide inline-block"
               >
                 {item.value}
-              </motion.span>
+              </motion.p>
             </AnimatePresence>
-            <div className="text-xs font-semibold uppercase mt-1 text-gray-700">
+            <h4 className="text-xs font-semibold uppercase mt-1 text-gray-700">
               {item.label}
-            </div>
+            </h4>
           </div>
         ))}
       </motion.div>

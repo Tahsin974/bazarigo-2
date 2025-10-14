@@ -10,30 +10,36 @@ export default function ControlsSection({
   sortOption,
   setSortOption,
 }) {
+  const tags = [
+    "All",
+    "Hot",
+    "Trending",
+    "Best Seller",
+    "Limited Stock",
+    "Exclusive",
+  ];
   return (
     <section className="py-10 border-b bg-white shadow-sm">
       <div className="container mx-auto px-6 flex flex-col lg:flex-row justify-between items-center gap-6">
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-3">
-          {"All,Hot,Trending,Best Seller,Limited Stock,Exclusive"
-            .split(",")
-            .map((tag) => (
-              <motion.button
-                key={tag}
-                onClick={() => {
-                  setFilterTag(tag);
-                  setCurrentPage(1);
-                }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border shadow-sm ${
-                  filterTag === tag
-                    ? "bg-[#FF0055] text-white"
-                    : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {tag}
-              </motion.button>
-            ))}
+          {tags.map((tag) => (
+            <motion.button
+              key={tag}
+              onClick={() => {
+                setFilterTag(tag);
+                setCurrentPage(1);
+              }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border shadow-sm ${
+                filterTag === tag
+                  ? "bg-[#FF0055] text-white border-none"
+                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              {tag}
+            </motion.button>
+          ))}
         </div>
 
         {/* Search & Sort */}
@@ -59,7 +65,9 @@ export default function ControlsSection({
                 onChange={(e) => setSortOption(e.target.value)}
                 className="appearance-none bg-white border border-gray-300 rounded-lg py-2 pl-4 pr-10 text-base font-medium text-gray-900 shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055] transition duration-150 cursor-pointer"
               >
-                <option value="default">Sort By</option>
+                <option value="default" disabled>
+                  Sort By
+                </option>
                 <option value="priceLowHigh">Price: Low to High</option>
                 <option value="priceHighLow">Price: High to Low</option>
                 <option value="ratingHighLow">Rating: High to Low</option>

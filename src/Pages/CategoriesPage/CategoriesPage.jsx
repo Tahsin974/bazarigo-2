@@ -27,7 +27,7 @@ export default function CategoriesPage() {
     categoryName || "All Products"
   );
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const [sortOption, setSortOption] = useState("Newest");
   const [viewMode, setViewMode] = useState("grid");
   const [mode, setMode] = useState("pagination");
@@ -119,36 +119,18 @@ export default function CategoriesPage() {
     },
   ];
 
-  // const products = Array.from({ length: 60 }, (_, i) => ({
-  //   id: i + 1,
-  //   name: `Product ${i + 1}`,
-  //   price: `$${((i + 1) * 7).toFixed(2)}`,
-  //   rating: Math.floor(Math.random() * 5) + 1,
-  //   category:
-  //     i % 3 === 0 ? "Electronics" : i % 3 === 1 ? "Fashion" : "Home & Kitchen",
-  //   img: `https://placehold.co/600x600/${
-  //     i % 3 === 0 ? "007BFF" : i % 3 === 1 ? "FF0055" : "F39C12"
-  //   }/ffffff?text=Product+${i + 1}`,
-  //   createdAt: Date.now() - i * 1000 * 60 * 60 * 24,
-  // }));
   const products = sampleProducts();
   const filteredProducts =
     activeCategory === "All Products"
       ? products
       : products.filter((p) => p.subcategory === activeCategory);
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortOption === "Price: Low to High")
-      return (
-        parseFloat(a.price.replace(/[^0-9.-]+/g, "")) -
-        parseFloat(b.price.replace(/[^0-9.-]+/g, ""))
-      );
-    if (sortOption === "Price: High to Low")
-      return (
-        parseFloat(b.price.replace(/[^0-9.-]+/g, "")) -
-        parseFloat(a.price.replace(/[^0-9.-]+/g, ""))
-      );
+    if (sortOption === "Newest")
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    if (sortOption === "Price: Low to High") return a.price - b.price;
+    if (sortOption === "Price: High to Low") return b.price - a.price;
     if (sortOption === "Rating") return b.rating - a.rating;
-    return b.createdAt - a.createdAt;
   });
   const totalPages = Math.max(
     1,
@@ -283,14 +265,6 @@ export default function CategoriesPage() {
             setActiveCategory={setActiveCategory}
             openDropdown={openDropdown}
             setOpenDropdown={setOpenDropdown}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            sortOption={sortOption}
-            setSortOption={setSortOption}
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-            autoLoad={autoLoad}
-            setAutoLoad={setAutoLoad}
           />
           {/* Products + controls */}
           <section className="flex-1">

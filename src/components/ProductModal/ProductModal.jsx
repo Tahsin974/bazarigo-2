@@ -5,6 +5,14 @@ import { getExtrasByCategory } from "../../Utils/Helpers/Helpers";
 import UploadImages from "../ui/UploadImages";
 
 export default function ProductModal({ product = {}, onClose, onSave, user }) {
+  const daysToConsiderNew = 30; // define how many days a product is considered new
+  const createdAtDate = product.createdAt
+    ? new Date(product.createdAt)
+    : new Date();
+
+  const isNewCalculated =
+    product.isNew ||
+    (new Date() - createdAtDate) / (1000 * 60 * 60 * 24) <= daysToConsiderNew;
   const [form, setForm] = useState(() => ({
     id: product.id || null,
     name: product.name || "",
@@ -12,9 +20,10 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
     price: product.price || 0,
     discount: product.discount || 0,
     rating: product.rating || 0,
+    createdAt: product.createdAt || new Date().toISOString(),
     isBestSeller: product.isBestSeller || false,
     isHot: product.isHot || false,
-    isNew: product.isNew || false,
+    isNew: isNewCalculated,
     isTrending: product.isTrending || false,
     isLimitedStock: product.isLimitedStock || false,
     isExclusive: product.isExclusive || false,
@@ -38,7 +47,7 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
       rating: product.rating || 0,
       isBestSeller: product.isBestSeller || false,
       isHot: product.isHot || false,
-      isNew: product.isNew || false,
+      isNew: isNewCalculated,
       isTrending: product.isTrending || false,
       isLimitedStock: product.isLimitedStock || false,
       isExclusive: product.isExclusive || false,
@@ -49,6 +58,7 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
       stock: product.stock || 0,
       images: product.images || [],
       extras: product.extras || {},
+      createdAt: product.createdAt || new Date().toISOString(),
     });
   }, [product]);
 

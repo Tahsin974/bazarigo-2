@@ -162,7 +162,7 @@ function ProductsView({
                       </div>
                     </div>
                     <div>
-                      <div className="font-bold">{p.name}</div>
+                      <p className="font-bold">{p.name}</p>
                     </div>
                   </div>
                 </td>
