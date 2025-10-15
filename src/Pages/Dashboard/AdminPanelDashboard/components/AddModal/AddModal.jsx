@@ -19,12 +19,15 @@ function AddModal({ title = "Add", fields = [], onClose, onSave }) {
         <div className="flex items-center justify-between p-4 border-b">
           <div className="font-semibold">{title}</div>
           <div className="flex gap-2">
-            <button onClick={onClose} className="px-3 py-1 rounded border">
+            <button
+              onClick={onClose}
+              className="px-3 py-1 rounded text-white bg-[#f72c2c] hover:bg-[#e92323]"
+            >
               Close
             </button>
             <button
               onClick={handleSave}
-              className="px-3 py-1 rounded bg-[#FF0055] text-white"
+              className="px-3 py-1 rounded bg-[#00C853] hover:bg-[#00B34A] text-white"
             >
               Save
             </button>

@@ -66,7 +66,7 @@ export default function CategoriesSection() {
                       {cat.icon}
                     </div>
                   </div>
-                  <h3 className="font-semibold text-gray-800 sm:text-base text-xs">
+                  <h3 className="font-semibold text-gray-800 text-[clamp(10px,2vw,16px)]">
                     {cat.name}
                   </h3>
                 </Card>

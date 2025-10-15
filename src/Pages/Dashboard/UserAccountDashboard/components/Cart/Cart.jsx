@@ -69,7 +69,7 @@ export default function Cart({
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button className="btn sm:btn-md btn-sm rounded-md bg-[#FF0055] text-white border-none">
+            <button className="btn sm:btn-md btn-sm rounded-md bg-[#00C853] hover:bg-[#00B34A] text-white border-none">
               Proceed to Checkout
             </button>
             <button

@@ -35,7 +35,6 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
     images: product.images || [],
     extras: product.extras || {},
   }));
-  console.log(form);
 
   useEffect(() => {
     setForm({
@@ -483,12 +482,15 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
 
           {/* Buttons */}
           <div className="flex gap-2 justify-end">
-            <button onClick={onClose} className="px-3 py-1 rounded border">
+            <button
+              onClick={onClose}
+              className="px-3 py-1 rounded text-white bg-[#f72c2c] hover:bg-[#e92323]"
+            >
               Close
             </button>
             <button
               onClick={handleSave}
-              className="px-3 py-1 rounded bg-[#FF0055] text-white"
+              className="px-3 py-1 rounded bg-[#00C853] hover:bg-[#00B34A] text-white"
             >
               Save
             </button>

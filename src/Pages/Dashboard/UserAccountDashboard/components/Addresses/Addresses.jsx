@@ -36,7 +36,7 @@ export default function Addresses({
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-[#FF0055] text-white rounded-md"
+              className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md"
             >
               Add
             </button>
@@ -68,7 +68,7 @@ export default function Addresses({
                   )}
                   <button
                     onClick={() => removeAddress(addr.id)}
-                    className="px-2 py-1 rounded-md border text-sm text-red-600"
+                    className="px-2 py-1 rounded-md border text-sm text-[#f72c2c] hover:text-[#e92323]"
                   >
                     Remove
                   </button>

@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 import ProductCard from "../../../components/ProductCard/ProductCard";
 import Pagination from "../../../components/ui/Pagination";
+import { useRenderPageNumbers } from "../../../Utils/Hooks/useRenderPageNumbers";
 
 export default function NewArrivalsGrid({
   filtered,
-  renderPageNumbers,
   totalPages,
   currentPage,
   setCurrentPage,
@@ -30,7 +30,11 @@ export default function NewArrivalsGrid({
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
-          renderPageNumbers={renderPageNumbers}
+          renderPageNumbers={useRenderPageNumbers(
+            currentPage,
+            totalPages,
+            setCurrentPage
+          )}
         />
       </div>
     </section>

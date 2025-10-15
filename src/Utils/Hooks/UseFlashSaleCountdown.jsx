@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 
-export default function UseFlashSaleCountdown(totalDuration) {
+export default function UseFlashSaleCountdown(totalDuration, onComplete) {
   const [timeLeft, setTimeLeft] = useState(totalDuration);
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      if (onComplete) onComplete(); // Notify parent
+      setTimeLeft(totalDuration); // auto-reset countdown
+      return;
+    }
     const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft]);

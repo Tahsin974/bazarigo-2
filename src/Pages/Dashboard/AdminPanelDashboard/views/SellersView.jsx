@@ -5,6 +5,7 @@ import AddBtn from "../../../../components/ui/AddBtn";
 import { MoreHorizontal } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
+import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
 
 function SellersView({
   sellers,
@@ -21,52 +22,11 @@ function SellersView({
   sellerPageSize = 10,
   filteredSellers,
 }) {
-  console.log(filteredSellers);
   const totalPages = Math.max(
     1,
     Math.ceil(filteredSellers.length / sellerPageSize)
   );
-  const renderPageNumbers = () => {
-    const maxVisible = 5; // show up to 5 buttons
 
-    const startPage = Math.max(1, sellerPage - Math.floor(maxVisible / 2));
-    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    const pages = [];
-
-    if (startPage > 1) {
-      pages.push(
-        <MoreHorizontal
-          key="start-ellipsis"
-          className="w-5 h-5 text-gray-400"
-        />
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => setSellerPage(i)}
-          className={`px-3 py-1 w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
-            sellerPage === i
-              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300 "
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (endPage < totalPages) {
-      pages.push(
-        <MoreHorizontal key="end-ellipsis" className="w-5 h-5 text-gray-400" />
-      );
-    }
-
-    return pages;
-  };
   return (
     <div>
       <div className="flex flex-col  lg:flex-row lg:items-center lg:justify-between gap-4 mb-3">
@@ -143,7 +103,7 @@ function SellersView({
                     <td className="px-4 py-3">{s.email}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 justify-center">
-                        <button className="px-3 py-1 rounded border">
+                        <button className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">
                           View
                         </button>
                         <button className="px-3 py-1  rounded bg-[#00C853] hover:bg-[#00B34A] text-white">
@@ -166,7 +126,11 @@ function SellersView({
         currentPage={sellerPage}
         totalPages={totalPages}
         setCurrentPage={setSellerPage}
-        renderPageNumbers={renderPageNumbers}
+        renderPageNumbers={useRenderPageNumbers(
+          sellerPage,
+          totalPages,
+          setSellerPage
+        )}
       />
     </div>
   );

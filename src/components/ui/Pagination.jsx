@@ -19,7 +19,7 @@ export default function Pagination({
       >
         Prev
       </motion.div>
-      {renderPageNumbers()}
+      {renderPageNumbers}
       <motion.div
         whileHover={{ scale: currentPage < totalPages ? 1.1 : 1 }}
         className={`p-2 border shadow-sm rounded-md ${

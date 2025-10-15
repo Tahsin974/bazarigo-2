@@ -76,7 +76,7 @@ export default function SettingsView({
                 <div className="flex justify-end mt-3">
                   <button
                     onClick={savePaymentSettings}
-                    className="bg-[#FF0055] text-white px-4 py-2 rounded"
+                    className="bg-[#00C853] hover:bg-[#00B34A] text-white px-4 py-2 rounded"
                   >
                     Save
                   </button>
@@ -129,7 +129,7 @@ export default function SettingsView({
                 <div className="flex justify-end mt-3">
                   <button
                     onClick={savePaymentSettings}
-                    className="bg-[#FF0055] text-white px-4 py-2 rounded"
+                    className="bg-[#00C853] hover:bg-[#00B34A] text-white px-4 py-2 rounded"
                   >
                     Save
                   </button>
@@ -169,7 +169,7 @@ export default function SettingsView({
                 <div className="flex justify-end mt-3">
                   <button
                     onClick={saveProfileSettings}
-                    className="bg-[#FF0055] text-white px-4 py-2 rounded"
+                    className="bg-[#00C853] hover:bg-[#00B34A] text-white px-4 py-2 rounded"
                   >
                     Save
                   </button>
@@ -226,7 +226,7 @@ export default function SettingsView({
                 <div className="flex justify-end mt-3">
                   <button
                     onClick={saveNotificationSettings}
-                    className="bg-[#FF0055] text-white px-4 py-2 rounded"
+                    className="bg-[#00C853] hover:bg-[#00B34A] text-white px-4 py-2 rounded"
                   >
                     Save
                   </button>
@@ -294,7 +294,7 @@ export default function SettingsView({
                 <div className="flex justify-end mt-3">
                   <button
                     onClick={saveSecurity}
-                    className="bg-[#FF0055] text-white px-4 py-2 rounded"
+                    className="bg-[#00C853] hover:bg-[#00B34A] text-white px-4 py-2 rounded"
                   >
                     Update Security
                   </button>

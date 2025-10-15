@@ -76,14 +76,14 @@ export default function EditProfileModal({
               <div className="flex gap-3">
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#FF0055] text-white rounded-md"
+                  className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md"
                 >
                   Save Changes
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowEditProfile(false)}
-                  className="px-4 py-2 rounded-md border"
+                  className="px-4 py-2 text-white rounded-md bg-[#f72c2c] hover:bg-[#e92323]"
                 >
                   Cancel
                 </button>

@@ -4,7 +4,7 @@ import { HashLink } from "react-router-hash-link";
 export default function SectionTitle({ title, link = "/" }) {
   return (
     <div className="flex justify-between items-center ">
-      <h2 className="text-3xl md:text-4xl  text-center text-gray-800 ">
+      <h2 className="sm:text-3xl text-2xl md:text-4xl  text-center text-gray-800 ">
         {title}
       </h2>
       <HashLink to={link} className="hover:text-[#FF0055] transition-colors ">

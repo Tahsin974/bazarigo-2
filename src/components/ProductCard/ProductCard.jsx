@@ -39,15 +39,7 @@ export default function ProductCard({ item }) {
         )}
         {item.isBestSeller && (
           <span
-            className={`absolute  ${
-              item.isLimitedStock && item.isNew
-                ? "top-3 right-3"
-                : item.isNew
-                ? "top-3 right-3 "
-                : item.isLimitedStock
-                ? "top-3 right-3"
-                : "top-3 left-3"
-            }  text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-gradient`}
+            className={`absolute  top-3 right-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-gradient`}
             style={{
               background: "linear-gradient(90deg, #FFD700 0%, #FFFACD 100%)",
               color: "#8B8000",

@@ -80,7 +80,7 @@ export default function Orders({
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <button
-                        className="px-3 py-1 bg-[#FF0055] text-white rounded-md text-xs"
+                        className="px-3 py-1 bg-[#FF0055] hover:bg-[#e6004e] text-white rounded-md text-xs"
                         onClick={() => {
                           setPrefillOrderId(order.orderId);
                           setActiveTab("returns");
@@ -141,7 +141,7 @@ export default function Orders({
                     <span>Current Status: {order.status}</span>
                   )}
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-3">
                   {order.status === "Shipped" ? (
                     <button
                       className="bg-gray-300 text-gray-500 flex items-center gap-2 px-3 py-2 rounded  border-none shadow-none "

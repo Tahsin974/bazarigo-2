@@ -22,12 +22,12 @@ export default function CheckOutPage() {
               <input
                 type="text"
                 placeholder="Full Name"
-                className="w-full px-4 py-3 border rounded-lg"
+                className="w-full px-4 py-3 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none"
               />
               <input
                 type="text"
                 placeholder="Address"
-                className="w-full px-4 py-3 border rounded-lg"
+                className="w-full px-4 py-3 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none"
               />
             </CardContent>
           </Card>
@@ -94,7 +94,7 @@ export default function CheckOutPage() {
           />
           <Button
             onClick={() => navigate("/thank-you")}
-            className="w-full mt-6 bg-[#FF0055] text-white py-3 rounded-full hover:bg-[#e6004d] transition"
+            className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition"
           >
             Place Order
           </Button>

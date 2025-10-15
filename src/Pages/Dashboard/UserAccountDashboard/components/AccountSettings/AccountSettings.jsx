@@ -88,7 +88,7 @@ export default function AccountSettings({
           </label>
           <button
             type="submit"
-            className="px-4 py-2 bg-[#FF0055] text-white rounded-md"
+            className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md"
           >
             Save Settings
           </button>

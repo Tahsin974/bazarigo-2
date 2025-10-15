@@ -4,6 +4,8 @@ import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import AddBtn from "../../../../components/ui/AddBtn";
 import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
+import { motion } from "framer-motion";
+import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
 
 function CustomersView({
   customers,
@@ -25,47 +27,7 @@ function CustomersView({
     1,
     Math.ceil(filteredCustomers.length / customerPageSize)
   );
-  const renderPageNumbers = () => {
-    const maxVisible = 5; // show up to 5 buttons
 
-    const startPage = Math.max(1, customerPage - Math.floor(maxVisible / 2));
-    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    const pages = [];
-
-    if (startPage > 1) {
-      pages.push(
-        <MoreHorizontal
-          key="start-ellipsis"
-          className="w-5 h-5 text-gray-400"
-        />
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => setCustomerPage(i)}
-          className={`px-3 py-1 w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
-            customerPage === i
-              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300 "
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (endPage < totalPages) {
-      pages.push(
-        <MoreHorizontal key="end-ellipsis" className="w-5 h-5 text-gray-400" />
-      );
-    }
-
-    return pages;
-  };
   return (
     <div>
       <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
@@ -141,7 +103,11 @@ function CustomersView({
         currentPage={customerPage}
         totalPages={totalPages}
         setCurrentPage={setCustomerPage}
-        renderPageNumbers={renderPageNumbers}
+        renderPageNumbers={useRenderPageNumbers(
+          customerPage,
+          totalPages,
+          setCustomerPage
+        )}
       />
     </div>
   );

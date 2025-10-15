@@ -43,7 +43,7 @@ export default function Notifications({
                 {!n.read && (
                   <button
                     onClick={() => markNotificationRead(n.id)}
-                    className="px-2 py-1 rounded-md border text-sm"
+                    className="px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-sm"
                   >
                     Mark read
                   </button>

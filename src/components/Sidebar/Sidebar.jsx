@@ -68,7 +68,11 @@ export default function Sidebar({
               }`}
             >
               <span className="font-medium">{item}</span>
-              <span className="text-xs text-gray-400">
+              <span
+                className={`text-xs text-gray-400 ${
+                  active === item ? "text-white" : "text-gray-400"
+                }`}
+              >
                 {getCount(item, {
                   products,
                   orders,

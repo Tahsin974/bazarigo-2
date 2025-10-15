@@ -30,6 +30,7 @@ import {
   sampleSellers,
 } from "../../../Utils/Helpers/Helpers";
 import AddSellerModal from "./components/AddSellerModal/AddSellerModal";
+import FlashSaleView from "./views/FlashSaleView";
 
 export default function AdminPanelDashboard() {
   const [user, setUser] = useState({
@@ -42,6 +43,7 @@ export default function AdminPanelDashboard() {
   const [showEditProfile, setShowEditProfile] = useState(false);
 
   const [products, setProducts] = useState(sampleProducts());
+  const [displayProducts, setDisplayProducts] = useState(products);
   const [orders, setOrders] = useState(sampleOrders());
   const [returns, setReturns] = useState(sampleReturns());
   const [customers, setCustomers] = useState(sampleCustomers());
@@ -88,7 +90,7 @@ export default function AdminPanelDashboard() {
   // File input ref for bulk upload
   const fileRef = useRef(null);
 
-  useEffect(() => setSelected([]), [active]);
+  useEffect(() => setSelected([]), [active, displayProducts, products]);
 
   const toggleSelect = (id) =>
     setSelected((s) =>
@@ -100,6 +102,7 @@ export default function AdminPanelDashboard() {
     if (!confirm(`Delete ${selected.length} selected items?`)) return;
     if (active === "Products")
       setProducts((p) => p.filter((x) => !selected.includes(x.id)));
+    setDisplayProducts((p) => p.filter((x) => !selected.includes(x.id)));
     if (active === "Orders")
       setOrders((o) => o.filter((x) => !selected.includes(x.id)));
     if (active === "Customers")
@@ -131,7 +134,7 @@ export default function AdminPanelDashboard() {
   };
 
   const selectAll = () => {
-    if (active === "Products") {
+    if (active === "Products" || active === "FlashSale") {
       const id = products.map((p) => p.id);
       setSelected(selected.length === id.length ? [] : id);
     }
@@ -165,6 +168,7 @@ export default function AdminPanelDashboard() {
         extras: {},
       }));
       setProducts((p) => [...newProducts, ...p]);
+      setDisplayProducts((p) => [...newProducts, ...p]);
       alert(`${newProducts.length} products uploaded`);
     } catch (e) {
       console.error(e);
@@ -185,7 +189,6 @@ export default function AdminPanelDashboard() {
     });
     setProductModalOpen(true);
   };
-  console.log(editingProduct);
 
   const openEditProductModal = (p) => {
     setEditingProduct({ ...p });
@@ -194,11 +197,15 @@ export default function AdminPanelDashboard() {
 
   const saveProduct = (product) => {
     if (!product.name) return alert("Product name required");
-    if (product.id)
+    if (product.id) {
       setProducts((ps) => ps.map((x) => (x.id === product.id ? product : x)));
-    else {
+      setDisplayProducts((ps) =>
+        ps.map((x) => (x.id === product.id ? product : x))
+      );
+    } else {
       product.id = `p_${Date.now()}`;
       setProducts((ps) => [product, ...ps]);
+      setDisplayProducts((ps) => [product, ...ps]);
     }
     setProductModalOpen(false);
   };
@@ -214,7 +221,7 @@ export default function AdminPanelDashboard() {
     ]);
 
   const filteredProducts = useMemo(() => {
-    let data = [...products];
+    let data = [...displayProducts];
     if (productSearch) {
       const q = productSearch.toLowerCase();
       data = data.filter(
@@ -229,7 +236,7 @@ export default function AdminPanelDashboard() {
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
     else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     return data;
-  }, [products, productSearch, productSort]);
+  }, [displayProducts, productSearch, productSort]);
 
   // 📦 Orders Filtering & Sorting
   const filteredOrders = useMemo(() => {
@@ -392,6 +399,7 @@ export default function AdminPanelDashboard() {
                 items={[
                   "Dashboard",
                   "Products",
+                  "FlashSale",
                   "Orders",
                   "Customers",
                   "Sellers",
@@ -415,6 +423,7 @@ export default function AdminPanelDashboard() {
                 items={[
                   "Dashboard",
                   "Products",
+                  "FlashSale",
                   "Orders",
                   "Customers",
                   "Sellers",
@@ -434,33 +443,35 @@ export default function AdminPanelDashboard() {
 
                     {/* Right: Buttons + Admin */}
                     <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
-                      {active !== "Dashboard" && active !== "Settings" && (
-                        <>
-                          {active === "Products" && (
-                            <>
-                              <input
-                                ref={fileRef}
-                                type="file"
-                                accept=".csv"
-                                className="hidden"
-                                onChange={(e) =>
-                                  e.target.files &&
-                                  handleBulkUpload(e.target.files[0])
-                                }
-                              />
-                              <button
-                                onClick={() =>
-                                  fileRef.current && fileRef.current.click()
-                                }
-                                className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-xs"
-                              >
-                                Bulk Upload
-                              </button>
-                            </>
-                          )}
-                          <ExportBtn exportBtnHandler={handleExport} />
-                        </>
-                      )}
+                      {active !== "Dashboard" &&
+                        active !== "Settings" &&
+                        active !== "FlashSale" && (
+                          <>
+                            {active === "Products" && (
+                              <>
+                                <input
+                                  ref={fileRef}
+                                  type="file"
+                                  accept=".csv"
+                                  className="hidden"
+                                  onChange={(e) =>
+                                    e.target.files &&
+                                    handleBulkUpload(e.target.files[0])
+                                  }
+                                />
+                                <button
+                                  onClick={() =>
+                                    fileRef.current && fileRef.current.click()
+                                  }
+                                  className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-xs"
+                                >
+                                  Bulk Upload
+                                </button>
+                              </>
+                            )}
+                            <ExportBtn exportBtnHandler={handleExport} />
+                          </>
+                        )}
                     </div>
                   </div>
 
@@ -481,12 +492,36 @@ export default function AdminPanelDashboard() {
                         openNewProductModal={openNewProductModal}
                         openEditProductModal={openEditProductModal}
                         setProducts={setProducts}
+                        setDisplayProducts={setDisplayProducts}
                         allSelected={
                           selected.length === products.length &&
                           products.length > 0
                         }
                         toggleSelectAll={selectAll}
                         bulkDelete={bulkDelete}
+                        productPage={productPage}
+                        productPageSize={productPageSize}
+                        setProductPage={setProductPage}
+                        filteredProducts={filteredProducts}
+                        paginatedProducts={paginatedProducts}
+                        productSearch={productSearch}
+                        setProductSearch={setProductSearch}
+                        productSort={productSort}
+                        setProductSort={setProductSort}
+                      />
+                    )}
+                    {active === "FlashSale" && (
+                      <FlashSaleView
+                        products={products}
+                        setFlashSaleProducts={setDisplayProducts}
+                        selected={selected}
+                        setSelected={setSelected}
+                        toggleSelect={toggleSelect}
+                        allSelected={
+                          selected.length === products.length &&
+                          products.length > 0
+                        }
+                        toggleSelectAll={selectAll}
                         productPage={productPage}
                         productPageSize={productPageSize}
                         setProductPage={setProductPage}

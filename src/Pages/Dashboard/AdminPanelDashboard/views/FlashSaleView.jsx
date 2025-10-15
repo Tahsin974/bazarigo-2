@@ -1,41 +1,56 @@
-import React from "react";
-import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
-import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
+import { MoreHorizontal, ZapIcon } from "lucide-react";
 import AddBtn from "../../../../components/ui/AddBtn";
 import Pagination from "../../../../components/ui/Pagination";
-import { MoreHorizontal } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
+import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import SelectField from "../../../../components/ui/SelectField";
-import { motion } from "framer-motion";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
 
-function ProductsView({
+export default function FlashSaleView({
   products,
   selected,
+  setSelected,
   toggleSelect,
-  openNewProductModal,
-  openEditProductModal,
-  setProducts,
-  setDisplayProducts,
   allSelected,
   toggleSelectAll,
-  bulkDelete,
   productPage,
   setProductPage,
   productPageSize = 10,
   filteredProducts,
-
   paginatedProducts,
   productSearch,
   setProductSearch,
   productSort,
   setProductSort,
+
+  setFlashSaleProducts,
 }) {
   const totalPages = Math.max(
     1,
     Math.ceil(filteredProducts.length / productPageSize)
   );
+  const handleApplySale = () => {
+    const updatedProducts = products.map((prod) =>
+      selected.includes(prod.id) ? { ...prod, isFlashSale: true } : prod
+    );
 
+    setFlashSaleProducts(updatedProducts);
+  };
+
+  // const autoSelect = () => {
+  //   const candidates = products.filter(
+  //     (p) => (p.rating > 4 || p.isNew) && p.stock > 10
+  //   );
+
+  //   setSelected(candidates.map((p) => p.id));
+  // };
+  const autoSelect = () => {
+    const candidates = products.filter(
+      (p) => (p.rating > 4 || p.isNew) && p.stock > 30
+    );
+
+    setSelected(candidates.map((p) => p.id));
+  };
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
@@ -43,13 +58,26 @@ function ProductsView({
         <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1  gap-4">
           <div className="flex items-center gap-4">
             <div className="font-medium sm:text-md text-[15px]">
-              Products ({products.length})
+              Total Products ({products.length})
+            </div>
+            <div className="font-medium sm:text-md text-[15px]">
+              Selected Products ({selected.length})
             </div>
           </div>
           {/* Small screen buttons */}
           <div className="ml-2 lg:hidden flex gap-2">
-            <AddBtn btnHandler={openNewProductModal}>Add Product</AddBtn>
-            <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+            <AddBtn btnHandler={autoSelect}>Auto Select</AddBtn>
+
+            {!selected.length ? (
+              <button
+                className="bg-gray-300 text-gray-500 flex items-center gap-2 px-3 py-2 rounded  border-none shadow-none sm:text-base text-xs"
+                disabled="disabled"
+              >
+                Apply Sale
+              </button>
+            ) : (
+              <AddBtn btnHandler={handleApplySale}>Apply Sale</AddBtn>
+            )}
           </div>
         </div>
 
@@ -79,8 +107,24 @@ function ProductsView({
 
         {/* Right: Buttons on large screens */}
         <div className="hidden lg:flex gap-2 order-3 ">
-          <AddBtn btnHandler={openNewProductModal}>Add Product</AddBtn>
-          <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+          <AddBtn
+            btnHandler={autoSelect}
+            bgColor="#FF0055"
+            bgColorHover="#e6004e"
+          >
+            Auto Select
+          </AddBtn>
+
+          {!selected.length ? (
+            <button
+              className="bg-gray-300 text-gray-500 flex items-center gap-2 px-3 py-2 rounded  border-none shadow-none sm:text-base text-xs"
+              disabled="disabled"
+            >
+              Apply Sale
+            </button>
+          ) : (
+            <AddBtn btnHandler={handleApplySale}>Apply Sale</AddBtn>
+          )}
         </div>
       </div>
       <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
@@ -98,9 +142,9 @@ function ProductsView({
               </th>
               <th>Name</th>
               <th>Category</th>
-              <th>Price</th>
+              <th>Base Price</th>
               <th>Stock</th>
-              <th>Actions</th>
+              <th>Sale Status</th>
             </tr>
           </thead>
           <tbody className="">
@@ -130,28 +174,16 @@ function ProductsView({
                 <td className="px-4 py-3">৳{p.price}</td>
                 <td>{p.stock}</td>
                 <td>
-                  <div className="flex items-center gap-2 justify-center">
-                    <button
-                      onClick={() => openEditProductModal(p)}
-                      className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm("Delete product?"))
-                          setProducts((prev) =>
-                            prev.filter((x) => x.id !== p.id)
-                          );
-                        setDisplayProducts((prev) =>
-                          prev.filter((x) => x.id !== p.id)
-                        );
-                      }}
-                      className="px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {p.isFlashSale ? (
+                    <p className="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      <ZapIcon className="w-3 h-3 mr-1 fill-red-800" />{" "}
+                      {p.discount}% off
+                    </p>
+                  ) : (
+                    <p className="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
+                      Inactive
+                    </p>
+                  )}
                 </td>
               </tr>
             ))}
@@ -159,58 +191,6 @@ function ProductsView({
         </table>
       </div>
 
-      {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
-        {paginatedProducts.map((p) => (
-          <div key={p.id} className="bg-white rounded shadow-sm p-3">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-3">
-                <div className="w-20 h-20 bg-gray-100 rounded-md overflow-hidden">
-                  {p.images && p.images[0] ? (
-                    <img
-                      src={p.images[0]}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <div className="font-semibold">{p.name}</div>
-                  <div className="text-sm text-gray-500">{p.category}</div>
-                  <div className="font-bold text-[#FF0055]">${p.price}</div>
-                  <div className="text-xs text-gray-500">Stock: {p.stock}</div>
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                checked={selected.includes(p.id)}
-                onChange={() => toggleSelect(p.id)}
-              />
-            </div>
-
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => openEditProductModal(p)}
-                className="flex-1 px-3 py-2 rounded border bg-[#4F46E5] hover:bg-[#4338CA]  text-white"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() =>
-                  setProducts((s) => s.filter((x) => x.id !== p.id))
-                }
-                className="px-3 py-2 rounded bg-[#DC2626] hover:bg-[#B91C1C]  text-white"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div> */}
       <div className=" flex items-center justify-center">
         <Pagination
           currentPage={productPage}
@@ -226,5 +206,3 @@ function ProductsView({
     </div>
   );
 }
-
-export default ProductsView;

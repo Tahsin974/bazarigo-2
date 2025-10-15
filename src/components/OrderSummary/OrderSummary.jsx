@@ -120,11 +120,11 @@ export default function OrderSummary({
                 placeholder="Promo code"
                 value={promo}
                 onChange={(e) => setPromo(e.target.value)}
-                className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#FF0055] focus:outline-none w-full sm:w-auto"
+                className="flex-1 px-4 py-2 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none w-full sm:w-auto"
               />
               <Button
                 onClick={handleApplyPromo}
-                className="bg-[#FF0055] text-white px-4 py-2 rounded-md hover:bg-[#e6004d] transition "
+                className="bg-[#00C853] text-white px-4 py-2 rounded-md hover:bg-[#00B34A] transition "
               >
                 Apply
               </Button>

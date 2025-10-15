@@ -4,6 +4,7 @@ import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import ExportBtn from "../../../../components/ui/ExportBtn";
 import Pagination from "../../../../components/ui/Pagination";
+import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
 
 export default function PaymentsView({
   active,
@@ -23,50 +24,11 @@ export default function PaymentsView({
     Math.ceil(filteredPayments.length / paymentPageSize)
   );
 
-  const renderPageNumbers = () => {
-    const maxVisible = 5; // show up to 5 buttons
-    const totalPages = Math.max(
-      1,
-      Math.ceil(filteredPayments.length / paymentPageSize)
-    );
-    const startPage = Math.max(1, paymentPage - Math.floor(maxVisible / 2));
-    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    const pages = [];
-
-    if (startPage > 1) {
-      pages.push(
-        <MoreHorizontal
-          key="start-ellipsis"
-          className="w-5 h-5 text-gray-400"
-        />
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => setPaymentPage(i)}
-          className={`px-3 py-1 w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
-            paymentPage === i
-              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300 "
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (endPage < totalPages) {
-      pages.push(
-        <MoreHorizontal key="end-ellipsis" className="w-5 h-5 text-gray-400" />
-      );
-    }
-
-    return pages;
-  };
+  const renderPageNumbers = useRenderPageNumbers(
+    paymentPage,
+    totalPages,
+    setPaymentPage
+  );
   return (
     <div>
       {active === "Payments" && (

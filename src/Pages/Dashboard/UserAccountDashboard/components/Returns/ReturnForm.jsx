@@ -39,13 +39,13 @@ export default function ReturnForm({ prefillOrderId, onSubmit }) {
         value={orderId}
         onChange={(e) => setOrderId(e.target.value)}
         placeholder="Order ID"
-        className="w-full border px-3 py-2 rounded-md"
+        className="w-full border px-3 py-2 rounded-md focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none"
       />
       <textarea
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="Reason for return"
-        className="w-full border px-3 py-2 rounded-md"
+        className="w-full border px-3 py-2 rounded-md focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none"
       />
 
       <div>
@@ -77,14 +77,14 @@ export default function ReturnForm({ prefillOrderId, onSubmit }) {
       <div className="flex gap-3">
         <button
           type="submit"
-          className="px-4 py-2 bg-[#FF0055] text-white rounded-md"
+          className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md"
         >
           Submit Request
         </button>
         <button
           type="button"
           onClick={handleReset}
-          className="px-4 py-2 rounded-md border"
+          className="px-4 py-2 rounded-md  bg-gray-200 hover:bg-gray-300"
         >
           Reset
         </button>

@@ -34,15 +34,36 @@ export default function CartPage() {
                   </p>
                   <div className="mt-2 flex items-center gap-2">
                     <label className="text-sm text-gray-600">Qty:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.qty}
-                      onChange={(e) =>
-                        updateQty(item.name, Number(e.target.value))
-                      }
-                      className="w-16 px-2 py-1 border rounded-lg focus:ring-2 focus:ring-[#FF0055]"
-                    />
+                    <div className="flex items-center border rounded-lg w-24">
+                      <button
+                        onClick={() =>
+                          updateQty(item.name, Math.max(1, item.qty - 1))
+                        }
+                        className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-lg"
+                      >
+                        -
+                      </button>
+
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.qty}
+                        onChange={(e) =>
+                          updateQty(
+                            item.name,
+                            Math.max(1, Number(e.target.value))
+                          )
+                        }
+                        className="w-12 text-center outline-none border-none"
+                      />
+
+                      <button
+                        onClick={() => updateQty(item.name, item.qty + 1)}
+                        className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-r-lg"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -58,7 +79,7 @@ export default function CartPage() {
         <div>
           <OrderSummary items={cartItems} allowPromo={true} />
           <Link to="/checkout">
-            <Button className="w-full mt-6 bg-[#FF0055] text-white py-3 rounded-full hover:bg-[#e6004d] transition">
+            <Button className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition">
               Proceed to Checkout
             </Button>
           </Link>

@@ -40,7 +40,8 @@ div {
 }
 
 button,
-a {
+a,
+label {
   font-family: "Poppins";
   font-weight: 500;
 }

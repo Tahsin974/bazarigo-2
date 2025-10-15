@@ -42,6 +42,7 @@ export default function SellerPanelDashboard() {
   const [inventory, setInventory] = useState(
     buildInventoryFromProducts(sampleProducts())
   );
+  const [displayInventory, setDisplayInventory] = useState(inventory);
   const [payments] = useState(samplePayments());
 
   // Product UI state
@@ -72,6 +73,12 @@ export default function SellerPanelDashboard() {
   const [paymentSort, setPaymentSort] = useState("date");
   const [paymentPage, setPaymentPage] = useState(1);
   const paymentPageSize = 5;
+
+  // inventory filters/pagination
+  const [inventorySearch, setInventorySearch] = useState("");
+  const [inventorySort, setInventorySort] = useState("name");
+  const [inventoryPage, setInventoryPage] = useState(1);
+  const inventoryPageSize = 6;
 
   // Reports filters (status + date range)
   const [reportFilter, setReportFilter] = useState("all");
@@ -130,6 +137,22 @@ export default function SellerPanelDashboard() {
   const paginatedProducts = filteredProducts.slice(
     (productPage - 1) * productPageSize,
     productPage * productPageSize
+  );
+  console.log(inventory);
+  const filteredInventory = useMemo(() => {
+    let data = [...displayInventory];
+    if (inventorySearch) {
+      const q = inventorySearch.toLowerCase();
+      data = data.filter((p) => (p.name || "").toLowerCase().includes(q));
+    } else if (inventorySort === "stock")
+      data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+    else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    return data;
+  }, [displayInventory, inventorySearch, inventorySort]);
+
+  const paginatedInventory = filteredInventory.slice(
+    (inventoryPage - 1) * inventoryPageSize,
+    inventoryPage * inventoryPageSize
   );
 
   const filteredOrders = useMemo(() => {
@@ -274,15 +297,15 @@ export default function SellerPanelDashboard() {
       s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
     );
   }
-  function bulkMarkShipped() {
-    if (!selectedOrderIds.length) return alert("No orders selected");
-    setOrders((prev) =>
-      prev.map((o) =>
-        selectedOrderIds.includes(o.id) ? { ...o, status: "Shipped" } : o
-      )
-    );
-    setSelectedOrderIds([]);
-  }
+  // function bulkMarkShipped() {
+  //   if (!selectedOrderIds.length) return alert("No orders selected");
+  //   setOrders((prev) =>
+  //     prev.map((o) =>
+  //       selectedOrderIds.includes(o.id) ? { ...o, status: "Shipped" } : o
+  //     )
+  //   );
+  //   setSelectedOrderIds([]);
+  // }
 
   function downloadBlob(content, filename, mime) {
     const blob = new Blob([content], { type: mime });
@@ -710,7 +733,6 @@ export default function SellerPanelDashboard() {
                 selectedOrderIds={selectedOrderIds}
                 setSelectedOrderIds={setSelectedOrderIds}
                 toggleSelectOrder={toggleSelectOrder}
-                bulkMarkShipped={bulkMarkShipped}
                 orderSearch={orderSearch}
                 setOrderSearch={setOrderSearch}
                 orderSort={orderSort}
@@ -732,6 +754,16 @@ export default function SellerPanelDashboard() {
                 active={active}
                 inventory={inventory}
                 setInventory={setInventory}
+                setDisplayInventory={setDisplayInventory}
+                inventorySearch={inventorySearch}
+                setInventorySearch={setInventorySearch}
+                inventorySort={inventorySort}
+                setInventorySort={setInventorySort}
+                inventoryPage={inventoryPage}
+                setInventoryPage={setInventoryPage}
+                inventoryPageSize={inventoryPageSize}
+                filteredInventory={filteredInventory}
+                paginatedInventory={paginatedInventory}
               />
               <PaymentsView
                 active={active}

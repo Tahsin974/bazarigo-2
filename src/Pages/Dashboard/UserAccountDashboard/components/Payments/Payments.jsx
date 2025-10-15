@@ -181,7 +181,7 @@ export default function Payments({
             <div className="flex gap-3">
               <button
                 type="submit"
-                className="px-4 py-2 bg-[#FF0055] text-white rounded-md flex items-center gap-2"
+                className="px-4 py-2 bg-[#00C853] text-white rounded-md flex items-center gap-2"
               >
                 <PlusCircle size={16} /> Add Payment
               </button>
@@ -197,7 +197,7 @@ export default function Payments({
                     makePrimary: false,
                   })
                 }
-                className="px-4 py-2 rounded-md border"
+                className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300"
               >
                 Reset
               </button>

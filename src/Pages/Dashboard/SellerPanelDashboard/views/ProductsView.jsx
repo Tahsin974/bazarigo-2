@@ -7,6 +7,7 @@ import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import AddBtn from "../../../../components/ui/AddBtn";
 import ExportBtn from "../../../../components/ui/ExportBtn";
+import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
 
 export default function ProductsView({
   active,
@@ -36,50 +37,11 @@ export default function ProductsView({
     Math.ceil(filteredProducts.length / productPageSize)
   );
 
-  const renderPageNumbers = () => {
-    const maxVisible = 5; // show up to 5 buttons
-    const totalPages = Math.max(
-      1,
-      Math.ceil(filteredProducts.length / productPageSize)
-    );
-    const startPage = Math.max(1, productPage - Math.floor(maxVisible / 2));
-    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    const pages = [];
-
-    if (startPage > 1) {
-      pages.push(
-        <MoreHorizontal
-          key="start-ellipsis"
-          className="w-5 h-5 text-gray-400"
-        />
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => setProductPage(i)}
-          className={`px-3 py-1 w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
-            productPage === i
-              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300 "
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (endPage < totalPages) {
-      pages.push(
-        <MoreHorizontal key="end-ellipsis" className="w-5 h-5 text-gray-400" />
-      );
-    }
-
-    return pages;
-  };
+  const renderPageNumbers = useRenderPageNumbers(
+    productPage,
+    totalPages,
+    setProductPage
+  );
 
   return (
     <div>
@@ -191,7 +153,7 @@ export default function ProductsView({
                       <div className="flex items-center gap-2 justify-center">
                         <button
                           onClick={() => openEditProductModal(p)}
-                          className="px-3 py-1 bg-white border rounded"
+                          className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
                         >
                           Edit
                         </button>

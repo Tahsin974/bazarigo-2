@@ -3,6 +3,7 @@ import AddBtn from "../../../../components/ui/AddBtn";
 import { MoreHorizontal } from "lucide-react";
 import Pagination from "../../../../components/ui/Pagination";
 import SearchField from "../../../../components/ui/SearchField";
+import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
 
 function PromotionsView({
   promotions,
@@ -26,47 +27,6 @@ function PromotionsView({
     1,
     Math.ceil(filteredPromotions.length / promoPageSize)
   );
-  const renderPageNumbers = () => {
-    const maxVisible = 5; // show up to 5 buttons
-
-    const startPage = Math.max(1, promoPage - Math.floor(maxVisible / 2));
-    const endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    const pages = [];
-
-    if (startPage > 1) {
-      pages.push(
-        <MoreHorizontal
-          key="start-ellipsis"
-          className="w-5 h-5 text-gray-400"
-        />
-      );
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => setPromoPage(i)}
-          className={`px-3 py-1 w-10 h-10 flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md ${
-            promoPage === i
-              ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300 "
-          }`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (endPage < totalPages) {
-      pages.push(
-        <MoreHorizontal key="end-ellipsis" className="w-5 h-5 text-gray-400" />
-      );
-    }
-
-    return pages;
-  };
 
   return (
     <div>
@@ -119,14 +79,16 @@ function PromotionsView({
               <button
                 onClick={() => toggleActive(p.id)}
                 className={`px-2 py-1 rounded ${
-                  p.active ? "bg-green-500 text-white" : "border"
+                  p.active
+                    ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
+                    : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
                 }`}
               >
                 {p.active ? "Active" : "Inactive"}
               </button>
               <button
                 onClick={() => removePromo(p.id)}
-                className="px-2 py-1 rounded bg-red-600 text-white"
+                className="px-2 py-1 rounded text-white bg-[#f72c2c] hover:bg-[#e92323]"
               >
                 Delete
               </button>
@@ -138,7 +100,11 @@ function PromotionsView({
         currentPage={promoPage}
         totalPages={totalPages}
         setCurrentPage={setPromoPage}
-        renderPageNumbers={renderPageNumbers}
+        renderPageNumbers={useRenderPageNumbers(
+          promoPage,
+          totalPages,
+          setPromoPage
+        )}
       />
     </div>
   );
