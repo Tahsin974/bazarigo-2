@@ -31,6 +31,7 @@ import {
 } from "../../../Utils/Helpers/Helpers";
 import AddSellerModal from "./components/AddSellerModal/AddSellerModal";
 import FlashSaleView from "./views/FlashSaleView";
+import DiscountModal from "../../../components/DiscountModal/DiscountModal";
 
 export default function AdminPanelDashboard() {
   const [user, setUser] = useState({
@@ -86,6 +87,16 @@ export default function AdminPanelDashboard() {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [showSellerModal, setShowSellerModal] = useState(false);
   const [showPromoModal, setShowPromoModal] = useState(false);
+
+  // FlashSale
+  const [flashSaleProductPage, setFlashSaleProductPage] = useState(1);
+  const [flashSaleProducts, setFlashSaleProducts] = useState([]);
+
+  const [duration, setDuration] = useState(0);
+  const [discountModal, setDiscountModal] = useState(false);
+  const [manualDiscount, setManualDiscount] = useState({});
+  const [manualDiscountValue, setManualDiscountValue] = useState("");
+  const [activeDiscountProduct, setActiveDiscountProduct] = useState(null);
 
   // File input ref for bulk upload
   const fileRef = useRef(null);
@@ -372,6 +383,22 @@ export default function AdminPanelDashboard() {
     }
   };
 
+  const openDiscountModal = (product) => {
+    console.log(product.name);
+    setActiveDiscountProduct(product);
+    setDiscountModal(true);
+  };
+
+  const handleSetDiscount = (product) => {
+    console.log("done", product.name);
+
+    setManualDiscount({
+      id: product.id,
+      discount: Number(manualDiscountValue),
+    });
+    setDiscountModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
       {products.length === 0 ||
@@ -444,6 +471,7 @@ export default function AdminPanelDashboard() {
                     {/* Right: Buttons + Admin */}
                     <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
                       {active !== "Dashboard" &&
+                        active !== "My Account" &&
                         active !== "Settings" &&
                         active !== "FlashSale" && (
                           <>
@@ -463,7 +491,7 @@ export default function AdminPanelDashboard() {
                                   onClick={() =>
                                     fileRef.current && fileRef.current.click()
                                   }
-                                  className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-xs"
+                                  className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
                                 >
                                   Bulk Upload
                                 </button>
@@ -513,7 +541,8 @@ export default function AdminPanelDashboard() {
                     {active === "FlashSale" && (
                       <FlashSaleView
                         products={products}
-                        setFlashSaleProducts={setDisplayProducts}
+                        setDisplayProducts={setDisplayProducts}
+                        displayProducts={displayProducts}
                         selected={selected}
                         setSelected={setSelected}
                         toggleSelect={toggleSelect}
@@ -531,6 +560,21 @@ export default function AdminPanelDashboard() {
                         setProductSearch={setProductSearch}
                         productSort={productSort}
                         setProductSort={setProductSort}
+                        flashSaleProducts={flashSaleProducts}
+                        setFlashSaleProducts={setFlashSaleProducts}
+                        manualDiscount={manualDiscount}
+                        setManualDiscount={setManualDiscount}
+                        flashSaleProductPage={flashSaleProductPage}
+                        setFlashSaleProductPage={setFlashSaleProductPage}
+                        duration={duration}
+                        setDuration={setDuration}
+                        discountModal={discountModal}
+                        setDiscountModal={setDiscountModal}
+                        openDiscountModal={openDiscountModal}
+                        manualDiscountValue={manualDiscountValue}
+                        setManualDiscountValue={setManualDiscountValue}
+                        handleSetDiscount={handleSetDiscount}
+                        activeDiscountProduct={activeDiscountProduct}
                       />
                     )}
 
@@ -687,6 +731,15 @@ export default function AdminPanelDashboard() {
               ]}
               onClose={() => setShowCustomerModal(false)}
               onSave={(d) => addCustomer(d)}
+            />
+          )}
+          {discountModal && (
+            <DiscountModal
+              product={activeDiscountProduct}
+              manualDiscountValue={manualDiscountValue}
+              setManualDiscountValue={setManualDiscountValue}
+              setDiscountModal={setDiscountModal}
+              handleSetDiscount={handleSetDiscount}
             />
           )}
 

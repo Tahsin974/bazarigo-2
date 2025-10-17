@@ -59,7 +59,7 @@ export default function ProductsView({
                   <PlusCircle /> Add Product
                 </AddBtn>
 
-                <label className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-xs">
+                <label className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]">
                   <UploadCloud /> Bulk Upload
                   <input
                     ref={fileInputRef}
@@ -183,15 +183,14 @@ export default function ProductsView({
                 bulkDelete={bulkDeleteProducts}
               />
             </div>
-
-            <div className="flex items-center gap-2">
-              <Pagination
-                currentPage={productPage}
-                totalPages={totalPages}
-                setCurrentPage={setProductPage}
-                renderPageNumbers={renderPageNumbers}
-              />
-            </div>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <Pagination
+              currentPage={productPage}
+              totalPages={totalPages}
+              setCurrentPage={setProductPage}
+              renderPageNumbers={renderPageNumbers}
+            />
           </div>
         </motion.div>
       )}

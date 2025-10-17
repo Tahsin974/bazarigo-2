@@ -72,7 +72,7 @@ export default function InventoryView({
                       }))
                     );
                   }}
-                  className="px-3 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white sm:text-base text-xs  rounded"
+                  className="px-3 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white sm:text-base text-[14px]  rounded"
                 >
                   - Remove 10 from all
                 </button>
@@ -174,16 +174,16 @@ export default function InventoryView({
               </tbody>
             </table>
           </div>
+          <div className="flex items-center justify-center gap-2">
+            <Pagination
+              currentPage={inventoryPage}
+              totalPages={totalPages}
+              setCurrentPage={setInventoryPage}
+              renderPageNumbers={renderPageNumbers}
+            />
+          </div>
         </motion.div>
       )}
-      <div className="flex items-center justify-center gap-2">
-        <Pagination
-          currentPage={inventoryPage}
-          totalPages={totalPages}
-          setCurrentPage={setInventoryPage}
-          renderPageNumbers={renderPageNumbers}
-        />
-      </div>
     </div>
   );
 }

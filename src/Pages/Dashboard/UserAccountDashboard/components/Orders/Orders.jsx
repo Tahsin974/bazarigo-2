@@ -3,6 +3,7 @@ import FormattedDate from "../../../../../Utils/Hooks/FormattedDate";
 
 export default function Orders({
   orders,
+  setOrders,
   activeTab,
   setActiveTab,
   setPrefillOrderId,
@@ -25,6 +26,10 @@ export default function Orders({
       default:
         return 0;
     }
+  };
+  const handleCancelOrder = (id) => {
+    const cancelOrder = orders.filter((order) => order.id !== id);
+    setOrders(cancelOrder);
   };
 
   return (
@@ -150,7 +155,10 @@ export default function Orders({
                       Cancel Order
                     </button>
                   ) : (
-                    <button className="px-3 py-2 rounded-md bg-[#f72c2c] hover:bg-[#e92323] text-white flex items-center gap-2  border-none shadow-none sm:text-base text-xs cursor-pointer">
+                    <button
+                      onClick={() => handleCancelOrder(order.id)}
+                      className="px-3 py-2 rounded-md bg-[#f72c2c] hover:bg-[#e92323] text-white flex items-center gap-2  border-none shadow-none sm:text-base text-[14px] cursor-pointer"
+                    >
                       Cancel Order
                     </button>
                   )}

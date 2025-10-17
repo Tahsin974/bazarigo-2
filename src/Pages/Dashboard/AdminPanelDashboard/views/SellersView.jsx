@@ -2,7 +2,7 @@ import React from "react";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import AddBtn from "../../../../components/ui/AddBtn";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
@@ -40,7 +40,9 @@ function SellersView({
 
           {/* Add/Delete buttons visible only on small screens */}
           <div className="flex items-center gap-2 lg:hidden">
-            <AddBtn btnHandler={onAdd}>Add Seller</AddBtn>
+            <AddBtn btnHandler={onAdd}>
+              <PlusCircle /> Add Seller
+            </AddBtn>
             <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
           </div>
         </div>
@@ -59,7 +61,9 @@ function SellersView({
 
         {/* Right: Add/Delete buttons (visible on large screens) */}
         <div className="hidden lg:flex items-center gap-2 order-3">
-          <AddBtn btnHandler={onAdd}>Add Seller</AddBtn>
+          <AddBtn btnHandler={onAdd}>
+            <PlusCircle /> Add Seller
+          </AddBtn>
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>

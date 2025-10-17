@@ -11,7 +11,7 @@ export default function SearchFilterSort({
   setSort,
 }) {
   return (
-    <div className="container mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div className="container mx-auto xl:px-6 lg:px-6  px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div className="flex items-center gap-2 order-1 sm:order-none">
         <Filter className="text-[#FF0055]" />
         <SelectField

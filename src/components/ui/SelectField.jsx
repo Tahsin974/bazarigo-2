@@ -38,6 +38,7 @@ export default function SelectField({
         className={`appearance-none focus:outline-none rounded-lg py-2 pl-4 pr-10 text-base font-medium  shadow-sm  transition duration-150 cursor-pointer ${
           isWide && "w-full"
         } ${colorClass}`}
+        style={{ fontFamily: "Poppins", fontWeight: 700 }}
       >
         {children}
       </select>

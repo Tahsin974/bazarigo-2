@@ -1,4 +1,5 @@
 import { Trash2 } from "lucide-react";
+import { Link } from "react-router";
 
 export default function Cart({
   cart,
@@ -54,7 +55,7 @@ export default function Cart({
                   </div>
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    className="text-xs text-red-600 mt-2 flex items-center gap-1 hover:text-red-800 transition"
+                    className="text-sm text-red-600 mt-2 flex items-center gap-1 hover:text-red-800 transition"
                   >
                     <Trash2 size={14} /> Remove
                   </button>
@@ -69,11 +70,13 @@ export default function Cart({
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button className="btn sm:btn-md btn-sm rounded-md bg-[#00C853] hover:bg-[#00B34A] text-white border-none">
-              Proceed to Checkout
-            </button>
+            <Link to="/checkout">
+              <button className="btn sm:btn-md btn-sm rounded-md bg-[#00C853] hover:bg-[#00B34A] text-white border-none">
+                Proceed to Checkout
+              </button>
+            </Link>
             <button
-              onClick={() => setActiveTab("payments")}
+              onClick={() => setActiveTab("Payments")}
               className="btn sm:btn-md btn-sm rounded-md btn-outline"
             >
               Choose Payment

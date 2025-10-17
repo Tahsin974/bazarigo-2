@@ -4,8 +4,8 @@ import { HashLink } from "react-router-hash-link";
 
 export default function HeroSection() {
   return (
-    <section className="relative w-full min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] p-8 overflow-hidden">
-      <div className="relative z-10 text-center max-w-4xl px-4">
+    <section className="relative w-full min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] xl:px-6 lg:px-6  px-4 py-8 overflow-hidden">
+      <div className="relative z-10 text-center w-full max-w-4xl px-4">
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}

@@ -7,7 +7,7 @@ import UseCart from "../../Utils/Hooks/UseCart";
 export default function OrderSummary({
   items,
   isCashOnDelivery,
-  shipping = 10,
+  delivery = 10,
   allowPromo = false,
   showTitle = true,
   promoCodes = {
@@ -29,11 +29,14 @@ export default function OrderSummary({
     .filter((p) => p.type === "percent")
     .reduce((acc, p) => acc + (subtotal * p.value) / 100, 0);
 
-  const isFreeShipping = appliedPromos.some((p) => p.type === "freeship");
+  const isFreeDelivery = appliedPromos.some((p) => p.type === "freeship");
+
+  // Calculate shipping per product
+  const deliveryPerItem = delivery * items.length;
 
   const totalDiscount = flatDiscounts + percentDiscounts;
-  const effectiveShipping = isFreeShipping ? 0 : shipping;
-  const total = subtotal + effectiveShipping - totalDiscount;
+  const effectiveDelivery = isFreeDelivery ? 0 : deliveryPerItem;
+  const total = subtotal + effectiveDelivery - totalDiscount;
 
   const handleApplyPromo = () => {
     const code = promo.trim().toUpperCase();
@@ -48,35 +51,52 @@ export default function OrderSummary({
 
   return (
     <Card className="rounded-2xl shadow">
-      <CardContent className="md:p-6 p-4 space-y-4">
+      <CardContent className="md:p-6 p-4 space-y-4 sm:text-base text-sm">
         {showTitle && (
           <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
         )}
         <div className="divide-y">
-          {items.map((item, idx) => (
-            <div key={idx} className="flex justify-between py-3 text-gray-700">
-              <span>
-                {item.name}{" "}
-                <span className="text-sm text-gray-500">(x{item.qty})</span>
-              </span>
-              <span>৳{(item.price * item.qty).toFixed(2)}</span>
+          <div className="pb-3">
+            {items.map((item, idx) => (
+              <div key={idx}>
+                <div className="flex justify-between py-3 text-gray-700">
+                  <h2>
+                    {item.name}{" "}
+                    <span className="text-sm text-gray-500">(x{item.qty})</span>
+                  </h2>
+                  <h2>৳{(item.price * item.qty).toFixed(2)}</h2>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <h2>Delivery Charge</h2>
+                  <h2>
+                    {isFreeDelivery ? (
+                      <span className="text-green-600 font-medium">Free</span>
+                    ) : (
+                      `৳ ${delivery.toFixed(2)}`
+                    )}
+                  </h2>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between text-gray-600 mt-4">
+              <h2>Subtotal</h2>
+              <h2>৳{subtotal.toFixed(2)}</h2>
             </div>
-          ))}
+            <div className="flex justify-between text-gray-600">
+              <h2>Total Charges</h2>
+              <h2>
+                {isFreeDelivery ? (
+                  <span className="text-green-600 font-medium">Free</span>
+                ) : (
+                  `৳ ${deliveryPerItem.toFixed(2)}`
+                )}
+              </h2>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-between text-gray-600 mt-4">
-          <span>Subtotal</span>
-          <span>৳{subtotal.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-gray-600">
-          <span>Shipping</span>
-          <span>
-            {isFreeShipping ? (
-              <span className="text-green-600 font-medium">Free</span>
-            ) : (
-              `৳ ${shipping.toFixed(2)}`
-            )}
-          </span>
-        </div>
+
         {isCashOnDelivery && (
           <div className="flex justify-between text-gray-600">
             <span>Cash On Delivery</span>
@@ -96,7 +116,7 @@ export default function OrderSummary({
                     ? `($${p.value} off)`
                     : p.type === "percent"
                     ? `(${p.value}% off)`
-                    : "(Free Shipping)"}
+                    : "(Free delivery)"}
                 </span>
                 <button
                   onClick={() => handleRemovePromo(p.code)}
@@ -108,9 +128,9 @@ export default function OrderSummary({
             ))}
           </div>
         )}
-        <div className="flex justify-between font-bold text-gray-800 text-lg border-t pt-4">
-          <span>Total</span>
-          <span>৳{total.toFixed(2)}</span>
+        <div className="flex justify-between font-bold text-gray-800 sm:text-lg text-base border-t pt-4">
+          <h2>Total</h2>
+          <h2>৳{total.toFixed(2)}</h2>
         </div>
         {allowPromo && (
           <div className="mt-4">

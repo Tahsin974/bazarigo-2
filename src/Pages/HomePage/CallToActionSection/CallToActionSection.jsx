@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 export default function CallToActionSection() {
   return (
     <section className="relative w-full py-24 bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] overflow-hidden">
-      <div className="relative z-10 text-center max-w-2xl mx-auto px-6 text-white">
+      <div className="relative z-10 text-center max-w-2xl mx-auto xl:px-6 lg:px-6  px-4 text-white">
         <h2 className="text-4xl md:text-5xl font-bold">
           Join Our Community Today
         </h2>

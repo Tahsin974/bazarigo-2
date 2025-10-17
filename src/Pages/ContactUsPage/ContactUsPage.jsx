@@ -30,7 +30,7 @@ export default function ContactUsPage() {
             />
             <Button
               type="submit"
-              className="  bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] w-full px-3 py-2 inline-flex items-center gap-2   text-white  border-none  rounded shadow sm:text-base text-xs btn"
+              className="  bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] w-full px-3 py-2 inline-flex items-center gap-2   text-white  border-none  rounded shadow sm:text-base text-[14px] btn"
             >
               Send Message
             </Button>

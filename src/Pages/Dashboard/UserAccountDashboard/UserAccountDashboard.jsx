@@ -14,6 +14,7 @@ import Sidebar from "../../../components/Sidebar/Sidebar";
 import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
 import MyProfileView from "../../../components/MyProfileView/MyProfileView";
 import { sampleOrders } from "../../../Utils/Helpers/Helpers";
+import Wishlist from "./components/Wishlist/Wishlist";
 
 export default function UserAccountDashboard() {
   // Open/Close Menu
@@ -24,6 +25,28 @@ export default function UserAccountDashboard() {
     phone: "01712345678",
     avatar: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
   });
+
+  // Wishlist
+  const [wishlist, setWishlist] = useState([
+    {
+      id: 1,
+      name: "Gaming Laptop",
+      price: 85000,
+      img: " https://placehold.co/300x300/16a34a/FFFFFF?text=Brown+Rice",
+    },
+    {
+      id: 2,
+      name: "Leather Jacket",
+      price: 5500,
+      img: " https://placehold.co/300x300/16a34a/FFFFFF?text=Brown+Rice",
+    },
+    {
+      id: 3,
+      name: "Bluetooth Speaker",
+      price: 2200,
+      img: " https://placehold.co/300x300/16a34a/FFFFFF?text=Brown+Rice",
+    },
+  ]);
   // Cart
   const [cart, setCart] = useState([
     {
@@ -254,10 +277,12 @@ export default function UserAccountDashboard() {
           notifications={notifications}
           orders={orders}
           cart={cart}
+          wishlist={wishlist}
           items={[
             "Overview",
             "Orders",
             "Cart",
+            "Wishlist",
             "Payments",
             "Returns",
             "Addresses",
@@ -279,10 +304,12 @@ export default function UserAccountDashboard() {
           notifications={notifications}
           orders={orders}
           cart={cart}
+          wishlist={wishlist}
           items={[
             "Overview",
             "Orders",
             "Cart",
+            "Wishlist",
             "Payments",
             "Returns",
             "Addresses",
@@ -303,6 +330,7 @@ export default function UserAccountDashboard() {
             {/* Orders */}
             <Orders
               orders={orders}
+              setOrders={setOrders}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               setPrefillOrderId={setPrefillOrderId}
@@ -315,6 +343,12 @@ export default function UserAccountDashboard() {
               setActiveTab={setActiveTab}
               updateCartQty={updateCartQty}
               removeFromCart={removeFromCart}
+            />
+            {/* Wishlist */}
+            <Wishlist
+              activeTab={activeTab}
+              wishlist={wishlist}
+              setWishlist={setWishlist}
             />
             {/* Payments */}
             <Payments

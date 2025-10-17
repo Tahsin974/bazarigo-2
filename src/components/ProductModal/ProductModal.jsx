@@ -13,6 +13,7 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
   const isNewCalculated =
     product.isNew ||
     (new Date() - createdAtDate) / (1000 * 60 * 60 * 24) <= daysToConsiderNew;
+
   const [form, setForm] = useState(() => ({
     id: product.id || null,
     name: product.name || "",
@@ -35,6 +36,8 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
     images: product.images || [],
     extras: product.extras || {},
   }));
+
+  console.log(form);
 
   useEffect(() => {
     setForm({
@@ -416,11 +419,35 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {ex.label}
                   </label>
-                  <input
+                  {ex.type === "array" ? (
+                    <input
+                      type="text"
+                      value={(form.extras[ex.key] || []).join(", ")}
+                      placeholder="Comma separated"
+                      onChange={(e) =>
+                        updateExtra(
+                          ex.key,
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean)
+                        )
+                      }
+                      className="  w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={form.extras[ex.key] || ""}
+                      onChange={(e) => updateExtra(ex.key, e.target.value)}
+                      className="  w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                    />
+                  )}
+                  {/* <input
                     className="  w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                     value={(form.extras && form.extras[ex.key]) || ""}
                     onChange={(e) => updateExtra(ex.key, e.target.value)}
-                  />
+                  /> */}
                 </div>
               ))}
             </div>

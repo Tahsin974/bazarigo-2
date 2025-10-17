@@ -10,6 +10,7 @@ export default function Sidebar({
   payments = [],
   promotions = [],
   notifications = [],
+  wishlist = [],
   cart = [],
   items = [],
   handleMenu,
@@ -34,6 +35,8 @@ export default function Sidebar({
           : stores.notifications.length;
       case "Cart":
         return stores.cart.length === 0 ? "" : stores.cart.length;
+      case "Wishlist":
+        return stores.wishlist.length === 0 ? "" : stores.wishlist.length;
 
       default:
         return "";
@@ -82,6 +85,7 @@ export default function Sidebar({
                   promotions,
                   notifications,
                   cart,
+                  wishlist,
                 })}
               </span>
             </button>

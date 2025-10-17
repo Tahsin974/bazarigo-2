@@ -20,7 +20,7 @@ export default function CustomerReviews({ reviews = [] }) {
   };
 
   return (
-    <section className="container mx-auto px-6 py-12 border-t border-gray-300">
+    <section className="container mx-auto xl:px-6 lg:px-6  px-4 py-12 border-t border-gray-300">
       <h3 className="text-xl font-bold mb-6">Customer Reviews</h3>
       <form
         onSubmit={handleSubmit}

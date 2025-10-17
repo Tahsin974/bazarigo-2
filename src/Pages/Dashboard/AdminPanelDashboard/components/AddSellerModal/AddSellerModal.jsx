@@ -138,7 +138,7 @@ export default function AddSellerModal({ onClose }) {
         {/* --- Close Button --- */}
 
         {/* --- Header --- */}
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+        <div className="sticky top-0 bg-white border-b xl:px-6 lg:px-6  px-4 py-4 flex items-center justify-between rounded-t-3xl z-10">
           <h2 className="text-2xl font-bold text-gray-800">
             🛍️ Add New Seller
           </h2>

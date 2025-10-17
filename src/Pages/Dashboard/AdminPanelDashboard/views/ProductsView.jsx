@@ -3,7 +3,7 @@ import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import AddBtn from "../../../../components/ui/AddBtn";
 import Pagination from "../../../../components/ui/Pagination";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import { motion } from "framer-motion";
@@ -48,7 +48,10 @@ function ProductsView({
           </div>
           {/* Small screen buttons */}
           <div className="ml-2 lg:hidden flex gap-2">
-            <AddBtn btnHandler={openNewProductModal}>Add Product</AddBtn>
+            <AddBtn btnHandler={openNewProductModal}>
+              <PlusCircle />
+              Add Product
+            </AddBtn>
             <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
           </div>
         </div>
@@ -79,7 +82,9 @@ function ProductsView({
 
         {/* Right: Buttons on large screens */}
         <div className="hidden lg:flex gap-2 order-3 ">
-          <AddBtn btnHandler={openNewProductModal}>Add Product</AddBtn>
+          <AddBtn btnHandler={openNewProductModal}>
+            <PlusCircle /> Add Product
+          </AddBtn>
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>

@@ -1,13 +1,32 @@
 import { useEffect, useState } from "react";
 
-export default function UseFlashSaleCountdown(totalDuration, onComplete) {
-  const [timeLeft, setTimeLeft] = useState(totalDuration);
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      if (onComplete) onComplete(); // Notify parent
-      setTimeLeft(totalDuration); // auto-reset countdown
-      return;
+export default function UseFlashSaleCountdown(totalDuration) {
+  const storedEndTime = localStorage.getItem("flashSaleEndTime");
+  let initialTimeLeft = totalDuration;
+
+  if (storedEndTime) {
+    // 2. যদি endTime সেট করা থাকে, তাহলে এখনকার সময়ের সাথে মিলিয়ে
+    //    কত সময় বাকি আছে, তা বের করছি।
+    const nowInSeconds = Math.floor(Date.now() / 1000); // বর্তমান সময় (সেকেন্ডে)
+    const remainingTime = parseInt(storedEndTime) - nowInSeconds;
+
+    if (remainingTime > 0) {
+      initialTimeLeft = remainingTime;
+    } else {
+      // 3. যদি সময় শেষ হয়ে যায় (remainingTime <= 0), তাহলে Local Storage ক্লিয়ার করে দিচ্ছি।
+      localStorage.removeItem("flashSaleEndTime");
+      initialTimeLeft = 0; // সময় ০ সেট করছি
     }
+  } else {
+    // 4. যদি Local Storage এ কিছু না থাকে (প্রথমবার লোড),
+    //    তাহলে নতুন endTime সেট করছি।
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    const endTime = nowInSeconds + totalDuration;
+    localStorage.setItem("flashSaleEndTime", endTime.toString());
+  }
+  const [timeLeft, setTimeLeft] = useState(initialTimeLeft);
+  useEffect(() => {
+    if (timeLeft <= 0) return;
     const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft]);

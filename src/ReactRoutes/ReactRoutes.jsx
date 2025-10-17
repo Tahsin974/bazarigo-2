@@ -57,7 +57,7 @@ export const router = createBrowserRouter([
         element: <TrendingNowPage />,
       },
       {
-        path: "/product",
+        path: "/product/:id",
         element: <ProductPage />,
       },
       {

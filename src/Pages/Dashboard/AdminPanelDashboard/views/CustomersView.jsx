@@ -6,6 +6,7 @@ import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
 import { motion } from "framer-motion";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import { PlusCircle } from "lucide-react";
 
 function CustomersView({
   customers,
@@ -38,7 +39,9 @@ function CustomersView({
           </h3>
           {/* Add button only on small screens */}
           <div className="ml-2 md:hidden">
-            <AddBtn btnHandler={onAdd}>Add Customer</AddBtn>
+            <AddBtn btnHandler={onAdd}>
+              <PlusCircle /> Add Customer
+            </AddBtn>
           </div>
         </div>
 
@@ -56,7 +59,9 @@ function CustomersView({
 
         {/* Right: Buttons visible on large screens */}
         <div className="hidden md:flex items-center gap-2 order-3 lg:order-2">
-          <AddBtn btnHandler={onAdd}>Add Customer</AddBtn>
+          <AddBtn btnHandler={onAdd}>
+            <PlusCircle /> Add Customer
+          </AddBtn>
           <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
         </div>
       </div>

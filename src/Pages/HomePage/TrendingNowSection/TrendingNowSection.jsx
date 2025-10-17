@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import ProductCard from "../../../components/ProductCard/ProductCard";
-import { Link } from "react-router";
 import { sampleProducts } from "../../../Utils/Helpers/Helpers";
 
 const allProducts = sampleProducts();
@@ -13,7 +12,7 @@ export default function TrendingNowSection() {
 
   return (
     <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto xl:px-6 lg:px-6  px-4">
         <SectionTitle title={"Trending Now"} link="/trending-now#" />
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product, index) => (
@@ -22,9 +21,7 @@ export default function TrendingNowSection() {
               whileHover={{ scale: 1.03 }}
               className="cursor-pointer"
             >
-              <Link to="/product">
-                <ProductCard item={product} />
-              </Link>
+              <ProductCard item={product} />
             </motion.div>
           ))}
         </div>

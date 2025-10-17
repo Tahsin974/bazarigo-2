@@ -1,11 +1,4 @@
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import img from "../../../assets/Bazarigo-White.svg";
 export default function Footer() {
   return (
@@ -32,13 +25,6 @@ export default function Footer() {
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <Instagram size={24} />
-              </a>
-              <a
-                href="#"
-                aria-label="Follow us on Twitter"
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <Twitter size={24} />
               </a>
             </div>
           </div>

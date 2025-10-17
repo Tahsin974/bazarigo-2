@@ -3,15 +3,14 @@ import { AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import UseFlashSaleCountdown from "../../../Utils/Hooks/UseFlashSaleCountdown";
 import { HashLink } from "react-router-hash-link";
+import { sampleFlashSale } from "../../../Utils/Helpers/Helpers";
 
-export default function FlashSaleCountdown({
-  isButtonVisible = false,
-  onComplete,
-}) {
+export default function FlashSaleCountdown({ isButtonVisible = false }) {
+  const flashSale = sampleFlashSale;
   const { h, m, s, progress, getProgressColor } = UseFlashSaleCountdown(
-    10,
-    onComplete
+    flashSale.duration
   );
+
   return (
     <section className="relative w-full min-h-[60vh] flex flex-col items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white text-center xl:px-6 lg:px-6  px-4 py-16 overflow-hidden">
       <motion.h1

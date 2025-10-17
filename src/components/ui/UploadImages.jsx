@@ -5,7 +5,7 @@ export default function UploadImages({ handleImageUpload, children }) {
     <div>
       <div>
         <div
-          className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-theme-pink/10 transition duration-150 border-[#FF0055]"
+          className="mt-1 flex justify-center xl:px-6 lg:px-6  px-4 pt-5 pb-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-theme-pink/10 transition duration-150 border-[#FF0055]"
           onClick={() => {
             document.getElementById("image-upload").click();
           }}

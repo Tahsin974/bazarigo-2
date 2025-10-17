@@ -183,7 +183,7 @@ export default function CategoriesPage() {
   );
   return (
     <div className="w-full bg-gray-50 text-gray-800 min-h-screen py-12">
-      <div className="container mx-auto px-6 lg:px-12">
+      <div className="container mx-auto xl:px-6 lg:px-6  px-4 lg:px-12">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">
             Shop by Category
