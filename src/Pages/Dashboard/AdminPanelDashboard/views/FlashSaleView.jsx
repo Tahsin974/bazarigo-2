@@ -98,8 +98,6 @@ export default function FlashSaleView({
     });
   };
 
-  console.log(flashSaleProducts);
-
   // const filteredFlashSaleProducts = flashSaleProducts.filter(
   //   (prod) => prod.isFlashSale === true
   // );

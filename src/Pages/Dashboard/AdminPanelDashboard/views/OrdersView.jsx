@@ -82,6 +82,12 @@ function OrdersView({
     ...order,
     estDelivery: getEstimatedDelivery(order.date),
   }));
+
+  const renderPageNumbers = useRenderPageNumbers(
+    orderPage,
+    totalPages,
+    setOrderPage
+  );
   return (
     <div className="space-y-6">
       <div>
@@ -118,99 +124,108 @@ function OrdersView({
         </div>
 
         <div className="mt-3 bg-white p-3 rounded shadow-sm">
-          {orders.length === 0 && (
-            <div className="text-sm text-gray-500">No orders</div>
-          )}
-          <div className="overflow-x-auto bg-white rounded-box  ">
-            <table className="table  text-center">
-              {/* head */}
-              <thead className="text-black">
-                <tr>
-                  <th>
-                    <SelectAllCheckbox
-                      selected={selected}
-                      allSelected={allSelected}
-                      toggleSelectAll={toggleSelectAll}
-                      isShowCounter={false}
-                    />
-                  </th>
-                  <th># Order</th>
-                  <th>Customer</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Est. Delivery</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody className="">
-                {ordersWithEstDelivery.map((o) => (
-                  <tr key={o.orderId} className="border-t">
-                    <td>
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                        checked={selected.includes(o.id)}
-                        onChange={() => toggleSelect(o.id)}
-                      />
-                    </td>
-                    <td>{o.number} </td>
-                    <td>{o.customer}</td>
-                    <td>৳{o.total}</td>
-                    <td>
-                      <SelectField
-                        selectValue={o.status}
-                        selectValueChange={(e) =>
-                          updateStatus(o.orderId, e.target.value)
-                        }
-                      >
-                        <option value="Processing">Processing</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Out for Delivery">
-                          Out for Delivery
-                        </option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="returned">Returned</option>
-                      </SelectField>
-                    </td>
-                    <td>{o.estDelivery}</td>
-                    <td>
-                      <div className="flex justify-center items-center gap-2">
-                        <button
-                          onClick={() => alert(JSON.stringify(o, null, 2))}
-                          className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
-                        >
-                          View
-                        </button>
-                        <div className=" flex gap-2 justify-end">
-                          {o.status !== "returned" ? (
+          {orders.length === 0 ? (
+            <div>
+              <div className="flex flex-col items-center justify-center py-20">
+                orders not found
+              </div>
+            </div>
+          ) : orders.length === null ? (
+            <div>
+              <div className="flex flex-col items-center justify-center min-h-screen">
+                <span className="loading loading-spinner loading-xl"></span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto bg-white rounded-box  ">
+                <table className="table  text-center">
+                  {/* head */}
+                  <thead className="text-black">
+                    <tr>
+                      <th>
+                        <SelectAllCheckbox
+                          selected={selected}
+                          allSelected={allSelected}
+                          toggleSelectAll={toggleSelectAll}
+                          isShowCounter={false}
+                        />
+                      </th>
+                      <th># Order</th>
+                      <th>Customer</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th>Est. Delivery</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="">
+                    {ordersWithEstDelivery.map((o) => (
+                      <tr key={o.orderId} className="border-t">
+                        <td>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                            checked={selected.includes(o.id)}
+                            onChange={() => toggleSelect(o.id)}
+                          />
+                        </td>
+                        <td>{o.number} </td>
+                        <td>{o.customer}</td>
+                        <td>৳{o.total}</td>
+                        <td>
+                          <SelectField
+                            selectValue={o.status}
+                            selectValueChange={(e) =>
+                              updateStatus(o.orderId, e.target.value)
+                            }
+                          >
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Out for Delivery">
+                              Out for Delivery
+                            </option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="returned">Returned</option>
+                          </SelectField>
+                        </td>
+                        <td>{o.estDelivery}</td>
+                        <td>
+                          <div className="flex justify-center items-center gap-2">
                             <button
-                              onClick={() => markAsReturned(o.orderId)}
+                              onClick={() => alert(JSON.stringify(o, null, 2))}
                               className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
                             >
-                              Mark Returned
+                              View
                             </button>
-                          ) : (
-                            <p className="text-green-400"> {o.status}</p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <Pagination
-          currentPage={orderPage}
-          totalPages={totalPages}
-          setCurrentPage={setOrderPage}
-          renderPageNumbers={useRenderPageNumbers(
-            orderPage,
-            totalPages,
-            setOrderPage
+                            <div className=" flex gap-2 justify-end">
+                              {o.status !== "returned" ? (
+                                <button
+                                  onClick={() => markAsReturned(o.orderId)}
+                                  className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                                >
+                                  Mark Returned
+                                </button>
+                              ) : (
+                                <p className="text-green-400"> {o.status}</p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Pagination
+                currentPage={orderPage}
+                totalPages={totalPages}
+                setCurrentPage={setOrderPage}
+                renderPageNumbers={renderPageNumbers}
+              />
+            </>
           )}
-        />
+        </div>
       </div>
 
       <div>

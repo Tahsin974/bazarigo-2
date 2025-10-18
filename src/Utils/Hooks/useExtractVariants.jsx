@@ -4,7 +4,6 @@ export default function useExtractVariants(product) {
   const variantKeys = Object.keys(extras).filter((key) =>
     Array.isArray(extras[key])
   );
-  console.log("varients", variantKeys);
 
   if (variantKeys.length === 0) return [];
 

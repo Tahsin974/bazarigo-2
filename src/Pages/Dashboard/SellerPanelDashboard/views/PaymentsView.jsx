@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
-import { Download, MoreHorizontal, Search } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
-import ExportBtn from "../../../../components/ui/ExportBtn";
 import Pagination from "../../../../components/ui/Pagination";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
 
@@ -17,7 +15,6 @@ export default function PaymentsView({
   paymentPageSize = 10,
   paginatedPayments,
   filteredPayments,
-  exportPaymentsExcel,
 }) {
   const totalPages = Math.max(
     1,
@@ -54,10 +51,6 @@ export default function PaymentsView({
               <option value="amount">Sort by Amount</option>
               <option value="status">Sort by Status</option>
             </SelectField>
-
-            <div className="flex gap-2">
-              <ExportBtn exportBtnHandler={exportPaymentsExcel} />
-            </div>
           </div>
           <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
             <table className="table  text-center">

@@ -14,20 +14,19 @@ import {
   YAxis,
   Legend,
 } from "recharts";
+import SelectField from "../../../../components/ui/SelectField";
 export default function ReportsView({
   active,
+  totalRevenue,
   reportFilter,
   setReportFilter,
+  filteredOrdersForReport,
+  revenueBreakdown,
   startDate,
   setStartDate,
   endDate,
   setEndDate,
-  filteredOrdersForReport,
-  exportReportsExcel,
-  ordersByStatus,
-  revenueBreakdown,
-  totalRevenue,
-  products,
+  topProducts,
 }) {
   const revenueByMonth = [
     { month: "Jan", revenue: 4000 },
@@ -42,110 +41,42 @@ export default function ReportsView({
     { month: "Oct", revenue: totalRevenue }, // Include current data for this month
   ];
 
-  const categorySales = [
-    { name: "Coffee", value: 12000 },
-    { name: "Tea", value: 5000 },
-    { name: "Accessories", value: 8000 },
-  ];
-  const COLORS = ["#FF0055", "#10B981", "#F59E0B"];
-
-  const topProducts = products
-    .slice()
-    .sort((a, b) => b.stock * b.price - a.stock * a.price)
-    .slice(0, 5)
-    .map((p) => ({
-      ...p,
-      potentialValue: (p.stock * p.price).toFixed(2),
-    }));
+  const categorySales = revenueBreakdown(filteredOrdersForReport);
 
   return (
     <div>
-      {/* {active === "Reports" && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex flex-col md:flex-row justify-between mb-4 gap-3">
-            <select
-              value={reportFilter}
-              onChange={(e) => setReportFilter(e.target.value)}
-              className="border rounded px-3 py-2"
-            >
-              <option value="all">All Orders</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-            </select>
-            <div className="flex gap-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="border rounded px-3 py-2"
-              />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="border rounded px-3 py-2"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={exportReportsExcel}
-                className="flex items-center gap-1 bg-[#FF0055] text-white px-3 py-2 rounded"
-              >
-                <Download size={16} /> Export
-              </button>
-            </div>
-          </div>
-
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="font-semibold mb-4">Orders by Status</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={ordersByStatus(filteredOrdersForReport)}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="status" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#FF0055" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="font-semibold mb-4">Revenue Breakdown</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={revenueBreakdown(filteredOrdersForReport)}
-                    dataKey="value"
-                    nameKey="label"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                  >
-                    {revenueBreakdown(filteredOrdersForReport).map(
-                      (entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      )
-                    )}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
-        </motion.div>
-      )} */}
       {active === "Reports" && (
         <>
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-gray-800">
-              Business Overview Reports
-            </h3>
+          <div className="space-y-12">
+            <div className="flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-gray-800">
+                Business Overview Reports
+              </h3>
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm"
+                />
+              </div>
+              <SelectField
+                selectValue={reportFilter}
+                selectValueChange={(e) => setReportFilter(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Out for Delivery">Out for Delivery</option>
+                <option value="Delivered">Delivered</option>
+              </SelectField>
+            </div>
 
             {/* Chart Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -192,10 +123,7 @@ export default function ReportsView({
                       label
                     >
                       {categorySales.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
+                        <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip

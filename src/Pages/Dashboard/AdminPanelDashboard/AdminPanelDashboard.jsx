@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  exportAsCSV,
-  parseCSV,
+  // exportAsCSV,
+  // parseCSV,
   sampleCustomers,
   samplePayments,
   samplePromos,
 } from "./helpers/helpers";
+import * as XLSX from "xlsx";
 import DashboardView from "./views/DashboardView";
 import ProductsView from "./views/ProductsView";
 import OrdersView from "./views/OrdersView";
@@ -125,23 +126,62 @@ export default function AdminPanelDashboard() {
 
   const handleExport = () => {
     let rows = [];
-    if (active === "Products")
-      rows = products.map(({ images, extras, ...rest }) => ({
-        ...rest,
-        extras: JSON.stringify(extras),
-        images_count: images.length,
+
+    if (active === "Products") {
+      rows = products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        oldPrice: product.oldPrice ?? "",
+        price: product.price ?? "",
+        discount: product.discount ?? "",
+        rating: product.rating ?? "",
+        isBestSeller: product.isBestSeller ? "true" : "false",
+        isHot: product.isHot ? "true" : "false",
+        isNew: product.isNew ? "true" : "false",
+        isTrending: product.isTrending ? "true" : "false",
+        isLimitedStock: product.isLimitedStock ? "true" : "false",
+        isExclusive: product.isExclusive ? "true" : "false",
+        isFlashSale: product.isFlashSale ? "true" : "false",
+        category: product.category,
+        subcategory: product.subcategory,
+        description: product.description,
+        stock: product.stock,
+        images: product.images?.join(", "), // convert array to comma-separated string
+        extras: JSON.stringify(product.extras, null, 2), // prettify nested object
+        createdAt: new Date(product.createdAt).toLocaleString(),
       }));
+    }
+
     if (active === "Orders")
       rows = orders.map(({ items, ...rest }) => ({
         ...rest,
         items_count: items.length,
       }));
+
     if (active === "Customers") rows = customers;
     if (active === "Sellers") rows = sellers;
     if (active === "Payments") rows = payments;
     if (active === "Promotions") rows = promotions.map((p) => ({ ...p }));
+
     if (!rows.length) return alert("Nothing to export for this section");
-    exportAsCSV(rows, `${active}_export`);
+
+    // ✅ Create Excel workbook
+    const wb = XLSX.utils.book_new();
+
+    // ✅ Convert data to sheet
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    // ✅ Optional: Set column width automatically
+    const colWidths = Object.keys(rows[0]).map((key) => ({
+      wch: Math.max(key.length, 20),
+    }));
+    ws["!cols"] = colWidths;
+
+    // ✅ Add sheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, active);
+
+    // ✅ Save Excel file
+    XLSX.writeFile(wb, `${active}_export.xlsx`);
   };
 
   const selectAll = () => {
@@ -163,27 +203,63 @@ export default function AdminPanelDashboard() {
     }
   };
 
-  const handleBulkUpload = async (file) => {
-    if (!file) return;
+  const handleBulkUpload = (event) => {
+    const file = event.target.files[0];
+
+    if (!file) return alert("Please select an Excel file first.");
+
     try {
-      const rows = await parseCSV(file);
-      if (!rows.length) return alert("No rows found in CSV");
-      const newProducts = rows.map((r, idx) => ({
-        id: `p_${Date.now()}_${idx}`,
-        name: r.name || "Untitled",
-        price: r.price || "0",
-        category: r.category || "Uncategorized",
-        description: r.description || "",
-        stock: Number(r.stock || 0),
-        images: [],
-        extras: {},
-      }));
-      setProducts((p) => [...newProducts, ...p]);
-      setDisplayProducts((p) => [...newProducts, ...p]);
-      alert(`${newProducts.length} products uploaded`);
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+          const processedData = jsonData.map((item) => ({
+            ...item,
+            price: Number(item.price) || 0,
+            oldPrice: Number(item.oldPrice) || 0,
+            discount: Number(item.discount) || 0,
+            rating: Number(item.rating) || 0,
+            stock: Number(item.stock) || 0,
+            isBestSeller:
+              item.isBestSeller === "true" || item.isBestSeller === true,
+            isHot: item.isHot === "true" || item.isHot === true,
+            isNew: item.isNew === "true" || item.isNew === true,
+            isTrending: item.isTrending === "true" || item.isTrending === true,
+            isLimitedStock:
+              item.isLimitedStock === "true" || item.isLimitedStock === true,
+            isExclusive:
+              item.isExclusive === "true" || item.isExclusive === true,
+            isFlashSale:
+              item.isFlashSale === "true" || item.isFlashSale === true,
+            images: item.images
+              ? item.images.split(",").map((i) => i.trim())
+              : [],
+            extras: item.extras ? JSON.parse(item.extras) : {},
+          }));
+
+          // Update state
+          setProducts((prev) => [...processedData, ...prev]);
+          setDisplayProducts((prev) => [...processedData, ...prev]);
+
+          alert(`${processedData.length} products uploaded successfully!`);
+        } catch (err) {
+          console.error("Error processing Excel data:", err);
+          alert("Failed to process Excel file. Check the format.");
+        }
+      };
+
+      reader.readAsArrayBuffer(file); // ✅ Call this AFTER setting onload
     } catch (e) {
-      console.error(e);
-      alert("Failed to parse CSV");
+      console.error("Error reading file:", e);
+      alert("Failed to read file.");
     }
   };
 
@@ -384,14 +460,11 @@ export default function AdminPanelDashboard() {
   };
 
   const openDiscountModal = (product) => {
-    console.log(product.name);
     setActiveDiscountProduct(product);
     setDiscountModal(true);
   };
 
   const handleSetDiscount = (product) => {
-    console.log("done", product.name);
-
     setManualDiscount({
       id: product.id,
       discount: Number(manualDiscountValue),
@@ -401,349 +474,336 @@ export default function AdminPanelDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
-      {products.length === 0 ||
-      orders.length === 0 ||
-      customers.length === 0 ||
-      sellers.length === 0 ? (
-        <div>
-          <div className="flex flex-col items-center justify-center min-h-screen">
-            <span className="loading loading-spinner loading-xl"></span>
+      <>
+        <div className="flex">
+          <div className="hidden lg:flex">
+            <Sidebar
+              active={active}
+              setActive={setActive}
+              products={products}
+              orders={orders}
+              payments={payments}
+              customers={customers}
+              sellers={sellers}
+              promotions={promotions}
+              items={[
+                "Dashboard",
+                "Products",
+                "FlashSale",
+                "Orders",
+                "Customers",
+                "Sellers",
+                "Payments",
+                "Promotions",
+                "Reports",
+                "My Account",
+                "Settings",
+              ]}
+            />
+          </div>
+
+          <div className="flex-1 ">
+            <Drawer
+              user={user}
+              activeTab={active}
+              setActiveTab={setActive}
+              products={products}
+              orders={orders}
+              payments={payments}
+              items={[
+                "Dashboard",
+                "Products",
+                "FlashSale",
+                "Orders",
+                "Customers",
+                "Sellers",
+                "Payments",
+                "Promotions",
+                "Reports",
+                "My Account",
+                "Settings",
+              ]}
+            >
+              <main className="xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                  {/* Left: Page Title */}
+                  <h1 className="xl:text-2xl lg:text-2xl md:text-2xl sm:text-xl text-lg font-bold order-1 lg:order-1">
+                    {active}
+                  </h1>
+
+                  {/* Right: Buttons + Admin */}
+                  <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
+                    {active !== "Dashboard" &&
+                      active !== "My Account" &&
+                      active !== "Settings" &&
+                      active !== "FlashSale" && (
+                        <>
+                          {active === "Products" && (
+                            <>
+                              <input
+                                ref={fileRef}
+                                type="file"
+                                accept=".xlsx, .xls"
+                                className="hidden"
+                                onChange={handleBulkUpload}
+                              />
+
+                              <button
+                                onClick={() =>
+                                  fileRef.current && fileRef.current.click()
+                                }
+                                className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
+                              >
+                                Bulk Upload
+                              </button>
+                            </>
+                          )}
+                          <ExportBtn exportBtnHandler={handleExport} />
+                        </>
+                      )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm p-4">
+                  {active === "Dashboard" && (
+                    <DashboardView
+                      products={products}
+                      orders={orders}
+                      payments={payments}
+                    />
+                  )}
+
+                  {active === "Products" && (
+                    <ProductsView
+                      products={products}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      openNewProductModal={openNewProductModal}
+                      openEditProductModal={openEditProductModal}
+                      setProducts={setProducts}
+                      setDisplayProducts={setDisplayProducts}
+                      allSelected={
+                        selected.length === products.length &&
+                        products.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      productPage={productPage}
+                      productPageSize={productPageSize}
+                      setProductPage={setProductPage}
+                      filteredProducts={filteredProducts}
+                      paginatedProducts={paginatedProducts}
+                      productSearch={productSearch}
+                      setProductSearch={setProductSearch}
+                      productSort={productSort}
+                      setProductSort={setProductSort}
+                    />
+                  )}
+                  {active === "FlashSale" && (
+                    <FlashSaleView
+                      products={products}
+                      setDisplayProducts={setDisplayProducts}
+                      displayProducts={displayProducts}
+                      selected={selected}
+                      setSelected={setSelected}
+                      toggleSelect={toggleSelect}
+                      allSelected={
+                        selected.length === products.length &&
+                        products.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      productPage={productPage}
+                      productPageSize={productPageSize}
+                      setProductPage={setProductPage}
+                      filteredProducts={filteredProducts}
+                      paginatedProducts={paginatedProducts}
+                      productSearch={productSearch}
+                      setProductSearch={setProductSearch}
+                      productSort={productSort}
+                      setProductSort={setProductSort}
+                      flashSaleProducts={flashSaleProducts}
+                      setFlashSaleProducts={setFlashSaleProducts}
+                      manualDiscount={manualDiscount}
+                      setManualDiscount={setManualDiscount}
+                      flashSaleProductPage={flashSaleProductPage}
+                      setFlashSaleProductPage={setFlashSaleProductPage}
+                      duration={duration}
+                      setDuration={setDuration}
+                      discountModal={discountModal}
+                      setDiscountModal={setDiscountModal}
+                      openDiscountModal={openDiscountModal}
+                      manualDiscountValue={manualDiscountValue}
+                      setManualDiscountValue={setManualDiscountValue}
+                      handleSetDiscount={handleSetDiscount}
+                      activeDiscountProduct={activeDiscountProduct}
+                    />
+                  )}
+
+                  {active === "Orders" && (
+                    <OrdersView
+                      orders={orders}
+                      returns={returns}
+                      setReturns={setReturns}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      setOrders={setOrders}
+                      allSelected={
+                        selected.length === orders.length && orders.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      orderPage={orderPage}
+                      setOrderPage={setOrderPage}
+                      orderPageSize={orderPageSize}
+                      paginatedOrders={paginatedOrders}
+                      orderSearch={orderSearch}
+                      setOrderSearch={setOrderSearch}
+                      filteredOrders={filteredOrders}
+                      returnOrderSearch={returnOrderSearch}
+                      setReturnOrderSearch={setReturnOrderSearch}
+                      filteredReturnOrders={filteredReturnOrders}
+                      paginatedReturnOrders={paginatedReturnOrders}
+                      returnOrderPage={returnOrderPage}
+                      setReturnOrderPage={setReturnOrderPage}
+                      returnOrderPageSize={returnOrderPageSize}
+                    />
+                  )}
+
+                  {active === "Customers" && (
+                    <CustomersView
+                      customers={customers}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      onAdd={() => setShowCustomerModal(true)}
+                      allSelected={
+                        selected.length === customers.length &&
+                        customers.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      customerPage={customerPage}
+                      setCustomerPage={setCustomerPage}
+                      customerPageSize={customerPageSize}
+                      paginatedCustomers={paginatedCustomers}
+                      filteredCustomers={filteredCustomers}
+                      customerSearch={customerSearch}
+                      setCustomerSearch={setCustomerSearch}
+                    />
+                  )}
+
+                  {active === "Sellers" && (
+                    <SellersView
+                      sellers={sellers}
+                      selected={selected}
+                      toggleSelect={toggleSelect}
+                      onAdd={() => setShowSellerModal(true)}
+                      allSelected={
+                        selected.length === sellers.length && sellers.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      bulkDelete={bulkDelete}
+                      sellerPage={sellerPage}
+                      setSellerPage={setSellerPage}
+                      sellerPageSize={sellerPageSize}
+                      paginatedSellers={paginatedSellers}
+                      filteredSellers={filteredSellers}
+                      sellerSearch={sellerSearch}
+                      setSellerSearch={setSellerSearch}
+                    />
+                  )}
+
+                  {active === "Payments" && (
+                    <PaymentsView
+                      payments={payments}
+                      setPayments={setPayments}
+                      paymentPage={paymentPage}
+                      setPaymentPage={setPaymentPage}
+                      paymentSearch={paymentSearch}
+                      setPaymentSearch={setPaymentSearch}
+                      paymentPageSize={paymentPageSize}
+                      filteredPayments={filteredPayments}
+                      paginatedPayments={paginatedPayments}
+                    />
+                  )}
+
+                  {active === "Promotions" && (
+                    <PromotionsView
+                      promotions={promotions}
+                      onAdd={() => setShowPromoModal(true)}
+                      setPromotions={setPromotions}
+                      promoPage={promoPage}
+                      setPromoPage={setPromoPage}
+                      promoSearch={promoSearch}
+                      setPromoSearch={setPromoSearch}
+                      promoPageSize={promoPageSize}
+                      filteredPromotions={filteredPromotions}
+                      paginatedPromotions={paginatedPromotions}
+                    />
+                  )}
+
+                  {active === "Reports" && (
+                    <ReportsView
+                      products={products}
+                      orders={orders}
+                      customers={customers}
+                      sellers={sellers}
+                      payments={payments}
+                    />
+                  )}
+
+                  {active === "My Account" && (
+                    <MyProfileView
+                      user={user}
+                      setShowEditProfile={setShowEditProfile}
+                      activeTab={active}
+                    />
+                  )}
+                  {active === "Settings" && <SettingsView />}
+                </div>
+              </main>
+            </Drawer>
           </div>
         </div>
-      ) : (
-        <>
-          <div className="flex">
-            <div className="hidden lg:flex">
-              <Sidebar
-                active={active}
-                setActive={setActive}
-                products={products}
-                orders={orders}
-                payments={payments}
-                customers={customers}
-                sellers={sellers}
-                promotions={promotions}
-                items={[
-                  "Dashboard",
-                  "Products",
-                  "FlashSale",
-                  "Orders",
-                  "Customers",
-                  "Sellers",
-                  "Payments",
-                  "Promotions",
-                  "Reports",
-                  "My Account",
-                  "Settings",
-                ]}
-              />
-            </div>
 
-            <div className="flex-1 ">
-              <Drawer
-                user={user}
-                activeTab={active}
-                setActiveTab={setActive}
-                products={products}
-                orders={orders}
-                payments={payments}
-                items={[
-                  "Dashboard",
-                  "Products",
-                  "FlashSale",
-                  "Orders",
-                  "Customers",
-                  "Sellers",
-                  "Payments",
-                  "Promotions",
-                  "Reports",
-                  "My Account",
-                  "Settings",
-                ]}
-              >
-                <main className="xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-                    {/* Left: Page Title */}
-                    <h1 className="xl:text-2xl lg:text-2xl md:text-2xl sm:text-xl text-lg font-bold order-1 lg:order-1">
-                      {active}
-                    </h1>
+        <EditProfileModal
+          user={user}
+          setUser={setUser}
+          showEditProfile={showEditProfile}
+          setShowEditProfile={setShowEditProfile}
+          handleProfileSave={handleProfileSave}
+          handleAvatarChange={handleAvatarChange}
+        />
 
-                    {/* Right: Buttons + Admin */}
-                    <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
-                      {active !== "Dashboard" &&
-                        active !== "My Account" &&
-                        active !== "Settings" &&
-                        active !== "FlashSale" && (
-                          <>
-                            {active === "Products" && (
-                              <>
-                                <input
-                                  ref={fileRef}
-                                  type="file"
-                                  accept=".csv"
-                                  className="hidden"
-                                  onChange={(e) =>
-                                    e.target.files &&
-                                    handleBulkUpload(e.target.files[0])
-                                  }
-                                />
-                                <button
-                                  onClick={() =>
-                                    fileRef.current && fileRef.current.click()
-                                  }
-                                  className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
-                                >
-                                  Bulk Upload
-                                </button>
-                              </>
-                            )}
-                            <ExportBtn exportBtnHandler={handleExport} />
-                          </>
-                        )}
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-lg shadow-sm p-4">
-                    {active === "Dashboard" && (
-                      <DashboardView
-                        products={products}
-                        orders={orders}
-                        payments={payments}
-                      />
-                    )}
-
-                    {active === "Products" && (
-                      <ProductsView
-                        products={products}
-                        selected={selected}
-                        toggleSelect={toggleSelect}
-                        openNewProductModal={openNewProductModal}
-                        openEditProductModal={openEditProductModal}
-                        setProducts={setProducts}
-                        setDisplayProducts={setDisplayProducts}
-                        allSelected={
-                          selected.length === products.length &&
-                          products.length > 0
-                        }
-                        toggleSelectAll={selectAll}
-                        bulkDelete={bulkDelete}
-                        productPage={productPage}
-                        productPageSize={productPageSize}
-                        setProductPage={setProductPage}
-                        filteredProducts={filteredProducts}
-                        paginatedProducts={paginatedProducts}
-                        productSearch={productSearch}
-                        setProductSearch={setProductSearch}
-                        productSort={productSort}
-                        setProductSort={setProductSort}
-                      />
-                    )}
-                    {active === "FlashSale" && (
-                      <FlashSaleView
-                        products={products}
-                        setDisplayProducts={setDisplayProducts}
-                        displayProducts={displayProducts}
-                        selected={selected}
-                        setSelected={setSelected}
-                        toggleSelect={toggleSelect}
-                        allSelected={
-                          selected.length === products.length &&
-                          products.length > 0
-                        }
-                        toggleSelectAll={selectAll}
-                        productPage={productPage}
-                        productPageSize={productPageSize}
-                        setProductPage={setProductPage}
-                        filteredProducts={filteredProducts}
-                        paginatedProducts={paginatedProducts}
-                        productSearch={productSearch}
-                        setProductSearch={setProductSearch}
-                        productSort={productSort}
-                        setProductSort={setProductSort}
-                        flashSaleProducts={flashSaleProducts}
-                        setFlashSaleProducts={setFlashSaleProducts}
-                        manualDiscount={manualDiscount}
-                        setManualDiscount={setManualDiscount}
-                        flashSaleProductPage={flashSaleProductPage}
-                        setFlashSaleProductPage={setFlashSaleProductPage}
-                        duration={duration}
-                        setDuration={setDuration}
-                        discountModal={discountModal}
-                        setDiscountModal={setDiscountModal}
-                        openDiscountModal={openDiscountModal}
-                        manualDiscountValue={manualDiscountValue}
-                        setManualDiscountValue={setManualDiscountValue}
-                        handleSetDiscount={handleSetDiscount}
-                        activeDiscountProduct={activeDiscountProduct}
-                      />
-                    )}
-
-                    {active === "Orders" && (
-                      <OrdersView
-                        orders={orders}
-                        returns={returns}
-                        setReturns={setReturns}
-                        selected={selected}
-                        toggleSelect={toggleSelect}
-                        setOrders={setOrders}
-                        allSelected={
-                          selected.length === orders.length && orders.length > 0
-                        }
-                        toggleSelectAll={selectAll}
-                        bulkDelete={bulkDelete}
-                        orderPage={orderPage}
-                        setOrderPage={setOrderPage}
-                        orderPageSize={orderPageSize}
-                        paginatedOrders={paginatedOrders}
-                        orderSearch={orderSearch}
-                        setOrderSearch={setOrderSearch}
-                        filteredOrders={filteredOrders}
-                        returnOrderSearch={returnOrderSearch}
-                        setReturnOrderSearch={setReturnOrderSearch}
-                        filteredReturnOrders={filteredReturnOrders}
-                        paginatedReturnOrders={paginatedReturnOrders}
-                        returnOrderPage={returnOrderPage}
-                        setReturnOrderPage={setReturnOrderPage}
-                        returnOrderPageSize={returnOrderPageSize}
-                      />
-                    )}
-
-                    {active === "Customers" && (
-                      <CustomersView
-                        customers={customers}
-                        selected={selected}
-                        toggleSelect={toggleSelect}
-                        onAdd={() => setShowCustomerModal(true)}
-                        allSelected={
-                          selected.length === customers.length &&
-                          customers.length > 0
-                        }
-                        toggleSelectAll={selectAll}
-                        bulkDelete={bulkDelete}
-                        customerPage={customerPage}
-                        setCustomerPage={setCustomerPage}
-                        customerPageSize={customerPageSize}
-                        paginatedCustomers={paginatedCustomers}
-                        filteredCustomers={filteredCustomers}
-                        customerSearch={customerSearch}
-                        setCustomerSearch={setCustomerSearch}
-                      />
-                    )}
-
-                    {active === "Sellers" && (
-                      <SellersView
-                        sellers={sellers}
-                        selected={selected}
-                        toggleSelect={toggleSelect}
-                        onAdd={() => setShowSellerModal(true)}
-                        allSelected={
-                          selected.length === sellers.length &&
-                          sellers.length > 0
-                        }
-                        toggleSelectAll={selectAll}
-                        bulkDelete={bulkDelete}
-                        sellerPage={sellerPage}
-                        setSellerPage={setSellerPage}
-                        sellerPageSize={sellerPageSize}
-                        paginatedSellers={paginatedSellers}
-                        filteredSellers={filteredSellers}
-                        sellerSearch={sellerSearch}
-                        setSellerSearch={setSellerSearch}
-                      />
-                    )}
-
-                    {active === "Payments" && (
-                      <PaymentsView
-                        payments={payments}
-                        setPayments={setPayments}
-                        paymentPage={paymentPage}
-                        setPaymentPage={setPaymentPage}
-                        paymentSearch={paymentSearch}
-                        setPaymentSearch={setPaymentSearch}
-                        paymentPageSize={paymentPageSize}
-                        filteredPayments={filteredPayments}
-                        paginatedPayments={paginatedPayments}
-                      />
-                    )}
-
-                    {active === "Promotions" && (
-                      <PromotionsView
-                        promotions={promotions}
-                        onAdd={() => setShowPromoModal(true)}
-                        setPromotions={setPromotions}
-                        promoPage={promoPage}
-                        setPromoPage={setPromoPage}
-                        promoSearch={promoSearch}
-                        setPromoSearch={setPromoSearch}
-                        promoPageSize={promoPageSize}
-                        filteredPromotions={filteredPromotions}
-                        paginatedPromotions={paginatedPromotions}
-                      />
-                    )}
-
-                    {active === "Reports" && (
-                      <ReportsView
-                        products={products}
-                        orders={orders}
-                        customers={customers}
-                        sellers={sellers}
-                        payments={payments}
-                      />
-                    )}
-
-                    {active === "My Account" && (
-                      <MyProfileView
-                        user={user}
-                        setShowEditProfile={setShowEditProfile}
-                        activeTab={active}
-                      />
-                    )}
-                    {active === "Settings" && <SettingsView />}
-                  </div>
-                </main>
-              </Drawer>
-            </div>
-          </div>
-
-          <EditProfileModal
-            user={user}
-            setUser={setUser}
-            showEditProfile={showEditProfile}
-            setShowEditProfile={setShowEditProfile}
-            handleProfileSave={handleProfileSave}
-            handleAvatarChange={handleAvatarChange}
+        {productModalOpen && (
+          <ProductModal
+            product={editingProduct}
+            onClose={() => setProductModalOpen(false)}
+            onSave={saveProduct}
           />
+        )}
 
-          {productModalOpen && (
-            <ProductModal
-              product={editingProduct}
-              onClose={() => setProductModalOpen(false)}
-              onSave={saveProduct}
-            />
-          )}
+        {showCustomerModal && (
+          <AddModal
+            title="Add Customer"
+            fields={[
+              { key: "name", label: "Name", required: true },
+              { key: "email", label: "Email", required: true },
+            ]}
+            onClose={() => setShowCustomerModal(false)}
+            onSave={(d) => addCustomer(d)}
+          />
+        )}
+        {discountModal && (
+          <DiscountModal
+            product={activeDiscountProduct}
+            manualDiscountValue={manualDiscountValue}
+            setManualDiscountValue={setManualDiscountValue}
+            setDiscountModal={setDiscountModal}
+            handleSetDiscount={handleSetDiscount}
+          />
+        )}
 
-          {showCustomerModal && (
-            <AddModal
-              title="Add Customer"
-              fields={[
-                { key: "name", label: "Name", required: true },
-                { key: "email", label: "Email", required: true },
-              ]}
-              onClose={() => setShowCustomerModal(false)}
-              onSave={(d) => addCustomer(d)}
-            />
-          )}
-          {discountModal && (
-            <DiscountModal
-              product={activeDiscountProduct}
-              manualDiscountValue={manualDiscountValue}
-              setManualDiscountValue={setManualDiscountValue}
-              setDiscountModal={setDiscountModal}
-              handleSetDiscount={handleSetDiscount}
-            />
-          )}
-
-          {/* {showSellerModal && (
+        {/* {showSellerModal && (
             <AddModal
               title="Add Seller"
               fields={[
@@ -754,42 +814,41 @@ export default function AdminPanelDashboard() {
               onSave={(d) => addSeller(d)}
             />
           )} */}
-          {showSellerModal && (
-            <AddSellerModal
-              onClose={() => setShowSellerModal(false)}
-              onSave={(d) => addSeller(d)}
-            />
-          )}
+        {showSellerModal && (
+          <AddSellerModal
+            onClose={() => setShowSellerModal(false)}
+            onSave={(d) => addSeller(d)}
+          />
+        )}
 
-          {showPromoModal && (
-            <AddModal
-              title="New Promotion"
-              fields={[
-                { key: "code", label: "Code", required: true },
-                {
-                  key: "discount",
-                  label: "Discount (e.g. 10%)",
-                  required: true,
-                },
-                {
-                  key: "start",
-                  label: "Start Date",
-                  required: false,
-                  placeholder: "YYYY-MM-DD",
-                },
-                {
-                  key: "end",
-                  label: "End Date",
-                  required: false,
-                  placeholder: "YYYY-MM-DD",
-                },
-              ]}
-              onClose={() => setShowPromoModal(false)}
-              onSave={(d) => addPromo(d)}
-            />
-          )}
-        </>
-      )}
+        {showPromoModal && (
+          <AddModal
+            title="New Promotion"
+            fields={[
+              { key: "code", label: "Code", required: true },
+              {
+                key: "discount",
+                label: "Discount (e.g. 10%)",
+                required: true,
+              },
+              {
+                key: "start",
+                label: "Start Date",
+                required: false,
+                placeholder: "YYYY-MM-DD",
+              },
+              {
+                key: "end",
+                label: "End Date",
+                required: false,
+                placeholder: "YYYY-MM-DD",
+              },
+            ]}
+            onClose={() => setShowPromoModal(false)}
+            onSave={(d) => addPromo(d)}
+          />
+        )}
+      </>
     </div>
   );
 }

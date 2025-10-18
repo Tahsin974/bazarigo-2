@@ -369,14 +369,6 @@ export default function SellerPanelDashboard() {
     }
   };
 
-  const topProducts = displayProducts
-    .slice()
-    .sort((a, b) => b.stock * b.price - a.stock * a.price)
-    .slice(0, 5)
-    .map((p) => ({
-      ...p,
-      potentialValue: (p.stock * p.price).toFixed(2),
-    }));
   const handleExport = () => {
     let rows = [];
 
@@ -412,27 +404,11 @@ export default function SellerPanelDashboard() {
       }));
 
     if (active === "Payments") rows = payments;
-    // if (active === "Reports") {
-    //   // Export filtered orders for report
-    //   if (!filteredOrdersForReport.length)
-    //     return alert("No report data to export");
-
-    //   rows = filteredOrdersForReport.map((order) => ({
-    //     id: order.orderId,
-    //     customer: order.customer,
-    //     total: order.total,
-    //     status: order.status,
-    //     date: order.date,
-    //     items_count: order.items?.length || 0,
-    //     // Optional: include revenue breakdown per order
-    //     revenue: order.total,
-    //   }));
-    // }
     if (active === "Reports") {
+      // Export filtered orders for report
       if (!filteredOrdersForReport.length)
         return alert("No report data to export");
 
-      // Prepare report rows
       rows = filteredOrdersForReport.map((order) => ({
         id: order.orderId,
         customer: order.customer,
@@ -440,41 +416,9 @@ export default function SellerPanelDashboard() {
         status: order.status,
         date: order.date,
         items_count: order.items?.length || 0,
+        // Optional: include revenue breakdown per order
         revenue: order.total,
       }));
-
-      // ✅ Create Excel workbook
-      const wb = XLSX.utils.book_new();
-
-      // ✅ Add main report sheet
-      const wsReport = XLSX.utils.json_to_sheet(rows);
-      const reportColWidths = Object.keys(rows[0]).map((key) => ({
-        wch: Math.max(key.length, 20),
-      }));
-      wsReport["!cols"] = reportColWidths;
-      XLSX.utils.book_append_sheet(wb, wsReport, "Report");
-
-      // ✅ Prepare topProducts table
-      const topProducts = displayProducts
-        .slice()
-        .sort((a, b) => b.stock * b.price - a.stock * a.price)
-        .slice(0, 5)
-        .map((p) => ({
-          name: p.name,
-          stock: p.stock,
-          price: p.price,
-          potentialValue: (p.stock * p.price).toFixed(2),
-        }));
-
-      const wsTopProducts = XLSX.utils.json_to_sheet(topProducts);
-      const topColWidths = Object.keys(topProducts[0]).map((key) => ({
-        wch: Math.max(key.length, 20),
-      }));
-      wsTopProducts["!cols"] = topColWidths;
-      XLSX.utils.book_append_sheet(wb, wsTopProducts, "TopProducts");
-
-      // ✅ Save Excel file
-      XLSX.writeFile(wb, "Reports_with_TopProducts.xlsx");
     }
 
     if (!rows.length) return alert("Nothing to export for this section");
@@ -524,9 +468,8 @@ export default function SellerPanelDashboard() {
     setNewPassword("");
     setConfirmPassword("");
   }
-  const revenueBreakdown = (list) => {
+  function revenueBreakdown(list) {
     const map = {};
-    // console.log(list);
     list.forEach((o) => {
       (o.items || []).forEach((it) => {
         const prod = sampleProducts().find((p) => p.id === it.productId) || {};
@@ -534,25 +477,21 @@ export default function SellerPanelDashboard() {
         map[cat] = (map[cat] || 0) + (it.qty || 1) * (it.price || 0);
       });
     });
-
     if (Object.keys(map).length === 0)
       map["Other"] = list.reduce((a, b) => a + (b.total || 0), 0);
-
     const palette = ["#FF0055", "#FF7F50", "#FFD700", "#7DD3FC", "#A78BFA"];
     return Object.keys(map).map((k, i) => ({
-      name: k,
+      label: k,
       value: map[k],
       color: palette[i % palette.length],
     }));
-  };
-  console.log(revenueBreakdown(filteredOrdersForReport));
+  }
 
   const calculateRevenue = (orders) => {
     return orders
       .filter((o) => o.status !== "Cancelled")
       .reduce((sum, order) => sum + order.total, 0);
   };
-
   const totalRevenue = useMemo(() => calculateRevenue(orders), [orders]);
 
   const calculateSalesData = (orders) => {
@@ -766,15 +705,9 @@ export default function SellerPanelDashboard() {
               <ReportsView
                 active={active}
                 totalRevenue={totalRevenue}
+                products={displayProducts}
                 reportFilter={reportFilter}
                 setReportFilter={setReportFilter}
-                filteredOrdersForReport={filteredOrdersForReport}
-                revenueBreakdown={revenueBreakdown}
-                startDate={startDate}
-                setStartDate={setStartDate}
-                endDate={endDate}
-                setEndDate={setEndDate}
-                topProducts={topProducts}
               />
               <MyProfileView
                 user={user}

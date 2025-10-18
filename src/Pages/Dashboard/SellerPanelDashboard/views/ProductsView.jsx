@@ -22,15 +22,13 @@ export default function ProductsView({
   productPageSize = 10,
   selectedProductIds,
   setSelectedProductIds,
-  fileInputRef,
-  handleBulkUploadFile,
   openNewProductModal,
   openEditProductModal,
   toggleSelectProduct,
   bulkDeleteProducts,
   paginatedProducts,
   filteredProducts,
-  exportProductsExcel,
+  setDisplayProducts,
 }) {
   const totalPages = Math.max(
     1,
@@ -58,23 +56,6 @@ export default function ProductsView({
                 <AddBtn btnHandler={openNewProductModal}>
                   <PlusCircle /> Add Product
                 </AddBtn>
-
-                <label className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]">
-                  <UploadCloud /> Bulk Upload
-                  <input
-                    ref={fileInputRef}
-                    onChange={handleBulkUploadFile}
-                    accept=".csv,.xls,.html,.htm"
-                    type="file"
-                    className="hidden"
-                  />
-                </label>
-
-                <div className="xl:flex lg:flex md:flex hidden ">
-                  <ExportBtn
-                    exportBtnHandler={() => exportProductsExcel(products)}
-                  />
-                </div>
               </div>
             </div>
 
@@ -100,11 +81,7 @@ export default function ProductsView({
                   <option value="stock">Sort by Stock</option>
                 </SelectField>
               </div>
-              <div className="xl:hidden lg:hidden md:hidden flex  order-2">
-                <ExportBtn
-                  exportBtnHandler={() => exportProductsExcel(products)}
-                />
-              </div>
+              <div className="xl:hidden lg:hidden md:hidden flex  order-2"></div>
             </div>
           </div>
           <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
@@ -163,6 +140,9 @@ export default function ProductsView({
                               setProducts((prev) =>
                                 prev.filter((x) => x.id !== p.id)
                               );
+                            setDisplayProducts((prev) =>
+                              prev.filter((x) => x.id !== p.id)
+                            );
                           }}
                           className="px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded"
                         >

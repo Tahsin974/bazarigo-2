@@ -46,7 +46,6 @@ export default function BaseProductDetails({
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-        console.log("Product shared successfully!");
       } catch (err) {
         console.error("Sharing failed:", err);
       }

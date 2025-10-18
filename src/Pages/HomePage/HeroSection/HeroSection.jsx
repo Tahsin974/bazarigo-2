@@ -10,7 +10,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl sm:text-5xl md:text-5xl font-extrabold text-white drop-shadow-md"
+          className="text-3xl sm:text-5xl md:text-5xl font-extrabold text-white drop-shadow-md"
         >
           BECAUSE YOUR STYLE DESERVES A LITTLE ATTENTION
         </motion.h1>

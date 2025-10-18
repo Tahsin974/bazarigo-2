@@ -37,8 +37,6 @@ export default function ProductModal({ product = {}, onClose, onSave, user }) {
     extras: product.extras || {},
   }));
 
-  console.log(form);
-
   useEffect(() => {
     setForm({
       id: product.id || null,

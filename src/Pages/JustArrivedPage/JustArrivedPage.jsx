@@ -15,7 +15,6 @@ export default function JustArrivedPage() {
   const filtered = allProducts.filter(
     (prod) => prod.isNew && prod.isBestSeller
   );
-  console.log(filtered);
 
   const sortedProducts = [...filtered].sort((a, b) => {
     if (sortOption === "Newest")

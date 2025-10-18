@@ -33,7 +33,6 @@ export default function OrdersView({
   setReturnOrderSearch,
   filteredReturnOrders,
 }) {
-  console.log(paginatedReturnOrders);
   const totalPages = Math.max(
     1,
     Math.ceil(filteredOrders.length / orderPageSize)

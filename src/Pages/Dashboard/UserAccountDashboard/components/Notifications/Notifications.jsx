@@ -4,7 +4,6 @@ export default function Notifications({
   setActiveTab,
   markNotificationRead,
 }) {
-  console.log(notifications);
   return (
     <div>
       {activeTab === "Notifications" && (

@@ -27,7 +27,6 @@ export default function PasswordResetPanel({ onNavigate = () => {} }) {
     setError("");
     setLoading(true);
     try {
-      console.log("Reset request for:", email);
       await new Promise((res) => setTimeout(res, 900));
       setSubmitted(true);
     } finally {

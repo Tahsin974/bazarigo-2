@@ -40,23 +40,23 @@ function PaymentsView({
         </div>
       </div>
 
-      <div className="bg-white p-3 rounded shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto bg-white rounded-box">
+        <table className="table text-center">
           <thead className="bg-gray-50">
-            <tr>
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Method</th>
-              <th className="p-2 text-left">Amount</th>
-              <th className="p-2 text-left">Date</th>
+            <tr className="text-black">
+              <th>ID</th>
+              <th>Method</th>
+              <th>Amount</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
             {paginatedPayments.map((p) => (
               <tr key={p.id} className="border-b">
-                <td className="p-2">{p.id}</td>
-                <td className="p-2">{p.method}</td>
-                <td className="p-2">৳{p.amount}</td>
-                <td className="p-2">{p.date}</td>
+                <td>{p.id}</td>
+                <td>{p.method}</td>
+                <td>৳{p.amount}</td>
+                <td>{p.date}</td>
               </tr>
             ))}
           </tbody>

@@ -39,7 +39,6 @@ export default function SetNewPasswordPanel({ onNavigate = () => {} }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      console.log("New password set:", formData.password);
       await new Promise((res) => setTimeout(res, 900));
       setSuccess(true);
     } finally {

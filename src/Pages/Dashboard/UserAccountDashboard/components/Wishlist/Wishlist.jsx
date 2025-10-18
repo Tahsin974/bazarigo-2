@@ -9,7 +9,6 @@ export default function Wishlist({ activeTab, wishlist, setWishlist }) {
 
   const moveToCart = (id) => {
     const product = wishlist.find((item) => item.id === id);
-    console.log("Moved to cart:", product);
     removeItem(id);
     Swal.fire({
       icon: "success",

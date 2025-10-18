@@ -69,7 +69,17 @@ function SellersView({
       </div>
       <div className="mt-3 bg-white p-3 rounded shadow-sm">
         {sellers.length === 0 ? (
-          <div className="text-sm text-gray-500">No return orders</div>
+          <div>
+            <div className="flex flex-col items-center justify-center py-20">
+              sellers not found
+            </div>
+          </div>
+        ) : sellers.length === null ? (
+          <div>
+            <div className="flex flex-col items-center justify-center min-h-screen">
+              <span className="loading loading-spinner loading-xl"></span>
+            </div>
+          </div>
         ) : (
           <div className="overflow-x-auto bg-white rounded-box">
             <table className="table text-center">

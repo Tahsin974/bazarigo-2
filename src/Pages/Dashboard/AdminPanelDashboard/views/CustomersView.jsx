@@ -29,6 +29,12 @@ function CustomersView({
     Math.ceil(filteredCustomers.length / customerPageSize)
   );
 
+  const renderPageNumbers = useRenderPageNumbers(
+    customerPage,
+    totalPages,
+    setCustomerPage
+  );
+
   return (
     <div>
       <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
@@ -66,54 +72,66 @@ function CustomersView({
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-box">
-        <table className="table text-center">
-          {/* head */}
-          <thead className="bg-gray-50 ">
-            <tr className="text-black">
-              <th>
-                <SelectAllCheckbox
-                  selected={selected}
-                  allSelected={allSelected}
-                  toggleSelectAll={toggleSelectAll}
-                  isShowCounter={false}
-                />
-              </th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Orders</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedCustomers.map((c) => (
-              <tr key={c.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                    checked={selected.includes(c.id)}
-                    onChange={() => toggleSelect(c.id)}
-                  />
-                </td>
-                <td>{c.name}</td>
-                <td>{c.email}</td>
-                <td>{c.orders}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {customers.length === 0 ? (
+        <div>
+          <div className="flex flex-col items-center justify-center py-20">
+            customers not found
+          </div>
+        </div>
+      ) : customers.length === null ? (
+        <div>
+          <div className="flex flex-col items-center justify-center min-h-screen">
+            <span className="loading loading-spinner loading-xl"></span>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto bg-white rounded-box">
+            <table className="table text-center">
+              {/* head */}
+              <thead className="bg-gray-50 ">
+                <tr className="text-black">
+                  <th>
+                    <SelectAllCheckbox
+                      selected={selected}
+                      allSelected={allSelected}
+                      toggleSelectAll={toggleSelectAll}
+                      isShowCounter={false}
+                    />
+                  </th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Orders</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedCustomers.map((c) => (
+                  <tr key={c.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                        checked={selected.includes(c.id)}
+                        onChange={() => toggleSelect(c.id)}
+                      />
+                    </td>
+                    <td>{c.name}</td>
+                    <td>{c.email}</td>
+                    <td>{c.orders}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      <Pagination
-        currentPage={customerPage}
-        totalPages={totalPages}
-        setCurrentPage={setCustomerPage}
-        renderPageNumbers={useRenderPageNumbers(
-          customerPage,
-          totalPages,
-          setCustomerPage
-        )}
-      />
+          <Pagination
+            currentPage={customerPage}
+            totalPages={totalPages}
+            setCurrentPage={setCustomerPage}
+            renderPageNumbers={renderPageNumbers}
+          />
+        </>
+      )}
     </div>
   );
 }
