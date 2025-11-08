@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "./components/Logo";
 import SearchBar from "./components/SearchBar";
 import DesktopIcons from "./components/DesktopIcons";
 import MobileMenuButton from "./components/MobileMenuButton";
 import MobileMenu from "./components/MobileMenu";
 import MobileOverlay from "./components/MobileOverlay";
+import { useLocation } from "react-router";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md font-sans">

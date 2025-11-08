@@ -13,17 +13,17 @@ export default function DeleteAllBtn({ selected, bulkDelete }) {
           <span>
             <Trash2 />
           </span>{" "}
-          <span>Delete All</span>
+          <span>Delete</span>
         </button>
       ) : (
         <button
           onClick={bulkDelete}
-          className=" bg-[#DC2626] hover:bg-[#B91C1C] px-3 py-2 inline-flex items-center gap-2  text-white  border-none  rounded shadow sm:text-base text-[14px]"
+          className=" bg-[#DC2626] hover:bg-[#B91C1C] px-3 py-2 inline-flex items-center gap-2  text-white  border-none  rounded shadow sm:text-base text-[14px] cursor-pointer"
         >
           <span>
             <Trash2 />
           </span>
-          <span>Delete All</span>
+          <span>Delete</span>
         </button>
       )}
     </div>

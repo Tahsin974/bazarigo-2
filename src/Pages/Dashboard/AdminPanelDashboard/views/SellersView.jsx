@@ -1,11 +1,17 @@
-import React from "react";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import AddBtn from "../../../../components/ui/AddBtn";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import {
+  CircleCheckBig,
+  CircleX,
+  Eye,
+  MoreHorizontal,
+  PlusCircle,
+} from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import axios from "axios";
 
 function SellersView({
   sellers,
@@ -21,11 +27,20 @@ function SellersView({
   setSellerSearch,
   sellerPageSize = 10,
   filteredSellers,
+  openSellerModal,
 }) {
   const totalPages = Math.max(
     1,
     Math.ceil(filteredSellers.length / sellerPageSize)
   );
+  const handleAccept = async (id) => {
+    const res = await axios.patch(
+      `http://localhost:3000/sellers/${id}/status`,
+      {
+        status: "seller",
+      }
+    );
+  };
 
   return (
     <div>
@@ -96,7 +111,9 @@ function SellersView({
                   </th>
                   <th className="px-4 py-3">Seller ID</th>
                   <th className="px-4 py-3">Seller Name</th>
+                  <th className="px-4 py-3">Seller Store Name</th>
                   <th className="px-4 py-3">Seller Email</th>
+                  <th className="px-4 py-3"> Phone</th>
                   <th className="px-4 py-3">Action</th>
                 </tr>
               </thead>
@@ -113,19 +130,31 @@ function SellersView({
                       />
                     </td>
                     <td className="px-4 py-3">{s.id}</td>
-                    <td className="px-4 py-3">{s.fullName}</td>
+                    <td className="px-4 py-3">{s.full_name}</td>
+                    <td className="px-4 py-3">{s.store_name}</td>
                     <td className="px-4 py-3">{s.email}</td>
+                    <td className="px-4 py-3">{s.phone_number}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 justify-center">
-                        <button className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">
-                          View
+                        <button
+                          onClick={() => openSellerModal(s)}
+                          className="px-3 py-2 rounded cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-900"
+                        >
+                          <Eye size={20} />
                         </button>
-                        <button className="px-3 py-1  rounded bg-[#00C853] hover:bg-[#00B34A] text-white">
-                          Accept
-                        </button>
-                        <button className="px-3 py-1  rounded bg-[#DC2626] hover:bg-[#B91C1C] text-white">
-                          Reject
-                        </button>
+                        {s.status === "pending" && (
+                          <>
+                            <button
+                              onClick={() => handleAccept(s.id)}
+                              className="px-3 py-2  rounded bg-green-100 hover:bg-green-600 text-green-600 hover:text-white cursor-pointer"
+                            >
+                              <CircleCheckBig size={20} />
+                            </button>
+                            <button className="px-3 py-2  rounded bg-red-100 hover:bg-red-600 text-red-600 hover:text-white cursor-pointer">
+                              <CircleX size={20} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

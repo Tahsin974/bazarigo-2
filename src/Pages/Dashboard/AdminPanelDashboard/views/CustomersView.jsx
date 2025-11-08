@@ -6,7 +6,7 @@ import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
 import { motion } from "framer-motion";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
-import { PlusCircle } from "lucide-react";
+import { Eye, PlusCircle } from "lucide-react";
 
 function CustomersView({
   customers,
@@ -23,6 +23,7 @@ function CustomersView({
   customerPageSize = 10,
   paginatedCustomers,
   filteredCustomers,
+  openCustomerModal,
 }) {
   const totalPages = Math.max(
     1,
@@ -99,9 +100,12 @@ function CustomersView({
                       isShowCounter={false}
                     />
                   </th>
+                  <th>User Name</th>
                   <th>Name</th>
                   <th>Email</th>
+                  <th>Phone</th>
                   <th>Orders</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,9 +119,21 @@ function CustomersView({
                         onChange={() => toggleSelect(c.id)}
                       />
                     </td>
+                    <td>{c.user_name}</td>
                     <td>{c.name}</td>
                     <td>{c.email}</td>
-                    <td>{c.orders}</td>
+                    <td>{c.phone}</td>
+                    <td>0</td>
+                    <td>
+                      <div className="flex items-center gap-2 justify-center">
+                        <button
+                          onClick={() => openCustomerModal(c)}
+                          className=" px-3 py-2 rounded cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-900 "
+                        >
+                          <Eye size={20} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

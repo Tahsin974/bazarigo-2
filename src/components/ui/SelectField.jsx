@@ -5,9 +5,12 @@ export default function SelectField({
   selectValueChange,
   isWide = false,
   children,
+  disabled = false,
+  ...props
 }) {
-  let colorClass =
-    "bg-white border border-gray-300 text-gray-700 text-gray-900 hover:border-gray-400  focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]";
+  let colorClass = `"bg-white border border-gray-300 ${
+    disabled === true ? "text-gray-400" : "text-gray-900 hover:border-gray-400"
+  }     focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"`;
   switch (selectValue) {
     case "Delivered":
       colorClass = "bg-green-100 border-green-400 text-green-700";
@@ -35,10 +38,12 @@ export default function SelectField({
       <select
         defaultValue={selectValue}
         onChange={selectValueChange}
-        className={`appearance-none focus:outline-none rounded-lg py-2 pl-4 pr-10 text-base font-medium  shadow-sm  transition duration-150 cursor-pointer ${
+        {...props}
+        className={`appearance-none focus:outline-none rounded-lg py-2 pl-4 pr-10 text-base font-medium  shadow-sm  transition duration-150 cursor-pointer  ${
           isWide && "w-full"
         } ${colorClass}`}
         style={{ fontFamily: "Poppins", fontWeight: 700 }}
+        disabled={disabled}
       >
         {children}
       </select>

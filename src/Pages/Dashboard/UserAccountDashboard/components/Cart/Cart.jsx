@@ -71,13 +71,13 @@ export default function Cart({
 
           <div className="mt-4 flex gap-3">
             <Link to="/checkout">
-              <button className="btn sm:btn-md btn-sm rounded-md bg-[#00C853] hover:bg-[#00B34A] text-white border-none">
+              <button className="btn sm:btn-md btn-sm rounded-md bg-[#00C853] hover:bg-[#00B34A] text-white border-none cursor-pointer">
                 Proceed to Checkout
               </button>
             </Link>
             <button
               onClick={() => setActiveTab("Payments")}
-              className="btn sm:btn-md btn-sm rounded-md btn-outline"
+              className="btn sm:btn-md btn-sm rounded-md btn-outline cursor-pointer"
             >
               Choose Payment
             </button>

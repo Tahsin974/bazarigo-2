@@ -5,12 +5,11 @@ import ProductsGrid from "./components/ProductsGrid";
 import Pagination from "../../components/ui/Pagination";
 import { motion } from "framer-motion";
 
-import { MoreHorizontal } from "lucide-react";
-import { sampleProducts } from "../../Utils/Helpers/Helpers";
 import { useRenderPageNumbers } from "../../Utils/Hooks/useRenderPageNumbers";
+import useProducts from "../../Utils/Hooks/useProducts";
 
 export default function TrendingNowPage() {
-  const allProducts = sampleProducts();
+  const { products: allProducts } = useProducts();
 
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);

@@ -1,6 +1,6 @@
 import React from "react";
 import AddBtn from "../../../../components/ui/AddBtn";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Trash2 } from "lucide-react";
 import Pagination from "../../../../components/ui/Pagination";
 import SearchField from "../../../../components/ui/SearchField";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
@@ -88,9 +88,9 @@ function PromotionsView({
               </button>
               <button
                 onClick={() => removePromo(p.id)}
-                className="px-2 py-1 rounded text-white bg-[#f72c2c] hover:bg-[#e92323]"
+                className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
               >
-                Delete
+                <Trash2 size={20} />
               </button>
             </div>
           </div>

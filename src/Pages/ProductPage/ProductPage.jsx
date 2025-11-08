@@ -1,11 +1,20 @@
 import { useParams } from "react-router";
-import { sampleProducts } from "../../Utils/Helpers/Helpers";
 import ProductDetails from "./components/ProductDetails";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useLocation } from "react-router";
 
 export default function ProductPage() {
   const { id } = useParams();
-  const AllProducts = sampleProducts();
-  const productDetails = AllProducts.find((p) => p.id === id);
+  const location = useLocation();
+  const { data: productDetails = {}, isPending } = useQuery({
+    queryKey: ["product", location.pathname],
+    queryFn: async () => {
+      const res = await axios.get(`http://localhost:3000/products/${id}`);
+      return res.data.product;
+    },
+  });
+
   if (!productDetails) {
     return (
       <div className="xl:px-6 lg:px-6  px-4 text-center text-red-500">
@@ -19,6 +28,7 @@ export default function ProductPage() {
         product={productDetails}
         category={productDetails.category}
         subcategory={productDetails.subcategory || ""}
+        isPending={isPending}
       />
     </div>
   );

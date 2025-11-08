@@ -16,8 +16,6 @@ export default function FlashSalePage() {
   const itemsPerPage = 4;
   // const [displayedProducts, setDisplayedProducts] = useState([]);
 
-  // const allProducts = sampleProducts();
-
   const categories = [
     "All",
     "Electronics",

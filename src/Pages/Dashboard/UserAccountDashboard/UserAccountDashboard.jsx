@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import Overview from "./components/OverView/OverView";
 import Orders from "./components/Orders/Orders";
@@ -119,7 +119,6 @@ export default function UserAccountDashboard() {
 
   // Returns
   const [returnRequests, setReturnRequests] = useState([]);
-  const [prefillOrderId, setPrefillOrderId] = useState("");
 
   // Settings
   const [settings, setSettings] = useState({
@@ -203,7 +202,7 @@ export default function UserAccountDashboard() {
       },
     ]);
     // clear prefill after submit
-    setPrefillOrderId("");
+
     setActiveTab("returns");
   };
   const updateReturnStatus = (id, status) =>
@@ -258,13 +257,6 @@ export default function UserAccountDashboard() {
     e && e.preventDefault();
     alert("Settings saved (demo)");
   };
-
-  // ensure prefill order ID sync when user clicks return in orders
-  useEffect(() => {
-    if (prefillOrderId) setActiveTab("returns");
-  }, [prefillOrderId]);
-
-  // ----- Render -----
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -332,8 +324,6 @@ export default function UserAccountDashboard() {
               orders={orders}
               setOrders={setOrders}
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              setPrefillOrderId={setPrefillOrderId}
             />
             {/* Cart */}
             <Cart
@@ -367,7 +357,6 @@ export default function UserAccountDashboard() {
               addReturnRequest={addReturnRequest}
               updateReturnStatus={updateReturnStatus}
               deleteReturnRequest={deleteReturnRequest}
-              prefillOrderId={prefillOrderId}
             />
             {/* Addresses */}
             <Addresses

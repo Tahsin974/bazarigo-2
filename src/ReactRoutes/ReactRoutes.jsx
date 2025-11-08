@@ -21,6 +21,8 @@ import ContactUsPage from "../Pages/ContactUsPage/ContactUsPage";
 import AboutPage from "../Pages/AboutPage/AboutPage";
 import SellerRegistrationPage from "../Pages/SellerRegistration/SellerRegistration";
 import SellerTermsConditionsPage from "../Pages/SellerTermsConditionsPage/SellerTermsConditionsPage";
+import SellerShopPage from "../Pages/SellerShopPage/SellerShopPage";
+import InstructionPage from "../Pages/InstructionPage/InstructionPage";
 
 export const router = createBrowserRouter([
   {
@@ -89,6 +91,10 @@ export const router = createBrowserRouter([
         element: <SellerRegistrationPage />,
       },
       {
+        path: "/seller-page/:seller/store",
+        element: <SellerShopPage />,
+      },
+      {
         path: "/terms-conditions",
         element: <TermsConditionsPage />,
       },
@@ -100,9 +106,14 @@ export const router = createBrowserRouter([
         path: "/privacy-policy",
         element: <PrivacyPolicyPage />,
       },
+
       {
         path: "/return-refund",
         element: <ReturnRefundPolicyPage />,
+      },
+      {
+        path: "/instruction",
+        element: <InstructionPage />,
       },
     ],
   },

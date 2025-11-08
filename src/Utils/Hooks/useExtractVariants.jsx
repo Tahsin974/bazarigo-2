@@ -1,14 +1,16 @@
 export default function useExtractVariants(product) {
-  const extras = product?.extras || {};
+  const variants = product.extras?.variants || [];
+  if (variants.length === 0) return [];
 
-  const variantKeys = Object.keys(extras).filter((key) =>
-    Array.isArray(extras[key])
+  // Collect all unique keys except stock, sale price, regular price
+  const excludedKeys = ["stock", "sale price", "regular price"];
+  const variantKeys = Object.keys(variants[0]).filter(
+    (key) => !excludedKeys.includes(key)
   );
 
-  if (variantKeys.length === 0) return [];
-
+  // Map keys to their unique options
   return variantKeys.map((key) => ({
     name: key,
-    options: extras[key],
+    options: [...new Set(variants.map((v) => v[key]))],
   }));
 }

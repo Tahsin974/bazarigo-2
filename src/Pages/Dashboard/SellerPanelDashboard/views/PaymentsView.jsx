@@ -61,6 +61,7 @@ export default function PaymentsView({
                   <th>Date</th>
                   <th>Amount</th>
                   <th>Method</th>
+                  <th>Number</th>
                   <th>Status</th>
                 </tr>
               </thead>

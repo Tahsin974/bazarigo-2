@@ -41,9 +41,7 @@ export default function SellerPanelDashboard() {
   const [displayProducts, setDisplayProducts] = useState(products);
   const [orders, setOrders] = useState(sampleOrders());
   const [returns, setReturns] = useState(sampleReturns());
-  const [inventory, setInventory] = useState(
-    buildInventoryFromProducts(displayProducts)
-  );
+  const [inventory, setInventory] = useState(displayProducts);
   const [displayInventory, setDisplayInventory] = useState(inventory);
   const [payments] = useState(samplePayments());
   const fileRef = useRef(null);
@@ -526,7 +524,7 @@ export default function SellerPanelDashboard() {
   }
   const revenueBreakdown = (list) => {
     const map = {};
-    // console.log(list);
+
     list.forEach((o) => {
       (o.items || []).forEach((it) => {
         const prod = sampleProducts().find((p) => p.id === it.productId) || {};
@@ -545,7 +543,6 @@ export default function SellerPanelDashboard() {
       color: palette[i % palette.length],
     }));
   };
-  console.log(revenueBreakdown(filteredOrdersForReport));
 
   const calculateRevenue = (orders) => {
     return orders

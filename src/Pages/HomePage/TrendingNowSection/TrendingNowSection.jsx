@@ -2,11 +2,10 @@ import { motion } from "framer-motion";
 
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import ProductCard from "../../../components/ProductCard/ProductCard";
-import { sampleProducts } from "../../../Utils/Helpers/Helpers";
-
-const allProducts = sampleProducts();
+import useProducts from "../../../Utils/Hooks/useProducts";
 
 export default function TrendingNowSection() {
+  const { products: allProducts } = useProducts();
   const shuffledProducts = allProducts.sort(() => 0.5 - Math.random());
   const products = shuffledProducts.slice(0, 8);
 

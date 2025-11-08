@@ -1,13 +1,7 @@
 import { Truck } from "lucide-react";
 import FormattedDate from "../../../../../Utils/Hooks/FormattedDate";
 
-export default function Orders({
-  orders,
-  setOrders,
-  activeTab,
-  setActiveTab,
-  setPrefillOrderId,
-}) {
+export default function Orders({ orders, setOrders, activeTab }) {
   const steps = ["Processing", "Shipped", "Out for Delivery", "Delivered"];
   // Maps order status to a numeric step for progress calculation
   const filteredOrders = orders.filter(
@@ -36,14 +30,15 @@ export default function Orders({
     <div>
       {activeTab === "Orders" && (
         <div className="space-y-6">
-          {filteredOrders.map((order, idx) => (
+          {filteredOrders.map((order) => (
             <div
               key={order.orderId}
               className="bg-white sm:p-6 p-3 rounded-2xl shadow-md"
             >
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="font-semibold">Order #{idx + 1}</h3>
+                  <h3 className="font-semibold">Order ID:{order.orderId}</h3>
+
                   <p className="text-sm text-gray-500">
                     Date: {FormattedDate(order.date)}
                   </p>
@@ -84,15 +79,6 @@ export default function Orders({
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <button
-                        className="px-3 py-1 bg-[#FF0055] hover:bg-[#e6004e] text-white rounded-md text-xs"
-                        onClick={() => {
-                          setPrefillOrderId(order.orderId);
-                          setActiveTab("returns");
-                        }}
-                      >
-                        Return
-                      </button>
                       <div className="text-xs text-gray-500">Qty: 1</div>
                     </div>
                   </div>

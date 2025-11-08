@@ -8,7 +8,7 @@ export default function AddBtn({
     <div>
       <button
         onClick={btnHandler}
-        className={`px-3 py-2 inline-flex items-center gap-2 bg-[${bgColor}] hover:bg-[${bgColorHover}] text-white  border-none  rounded shadow sm:text-base text-[14px]`}
+        className={`px-3 py-2 inline-flex items-center gap-2 bg-[${bgColor}] hover:bg-[${bgColorHover}] text-white  border-none  rounded shadow sm:text-base text-[14px] cursor-pointer`}
       >
         {children}
       </button>

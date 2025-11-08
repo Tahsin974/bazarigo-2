@@ -1,5 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { MoreHorizontal, PlusCircle, UploadCloud } from "lucide-react";
+import {
+  Eye,
+  MoreHorizontal,
+  PlusCircle,
+  SquarePen,
+  Trash2,
+  UploadCloud,
+} from "lucide-react";
 
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import Pagination from "../../../../components/ui/Pagination";
@@ -56,6 +63,11 @@ export default function ProductsView({
                 <AddBtn btnHandler={openNewProductModal}>
                   <PlusCircle /> Add Product
                 </AddBtn>
+
+                <DeleteAllBtn
+                  selected={selectedProductIds}
+                  bulkDelete={bulkDeleteProducts}
+                />
               </div>
             </div>
 
@@ -129,10 +141,16 @@ export default function ProductsView({
                     <td>
                       <div className="flex items-center gap-2 justify-center">
                         <button
-                          onClick={() => openEditProductModal(p)}
-                          className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                          // onClick={() => openPreviewModal(p)}
+                          className=" px-3 py-2 rounded cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-900 "
                         >
-                          Edit
+                          <Eye size={20} />
+                        </button>
+                        <button
+                          onClick={() => openEditProductModal(p)}
+                          className="px-3 py-2 bg-orange-100 text-[#E6612A] hover:bg-orange-400 hover:text-white rounded"
+                        >
+                          <SquarePen size={20} />
                         </button>
                         <button
                           onClick={() => {
@@ -144,9 +162,9 @@ export default function ProductsView({
                               prev.filter((x) => x.id !== p.id)
                             );
                           }}
-                          className="px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded"
+                          className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
                         >
-                          Delete
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </td>
@@ -156,14 +174,6 @@ export default function ProductsView({
             </table>
           </div>
 
-          <div className="mt-4 flex flex-col md:flex-row items-center justify-between">
-            <div>
-              <DeleteAllBtn
-                selected={selectedProductIds}
-                bulkDelete={bulkDeleteProducts}
-              />
-            </div>
-          </div>
           <div className="flex items-center justify-center gap-2">
             <Pagination
               currentPage={productPage}

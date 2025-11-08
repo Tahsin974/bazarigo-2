@@ -3,7 +3,7 @@ import ReturnForm from "./ReturnForm";
 export default function Returns({
   returnRequests,
   activeTab,
-  prefillOrderId,
+
   addReturnRequest,
   deleteReturnRequest,
   updateReturnStatus,
@@ -14,7 +14,6 @@ export default function Returns({
         <div className="bg-white p-6 rounded-2xl shadow-md space-y-4">
           <h3 className="text-lg font-semibold">Return Requests</h3>
           <ReturnForm
-            prefillOrderId={prefillOrderId}
             onSubmit={(orderId, reason, images) =>
               addReturnRequest(orderId, reason, images)
             }

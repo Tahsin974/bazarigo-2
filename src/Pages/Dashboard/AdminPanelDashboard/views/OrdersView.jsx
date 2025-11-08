@@ -2,7 +2,7 @@ import React from "react";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import Pagination from "../../../../components/ui/Pagination";
-import { MoreHorizontal } from "lucide-react";
+import { Eye, MoreHorizontal } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import { motion } from "framer-motion";
@@ -31,6 +31,7 @@ function OrdersView({
   returnOrderPageSize = 10,
   returnOrderSearch,
   setReturnOrderSearch,
+  openOrderModal,
 }) {
   const markAsReturned = (id) =>
     setOrders((os) =>
@@ -57,7 +58,7 @@ function OrdersView({
   // Function to calculate estimated delivery date
   function getEstimatedDelivery(orderDateStr) {
     const orderDate = new Date(orderDateStr);
-    const minDays = 5; // minimum delivery days
+    const minDays = 1; // minimum delivery days
     const maxDays = 7; // maximum delivery days
 
     const minDate = new Date(orderDate);
@@ -193,16 +194,17 @@ function OrdersView({
                         <td>
                           <div className="flex justify-center items-center gap-2">
                             <button
-                              onClick={() => alert(JSON.stringify(o, null, 2))}
-                              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                              onClick={() => openOrderModal(o)}
+                              className="px-3 py-2 rounded cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-900"
                             >
-                              View
+                              <Eye size={20} />
                             </button>
+
                             <div className=" flex gap-2 justify-end">
                               {o.status !== "returned" ? (
                                 <button
                                   onClick={() => markAsReturned(o.orderId)}
-                                  className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                                  className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 cursor-pointer"
                                 >
                                   Mark Returned
                                 </button>
@@ -231,7 +233,7 @@ function OrdersView({
       <div>
         <div className="flex flex-wrap gap-3 items-center justify-between">
           <h3 className="font-semibold sm:text-base text-sm">
-            Return Orders ({returns.length})
+            Return Orders {!returns?.length ? "" : <>({returns?.length})</>}
           </h3>
           <div>
             <SearchField

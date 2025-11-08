@@ -93,9 +93,7 @@ export default function ReportsView({
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="month" />
                     <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
-                    <Tooltip
-                      formatter={(value) => [`$${value.toFixed(2)}`, "Revenue"]}
-                    />
+                    <Tooltip formatter={(value) => [`$${value}`, "Revenue"]} />
                     <Bar
                       dataKey="revenue"
                       fill="#FF0055"
@@ -126,9 +124,7 @@ export default function ReportsView({
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip
-                      formatter={(value) => [`$${value.toFixed(2)}`, "Sales"]}
-                    />
+                    <Tooltip formatter={(value) => [`$${value}`, "Sales"]} />
                     <Legend
                       layout="horizontal"
                       align="center"
@@ -174,7 +170,7 @@ export default function ReportsView({
                           {p.category}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ৳{p.price.toFixed(2)}
+                          ৳{p.price}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                           {p.stock}

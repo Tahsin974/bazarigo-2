@@ -3,7 +3,15 @@ import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import AddBtn from "../../../../components/ui/AddBtn";
 import Pagination from "../../../../components/ui/Pagination";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import {
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  PlusCircle,
+  SquarePen,
+  Star,
+  Trash2,
+} from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import { motion } from "framer-motion";
@@ -24,7 +32,7 @@ function ProductsView({
   setProductPage,
   productPageSize = 10,
   filteredProducts,
-
+  openPreviewModal,
   paginatedProducts,
   productSearch,
   setProductSearch,
@@ -48,7 +56,7 @@ function ProductsView({
         <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1  gap-4">
           <div className="flex items-center gap-4">
             <div className="font-medium sm:text-md text-[15px]">
-              Products ({products.length})
+              Products {!products?.length ? "" : <>({products.length})</>}
             </div>
           </div>
           {/* Small screen buttons */}
@@ -81,6 +89,8 @@ function ProductsView({
               <option value="name">Sort by Name</option>
               <option value="price">Sort by Price</option>
               <option value="stock">Sort by Stock</option>
+
+              <option value="rating">Sort by Rating</option>
             </SelectField>
           </div>
         </div>
@@ -120,17 +130,19 @@ function ProductsView({
                       isShowCounter={false}
                     />
                   </th>
-                  <th>Name</th>
-                  <th>Category</th>
+                  <th>Product Name</th>
+                  <th>Store Name</th>
                   <th>Price</th>
                   <th>Stock</th>
+                  <th>Category</th>
+                  <th>Rating</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody className="">
                 {paginatedProducts.map((p) => (
                   <tr key={p.id} className="border-t">
-                    <td className="px-4 py-3">
+                    <td>
                       <input
                         type="checkbox"
                         className="checkbox checkbox-secondary checkbox-xs rounded-sm"
@@ -138,28 +150,62 @@ function ProductsView({
                         onChange={() => toggleSelect(p.id)}
                       />
                     </td>
+
                     <td>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4 text-start">
                         <div className="avatar">
                           <div className="mask mask-squircle h-12 w-12">
-                            <img src={p.images[0]} alt={p.name} />
+                            <img
+                              src={`http://localhost:3000${p.images[0]}`}
+                              alt={p.name}
+                            />
                           </div>
                         </div>
                         <div>
-                          <p className="font-bold">{p.name}</p>
+                          <span className="font-semibold">
+                            {p.product_name}
+                          </span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">{p.category}</td>
-                    <td className="px-4 py-3">৳{p.price}</td>
-                    <td>{p.stock}</td>
+                    <td>
+                      {" "}
+                      <span className="font-semibold">Rahim Ghosh</span>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <span className="font-semibold">
+                        ৳{p.sale_price.toLocaleString("en-IN")}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="font-semibold">{p.stock}</span>
+                    </td>
+                    <td className="px-4 py-3 ">
+                      <span className="font-semibold">{p.category}</span>
+                    </td>
+                    <td className="px-4 py-3 ">
+                      <div className="flex items-center gap-1 bg-gray-100 px-1.5 py-1">
+                        <Star
+                          size={15}
+                          className="fill-amber-400 text-amber-400"
+                        />
+                        <span className="font-semibold">{p.rating}</span>
+                      </div>
+                    </td>
                     <td>
                       <div className="flex items-center gap-2 justify-center">
                         <button
-                          onClick={() => openEditProductModal(p)}
-                          className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+                          onClick={() => openPreviewModal(p)}
+                          className=" px-3 py-2 rounded cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-900 "
                         >
-                          Edit
+                          <Eye size={20} />
+                        </button>
+                        <button
+                          onClick={() => openEditProductModal(p)}
+                          className="px-3 py-2 bg-orange-100 text-[#E6612A] hover:bg-orange-400 hover:text-white rounded cursor-pointer"
+                        >
+                          <SquarePen size={20} />
                         </button>
                         <button
                           onClick={() => {
@@ -171,9 +217,10 @@ function ProductsView({
                               prev.filter((x) => x.id !== p.id)
                             );
                           }}
-                          className="px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded"
+                          className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
+                          cursor-pointer"
                         >
-                          Delete
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </td>
@@ -192,59 +239,6 @@ function ProductsView({
           </div>
         </>
       )}
-
-      {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
-        {paginatedProducts.map((p) => (
-          <div key={p.id} className="bg-white rounded shadow-sm p-3">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-3">
-                <div className="w-20 h-20 bg-gray-100 rounded-md overflow-hidden">
-                  {p.images && p.images[0] ? (
-                    <img
-                      src={p.images[0]}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <div className="font-semibold">{p.name}</div>
-                  <div className="text-sm text-gray-500">{p.category}</div>
-                  <div className="font-bold text-[#FF0055]">${p.price}</div>
-                  <div className="text-xs text-gray-500">Stock: {p.stock}</div>
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                checked={selected.includes(p.id)}
-                onChange={() => toggleSelect(p.id)}
-              />
-            </div>
-
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => openEditProductModal(p)}
-                className="flex-1 px-3 py-2 rounded border bg-[#4F46E5] hover:bg-[#4338CA]  text-white"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() =>
-                  setProducts((s) => s.filter((x) => x.id !== p.id))
-                }
-                className="px-3 py-2 rounded bg-[#DC2626] hover:bg-[#B91C1C]  text-white"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div> */}
     </div>
   );
 }

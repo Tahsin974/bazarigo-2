@@ -6,8 +6,9 @@ import { ChevronDown, MoreHorizontal } from "lucide-react";
 import InfiniteControls from "./components/Controls/InfiniteControls";
 import Pagination from "../../components/ui/Pagination";
 import { useParams } from "react-router";
-import { sampleProducts } from "../../Utils/Helpers/Helpers";
+
 import { useRenderPageNumbers } from "../../Utils/Hooks/useRenderPageNumbers";
+import useProducts from "../../Utils/Hooks/useProducts";
 
 // Final compiled, responsive Categories page
 // Features:
@@ -120,7 +121,7 @@ export default function CategoriesPage() {
     },
   ];
 
-  const products = sampleProducts();
+  const { products } = useProducts();
   const filteredProducts =
     activeCategory === "All Products"
       ? products

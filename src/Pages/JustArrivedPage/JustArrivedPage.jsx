@@ -1,13 +1,11 @@
 import SortDropdown from "./components/SortDropdown";
 import NewArrivalsGrid from "./components/NewArrivalsGrid";
 import { motion } from "framer-motion";
-import { sampleProducts } from "../../Utils/Helpers/Helpers";
 import { useState } from "react";
-import { MoreHorizontal } from "lucide-react";
-
-const allProducts = sampleProducts();
+import useProducts from "../../Utils/Hooks/useProducts";
 
 export default function JustArrivedPage() {
+  const { products: allProducts } = useProducts();
   const [sortOption, setSortOption] = useState("Newest");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;

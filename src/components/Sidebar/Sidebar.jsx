@@ -45,7 +45,7 @@ export default function Sidebar({
 
   return (
     <div>
-      <aside className="w-80 md:w-64 bg-white border-r shadow-sm min-h-full">
+      <aside className="w-80 md:w-64 bg-white border-r shadow-sm min-h-screen">
         <div className="p-6 border-b flex justify-between items-center">
           <div>
             <a href="/#" aria-label="E-commerce Home">

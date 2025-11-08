@@ -1,11 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  // exportAsCSV,
-  // parseCSV,
-  sampleCustomers,
-  samplePayments,
-  samplePromos,
-} from "./helpers/helpers";
+import { samplePromos } from "./helpers/helpers";
 import * as XLSX from "xlsx";
 import DashboardView from "./views/DashboardView";
 import ProductsView from "./views/ProductsView";
@@ -16,7 +10,6 @@ import PromotionsView from "./views/PromotionsView";
 import PaymentsView from "./views/PaymentsView";
 import ReportsView from "./views/ReportsView";
 import SettingsView from "./views/SettingsView";
-import AddModal from "./components/AddModal/AddModal";
 
 import ExportBtn from "../../../components/ui/ExportBtn";
 import Sidebar from "../../../components/Sidebar/Sidebar";
@@ -26,13 +19,24 @@ import Drawer from "../../../components/Drawer/Drawer";
 import ProductModal from "../../../components/ProductModal/ProductModal";
 import {
   sampleOrders,
-  sampleProducts,
   sampleReturns,
-  sampleSellers,
+  sampleUsers,
 } from "../../../Utils/Helpers/Helpers";
-import AddSellerModal from "./components/AddSellerModal/AddSellerModal";
+import AddSellerModal from "../../../components/AddSellerModal/AddSellerModal";
 import FlashSaleView from "./views/FlashSaleView";
 import DiscountModal from "../../../components/DiscountModal/DiscountModal";
+import axios from "axios";
+import ZoneView from "./views/ZoneView";
+import { useQuery } from "@tanstack/react-query";
+import PreviewModal from "../../../components/PreviewModal/PreviewModal";
+import EditProductModal from "../../../components/EditProductModal/EditProductModal";
+import OrderModal from "../../../components/OrderModal/OrderModal";
+import SellerModal from "../../../components/SellerModal/SellerModal";
+import CustomerModal from "../../../components/CustomerModal/CustomerModal";
+import AddCustomerModal from "../../../components/AddCustomerModal/AddCustomerModal";
+
+import Swal from "sweetalert2";
+import AddPromotionModal from "../../../components/AddPromotionModal/AddPromotionModal";
 
 export default function AdminPanelDashboard() {
   const [user, setUser] = useState({
@@ -44,19 +48,43 @@ export default function AdminPanelDashboard() {
   const [active, setActive] = useState("Dashboard");
   const [showEditProfile, setShowEditProfile] = useState(false);
 
-  const [products, setProducts] = useState(sampleProducts());
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const res = await axios.get("http://localhost:3000/products");
+      return res.data.products;
+    },
+  });
   const [displayProducts, setDisplayProducts] = useState(products);
+
   const [orders, setOrders] = useState(sampleOrders());
   const [returns, setReturns] = useState(sampleReturns());
-  const [customers, setCustomers] = useState(sampleCustomers());
-  const [sellers, setSellers] = useState(sampleSellers());
-  const [payments, setPayments] = useState(samplePayments());
+  const [customers, setCustomers] = useState(sampleUsers());
+
+  const [sellers, setSellers] = useState([]);
+
+  useEffect(() => {
+    const newSampleSellers = async () => {
+      const res = await axios.get("http://localhost:3000/sellers");
+
+      setSellers(res.data.sellers);
+    };
+    newSampleSellers();
+  }, []);
+  const { data: payments = [], refetch } = useQuery({
+    queryKey: ["payments"],
+    queryFn: async () => {
+      const res = await axios.get("http://localhost:3000/payments");
+      return res.data.payments;
+    },
+  });
   const [promotions, setPromotions] = useState(samplePromos());
 
   const [selected, setSelected] = useState([]);
 
   // Shared states for search/sort
   const [productSearch, setProductSearch] = useState("");
+  const [postalZoneSearch, setPostalZoneSearch] = useState("");
   const [productSort, setProductSort] = useState("name");
   const [orderSearch, setOrderSearch] = useState("");
   const [returnOrderSearch, setReturnOrderSearch] = useState("");
@@ -73,6 +101,8 @@ export default function AdminPanelDashboard() {
   const [paymentPage, setPaymentPage] = useState(1);
   const [promoPage, setPromoPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
+  const [postalZonePage, setPostalZonePage] = useState(1);
+
   const productPageSize = 6;
   const orderPageSize = 6;
   const returnOrderPageSize = 6;
@@ -80,12 +110,23 @@ export default function AdminPanelDashboard() {
   const sellerPageSize = 6;
   const paymentPageSize = 6;
   const promoPageSize = 6;
+  const postalZonePageSize = 6;
 
   // Modal controls
   const [productModalOpen, setProductModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [editProductModalOpen, setEditProductModalOpen] = useState(false);
 
-  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState(null);
+
+  const [sellerModalOpen, setSellerModalOpen] = useState(false);
+  const [activeSeller, setActiveSeller] = useState(null);
+  const [customerModalOpen, setCustomerModalOpen] = useState(false);
+  const [activeCustomer, setActiveCustomer] = useState(null);
+
+  const [orderModalOpen, setOrderModalOpen] = useState(null);
+  const [activeOrder, setActiveOrder] = useState(null);
+  const [showAddCustomerModal, setAddShowCustomerModal] = useState(false);
   const [showSellerModal, setShowSellerModal] = useState(false);
   const [showPromoModal, setShowPromoModal] = useState(false);
 
@@ -113,8 +154,8 @@ export default function AdminPanelDashboard() {
     if (!selected.length) return alert("No items selected");
     if (!confirm(`Delete ${selected.length} selected items?`)) return;
     if (active === "Products")
-      setProducts((p) => p.filter((x) => !selected.includes(x.id)));
-    setDisplayProducts((p) => p.filter((x) => !selected.includes(x.id)));
+      // setProducts((p) => p.filter((x) => !selected.includes(x.id)));
+      setDisplayProducts((p) => p.filter((x) => !selected.includes(x.id)));
     if (active === "Orders")
       setOrders((o) => o.filter((x) => !selected.includes(x.id)));
     if (active === "Customers")
@@ -130,25 +171,35 @@ export default function AdminPanelDashboard() {
     if (active === "Products") {
       rows = products.map((product) => ({
         id: product.id,
-        name: product.name,
-        oldPrice: product.oldPrice ?? "",
-        price: product.price ?? "",
-        discount: product.discount ?? "",
-        rating: product.rating ?? "",
-        isBestSeller: product.isBestSeller ? "true" : "false",
-        isHot: product.isHot ? "true" : "false",
-        isNew: product.isNew ? "true" : "false",
-        isTrending: product.isTrending ? "true" : "false",
-        isLimitedStock: product.isLimitedStock ? "true" : "false",
-        isExclusive: product.isExclusive ? "true" : "false",
-        isFlashSale: product.isFlashSale ? "true" : "false",
-        category: product.category,
-        subcategory: product.subcategory,
-        description: product.description,
-        stock: product.stock,
-        images: product.images?.join(", "), // convert array to comma-separated string
-        extras: JSON.stringify(product.extras, null, 2), // prettify nested object
-        createdAt: new Date(product.createdAt).toLocaleString(),
+        productName: product.product_name,
+        "regular price": product.regular_price ?? 0,
+        "sale price": product.sale_price ?? 0,
+        discount: product.discount ?? 0,
+        rating: Number(product.rating),
+        isBestSeller: product.isbestseller ? "true" : "false",
+        isHot: product.ishot ? "true" : "false",
+        isNew: product.isnew ? "true" : "false",
+        isTrending: product.istrending ? "true" : "false",
+        isLimitedStock: product.islimitedstock ? "true" : "false",
+        isExclusive: product.isexclusive ? "true" : "false",
+        isFlashSale: product.isflashsale ? "true" : "false",
+        category: product.category ?? "",
+        subcategory: product.subcategory ?? "",
+        description: product.description ?? "",
+        stock: product.stock ?? 0,
+        brand: product.brand ?? "",
+        weight: product.weight ?? 1,
+        images: (product.images || []).join(";"), // multiple images separated by ;
+        extras: JSON.stringify(product.extras || {}, null, 2),
+        createdAt: product.createdat
+          ? new Date(product.createdat).toISOString()
+          : new Date().toISOString(),
+        updatedAt: product.updatedat
+          ? new Date(product.updatedat).toISOString()
+          : "",
+        sellerId: product.sellerid ?? "",
+        sellerName: product.sellername ?? "",
+        sellerStoreName: product.sellerstorename ?? "",
       }));
     }
 
@@ -203,102 +254,98 @@ export default function AdminPanelDashboard() {
     }
   };
 
-  const handleBulkUpload = (event) => {
-    const file = event.target.files[0];
-
-    if (!file) return alert("Please select an Excel file first.");
+  const handleBulkUpload = async () => {
+    const file = fileRef.current.files[0]; // get file from ref
 
     try {
-      const reader = new FileReader();
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-      reader.onload = (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: "array" });
+      // Convert boolean/number fields
+      const products = jsonData.map((item) => ({
+        ...item,
+        isBestSeller:
+          item.isBestSeller === true || item.isBestSeller === "true",
+        isHot: item.isHot === true || item.isHot === "true",
+        isNew: item.isNew === true || item.isNew === "true",
+        isTrending: item.isTrending === true || item.isTrending === "true",
+        isLimitedStock:
+          item.isLimitedStock === true || item.isLimitedStock === "true",
+        isExclusive: item.isExclusive === true || item.isExclusive === "true",
+        isFlashSale: item.isFlashSale === true || item.isFlashSale === "true",
+        "regular price": Number(item["regular price"] || 0),
+        "sale price": Number(item["sale price"] || 0),
+        discount: Number(item.discount || 0),
+        rating: Number(item.rating || 0),
+        stock: Number(item.stock || 0),
+        weight: Number(item.weight || 1),
+        productName: item.productName,
+        images: item.images ? item.images.split(";") : [],
+        extras: item.extras ? JSON.parse(item.extras) : {},
+        createdAt: item.createdAt || new Date().toISOString(),
+        updatedAt: item.updatedAt || null,
+      }));
 
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-
-          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-          const processedData = jsonData.map((item) => ({
-            ...item,
-            price: Number(item.price) || 0,
-            oldPrice: Number(item.oldPrice) || 0,
-            discount: Number(item.discount) || 0,
-            rating: Number(item.rating) || 0,
-            stock: Number(item.stock) || 0,
-            isBestSeller:
-              item.isBestSeller === "true" || item.isBestSeller === true,
-            isHot: item.isHot === "true" || item.isHot === true,
-            isNew: item.isNew === "true" || item.isNew === true,
-            isTrending: item.isTrending === "true" || item.isTrending === true,
-            isLimitedStock:
-              item.isLimitedStock === "true" || item.isLimitedStock === true,
-            isExclusive:
-              item.isExclusive === "true" || item.isExclusive === true,
-            isFlashSale:
-              item.isFlashSale === "true" || item.isFlashSale === true,
-            images: item.images
-              ? item.images.split(",").map((i) => i.trim())
-              : [],
-            extras: item.extras ? JSON.parse(item.extras) : {},
-          }));
-
-          // Update state
-          setProducts((prev) => [...processedData, ...prev]);
-          setDisplayProducts((prev) => [...processedData, ...prev]);
-
-          alert(`${processedData.length} products uploaded successfully!`);
-        } catch (err) {
-          console.error("Error processing Excel data:", err);
-          alert("Failed to process Excel file. Check the format.");
-        }
-      };
-
-      reader.readAsArrayBuffer(file); // ✅ Call this AFTER setting onload
-    } catch (e) {
-      console.error("Error reading file:", e);
-      alert("Failed to read file.");
-    }
-  };
-
-  const openNewProductModal = () => {
-    setEditingProduct({
-      id: null,
-      name: "",
-      price: "",
-      category: "Fashion",
-      description: "",
-      stock: 0,
-      images: [],
-      extras: {},
-    });
-    setProductModalOpen(true);
-  };
-
-  const openEditProductModal = (p) => {
-    setEditingProduct({ ...p });
-    setProductModalOpen(true);
-  };
-
-  const saveProduct = (product) => {
-    if (!product.name) return alert("Product name required");
-    if (product.id) {
-      setProducts((ps) => ps.map((x) => (x.id === product.id ? product : x)));
-      setDisplayProducts((ps) =>
-        ps.map((x) => (x.id === product.id ? product : x))
+      const res = await axios.post(
+        "http://localhost:3000/products/bulk",
+        products
       );
-    } else {
-      product.id = `p_${Date.now()}`;
-      setProducts((ps) => [product, ...ps]);
-      setDisplayProducts((ps) => [product, ...ps]);
+
+      if (res.data.insertedCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: "Customer Create Successfully",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return (fileRef.current.value = null);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Opps! Try Again",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+
+      // Reset file input
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: `${err.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
-    setProductModalOpen(false);
+  };
+  const openNewProductModal = () => {
+    setProductModalOpen(true);
   };
 
-  const addCustomer = (data) =>
-    setCustomers((c) => [{ id: `c_${Date.now()}`, ...data }, ...c]);
+  const openEditProductModal = (product) => {
+    setActiveProduct(product);
+    setEditProductModalOpen(true);
+  };
+  const openOrderModal = (order) => {
+    setOrderModalOpen(true);
+    setActiveOrder(order);
+  };
+  const openPreviewModal = (product) => {
+    setPreviewModalOpen(true);
+    setActiveProduct(product);
+  };
+  const openSellerModal = (seller) => {
+    setSellerModalOpen(true);
+    setActiveSeller(seller);
+  };
+  const openCustomerModal = (customer) => {
+    setCustomerModalOpen(true);
+    setActiveCustomer(customer);
+  };
+
   const addSeller = (data) =>
     setSellers((s) => [{ id: `s_${Date.now()}`, ...data }, ...s]);
   const addPromo = (data) =>
@@ -308,22 +355,27 @@ export default function AdminPanelDashboard() {
     ]);
 
   const filteredProducts = useMemo(() => {
-    let data = [...displayProducts];
+    let data = [...products];
     if (productSearch) {
       const q = productSearch.toLowerCase();
       data = data.filter(
         (p) =>
-          (p.name || "").toLowerCase().includes(q) ||
+          (p.product_name || "").toLowerCase().includes(q) ||
           (p.category || "").toLowerCase().includes(q)
       );
     }
     if (productSort === "price")
-      data.sort((a, b) => (a.price || 0) - (b.price || 0));
+      data.sort((a, b) => (a.regular_price || 0) - (b.regular_price || 0));
     else if (productSort === "stock")
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
-    else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    else if (productSort === "rating")
+      data.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+    else
+      data.sort((a, b) =>
+        (a.product_name || "").localeCompare(b.product_name || "")
+      );
     return data;
-  }, [displayProducts, productSearch, productSort]);
+  }, [products, productSearch, productSort]);
 
   // 📦 Orders Filtering & Sorting
   const filteredOrders = useMemo(() => {
@@ -496,6 +548,7 @@ export default function AdminPanelDashboard() {
                 "Payments",
                 "Promotions",
                 "Reports",
+                "Coverage Areas",
                 "My Account",
                 "Settings",
               ]}
@@ -520,6 +573,7 @@ export default function AdminPanelDashboard() {
                 "Payments",
                 "Promotions",
                 "Reports",
+                "Coverage Areas",
                 "My Account",
                 "Settings",
               ]}
@@ -580,7 +634,8 @@ export default function AdminPanelDashboard() {
                       toggleSelect={toggleSelect}
                       openNewProductModal={openNewProductModal}
                       openEditProductModal={openEditProductModal}
-                      setProducts={setProducts}
+                      openPreviewModal={openPreviewModal}
+                      // setProducts={setProducts}
                       setDisplayProducts={setDisplayProducts}
                       allSelected={
                         selected.length === products.length &&
@@ -644,6 +699,7 @@ export default function AdminPanelDashboard() {
                       orders={orders}
                       returns={returns}
                       setReturns={setReturns}
+                      openOrderModal={openOrderModal}
                       selected={selected}
                       toggleSelect={toggleSelect}
                       setOrders={setOrders}
@@ -674,11 +730,12 @@ export default function AdminPanelDashboard() {
                       customers={customers}
                       selected={selected}
                       toggleSelect={toggleSelect}
-                      onAdd={() => setShowCustomerModal(true)}
+                      onAdd={() => setAddShowCustomerModal(true)}
                       allSelected={
                         selected.length === customers.length &&
                         customers.length > 0
                       }
+                      openCustomerModal={openCustomerModal}
                       toggleSelectAll={selectAll}
                       bulkDelete={bulkDelete}
                       customerPage={customerPage}
@@ -700,6 +757,7 @@ export default function AdminPanelDashboard() {
                       allSelected={
                         selected.length === sellers.length && sellers.length > 0
                       }
+                      openSellerModal={openSellerModal}
                       toggleSelectAll={selectAll}
                       bulkDelete={bulkDelete}
                       sellerPage={sellerPage}
@@ -715,7 +773,7 @@ export default function AdminPanelDashboard() {
                   {active === "Payments" && (
                     <PaymentsView
                       payments={payments}
-                      setPayments={setPayments}
+                      refetch={refetch}
                       paymentPage={paymentPage}
                       setPaymentPage={setPaymentPage}
                       paymentSearch={paymentSearch}
@@ -750,6 +808,15 @@ export default function AdminPanelDashboard() {
                       payments={payments}
                     />
                   )}
+                  {active === "Coverage Areas" && (
+                    <ZoneView
+                      setPostalZoneSearch={setPostalZoneSearch}
+                      postalZoneSearch={postalZoneSearch}
+                      postalZonePage={postalZonePage}
+                      setPostalZonePage={setPostalZonePage}
+                      postalZonePageSize={postalZonePageSize}
+                    />
+                  )}
 
                   {active === "My Account" && (
                     <MyProfileView
@@ -773,25 +840,46 @@ export default function AdminPanelDashboard() {
           handleProfileSave={handleProfileSave}
           handleAvatarChange={handleAvatarChange}
         />
-
-        {productModalOpen && (
-          <ProductModal
-            product={editingProduct}
-            onClose={() => setProductModalOpen(false)}
-            onSave={saveProduct}
+        {orderModalOpen && (
+          <OrderModal
+            order={activeOrder}
+            onClose={() => setOrderModalOpen(false)}
           />
         )}
 
-        {showCustomerModal && (
-          <AddModal
-            title="Add Customer"
-            fields={[
-              { key: "name", label: "Name", required: true },
-              { key: "email", label: "Email", required: true },
-            ]}
-            onClose={() => setShowCustomerModal(false)}
-            onSave={(d) => addCustomer(d)}
+        {previewModalOpen && (
+          <PreviewModal
+            product={activeProduct}
+            onClose={() => setPreviewModalOpen(false)}
           />
+        )}
+
+        {sellerModalOpen && (
+          <SellerModal
+            seller={activeSeller}
+            onClose={() => setSellerModalOpen(false)}
+          />
+        )}
+        {customerModalOpen && (
+          <CustomerModal
+            customer={activeCustomer}
+            onClose={() => setCustomerModalOpen(false)}
+          />
+        )}
+
+        {editProductModalOpen && (
+          <EditProductModal
+            product={activeProduct}
+            onClose={() => setEditProductModalOpen(false)}
+          />
+        )}
+
+        {productModalOpen && (
+          <ProductModal onClose={() => setProductModalOpen(false)} />
+        )}
+
+        {showAddCustomerModal && (
+          <AddCustomerModal onClose={() => setAddShowCustomerModal(false)} />
         )}
         {discountModal && (
           <DiscountModal
@@ -803,17 +891,6 @@ export default function AdminPanelDashboard() {
           />
         )}
 
-        {/* {showSellerModal && (
-            <AddModal
-              title="Add Seller"
-              fields={[
-                { key: "name", label: "Name", required: true },
-                { key: "email", label: "Email", required: true },
-              ]}
-              onClose={() => setShowSellerModal(false)}
-              onSave={(d) => addSeller(d)}
-            />
-          )} */}
         {showSellerModal && (
           <AddSellerModal
             onClose={() => setShowSellerModal(false)}
@@ -822,28 +899,7 @@ export default function AdminPanelDashboard() {
         )}
 
         {showPromoModal && (
-          <AddModal
-            title="New Promotion"
-            fields={[
-              { key: "code", label: "Code", required: true },
-              {
-                key: "discount",
-                label: "Discount (e.g. 10%)",
-                required: true,
-              },
-              {
-                key: "start",
-                label: "Start Date",
-                required: false,
-                placeholder: "YYYY-MM-DD",
-              },
-              {
-                key: "end",
-                label: "End Date",
-                required: false,
-                placeholder: "YYYY-MM-DD",
-              },
-            ]}
+          <AddPromotionModal
             onClose={() => setShowPromoModal(false)}
             onSave={(d) => addPromo(d)}
           />

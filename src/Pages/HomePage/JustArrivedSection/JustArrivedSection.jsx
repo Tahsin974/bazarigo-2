@@ -1,14 +1,13 @@
 import { motion } from "framer-motion";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import ProductCard from "../../../components/ProductCard/ProductCard";
-import { sampleProducts } from "../../../Utils/Helpers/Helpers";
-import { HashLink } from "react-router-hash-link";
 
-const allProducts = sampleProducts();
+import { HashLink } from "react-router-hash-link";
+import useProducts from "../../../Utils/Hooks/useProducts";
 
 export default function JustArrivedSection() {
   // Filter logic
-
+  const { products: allProducts } = useProducts();
   const filteredProducts = allProducts.filter(
     (prod) => prod.isNew && prod.isBestSeller
   );

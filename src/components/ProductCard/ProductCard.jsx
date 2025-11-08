@@ -2,17 +2,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import Rating from "react-rating";
 import { motion } from "framer-motion";
-import { Link } from "react-router";
+import { HashLink } from "react-router-hash-link";
 
 export default function ProductCard({ item }) {
   return (
     <>
-      <Link to={`/product/${item.id}`}>
+      <HashLink to={`/product/${item.id}#`}>
         <Card className="rounded-2xl shadow-lg bg-white overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full ">
           <div className="relative">
             {item.images && item.images[0] ? (
               <img
-                src={item.images[0]}
+                src={`http://localhost:3000${item.images[0]}`}
                 alt=""
                 className="w-full h-48 sm:h-56 object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
               />
@@ -54,20 +54,22 @@ export default function ProductCard({ item }) {
               </span>
             )}
           </div>
-          <CardContent className="px-5 py-3 flex flex-col gap-3 flex-1 justify-between">
-            <h2 className="mt-4 font-bold text-gray-800">{item.name}</h2>
-            <div className="flex items-center justify-between gap-2 mt-2">
+          <CardContent className="px-5 py-3 flex flex-col gap-2 flex-1 justify-between">
+            <h2 className="mt-4 font-bold text-gray-800">
+              {item.product_name}
+            </h2>
+            <div className="flex items-center justify-between gap-2 ">
               <div className="flex items-center gap-2">
-                <p className="text-[#FF0055] font-bold">
-                  ৳{item.price.toFixed(2)}
-                </p>
-                {item.oldPrice > 1 && (
-                  <p className="text-gray-400 line-through text-sm">
-                    ৳{item.oldPrice.toFixed(2)}
-                  </p>
+                <span className="text-[#FF0055] font-bold">
+                  ৳{item.sale_price.toLocaleString("en-IN")}
+                </span>
+                {item.regular_price > 1 && (
+                  <span className="text-gray-400 line-through ">
+                    ৳{item.regular_price.toLocaleString("en-IN")}
+                  </span>
                 )}
               </div>
-              {item.discount && (
+              {item.discount > 0 && (
                 <motion.span
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
@@ -77,7 +79,7 @@ export default function ProductCard({ item }) {
                 </motion.span>
               )}
             </div>
-            <div className="flex items-center gap-1 mb-2">
+            <div className="flex items-center gap-1 mb-1">
               <Rating
                 emptySymbol={<Star size={20} className=" text-gray-300" />}
                 fullSymbol={
@@ -89,7 +91,7 @@ export default function ProductCard({ item }) {
             </div>
           </CardContent>
         </Card>
-      </Link>
+      </HashLink>
     </>
   );
 }

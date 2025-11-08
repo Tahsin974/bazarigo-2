@@ -6,6 +6,7 @@ export default function ProductDetails({
   product = {},
   category,
   subcategory = "",
+  isPending,
 }) {
   const extrasConfig = getExtrasByCategory(category, subcategory);
   const extras = product.extras || {};
@@ -21,5 +22,11 @@ export default function ProductDetails({
       </p>
     ));
 
-  return <BaseProductDetails product={product} extraDetails={extraDetails} />;
+  return (
+    <BaseProductDetails
+      product={product}
+      extraDetails={extraDetails}
+      isPending={isPending}
+    />
+  );
 }

@@ -34,6 +34,41 @@ export default function Addresses({
               placeholder="Address details"
               className="md:w-96 w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white "
             />
+
+            {/* Post Code */}
+            <input
+              value={newAddress.postcode || ""}
+              onChange={(e) => {
+                const code = e.target.value;
+                const zoneMap = {
+                  1200: "Dhaka Metro",
+                  1216: "Dhaka Metro",
+                  3100: "Outside Dhaka",
+                };
+                // Postcode দিলে zone auto-detect
+                const autoZone = zoneMap[code] || newAddress.zone || "";
+                setNewAddress((prev) => ({
+                  ...prev,
+                  postcode: code,
+                  zone: autoZone,
+                }));
+              }}
+              placeholder="Post code (e.g. 1216)"
+              className="w-36 border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+            />
+
+            {/* Zone */}
+            <SelectField
+              selectValue={newAddress.zone || ""}
+              selectValueChange={(e) =>
+                setNewAddress((prev) => ({ ...prev, zone: e.target.value }))
+              }
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+            >
+              <option value="">Select Zone</option>
+              <option value="Dhaka Metro">Dhaka Metro</option>
+              <option value="Outside Dhaka">Outside Dhaka</option>
+            </SelectField>
             <button
               type="submit"
               className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md"
@@ -66,6 +101,7 @@ export default function Addresses({
                       Set Primary
                     </button>
                   )}
+
                   <button
                     onClick={() => removeAddress(addr.id)}
                     className="px-2 py-1 rounded-md border text-sm text-[#f72c2c] hover:text-[#e92323]"

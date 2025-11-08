@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import UploadImages from "../../../../../components/ui/UploadImages";
 import { X } from "lucide-react";
 
-export default function ReturnForm({ prefillOrderId, onSubmit }) {
-  const [orderId, setOrderId] = useState(prefillOrderId || "");
+export default function ReturnForm({ onSubmit }) {
+  const [orderId, setOrderId] = useState("");
   const [reason, setReason] = useState("");
   const [images, setImages] = useState([]);
-
-  useEffect(() => {
-    if (prefillOrderId) setOrderId(prefillOrderId);
-  }, [prefillOrderId]);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files || []);

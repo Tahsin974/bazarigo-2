@@ -1,38 +1,41 @@
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+
 export const InputField = ({
-  PRIMARY_COLOR,
+  className = "",
+  errors,
+  errorsMessage,
   label,
   type,
-  value,
-  onChange,
-  placeholder,
-  required = true,
-  name,
-  error,
-  children,
-}) => (
-  <div className="w-full mb-4 relative">
-    <label
-      htmlFor={name}
-      className="block text-sm font-medium text-gray-700 mb-1"
-    >
-      {label}
-      {required && <span className="text-red-500 ml-1">*</span>}
-    </label>
-    <div className="relative rounded-lg shadow-sm">
-      <input
-        id={name}
-        name={name}
-        type={type}
-        required={required}
-        value={type !== "file" ? value : undefined} // File inputs should not be controlled by value
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`focus:ring-[${PRIMARY_COLOR}] focus:border-[${PRIMARY_COLOR}] block w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white ${
-          error ? "border-red-500 border-2" : "border"
-        }`}
-      />
-      {children} {/* For password strength meter */}
+  required,
+  ...props
+}) => {
+  const [showPassword, setShowPassword] = useState(false);
+  return (
+    <div className="w-full mb-4 relative">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      <div className="relative">
+        <input
+          className={className}
+          {...props}
+          type={
+            type === "password" ? (showPassword ? "text" : "password") : type
+          }
+        />
+        {type === "password" && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((s) => !s)}
+            className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
+      {errors && <p className="mt-1 text-xs text-red-500">{errorsMessage}</p>}
     </div>
-    {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-  </div>
-);
+  );
+};

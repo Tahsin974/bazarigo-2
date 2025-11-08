@@ -1,11 +1,10 @@
-import { MoreHorizontal, ZapIcon } from "lucide-react";
+import { Trash2, ZapIcon } from "lucide-react";
 import AddBtn from "../../../../components/ui/AddBtn";
 import Pagination from "../../../../components/ui/Pagination";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import SelectField from "../../../../components/ui/SelectField";
 import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
-import DiscountModal from "../../../../components/DiscountModal/DiscountModal";
 
 export default function FlashSaleView({
   products,
@@ -335,7 +334,12 @@ export default function FlashSaleView({
         </div>
       </div>
       <h1 className="text-lg">
-        FlashSale Products ({flashSaleProducts.saleProducts?.length})
+        FlashSale Products{" "}
+        {!flashSaleProducts.saleProducts?.length ? (
+          ""
+        ) : (
+          <>({flashSaleProducts.saleProducts?.length})</>
+        )}
       </h1>
       {flashSaleProducts.saleProducts?.length === 0 ? (
         <div className="col-span-full text-center text-gray-500 py-8">
@@ -408,9 +412,9 @@ export default function FlashSaleView({
                             );
                             setManualDiscount({});
                           }}
-                          className="px-3 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded"
+                          className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
                         >
-                          Delete
+                          <Trash2 size={20} />
                         </button>
                       </td>
                     </tr>
