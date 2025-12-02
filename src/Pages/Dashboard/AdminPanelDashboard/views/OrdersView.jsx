@@ -6,17 +6,17 @@ import { Eye, MoreHorizontal } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import { motion } from "framer-motion";
-import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
+import Swal from "sweetalert2";
+import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 
 function OrdersView({
   orders,
   returns,
   selected,
   toggleSelect,
-  setOrders,
   allSelected,
   toggleSelectAll,
-  bulkDelete,
   orderPage,
   setOrderPage,
   orderSearch,
@@ -32,63 +32,112 @@ function OrdersView({
   returnOrderSearch,
   setReturnOrderSearch,
   openOrderModal,
+  refetch,
 }) {
-  const markAsReturned = (id) =>
-    setOrders((os) =>
-      os.map((o) => (o.orderId === id ? { ...o, status: "returned" } : o))
-    );
-
+  const axiosPublic = useAxiosPublic();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredOrders.length / orderPageSize)
   );
+  console.log(paginatedReturnOrders);
 
   const returnOrdersTotalPages = Math.max(
     1,
     Math.ceil(filteredReturnOrders.length / returnOrderPageSize)
   );
 
-  const updateStatus = (orderId, newStatus) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.orderId === orderId ? { ...order, status: newStatus } : order
-      )
-    );
-  };
-  // Function to calculate estimated delivery date
-  function getEstimatedDelivery(orderDateStr) {
-    const orderDate = new Date(orderDateStr);
-    const minDays = 1; // minimum delivery days
-    const maxDays = 7; // maximum delivery days
-
-    const minDate = new Date(orderDate);
-    minDate.setDate(minDate.getDate() + minDays);
-
-    const maxDate = new Date(orderDate);
-    maxDate.setDate(maxDate.getDate() + maxDays);
-
-    const options = { month: "short", day: "numeric" };
-    return `${minDate.toLocaleDateString(
-      "en-US",
-      options
-    )} – ${maxDate.toLocaleDateString("en-US", options)}`;
-  }
+  // const updateStatus = (orderId, newStatus) => {
+  //   setOrders((prev) =>
+  //     prev.map((order) =>
+  //       order.orderId === orderId ? { ...order, status: newStatus } : order
+  //     )
+  //   );
+  // };
 
   const activeOrders = paginatedOrders.filter(
-    (order) => order.status !== "Cancelled"
+    (order) => order.order_status !== "Cancelled"
   );
-
-  // Add estimated delivery to each order
-  const ordersWithEstDelivery = activeOrders.map((order) => ({
-    ...order,
-    estDelivery: getEstimatedDelivery(order.date),
-  }));
 
   const renderPageNumbers = useRenderPageNumbers(
     orderPage,
     totalPages,
     setOrderPage
   );
+
+  const renderReturnPageNumbers = useRenderPageNumbers(
+    returnOrderPage,
+    returnOrdersTotalPages,
+    setReturnOrderPage
+  );
+
+  const handleBulkDelete = async () => {
+    if (selected.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "No orders selected",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        icon: "warning",
+        title: "Are you sure you want to delete selected orders?",
+        showCancelButton: true,
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      });
+
+      if (result.isConfirmed) {
+        const res = await axiosPublic.delete("/orders/bulk-delete", {
+          data: { ids: selected },
+        });
+
+        if (res.data.deletedCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Selected Products deleted successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops! Try again",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
+
+        refetch();
+      }
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: error.message,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+
+  const getProductsTotal = (order) => {
+    const products = order.order_items.flatMap((item) => {
+      return item.productinfo;
+    });
+    return products.length;
+  };
   return (
     <div className="space-y-6">
       <div>
@@ -102,7 +151,7 @@ function OrdersView({
             </div>
             {/* DeleteAllBtn only on small screens */}
             <div className="ml-2 md:hidden">
-              <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
             </div>
           </div>
 
@@ -120,7 +169,7 @@ function OrdersView({
 
           {/* Right: DeleteAllBtn on large screens */}
           <div className="hidden md:flex order-3">
-            <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
           </div>
         </div>
 
@@ -153,44 +202,29 @@ function OrdersView({
                         />
                       </th>
                       <th># Order</th>
-                      <th>Customer</th>
+                      <th>Customer Name</th>
                       <th>Total</th>
-                      <th>Status</th>
-                      <th>Est. Delivery</th>
+                      <th>Products</th>
+
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody className="">
-                    {ordersWithEstDelivery.map((o) => (
+                    {activeOrders.map((o) => (
                       <tr key={o.orderId} className="border-t">
                         <td>
                           <input
                             type="checkbox"
                             className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                            checked={selected.includes(o.id)}
-                            onChange={() => toggleSelect(o.id)}
+                            checked={selected.includes(o.order_id)}
+                            onChange={() => toggleSelect(o.order_id)}
                           />
                         </td>
-                        <td>{o.number} </td>
-                        <td>{o.customer}</td>
-                        <td>৳{o.total}</td>
-                        <td>
-                          <SelectField
-                            selectValue={o.status}
-                            selectValueChange={(e) =>
-                              updateStatus(o.orderId, e.target.value)
-                            }
-                          >
-                            <option value="Processing">Processing</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Out for Delivery">
-                              Out for Delivery
-                            </option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="returned">Returned</option>
-                          </SelectField>
-                        </td>
-                        <td>{o.estDelivery}</td>
+                        <td>{o.order_id} </td>
+                        <td>{o.customer_name}</td>
+                        <td>৳{o.total.toLocaleString("en-IN")}</td>
+                        <td>{getProductsTotal(o)}</td>
+
                         <td>
                           <div className="flex justify-center items-center gap-2">
                             <button
@@ -199,19 +233,6 @@ function OrdersView({
                             >
                               <Eye size={20} />
                             </button>
-
-                            <div className=" flex gap-2 justify-end">
-                              {o.status !== "returned" ? (
-                                <button
-                                  onClick={() => markAsReturned(o.orderId)}
-                                  className="px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 cursor-pointer"
-                                >
-                                  Mark Returned
-                                </button>
-                              ) : (
-                                <p className="text-green-400"> {o.status}</p>
-                              )}
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -246,45 +267,47 @@ function OrdersView({
             />
           </div>
         </div>
-        <div className="mt-3 bg-white p-3 rounded shadow-sm">
-          {returns.length === 0 ? (
-            <div className="text-sm text-gray-500">No return orders</div>
-          ) : (
-            <div className="overflow-x-auto bg-white rounded-box">
-              <table className="table text-center">
-                {/* head */}
-                <thead className="bg-gray-50 ">
-                  <tr className="text-black">
-                    <th className="px-4 py-3">Return ID</th>
-                    <th className="px-4 py-3">Order #</th>
-                    <th className="px-4 py-3">Customer</th>
-                    <th className="px-4 py-3">Reason</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedReturnOrders.map((r) => (
-                    <tr key={r.returnId} className="border-t">
-                      <td className="px-4 py-3">{r.returnId}</td>
-                      <td className="px-4 py-3">{r.number}</td>
-                      <td className="px-4 py-3">{r.customer}</td>
-                      <td className="px-4 py-3">{r.reason || "N/A"}</td>
+        {returns.length === 0 ? (
+          <div className=" mt-3 flex flex-col items-center justify-center py-20 bg-white text-gray-400">
+            No return orders
+          </div>
+        ) : (
+          <>
+            <div className="mt-3 bg-white p-3 rounded shadow-sm">
+              <div className="overflow-x-auto bg-white rounded-box">
+                <table className="table text-center">
+                  {/* head */}
+                  <thead className="bg-gray-50 ">
+                    <tr className="text-black">
+                      <th className="px-4 py-3">Return ID</th>
+                      <th className="px-4 py-3">Order #</th>
+                      <th className="px-4 py-3">Customer</th>
+                      <th className="px-4 py-3">Reason</th>
+                      <th className="px-4 py-3">Products</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {paginatedReturnOrders.map((r) => (
+                      <tr key={r.id} className="border-t">
+                        <td className="px-4 py-3">{r.id}</td>
+                        <td className="px-4 py-3">{r.order_id}</td>
+                        <td className="px-4 py-3">{r.customer_name}</td>
+                        <td className="px-4 py-3">{r.reason || "N/A"}</td>
+                        <td className="px-4 py-3">{r.products.length}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
-        </div>
-        <Pagination
-          currentPage={returnOrderPage}
-          totalPages={returnOrdersTotalPages}
-          setCurrentPage={setReturnOrderPage}
-          renderPageNumbers={useRenderPageNumbers(
-            returnOrderPage,
-            returnOrdersTotalPages,
-            setReturnOrderPage
-          )}
-        />
+            <Pagination
+              currentPage={returnOrderPage}
+              totalPages={returnOrdersTotalPages}
+              setCurrentPage={setReturnOrderPage}
+              renderPageNumbers={renderReturnPageNumbers}
+            />
+          </>
+        )}
       </div>
     </div>
   );

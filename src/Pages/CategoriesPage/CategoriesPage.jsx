@@ -7,8 +7,8 @@ import InfiniteControls from "./components/Controls/InfiniteControls";
 import Pagination from "../../components/ui/Pagination";
 import { useParams } from "react-router";
 
-import { useRenderPageNumbers } from "../../Utils/Hooks/useRenderPageNumbers";
 import useProducts from "../../Utils/Hooks/useProducts";
+import { useRenderPageNumbers } from "../../Utils/Helpers/useRenderPageNumbers";
 
 // Final compiled, responsive Categories page
 // Features:

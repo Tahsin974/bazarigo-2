@@ -1,9 +1,15 @@
+import DatePicker from "react-datepicker";
 import { InputField } from "../ui/InputField";
+import SelectField from "../ui/SelectField";
 
 export default function PersonalInformation({
   PRIMARY_COLOR,
   register,
   errors,
+  date,
+  setDate,
+  gender,
+  setGender,
 }) {
   return (
     <div>
@@ -41,6 +47,40 @@ export default function PersonalInformation({
             errorsMessage={errors.phone_number?.message}
             placeholder="11-digit Phone Number"
           />
+          <div className="flex flex-col">
+            <label className="text-sm mb-1">Date Of Birth</label>
+            <DatePicker
+              selected={date}
+              onChange={setDate}
+              dateFormat="dd/MM/yyyy"
+              yearDropdownItemNumber={40}
+              scrollableYearDropdown
+              showYearDropdown
+              showMonthDropdown
+              placeholderText={"Select Birth Date"}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Gender
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <SelectField
+              selectValue={gender}
+              selectValueChange={(e) => setGender(e.target.value)}
+              isWide={true}
+              required
+            >
+              <option value="" disabled>
+                Select Gender
+              </option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Others">Others</option>
+            </SelectField>
+          </div>
         </div>
       </div>
     </div>

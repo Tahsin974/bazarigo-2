@@ -2601,6 +2601,8 @@ export const sampleUsers = () => [
     postal_code: 4212,
     created_at: "2025-10-25T14:10:00Z",
     updated_at: "2025-10-30T18:00:00Z",
+    date_of_birth: "01/01/2001",
+    gender: "Female",
   },
   {
     id: "u3b7f5e9",
@@ -2616,6 +2618,8 @@ export const sampleUsers = () => [
     postal_code: 6000,
     created_at: "2025-09-20T11:25:00Z",
     updated_at: "2025-10-02T12:10:00Z",
+    date_of_birth: "01/01/2001",
+    gender: "Male",
   },
   {
     id: "u4a9c8d2",
@@ -2631,6 +2635,8 @@ export const sampleUsers = () => [
     postal_code: 5400,
     created_at: "2025-11-02T08:45:00Z",
     updated_at: null,
+    date_of_birth: "01/01/2001",
+    gender: "Female",
   },
   {
     id: "u5d3e6a1",
@@ -2646,6 +2652,8 @@ export const sampleUsers = () => [
     postal_code: 1229,
     created_at: "2025-11-06T06:20:00Z",
     updated_at: "2025-11-07T01:00:00Z",
+    date_of_birth: "01/01/2001",
+    gender: "Male",
   },
 ];
 

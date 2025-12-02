@@ -9,6 +9,8 @@ export const FileUploadField = ({
   image,
   setImage,
 }) => {
+  const baseUrl = import.meta.env.VITE_BASEURL;
+
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -22,7 +24,7 @@ export const FileUploadField = ({
 
   return (
     <div className="w-full mb-4 ">
-      <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
+      <label className="block text-sm font-medium text-gray-700 mb-1 ">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -47,7 +49,11 @@ export const FileUploadField = ({
         />
         <div className="flex flex-col items-center justify-center text-center ">
           {image ? (
-            <img src={image} alt="image" />
+            image.includes("/uploads") ? (
+              <img src={`${baseUrl}${image}`} alt="image" />
+            ) : (
+              <img src={image} alt="image" />
+            )
           ) : (
             <>
               <UploadCloud

@@ -6,17 +6,22 @@ import PersonalInformation from "./PersonalInformation";
 import Swal from "sweetalert2";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
+import { useNavigate } from "react-router";
 
-export default function SellerRegistrationForm({ PRIMARY_COLOR }) {
+export default function SellerRegistrationForm({ PRIMARY_COLOR, refetch }) {
+  const axiosPublic = useAxiosPublic();
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isValid },
   } = useForm({ mode: "onChange" });
-
+  const navigate = useNavigate();
   const [nidFrontImg, setNidFrontImg] = useState(null);
   const [nidBackImg, setNidBackImg] = useState(null);
+  const [date, setDate] = useState(null);
+  const [gender, setGender] = useState("");
   const [mainProductCategory, setMainProductCategory] = useState("");
   const [mobileBankName, setMobileBankName] = useState("");
   const [isAcceptTerms, setIsAcceptTerms] = useState(false);
@@ -26,18 +31,51 @@ export default function SellerRegistrationForm({ PRIMARY_COLOR }) {
         ...data,
         nidFrontImg,
         nidBackImg,
+        date_of_birth: date,
+        gender,
         product_category: mainProductCategory,
         mobile_bank_name: mobileBankName,
-        created_at: new Date().toISOString(),
+        created_at: new Date().toLocaleString("en-CA", {
+          timeZone: "Asia/Dhaka",
+          hour12: false,
+        }),
         updated_at: null,
       };
-      console.log(payload);
+
+      const res = await axiosPublic.post("/sellers", payload);
+
+      console.log(res.data);
+      if (res.data.createdCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: "Registration Successful",
+          text: "Your account is pending admin approval. Please wait.",
+          showConfirmButton: false,
+          timer: 3000,
+          toast: true,
+          position: "top",
+        });
+
+        // Clear form
+        reset();
+        setNidBackImg(null);
+        setNidFrontImg(null);
+        setGender("");
+        setDate(null);
+        refetch();
+        navigate("/sign-up");
+        // Do NOT navigate to dashboard until approved
+        // navigator("/dashboard/seller");  <-- comment out
+      }
     } catch (error) {
+      console.log(error);
       Swal.fire({
         icon: "error",
-        title: `${error.message}`,
+        title: `${error.response?.data?.message}`,
         showConfirmButton: false,
         timer: 1500,
+        toast: true,
+        position: "top",
       });
     }
   };
@@ -56,6 +94,10 @@ export default function SellerRegistrationForm({ PRIMARY_COLOR }) {
           PRIMARY_COLOR={PRIMARY_COLOR}
           register={register}
           errors={errors}
+          date={date}
+          setDate={setDate}
+          gender={gender}
+          setGender={setGender}
         />
         {/* --- Store, Business Details & Documents --- */}
         <BusinessDetails

@@ -1,5 +1,8 @@
-import img1 from "../../assets/Instruction/instruction1.JPG";
-import img2 from "../../assets/Instruction/instruction2.JPG";
+import img1 from "../../assets/Instruction/Instraction 1.png";
+import img2 from "../../assets/Instruction/Instraction 2.JPG";
+import img3 from "../../assets/Instruction/Instraction 3.png";
+import img4 from "../../assets/Instruction/Instraction 4.png";
+
 export default function InstructionPage() {
   return (
     <div className="p-4 md:p-8 bg-[#f7f7f7] font-sans">
@@ -71,49 +74,34 @@ export default function InstructionPage() {
 
           <section>
             <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-l-4 border-[#FF0055] pl-4">
-              ধাপ ২: পণ্যের বিস্তারিত বিবরণ
+              ধাপ ২ ও ৩: পণ্যের বিস্তারিত বিবরণ ও ব্যাজ নির্বাচন
             </h2>
-            <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
-              <p className="text-gray-700">
-                পণ্যের কার্যকারিতা, বৈশিষ্ট্য এবং অন্যান্য প্রয়োজনীয় তথ্য
-                বিস্তারিতভাবে <span className="font-bold">Description</span>{" "}
-                বক্সে লিখুন।
-              </p>
-              <p className="mt-2 text-sm text-gray-600">
-                এখানে টেক্সট ফরম্যাটিং (Bold, Italic, Underline), তালিকা (List),
-                ফন্ট সাইজ ও রং ইত্যাদি যোগ করতে পারবেন।
-              </p>
-            </div>
-          </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-l-4 border-[#FF0055] pl-4">
-              ধাপ ৩ ও ৪: ছবি আপলোড ও ব্যাজ নির্বাচন
-            </h2>
             <div className="md:flex md:space-x-6">
               <div className="md:w-1/2 mb-4 md:mb-0">
                 <img
                   src={img2}
-                  alt="ছবি আপলোড এবং ব্যাজ বিভাগ"
+                  alt="পণ্যের বিস্তারিত বিবরণ ও ব্যাজ নির্বাচন"
                   className="rounded-lg w-full h-auto object-cover border border-gray-200"
                 />
               </div>
               <div className="md:w-1/2 space-y-6">
                 <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
                   <h3 className="text-xl font-medium mb-2 text-[#FF0055]">
-                    ৩. ছবি আপলোড (Upload Image)
+                    ২. পণ্যের বিস্তারিত বিবরণ (Description)
                   </h3>
-                  <p className="text-gray-700">
-                    পণ্যের জন্য একটি আকর্ষণীয় ছবি আপলোড করুন।
-                  </p>
-                  <ul className="text-sm text-gray-600 list-disc pl-5 mt-2">
-                    <li>
-                      *পদ্ধতি:* আপলোড এরিয়াতে ক্লিক করুন অথবা টেনে এনে ছবি
-                      ছাড়ুন।
-                    </li>
-                    <li>*ফরম্যাট:* PNG বা JPG ফরম্যাটের ছবি ব্যবহার করুন।</li>
-                    <li>*সীমা:* প্রতি ছবির জন্য সর্বোচ্চ ১ মেগাবাইট।</li>
-                  </ul>
+                  <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
+                    <p className="text-gray-700">
+                      পণ্যের কার্যকারিতা, বৈশিষ্ট্য এবং অন্যান্য প্রয়োজনীয়
+                      তথ্য বিস্তারিতভাবে{" "}
+                      <span className="font-bold">Description</span> বক্সে
+                      লিখুন।
+                    </p>
+                    <p className="mt-2 text-sm text-gray-600">
+                      এখানে টেক্সট ফরম্যাটিং (Bold, Italic, Underline), তালিকা
+                      (List), ফন্ট সাইজ ও রং ইত্যাদি যোগ করতে পারবেন।
+                    </p>
+                  </div>
                 </div>
 
                 <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
@@ -155,6 +143,77 @@ export default function InstructionPage() {
               </div>
             </div>
           </section>
+          <section>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-l-4 border-[#FF0055] pl-4">
+              ধাপ ৪ ও ৫: ছবি আপলোড ও ভেরিয়েন্ট অ্যাড করা
+            </h2>
+            <div className="md:flex md:space-x-6">
+              <div className="md:w-1/2 mb-4 md:mb-0">
+                <img
+                  src={img3}
+                  alt="ছবি আপলোড এবং ব্যাজ বিভাগ"
+                  className="rounded-lg w-full h-auto object-cover border border-gray-200"
+                />
+                <img
+                  src={img4}
+                  alt="ছবি আপলোড এবং ব্যাজ বিভাগ"
+                  className="rounded-lg w-full h-auto object-cover border border-gray-200"
+                />
+              </div>
+              <div className="md:w-1/2 space-y-16">
+                <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
+                  <h3 className="text-xl font-medium mb-2 text-[#FF0055]">
+                    ৪. ছবি আপলোড (Upload Image)
+                  </h3>
+                  <p className="text-gray-700">
+                    পণ্যের জন্য একটি আকর্ষণীয় ছবি আপলোড করুন।
+                  </p>
+                  <ul className="text-sm text-gray-600 list-disc pl-5 mt-2">
+                    <li>
+                      *পদ্ধতি:* আপলোড এরিয়াতে ক্লিক করুন অথবা টেনে এনে ছবি
+                      ছাড়ুন।
+                    </li>
+                    <li>*ফরম্যাট:* PNG বা JPG ফরম্যাটের ছবি ব্যবহার করুন।</li>
+                    <li>*সীমা:* প্রতি ছবির জন্য সর্বোচ্চ ১ মেগাবাইট।</li>
+                  </ul>
+                </div>
+
+                <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
+                  <h3 className="text-xl font-medium mb-2 text-[#FF0055]">
+                    ৫. ভেরিয়েন্ট অ্যাড করা (Add Variants)
+                  </h3>
+                  <p className="text-gray-700">
+                    পণ্যের বিভিন্ন প্রকারভেদ (যেমন: আকার, রং, উপাদান) যোগ করুন।
+                  </p>
+                  <ul className="text-sm text-gray-700 list-disc pl-5">
+                    <li>
+                      <span className="font-bold">ভেরিয়েন্ট তথ্য:</span> আকার
+                      (Size), রং (Color), উপাদান (Material) এর জন্য প্রযোজ্য
+                      মানগুলি লিখুন।
+                    </li>
+                    <li>
+                      <span className="font-bold">মূল্য ও স্টক:</span> প্রতিটি
+                      ভেরিয়েন্টের জন্য আলাদাভাবে নিয়মিত মূল্য, বিক্রয় মূল্য
+                      এবং স্টক সংখ্যা উল্লেখ করুন।
+                    </li>
+                    <li>
+                      <span className="font-bold">সংরক্ষণ:</span> সমস্ত তথ্য
+                      পূরণ করার পর 'Add Variant' বোতামে ক্লিক করুন।
+                    </li>
+                  </ul>
+                  <div className="mt-4 p-3 bg-white border border-gray-300 rounded-md text-sm text-gray-600">
+                    <p>
+                      <span className="font-bold text-[#FF0055]">
+                        বিশেষ দ্রষ্টব্য:
+                      </span>{" "}
+                      যদি পণ্যের কোনো ভেরিয়েন্ট না থাকে, তবে এই অংশটি খালি
+                      রাখুন।
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
           <section className="text-center pt-4 border-t border-gray-200">
             <p className="text-lg font-semibold text-gray-800 mb-4">
               সব তথ্য সঠিকভাবে পূরণ করার পর:
@@ -166,6 +225,21 @@ export default function InstructionPage() {
               <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg  transition duration-150">
                 তৈরি করুন (Create)
               </button>
+            </div>
+          </section>
+          <section className="text-center pt-4 border-t border-gray-200">
+            <p className="text-lg font-semibold text-gray-800 mb-4">
+              বাল্ক আপলোডের জন্য টেম্পলেট ডাউনলোড করুন
+            </p>
+            <div className="space-x-4 flex justify-center">
+              <a
+                href="/files/Product-Upload-Template.xlsx"
+                download="Product-Upload-Template For Seller.xlsx"
+              >
+                <button className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg  transition duration-150">
+                  ডাউনলোড
+                </button>
+              </a>
             </div>
           </section>
         </main>

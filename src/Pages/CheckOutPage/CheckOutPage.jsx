@@ -1,86 +1,41 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router";
 import OrderSummary from "../../components/OrderSummary/OrderSummary";
 import SelectField from "../../components/ui/SelectField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import bKash from "../../assets/payments/bkash.png";
 import Rocket from "../../assets/payments/rocket.jpeg";
 import Nagad from "../../assets/payments/nagad.png";
-import UseCart from "../../Utils/Hooks/UseCart";
-import axios from "axios";
-import useNewCart from "../../Utils/Hooks/useNewCart";
+import useCart from "../../Utils/Hooks/useCart";
 import { HandCoins, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router";
+import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../Utils/Hooks/useAuth";
+import AddBtn from "../../components/ui/AddBtn";
+import Loading from "../../components/Loading/Loading";
 
 export default function CheckOutPage() {
-  const { cartItems, appliedPromos, setAppliedPromos } = UseCart();
-  const { refetch } = useNewCart();
-
+  const axiosPublic = useAxiosPublic();
+  const { user, refreshUser, isLoading } = useAuth();
+  const { refetch } = useCart();
+  const [customerName, setCustomerName] = useState(null);
+  const [customerAddress, setCustomerAddress] = useState(null);
+  const [customerDistrict, setCustomerDistrict] = useState(null);
+  const [customerThana, setCustomerThana] = useState(null);
+  const [customerPostalCode, setCustomerPostalCode] = useState(null);
+  const [customerPhone, setCustomerPhone] = useState("");
   const location = useLocation();
-  const items = location.state.items;
+  const items =
+    location.state && location.state.items ? location.state.items : [];
 
-  const checkoutItems = items;
-  console.log(checkoutItems);
-  const navigate = useNavigate();
+  const [checkoutItems, setCheckoutItems] = useState(items);
+
+  const baseUrl = import.meta.env.VITE_BASEURL;
+
   const [provider, setProvider] = useState("");
 
   const [isCashOnDelivery, setIsCashOnDelivery] = useState(false);
-
-  const [promo, setPromo] = useState("");
-
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.qty,
-    0
-  );
-
-  const flatDiscounts = appliedPromos
-    .filter((p) => p.type === "flat")
-    .reduce((acc, p) => acc + p.value, 0);
-
-  const percentDiscounts = appliedPromos
-    .filter((p) => p.type === "percent")
-    .reduce((acc, p) => acc + (subtotal * p.value) / 100, 0);
-
-  const isFreeDelivery = appliedPromos.some((p) => p.type === "freeship");
-
-  // Calculate shipping per product
-
-  const deliveryPerItem = cartItems.reduce(
-    (acc, item) => acc + item.delivery_charge,
-    0
-  );
-
-  const totalDiscount = flatDiscounts + percentDiscounts;
-  const effectiveDelivery = isFreeDelivery ? 0 : deliveryPerItem;
-  const total = subtotal + effectiveDelivery - totalDiscount;
-
-  const HandleOrderBtn = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    // const customerName = form.name.value;
-    // const customerAddress = form.address.value;
-    const customerNumber = form.number.value;
-    const payment = {
-      transactionId: "TXN-" + Date.now(),
-      payment_date: new Date().toISOString(),
-      amount: total,
-      payment_method: isCashOnDelivery ? "Cash On Delivery" : provider,
-      phoneNumber: isCashOnDelivery ? "" : customerNumber,
-      isCashOnDelivery,
-    };
-
-    const paymentRes = await axios.post(
-      "http://localhost:3000/payments",
-      payment
-    );
-
-    if (paymentRes.data.createdCount > 0) {
-      navigate("/thank-you");
-    }
-  };
 
   const removeItem = async (cartId, productId) => {
     try {
@@ -98,10 +53,10 @@ export default function CheckOutPage() {
 
       // 🔹 ইউজার কনফার্ম করলে ডিলিট রিকোয়েস্ট পাঠাও
       if (result.isConfirmed) {
-        const { data } = await axios.patch(
-          "http://localhost:3000/carts/remove-product",
-          { cartId, productId }
-        );
+        const { data } = await axiosPublic.patch("/carts/remove-product", {
+          cartId,
+          productId,
+        });
 
         if (data.deletedCount) {
           await Swal.fire({
@@ -110,6 +65,8 @@ export default function CheckOutPage() {
             icon: "success",
             timer: 1500,
             showConfirmButton: false,
+            toast: true,
+            position: "top",
           });
           refetch();
         }
@@ -156,19 +113,101 @@ export default function CheckOutPage() {
       options
     )} – ${maxDate.toLocaleDateString("en-US", options)}`;
   }
+  console.log(checkoutItems);
+
+  const handleSave = async () => {
+    try {
+      const payload = {
+        ...user,
+        full_name: customerName || user.name,
+        address: customerAddress || user.address,
+        district: customerDistrict || user.district,
+        thana: customerThana || user.thana,
+        postal_code: customerPostalCode || user.postal_code,
+      };
+
+      const res = await axiosPublic.put(`/users/update/${user.id}`, payload);
+      console.log(checkoutItems);
+
+      if (res.data.updatedCount > 0) {
+        await refreshUser();
+
+        // 🔥 এখানে delivery পুনরায় ক্যালকুলেশন শুরু
+        const updatedItems = await Promise.all(
+          checkoutItems.map(async (item) => {
+            const product = item.productinfo[0];
+
+            const deliveryPayload = {
+              sellerId: item.sellerid,
+              userId: user.id,
+              weight: product.weight,
+              orderAmount:
+                product.sale_price > 1
+                  ? product.sale_price
+                  : product.regular_price,
+              isCod: false,
+            };
+
+            const deliveryRes = await axiosPublic.get("/deliveries", {
+              params: deliveryPayload,
+            });
+
+            console.log("deli", deliveryPayload);
+            console.log("deli", deliveryRes);
+
+            return {
+              ...item,
+              deliveries: deliveryRes.data.result[0],
+            };
+          })
+        );
+
+        setCheckoutItems(updatedItems);
+
+        Swal.fire({
+          icon: "success",
+          title: "Updated!",
+          text: "Address updated.",
+          toast: true,
+          timer: 1500,
+          position: "top",
+          showConfirmButton: false,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: `${error.response?.data?.message}`,
+        showConfirmButton: false,
+        toast: true,
+        position: "top",
+        timer: 1500,
+      });
+    }
+  };
+  useEffect(() => {
+    if (user && Array.isArray(user.payment_methods)) {
+      const primaryMethod = user.payment_methods.find((pm) => pm.is_primary);
+      if (primaryMethod) {
+        setProvider(primaryMethod.provider);
+        setCustomerPhone(primaryMethod.account);
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    console.log("Provider set to:", provider);
+  }, [provider]);
+
   return (
     <div className="bg-[#f7f7f8] ">
-      {!checkoutItems.length ? (
-        <div className="h-screen">
-          <h1>Loading....</h1>
-        </div>
+      {!checkoutItems.length && !isLoading && !user ? (
+        <Loading />
       ) : (
         <div className="container mx-auto xl:px-6 lg:px-6  px-2 py-16 ">
           <h1 className="text-3xl font-bold text-gray-600 mb-8">Checkout</h1>
-          <form
-            onSubmit={HandleOrderBtn}
-            className="flex  lg:flex-row flex-col gap-10"
-          >
+          <div className="flex  lg:flex-row flex-col gap-10">
             <div className="flex-1 space-y-6">
               <Card className="rounded-2xl shadow-md bg-white">
                 <CardContent className="p-6 space-y-4">
@@ -177,14 +216,59 @@ export default function CheckOutPage() {
                     type="text"
                     placeholder="Full Name"
                     name="name"
-                    className="w-full px-4 py-3 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none"
+                    defaultValue={user?.name || customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
                   />
-                  <input
-                    type="text"
-                    placeholder="Address"
-                    name="address"
-                    className="w-full px-4 py-3 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none"
-                  />
+
+                  <div className="flex flex-wrap gap-3">
+                    <div className="w-full">
+                      <input
+                        type="text"
+                        placeholder="Address"
+                        name="address"
+                        defaultValue={user?.address || customerAddress}
+                        onChange={(e) => setCustomerAddress(e.target.value)}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <input
+                        placeholder="Enter district name (e.g., Dhaka)"
+                        defaultValue={user?.district || customerDistrict}
+                        onChange={(e) => setCustomerDistrict(e.target.value)}
+                        className={`w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]`}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        placeholder="Enter thana or upazila (e.g., Mirpur)"
+                        defaultValue={user?.thana || customerThana}
+                        onChange={(e) => setCustomerThana(e.target.value)}
+                        className={`w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]`}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        placeholder="Enter postal code (e.g., 1216)"
+                        defaultValue={
+                          user?.postal_code ?? customerPostalCode ?? ""
+                        }
+                        onChange={(e) => setCustomerPostalCode(e.target.value)}
+                        className={`w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]`}
+                        onKeyDown={(e) => {
+                          if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                            e.preventDefault(); // keyboard up/down disable
+                          }
+                        }}
+                        onWheel={(e) => e.target.blur()}
+                      />
+                    </div>
+                  </div>
+
+                  <AddBtn btnHandler={handleSave}>Save</AddBtn>
                 </CardContent>
               </Card>
 
@@ -193,7 +277,7 @@ export default function CheckOutPage() {
                   <h2 className="text-xl font-semibold">Payment Information</h2>
                   <div className="space-y-2">
                     <SelectField
-                      selectValue={provider}
+                      selectValue={provider || ""}
                       selectValueChange={(e) => setProvider(e.target.value)}
                       isWide={true}
                     >
@@ -207,6 +291,14 @@ export default function CheckOutPage() {
                     <input
                       placeholder="Phone Number"
                       name="number"
+                      defaultValue={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                          e.preventDefault(); // keyboard up/down disable
+                        }
+                      }}
+                      onWheel={(e) => e.target.blur()}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                     />
                     {/* --- bKash Instructions --- */}
@@ -338,6 +430,7 @@ export default function CheckOutPage() {
                         setIsCashOnDelivery(e.target.checked);
                         refetch();
                       }}
+                      disabled={provider !== ""}
                     />
                     Cash On Delivery
                   </label>
@@ -365,7 +458,10 @@ export default function CheckOutPage() {
                               <span className="text-gray-800 font-semibold">
                                 Estimated Delivery :{" "}
                                 {getEstimatedDelivery(
-                                  new Date().toISOString(),
+                                  new Date().toLocaleString("en-CA", {
+                                    timeZone: "Asia/Dhaka",
+                                    hour12: false,
+                                  }),
                                   checkoutItem.deliveries.delivery_time
                                 )}
                               </span>
@@ -385,7 +481,10 @@ export default function CheckOutPage() {
                               <span className="text-gray-800 font-semibold">
                                 Estimated Delivery :{" "}
                                 {getEstimatedDelivery(
-                                  new Date().toISOString(),
+                                  new Date().toLocaleString("en-CA", {
+                                    timeZone: "Asia/Dhaka",
+                                    hour12: false,
+                                  }),
                                   checkoutItem.deliveries.delivery_time
                                 )}
                               </span>
@@ -411,7 +510,7 @@ export default function CheckOutPage() {
                           >
                             <div className="flex items-center gap-6">
                               <img
-                                src={`http://localhost:3000${item.product_img}`}
+                                src={`${baseUrl}${item.product_img}`}
                                 alt={item.product_name}
                                 className="w-20 h-20 rounded-xl object-cover"
                               />
@@ -421,32 +520,57 @@ export default function CheckOutPage() {
                                 </h3>
                                 <div className="flex items-center gap-2">
                                   <p className="text-[#FF0055] font-bold">
-                                    ৳{item.sale_price.toLocaleString("en-IN")}
+                                    {item.sale_price > 1 ? (
+                                      <>
+                                        ৳
+                                        {item.sale_price.toLocaleString(
+                                          "en-IN"
+                                        )}
+                                      </>
+                                    ) : (
+                                      <>
+                                        ৳
+                                        {item.regular_price.toLocaleString(
+                                          "en-IN"
+                                        )}
+                                      </>
+                                    )}
                                   </p>
-                                  {item.regular_price > 1 && (
-                                    <p className="text-gray-400 line-through text-sm">
+                                  {item.sale_price > 1 && (
+                                    <span className="text-gray-400 line-through ">
                                       ৳
                                       {item.regular_price.toLocaleString(
                                         "en-IN"
                                       )}
-                                    </p>
+                                    </span>
                                   )}
                                 </div>
-                                <div className="flex gap-1.5">
+
+                                <div className="flex flex-col gap-1.5">
                                   <p className="text-xs text-gray-500">
-                                    Brand: {item.brand} ,
+                                    Brand: {item?.brand || "No Brand"}
                                   </p>
-                                  {Object.entries(item.variants).map(
-                                    ([variant, value], index, array) => (
-                                      <p
-                                        className="text-xs text-gray-500"
-                                        key={variant}
-                                      >
-                                        {variant}: {value}
-                                        {index < array.length - 1 && ","}
-                                      </p>
-                                    )
-                                  )}
+
+                                  <div className="flex gap-1.5">
+                                    {Object.entries(item.variants)
+                                      .filter(
+                                        ([key]) =>
+                                          ![
+                                            "regular_price",
+                                            "sale_price",
+                                            "stock",
+                                          ].includes(key)
+                                      )
+                                      .map(([variant, value], index, array) => (
+                                        <p
+                                          className="text-xs text-gray-500"
+                                          key={variant}
+                                        >
+                                          {variant}: {value}
+                                          {index < array.length - 1 && ","}
+                                        </p>
+                                      ))}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -471,32 +595,14 @@ export default function CheckOutPage() {
               <OrderSummary
                 isCashOnDelivery={isCashOnDelivery}
                 items={checkoutItems}
+                customerPhone={customerPhone}
                 allowPromo={true}
-                promo={promo}
-                setPromo={setPromo}
-                isFreeDelivery={isFreeDelivery}
-                subtotal={subtotal}
-                deliveryPerItem={deliveryPerItem}
-                total={total}
-                appliedPromos={appliedPromos}
-                setAppliedPromos={setAppliedPromos}
                 refetch={refetch}
+                paymentMethod={provider}
                 setIsCashOnDelivery={setIsCashOnDelivery}
               />
-              {!checkoutItems.length ? (
-                <Button
-                  disabled={"disabled"}
-                  className="w-full mt-6 bg-gray-300 text-gray-500  py-3 rounded-full transition "
-                >
-                  Place Order
-                </Button>
-              ) : (
-                <Button className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition">
-                  Place Order
-                </Button>
-              )}
             </div>
-          </form>
+          </div>
         </div>
       )}
     </div>

@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 py-10">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:justify-items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-4  sm:gap-12 md:grid-cols-3 sm:grid-cols-2  lg:justify-items-center">
           <div className="space-y-4">
             <img src={img} className="h-10 w-auto" alt="logo" />
             <p className="text-gray-400 text-sm">
@@ -98,6 +98,14 @@ export default function Footer() {
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Return & Refund
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/data-deletion#"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Data Deletion Request
                 </a>
               </li>
             </ul>

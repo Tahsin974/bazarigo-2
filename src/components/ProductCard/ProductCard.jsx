@@ -4,15 +4,20 @@ import Rating from "react-rating";
 import { motion } from "framer-motion";
 import { HashLink } from "react-router-hash-link";
 
-export default function ProductCard({ item }) {
+export default function ProductCard({ item, fromFlashSale = false }) {
+  const baseUrl = import.meta.env.VITE_BASEURL;
+
   return (
     <>
-      <HashLink to={`/product/${item.id}#`}>
+      <HashLink
+        to={`/product/${btoa(item.id)}#`}
+        state={fromFlashSale ? { fromFlashSale: true } : {}}
+      >
         <Card className="rounded-2xl shadow-lg bg-white overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full ">
           <div className="relative">
             {item.images && item.images[0] ? (
               <img
-                src={`http://localhost:3000${item.images[0]}`}
+                src={`${baseUrl}${item.images[0]}`}
                 alt=""
                 className="w-full h-48 sm:h-56 object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
               />
@@ -22,32 +27,44 @@ export default function ProductCard({ item }) {
               </div>
             )}
 
-            {item.isLimitedStock && (
+            {item.islimitedstock && (
               <span
+                style={{
+                  fontWeight: "bold",
+
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                }}
                 className={`absolute ${
-                  item.isBestSeller && item.isNew
+                  item.isbestseller && item.isnew
                     ? "bottom-3 right-3"
-                    : item.isNew
+                    : item.isnew
                     ? "top-3 right-3 "
                     : "top-3 left-3"
-                }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-pulse`}
+                }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full    animate-pulse`}
               >
                 Limited Stock
               </span>
             )}
-            {item.isNew && (
-              <span className="absolute top-3 left-3 bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-pulse">
+            {item.isnew && (
+              <span
+                className="absolute top-3 left-3 bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full   animate-pulse"
+                style={{
+                  fontWeight: "bold",
+
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                }}
+              >
                 New
               </span>
             )}
-            {item.isBestSeller && (
+            {item.isbestseller && (
               <span
-                className={`absolute  top-3 right-3 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-gradient`}
+                className={`absolute  top-3 right-3 text-white text-xs font-bold px-3 py-1 rounded-full animate-gradient`}
                 style={{
-                  background:
-                    "linear-gradient(90deg, #FFD700 0%, #FFFACD 100%)",
-                  color: "#8B8000",
-                  boxShadow: "0 2px 8px rgba(255, 215, 0, 0.3)",
+                  background: "linear-gradient(45deg, #E6C200, #E6B200)",
+                  fontWeight: "bold",
+
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 Best Seller
@@ -61,9 +78,13 @@ export default function ProductCard({ item }) {
             <div className="flex items-center justify-between gap-2 ">
               <div className="flex items-center gap-2">
                 <span className="text-[#FF0055] font-bold">
-                  ৳{item.sale_price.toLocaleString("en-IN")}
+                  {item.sale_price > 1 ? (
+                    <>৳{item.sale_price.toLocaleString("en-IN")}</>
+                  ) : (
+                    <>৳{item.regular_price.toLocaleString("en-IN")}</>
+                  )}
                 </span>
-                {item.regular_price > 1 && (
+                {item.sale_price > 1 && (
                   <span className="text-gray-400 line-through ">
                     ৳{item.regular_price.toLocaleString("en-IN")}
                   </span>
@@ -85,7 +106,14 @@ export default function ProductCard({ item }) {
                 fullSymbol={
                   <Star size={20} className="text-[#FFD700] fill-[#FFD700]" />
                 }
-                initialRating={item.rating}
+                initialRating={
+                  Number(item.rating) > 0
+                    ? item.rating
+                    : item.reviews && item.reviews.length > 0
+                    ? item.reviews.reduce((a, r) => a + r.rating, 0) /
+                      item.reviews.length
+                    : 0
+                }
                 readonly
               />
             </div>

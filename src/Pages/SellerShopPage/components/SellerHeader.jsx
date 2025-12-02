@@ -1,13 +1,149 @@
 import { MessageSquare, Star } from "lucide-react";
 import Rating from "react-rating";
 import { Button } from "@/components/ui/button";
-export default function SellerHeader({ setIsMessageOpen, seller }) {
+import Swal from "sweetalert2";
+import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+import { useEffect, useState } from "react";
+import useAuth from "../../../Utils/Hooks/useAuth";
+import { RatingStars } from "../../../components/ui/RatingStars";
+import { Controller, useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+export default function SellerHeader({
+  setIsMessageOpen,
+  seller,
+  sellerDetails,
+  sellerId,
+}) {
+  const baseUrl = import.meta.env.VITE_BASEURL;
+  const formatter = new Intl.NumberFormat("en", {
+    notation: "compact",
+    compactDisplay: "short",
+  });
+
+  const axiosPublic = useAxiosPublic();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [submitted, setSubmitted] = useState(false); // রেটিং দেওয়া হয়েছে কিনা ট্র্যাক
+  const { control, handleSubmit } = useForm({
+    defaultValues: {
+      customerName: user?.name,
+      customerId: user?.id,
+      rating: 0,
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (newReview) =>
+      axiosPublic.patch(`/sellers/review/${sellerId}`, newReview),
+    onSuccess: () => {
+      Swal.fire({
+        icon: "success",
+        title: "Review submitted successfully",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      queryClient.invalidateQueries(["sellerDetails"]);
+    },
+    onError: (error) => {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: error.response?.data?.message || "Something went wrong",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(sellerId);
+    mutation.mutate(data);
+    // রেটিং দেওয়া হয়েছে চিহ্নিত
+  };
+  console.log(sellerDetails.role);
+  const handleFollow = async (userId, sellerId) => {
+    try {
+      const res = await axiosPublic.post("/following", {
+        userId,
+        sellerId,
+        sellerRole: sellerDetails.role,
+      });
+      if (res.data.createdCount > 0) {
+        setIsFollowing(true);
+        Swal.fire({
+          icon: "success",
+          title: "Seller Added To Following List",
+          toast: true,
+          position: "top",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+
+      if (res.data.deletedCount > 0) {
+        setIsFollowing(false);
+        Swal.fire({
+          icon: "success",
+          title: "Seller Removed From Following List",
+          toast: true,
+          position: "top",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: err.response?.data?.message || "Something went wrong",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+  useEffect(() => {
+    const checkFollowing = async () => {
+      const res = await axiosPublic.get(
+        `/following/check/${user.id}/${sellerId}`
+      );
+      setIsFollowing(res.data.isFollowing);
+    };
+    checkFollowing();
+  }, []);
+
+  const reviews = sellerDetails.reviews || [];
+  const ratings = (
+    reviews.length > 0
+      ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
+      : 0
+  ).toFixed(1);
+  console.log("reviews", reviews);
+  useEffect(() => {
+    if (!sellerDetails?.reviews) return;
+
+    const review = sellerDetails.reviews.find((r) => r.customerId === user.id);
+
+    if (review) {
+      setSubmitted(true);
+    }
+  }, [sellerDetails, user?.id]);
   return (
     <div>
       <section className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white py-16 px-6 md:px-12">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8">
           <img
-            src="https://placehold.co/200x200/ffffff/ff0055?text=Seller+Logo"
+            src={
+              sellerDetails?.store_img
+                ? `${baseUrl}${sellerDetails.store_img}`
+                : "https://placehold.co/200x200/ffffff/ff0055?text=Seller+Logo"
+            }
             alt="Seller Logo"
             className="rounded-full w-40 h-40 shadow-lg border-4 border-white object-cover"
           />
@@ -16,41 +152,95 @@ export default function SellerHeader({ setIsMessageOpen, seller }) {
               {seller}
             </h1>
 
-            <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-              <Rating
-                emptySymbol={<Star size={18} className=" text-gray-300" />}
-                fullSymbol={
-                  <Star size={18} className="text-[#FFD700] fill-[#FFD700]" />
-                }
-                initialRating={4}
-                readonly
-              />
+            <div
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex items-center justify-center md:justify-start gap-2 mb-4"
+            >
+              {" "}
+              {user.role === "customer" ? (
+                <>
+                  {!submitted ? (
+                    <Controller
+                      control={control}
+                      name="rating"
+                      render={({ field }) => (
+                        <RatingStars
+                          rating={field.value}
+                          onRate={(value) => {
+                            field.onChange(value);
+                            handleSubmit(onSubmit)();
+                          }}
+                          // যদি কম্পোনেন্ট সাপোর্ট করে
+                        />
+                      )}
+                    />
+                  ) : (
+                    <>
+                      <Rating
+                        emptySymbol={
+                          <Star size={18} className=" text-gray-300" />
+                        }
+                        fullSymbol={
+                          <Star
+                            size={18}
+                            className="text-[#FFD700] fill-[#FFD700]"
+                          />
+                        }
+                        initialRating={ratings}
+                        readonly
+                      />
+                    </>
+                  )}
 
-              <span className="text-sm text-white font-bold">
-                (4.8/5 • 1.2k reviews)
-              </span>
+                  <span className="text-sm text-white font-bold">
+                    ({ratings}/5 • {formatter.format(reviews.length)} reviews)
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Rating
+                    emptySymbol={<Star size={18} className=" text-gray-300" />}
+                    fullSymbol={
+                      <Star
+                        size={18}
+                        className="text-[#FFD700] fill-[#FFD700]"
+                      />
+                    }
+                    initialRating={4}
+                    readonly
+                  />
+                  <span className="text-sm text-white font-bold">
+                    ({ratings}/5 • {formatter.format(reviews.length)} reviews)
+                  </span>
+                </>
+              )}
             </div>
-            <div className="flex  gap-4">
-              <Button
-                className="
-  bg-white text-[#FF0055] font-semibold 
-  px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
-  text-sm sm:text-base md:text-lg 
-  rounded-full 
-  hover:bg-gray-100 transition-transform transform hover:scale-105
-"
-              >
-                Follow
-              </Button>
 
-              <Button
-                onClick={() => setIsMessageOpen(true)}
-                className="bg-transparent border-2 border-white text-white px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
+            {sellerId !== user.id && (
+              <div className="flex  gap-4">
+                <Button
+                  onClick={() => handleFollow(user.id, sellerId)}
+                  className={` bg-white text-[#FF0055]
+                
+     font-semibold 
+    px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
+    text-sm sm:text-base md:text-lg 
+    rounded-full 
+    hover:bg-gray-100 transition-transform transform hover:scale-105
+  `}
+                >
+                  {isFollowing ? "Followed" : "Follow"}
+                </Button>
+
+                <Button
+                  onClick={() => setIsMessageOpen(true)}
+                  className="bg-transparent border-2 border-white text-white px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
   text-sm sm:text-base md:text-lg  rounded-full hover:bg-white hover:text-[#FF0055] transition"
-              >
-                <MessageSquare className="inline w-5 h-5 mr-2" /> Message
-              </Button>
-            </div>
+                >
+                  <MessageSquare className="inline w-5 h-5 mr-2" /> Message
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>

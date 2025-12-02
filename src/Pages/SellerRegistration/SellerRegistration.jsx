@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import SellerRegistrationForm from "../../components/SellerRegistrationForm/SellerRegistrationForm";
+import useSellers from "../../Utils/Hooks/useSellers";
 
 export const SellerRegistrationPage = () => {
   const PRIMARY_COLOR = "#FF0055";
+  const { refetch } = useSellers();
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] flex items-center justify-center p-4 sm:p-6 font-sans">
       <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden md:flex">
@@ -25,7 +27,10 @@ export const SellerRegistrationPage = () => {
             Please fill out the form below to launch your store.
           </p>
 
-          <SellerRegistrationForm PRIMARY_COLOR={PRIMARY_COLOR} />
+          <SellerRegistrationForm
+            PRIMARY_COLOR={PRIMARY_COLOR}
+            refetch={refetch}
+          />
         </motion.div>
       </div>
     </div>

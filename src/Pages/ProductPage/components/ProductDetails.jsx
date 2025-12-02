@@ -7,6 +7,7 @@ export default function ProductDetails({
   category,
   subcategory = "",
   isPending,
+  refetch,
 }) {
   const extrasConfig = getExtrasByCategory(category, subcategory);
   const extras = product.extras || {};
@@ -27,6 +28,7 @@ export default function ProductDetails({
       product={product}
       extraDetails={extraDetails}
       isPending={isPending}
+      refetch={refetch}
     />
   );
 }

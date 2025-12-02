@@ -79,6 +79,7 @@ export default function PasswordResetPanel({ onNavigate = () => {} }) {
                   <Button
                     type="submit"
                     disabled={loading}
+                    onClick={() => onNavigate("new-password")}
                     className="w-full bg-[#FF0055] text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-[#e6004d] transition-colors flex justify-center"
                   >
                     {loading ? "Processing..." : "Send Reset Link"}

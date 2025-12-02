@@ -3,10 +3,11 @@ import SearchFilterSort from "./components/SearchFilterSort";
 
 import Pagination from "../../components/ui/Pagination";
 
-import FlashSaleCountdown from "../Shared/FlashSaleCountdown/FlashSaleCountdown";
 import ProductCard from "../../components/ProductCard/ProductCard";
-import { sampleFlashSale } from "../../Utils/Helpers/Helpers";
-import { useRenderPageNumbers } from "../../Utils/Hooks/useRenderPageNumbers";
+
+import useFlashSaleProducts from "../../Utils/Hooks/useFlashSaleProducts";
+import { useRenderPageNumbers } from "../../Utils/Helpers/useRenderPageNumbers";
+import FlashSaleCountdown from "../Shared/FlashSaleCountdown/FlashSaleCountdown";
 
 export default function FlashSalePage() {
   const [sort, setSort] = useState("default");
@@ -15,6 +16,9 @@ export default function FlashSalePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
   // const [displayedProducts, setDisplayedProducts] = useState([]);
+
+  const { flashSaleProducts: flashProducts } = useFlashSaleProducts();
+  console.log(flashProducts);
 
   const categories = [
     "All",
@@ -26,29 +30,24 @@ export default function FlashSalePage() {
     "Sports",
   ];
 
-  let products = sampleFlashSale.saleProducts.filter(
+  let products = (flashProducts?.sale_products || []).filter(
     (p) => category === "All" || p.category === category
   );
 
   if (search)
     products = products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
+      p.product_name.toLowerCase().includes(search.toLowerCase())
     );
   if (sort === "priceLow")
-    products = [...products].sort((a, b) => a.price - b.price);
+    products = [...products].sort((a, b) => a.sale_price - b.sale_price);
   if (sort === "priceHigh")
-    products = [...products].sort((a, b) => b.price - a.price);
+    products = [...products].sort((a, b) => b.sale_price - a.sale_price);
   if (sort === "rating")
     products = [...products].sort((a, b) => b.rating - a.rating);
 
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
-  const flashSaleProducts = products.filter(
-    (p) => (p.rating > 4 || p.isNew) && p.stock > 30
-  );
-  const shuffledProducts = [...flashSaleProducts].sort(
-    () => 0.5 - Math.random()
-  );
+  const shuffledProducts = [...products].sort(() => 0.5 - Math.random());
   const paginated = shuffledProducts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -59,6 +58,7 @@ export default function FlashSalePage() {
     totalPages,
     setCurrentPage
   );
+  console.log("paginated", paginated);
 
   return (
     <div className="w-full bg-white font-sans text-gray-800">
@@ -84,7 +84,11 @@ export default function FlashSalePage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {paginated.map((product, index) => (
-                  <ProductCard key={index} item={product} />
+                  <ProductCard
+                    key={index}
+                    item={product}
+                    fromFlashSale={true}
+                  />
                 ))}
               </div>
               <Pagination

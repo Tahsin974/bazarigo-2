@@ -5,37 +5,71 @@ import ProductsGrid from "./components/ProductsGrid";
 import Pagination from "../../components/ui/Pagination";
 import { motion } from "framer-motion";
 
-import { useRenderPageNumbers } from "../../Utils/Hooks/useRenderPageNumbers";
-import useProducts from "../../Utils/Hooks/useProducts";
+import { useRenderPageNumbers } from "../../Utils/Helpers/useRenderPageNumbers";
+import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "../../components/Loading/Loading";
 
 export default function TrendingNowPage() {
-  const { products: allProducts } = useProducts();
-
+  const axiosPublic = useAxiosPublic();
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
   const [filterTag, setFilterTag] = useState("All");
   const [sortOption, setSortOption] = useState("default");
   const [searchTerm, setSearchTerm] = useState("");
+  const { data: AllProducts = [], isPending } = useQuery({
+    queryKey: ["trending-products"],
+    queryFn: async () => {
+      const res = await axiosPublic.get("/trending-products");
+      return res.data.products;
+    },
+  });
 
-  const filteredProducts = allProducts.filter((product) => {
+  const filteredProducts = AllProducts.filter((product) => {
     const matchesTag =
       filterTag === "All" ||
-      (filterTag === "Best Seller" && product.isBestSeller) ||
-      (filterTag === "Hot" && product.isHot) ||
-      (filterTag === "Trending" && product.isTrending) ||
-      (filterTag === "Limited Stock" && product.isLimitedStock) ||
-      (filterTag === "Exclusive" && product.isExclusive);
+      (filterTag === "Best Seller" && product.isbestSeller) ||
+      (filterTag === "Hot" && product.ishot) ||
+      (filterTag === "Trending" && product.istrending) ||
+      (filterTag === "Limited Stock" && product.islimitedstock) ||
+      (filterTag === "Exclusive" && product.isexclusive);
 
-    const matchesSearch = product.name
+    const matchesSearch = product.product_name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     return matchesTag && matchesSearch;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortOption === "priceLowHigh") return a.price - b.price;
-    if (sortOption === "priceHighLow") return b.price - a.price;
-    if (sortOption === "ratingHighLow") return b.rating - a.rating;
+    if (sortOption === "priceLowHigh")
+      return (
+        (a.sale_price > 0 ? a.sale_price : a.regular_price) -
+        (b.sale_price > 0 ? b.sale_price : b.regular_price)
+      );
+    if (sortOption === "priceHighLow")
+      return (
+        (b.sale_price > 0 ? b.sale_price : b.regular_price) -
+        (a.sale_price > 0 ? a.sale_price : a.regular_price)
+      );
+    if (sortOption === "ratingHighLow") {
+      // Compute b's rating
+      const bRating =
+        b.rating > 0
+          ? b.rating
+          : b.reviews && b.reviews.length > 0
+          ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
+          : 0;
+
+      // Compute a's rating
+      const aRating =
+        a.rating > 0
+          ? a.rating
+          : a.reviews && a.reviews.length > 0
+          ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
+          : 0;
+
+      return bRating - aRating; // High → Low
+    }
 
     return 0;
   });
@@ -62,6 +96,12 @@ export default function TrendingNowPage() {
     show: { opacity: 1, y: 0 },
   };
 
+  const renderPageNumbers = useRenderPageNumbers(
+    currentPage,
+    totalPages,
+    setCurrentPage
+  );
+
   return (
     <div className="w-full bg-gray-50 font-sans text-gray-800">
       <HeroSection />
@@ -75,23 +115,23 @@ export default function TrendingNowPage() {
         setSortOption={setSortOption}
       />
       <section className="py-12">
-        <div className="container mx-auto px-6">
-          <ProductsGrid
-            paginatedProducts={paginatedProducts}
-            containerVariants={containerVariants}
-            itemVariants={itemVariants}
-          />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            setCurrentPage={setCurrentPage}
-            renderPageNumbers={useRenderPageNumbers(
-              currentPage,
-              totalPages,
-              setCurrentPage
-            )}
-          />
-        </div>
+        {isPending ? (
+          <Loading />
+        ) : (
+          <div className="container mx-auto px-6">
+            <ProductsGrid
+              paginatedProducts={paginatedProducts}
+              containerVariants={containerVariants}
+              itemVariants={itemVariants}
+            />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
+              renderPageNumbers={renderPageNumbers}
+            />
+          </div>
+        )}
       </section>
     </div>
   );

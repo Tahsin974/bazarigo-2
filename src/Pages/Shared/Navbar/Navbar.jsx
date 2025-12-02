@@ -36,10 +36,10 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Background Overlay */}
-      <MobileOverlay
+      {/* <MobileOverlay
         isMenuOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-      />
+      /> */}
 
       {/* Mobile Navigation */}
       <MobileMenu isMenuOpen={isMenuOpen} />

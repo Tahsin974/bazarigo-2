@@ -17,7 +17,7 @@ export default function ProductGrid({
       }
     >
       {products.length === 0 && (
-        <div className="col-span-full text-center text-gray-500 py-8">
+        <div className="col-span-full text-center items-center flex justify-center text-gray-500 py-8 bg-white h-screen">
           No products found
         </div>
       )}

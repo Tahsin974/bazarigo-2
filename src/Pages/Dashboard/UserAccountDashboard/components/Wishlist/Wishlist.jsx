@@ -1,10 +1,33 @@
 import { Card } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../../../../Utils/Hooks/useAxiosPublic";
 
-export default function Wishlist({ activeTab, wishlist, setWishlist }) {
-  const removeItem = (id) => {
-    setWishlist((prev) => prev.filter((item) => item.id !== id));
+export default function Wishlist({ activeTab, wishlist, refetch }) {
+  const baseUrl = import.meta.env.VITE_BASEURL;
+  const axiosPublic = useAxiosPublic();
+  const removeItem = async (id) => {
+    try {
+      await axiosPublic.delete(`/wishlist/${id}`);
+      Swal.fire({
+        icon: "success",
+        title: "Product Removed From Wishlist Successfully",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      return refetch();
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: err.response?.data?.message || "Something went wrong",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
   };
 
   const moveToCart = (id) => {
@@ -17,6 +40,7 @@ export default function Wishlist({ activeTab, wishlist, setWishlist }) {
       timer: 1500,
     });
   };
+  console.log(wishlist);
 
   return (
     <div>
@@ -36,18 +60,18 @@ export default function Wishlist({ activeTab, wishlist, setWishlist }) {
                 <div className="space-y-4">
                   {wishlist.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.wishlistid}
                       className="flex flex-col sm:flex-row sm:items-center gap-4 border p-3 rounded-lg"
                     >
                       <img
-                        src={item.img}
-                        alt={item.name}
+                        src={`${baseUrl}${item.img}`}
+                        alt={item.productname}
                         className="w-full sm:w-24 h-40 sm:h-24 object-cover rounded"
                       />
 
                       <div className="flex-1">
                         <div className="font-medium text-base sm:text-lg">
-                          {item.name}
+                          {item.productname}
                         </div>
                         <div className="text-sm text-gray-500">
                           ৳{item.price}
@@ -62,7 +86,7 @@ export default function Wishlist({ activeTab, wishlist, setWishlist }) {
                           Move to Cart
                         </button>
                         <button
-                          // onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeItem(item.wishlistid)}
                           className="text-sm text-red-600 mt-2 flex items-center gap-1 hover:text-red-800 "
                         >
                           <Trash2 size={14} /> Remove

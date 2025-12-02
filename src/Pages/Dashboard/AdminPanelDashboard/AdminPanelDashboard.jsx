@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { samplePromos } from "./helpers/helpers";
+
 import * as XLSX from "xlsx";
 import DashboardView from "./views/DashboardView";
 import ProductsView from "./views/ProductsView";
@@ -13,74 +13,101 @@ import SettingsView from "./views/SettingsView";
 
 import ExportBtn from "../../../components/ui/ExportBtn";
 import Sidebar from "../../../components/Sidebar/Sidebar";
-import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
-import MyProfileView from "../../../components/MyProfileView/MyProfileView";
-import Drawer from "../../../components/Drawer/Drawer";
-import ProductModal from "../../../components/ProductModal/ProductModal";
-import {
-  sampleOrders,
-  sampleReturns,
-  sampleUsers,
-} from "../../../Utils/Helpers/Helpers";
-import AddSellerModal from "../../../components/AddSellerModal/AddSellerModal";
-import FlashSaleView from "./views/FlashSaleView";
-import DiscountModal from "../../../components/DiscountModal/DiscountModal";
-import axios from "axios";
-import ZoneView from "./views/ZoneView";
-import { useQuery } from "@tanstack/react-query";
-import PreviewModal from "../../../components/PreviewModal/PreviewModal";
-import EditProductModal from "../../../components/EditProductModal/EditProductModal";
-import OrderModal from "../../../components/OrderModal/OrderModal";
-import SellerModal from "../../../components/SellerModal/SellerModal";
-import CustomerModal from "../../../components/CustomerModal/CustomerModal";
-import AddCustomerModal from "../../../components/AddCustomerModal/AddCustomerModal";
 
+import useAxiosSecure from "../../../Utils/Hooks/useAxiosSecure";
+import useAuth from "../../../Utils/Hooks/useAuth";
+import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+import { useQuery } from "@tanstack/react-query";
+import useProducts from "../../../Utils/Hooks/useProducts";
+import useOrders from "../../../Utils/Hooks/useOrders";
+import useSellers from "../../../Utils/Hooks/useSellers";
+import usePayments from "../../../Utils/Hooks/usePayments";
+import useFlashSaleProducts from "../../../Utils/Hooks/useFlashSaleProducts";
+import usePromotions from "../../../Utils/Hooks/usePromotions";
+import useUsers from "../../../Utils/Hooks/useUsers";
+import OrderModal from "../../../components/Modals/OrderModal/OrderModal";
+import ImageGalleryModal from "../../../components/Modals/ImageGalleryModal/ImageGalleryModal";
+import PreviewModal from "../../../components/Modals/PreviewModal/PreviewModal";
+import SellerModal from "../../../components/Modals/SellerModal/SellerModal";
+import CustomerModal from "../../../components/Modals/CustomerModal/CustomerModal";
+import EditProductModal from "../../../components/Modals/EditProductModal/EditProductModal";
+import ProductModal from "../../../components/Modals/ProductModal/ProductModal";
+import MessageModal from "../../../components/Modals/MessageModal/MessageModal";
+import AddMemberModal from "../../../components/Modals/AddMemberModal/AddMemberModal";
+import AddCustomerModal from "../../../components/Modals/AddCustomerModal/AddCustomerModal";
+import DiscountModal from "../../../components/Modals/DiscountModal/DiscountModal";
+import AddSellerModal from "../../../components/Modals/AddSellerModal/AddSellerModal";
+import AddPromotionModal from "../../../components/Modals/AddPromotionModal/AddPromotionModal";
 import Swal from "sweetalert2";
-import AddPromotionModal from "../../../components/AddPromotionModal/AddPromotionModal";
+import Drawer from "../../../components/Drawer/Drawer";
+import FlashSaleView from "./views/FlashSaleView";
+import ZoneView from "./views/ZoneView";
+import NotificationsView from "../../../components/NotificationsView/NotificationsView";
+import MessagesView from "../../../components/MessagesView/MessagesView";
+import { useLocation } from "react-router";
+import useMessages from "../../../Utils/Hooks/useMessages";
 
 export default function AdminPanelDashboard() {
-  const [user, setUser] = useState({
-    name: "রাহিম উদ্দিন",
-    email: "rahim@example.com",
-    phone: "01712345678",
-    avatar: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
-  });
-  const [active, setActive] = useState("Dashboard");
-  const [showEditProfile, setShowEditProfile] = useState(false);
+  const location = useLocation();
 
-  const { data: products = [] } = useQuery({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const res = await axios.get("http://localhost:3000/products");
-      return res.data.products;
-    },
-  });
-  const [displayProducts, setDisplayProducts] = useState(products);
+  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
-  const [orders, setOrders] = useState(sampleOrders());
-  const [returns, setReturns] = useState(sampleReturns());
-  const [customers, setCustomers] = useState(sampleUsers());
-
-  const [sellers, setSellers] = useState([]);
-
-  useEffect(() => {
-    const newSampleSellers = async () => {
-      const res = await axios.get("http://localhost:3000/sellers");
-
-      setSellers(res.data.sellers);
-    };
-    newSampleSellers();
-  }, []);
-  const { data: payments = [], refetch } = useQuery({
-    queryKey: ["payments"],
-    queryFn: async () => {
-      const res = await axios.get("http://localhost:3000/payments");
-      return res.data.payments;
-    },
-  });
-  const [promotions, setPromotions] = useState(samplePromos());
-
+  const [active, setActive] = useState(location?.state || "Dashboard");
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
   const [selected, setSelected] = useState([]);
+
+  // Datas (Products,Sellers,Orders,FlashSale,Payments,Promotions,Coverage Areas,Returns,Customers,user)
+
+  const { user } = useAuth();
+  // , refetch: refetchMessages
+  const { myMessages } = useMessages();
+
+  const { data: admins = [], refetch: refetchAdmins } = useQuery({
+    queryKey: ["admins"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/admins");
+      return { admins: res.data.admins, moderators: res.data.moderators };
+    },
+  });
+  const { products, refetch: refetchProducts } = useProducts();
+  const { orders, refetch: refetchOrders } = useOrders();
+
+  const { sellers, refetch: refetchSellers } = useSellers();
+
+  const { payments, refetch: refetchPayments } = usePayments();
+  const { data: coverageAreas = [], refetch: refetchAreas } = useQuery({
+    queryKey: ["postalZones"],
+    queryFn: async () => {
+      const res = await axiosPublic.get("/postal-zones");
+
+      return res.data.postal_zones;
+    },
+  });
+  const { data: returnRequests = [], refetch: refetchReturnRequests } =
+    useQuery({
+      queryKey: ["ReturnRequests"],
+      queryFn: async () => {
+        const res = await axiosPublic.get("/return-requests");
+
+        return res.data.returnRequests;
+      },
+    });
+
+  const { flashSaleProducts, refetch: refetchFlashSale } =
+    useFlashSaleProducts();
+  const { promotions, refetch: refetchPromotions } = usePromotions();
+  const { data: returns = [], refetch: refetchReturnOrders } = useQuery({
+    queryKey: ["returns"],
+    queryFn: async () => {
+      const res = await axiosPublic.get("/return-orders");
+
+      return res.data.returnOrders;
+    },
+  });
+
+  const { users: customers, refetch: refetchCustomers } = useUsers();
 
   // Shared states for search/sort
   const [productSearch, setProductSearch] = useState("");
@@ -102,17 +129,13 @@ export default function AdminPanelDashboard() {
   const [promoPage, setPromoPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
   const [postalZonePage, setPostalZonePage] = useState(1);
+  const [flashSaleProductPage, setFlashSaleProductPage] = useState(1);
+  const [returnRequestsPage, setReturnRequestsPage] = useState(1);
 
-  const productPageSize = 6;
-  const orderPageSize = 6;
-  const returnOrderPageSize = 6;
-  const customerPageSize = 6;
-  const sellerPageSize = 6;
-  const paymentPageSize = 6;
-  const promoPageSize = 6;
-  const postalZonePageSize = 6;
+  const currentPageSize = 6;
 
   // Modal controls
+
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [editProductModalOpen, setEditProductModalOpen] = useState(false);
 
@@ -124,15 +147,18 @@ export default function AdminPanelDashboard() {
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [activeCustomer, setActiveCustomer] = useState(null);
 
-  const [orderModalOpen, setOrderModalOpen] = useState(null);
   const [activeOrder, setActiveOrder] = useState(null);
+  const [orderModalOpen, setOrderModalOpen] = useState(null);
+  const [activeReturnRequest, setActiveReturnRequest] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(null);
   const [showAddCustomerModal, setAddShowCustomerModal] = useState(false);
   const [showSellerModal, setShowSellerModal] = useState(false);
   const [showPromoModal, setShowPromoModal] = useState(false);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [activeMessage, setActiveMessage] = useState(null);
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
   // FlashSale
-  const [flashSaleProductPage, setFlashSaleProductPage] = useState(1);
-  const [flashSaleProducts, setFlashSaleProducts] = useState([]);
 
   const [duration, setDuration] = useState(0);
   const [discountModal, setDiscountModal] = useState(false);
@@ -143,26 +169,17 @@ export default function AdminPanelDashboard() {
   // File input ref for bulk upload
   const fileRef = useRef(null);
 
-  useEffect(() => setSelected([]), [active, displayProducts, products]);
+  useEffect(() => {
+    if (selected.length !== 0) {
+      setSelected([]);
+    }
+  }, [active, products, orders, customers, coverageAreas, sellers]);
 
-  const toggleSelect = (id) =>
+  const toggleSelect = (id) => {
+    console.log(id);
     setSelected((s) =>
       s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
     );
-
-  const bulkDelete = () => {
-    if (!selected.length) return alert("No items selected");
-    if (!confirm(`Delete ${selected.length} selected items?`)) return;
-    if (active === "Products")
-      // setProducts((p) => p.filter((x) => !selected.includes(x.id)));
-      setDisplayProducts((p) => p.filter((x) => !selected.includes(x.id)));
-    if (active === "Orders")
-      setOrders((o) => o.filter((x) => !selected.includes(x.id)));
-    if (active === "Customers")
-      setCustomers((c) => c.filter((x) => !selected.includes(x.id)));
-    if (active === "Sellers")
-      setSellers((s) => s.filter((x) => !selected.includes(x.id)));
-    setSelected([]);
   };
 
   const handleExport = () => {
@@ -172,34 +189,34 @@ export default function AdminPanelDashboard() {
       rows = products.map((product) => ({
         id: product.id,
         productName: product.product_name,
-        "regular price": product.regular_price ?? 0,
-        "sale price": product.sale_price ?? 0,
+        regular_price: product.regular_price ?? 0,
+        sale_price: product.sale_price ?? 0,
         discount: product.discount ?? 0,
-        rating: Number(product.rating),
-        isBestSeller: product.isbestseller ? "true" : "false",
-        isHot: product.ishot ? "true" : "false",
-        isNew: product.isnew ? "true" : "false",
-        isTrending: product.istrending ? "true" : "false",
-        isLimitedStock: product.islimitedstock ? "true" : "false",
-        isExclusive: product.isexclusive ? "true" : "false",
-        isFlashSale: product.isflashsale ? "true" : "false",
+        // rating: Number(product.rating),
+        // isBestSeller: product.isbestseller ? "Yes" : "No",
+        // isHot: product.ishot ? "Yes" : "No",
+        // isNew: product.isnew ? "Yes" : "No",
+        // isTrending: product.istrending ? "Yes" : "No",
+        // isLimitedStock: product.islimitedstock ? "Yes" : "No",
+        // isExclusive: product.isexclusive ? "Yes" : "No",
+        // isFlashSale: product.isflashsale ? "Yes" : "No",
         category: product.category ?? "",
         subcategory: product.subcategory ?? "",
         description: product.description ?? "",
         stock: product.stock ?? 0,
-        brand: product.brand ?? "",
+        brand: product.brand ?? "No Brand",
         weight: product.weight ?? 1,
         images: (product.images || []).join(";"), // multiple images separated by ;
         extras: JSON.stringify(product.extras || {}, null, 2),
-        createdAt: product.createdat
-          ? new Date(product.createdat).toISOString()
-          : new Date().toISOString(),
-        updatedAt: product.updatedat
-          ? new Date(product.updatedat).toISOString()
-          : "",
-        sellerId: product.sellerid ?? "",
-        sellerName: product.sellername ?? "",
-        sellerStoreName: product.sellerstorename ?? "",
+        // createdAt: product.createdat
+        //   ? new Date(product.createdat).toISOString()
+        //   : new Date\(\)\.toISOString\(\),
+        // updatedAt: product.updatedat
+        //   ? new Date(product.updatedat).toISOString()
+        //   : "",
+        // sellerId: product.sellerid ?? "",
+        // sellerName: product.sellername ?? "",
+        // sellerStoreName: product.sellerstorename ?? "",
       }));
     }
 
@@ -213,25 +230,31 @@ export default function AdminPanelDashboard() {
     if (active === "Sellers") rows = sellers;
     if (active === "Payments") rows = payments;
     if (active === "Promotions") rows = promotions.map((p) => ({ ...p }));
+    if (active === "Coverage Areas")
+      rows = coverageAreas.map((zone) => ({
+        division: zone.division,
+        district: zone.district,
+        thana: zone.thana,
+        place: zone.place,
+        postal_code: zone.postal_code,
+        latitude: zone.latitude,
+        longitude: zone.longitude,
+        isRemote: zone.is_remote ? "Hard To Reach" : "Normal",
+      }));
 
     if (!rows.length) return alert("Nothing to export for this section");
 
-    // ✅ Create Excel workbook
+    // Create Excel workbook
     const wb = XLSX.utils.book_new();
-
-    // ✅ Convert data to sheet
     const ws = XLSX.utils.json_to_sheet(rows);
 
-    // ✅ Optional: Set column width automatically
+    // Optional: set column widths
     const colWidths = Object.keys(rows[0]).map((key) => ({
       wch: Math.max(key.length, 20),
     }));
     ws["!cols"] = colWidths;
 
-    // ✅ Add sheet to workbook
     XLSX.utils.book_append_sheet(wb, ws, active);
-
-    // ✅ Save Excel file
     XLSX.writeFile(wb, `${active}_export.xlsx`);
   };
 
@@ -241,7 +264,7 @@ export default function AdminPanelDashboard() {
       setSelected(selected.length === id.length ? [] : id);
     }
     if (active === "Orders") {
-      const id = orders.map((o) => o.id);
+      const id = orders.map((o) => o.order_id);
       setSelected(selected.length === id.length ? [] : id);
     }
     if (active === "Customers") {
@@ -250,6 +273,10 @@ export default function AdminPanelDashboard() {
     }
     if (active === "Sellers") {
       const id = sellers.map((s) => s.id);
+      setSelected(selected.length === id.length ? [] : id);
+    }
+    if (active === "Coverage Areas") {
+      const id = coverageAreas.map((c) => c.id);
       setSelected(selected.length === id.length ? [] : id);
     }
   };
@@ -267,40 +294,42 @@ export default function AdminPanelDashboard() {
       // Convert boolean/number fields
       const products = jsonData.map((item) => ({
         ...item,
-        isBestSeller:
-          item.isBestSeller === true || item.isBestSeller === "true",
-        isHot: item.isHot === true || item.isHot === "true",
-        isNew: item.isNew === true || item.isNew === "true",
-        isTrending: item.isTrending === true || item.isTrending === "true",
-        isLimitedStock:
-          item.isLimitedStock === true || item.isLimitedStock === "true",
-        isExclusive: item.isExclusive === true || item.isExclusive === "true",
-        isFlashSale: item.isFlashSale === true || item.isFlashSale === "true",
-        "regular price": Number(item["regular price"] || 0),
-        "sale price": Number(item["sale price"] || 0),
+        isBestSeller: false,
+        isHot: false,
+        isNew: true,
+        isTrending: false,
+        isLimitedStock: false,
+        isExclusive: false,
+        isFlashSale: false,
+        regular_price: Number(item.regular_price || 0),
+        sale_price: Number(item.sale_price || 0),
         discount: Number(item.discount || 0),
         rating: Number(item.rating || 0),
         stock: Number(item.stock || 0),
-        weight: Number(item.weight || 1),
+        weight: 1,
         productName: item.productName,
         images: item.images ? item.images.split(";") : [],
         extras: item.extras ? JSON.parse(item.extras) : {},
-        createdAt: item.createdAt || new Date().toISOString(),
+        createdAt: new Date().toLocaleString("en-CA", {
+          timeZone: "Asia/Dhaka",
+          hour12: false,
+        }),
         updatedAt: item.updatedAt || null,
+        seller_id: "",
+        seller_name: "",
+        seller_store_name: "",
       }));
 
-      const res = await axios.post(
-        "http://localhost:3000/products/bulk",
-        products
-      );
+      const res = await axiosPublic.post("/products/bulk", products);
 
       if (res.data.insertedCount > 0) {
         Swal.fire({
           icon: "success",
-          title: "Customer Create Successfully",
+          title: "Product Upload Successfully",
           showConfirmButton: false,
           timer: 1500,
         });
+        refetchProducts();
         return (fileRef.current.value = null);
       } else {
         Swal.fire({
@@ -321,6 +350,62 @@ export default function AdminPanelDashboard() {
       });
     }
   };
+  const handleBulkUploadPostalZones = async () => {
+    const file = fileRef.current.files[0]; // file picker থেকে ফাইল
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+      // Convert to postal zone objects
+      const postalZones = jsonData.map((item) => ({
+        division: item.division,
+        district: item.district,
+        thana: item.thana,
+        place: item.place,
+        postal_code: item.postal_code,
+        latitude: Number(item.latitude || 0),
+        longitude: Number(item.longitude || 0),
+        is_remote:
+          item.is_remote === true || item.is_remote === "true" || false,
+      }));
+
+      console.log(postalZones);
+
+      // Send to backend
+      const res = await axiosPublic.post("/postal-zones/bulk", postalZones);
+
+      if (res.data.createdCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: `${res.data.createdCount} Postal Zones Created Successfully`,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        fileRef.current.value = null; // reset input
+        refetchAreas();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Oops! Try Again",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: `${err.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+
   const openNewProductModal = () => {
     setProductModalOpen(true);
   };
@@ -337,6 +422,11 @@ export default function AdminPanelDashboard() {
     setPreviewModalOpen(true);
     setActiveProduct(product);
   };
+  const openImageGalleryModal = (returnRequest) => {
+    setImageModalOpen(true);
+    setActiveReturnRequest(returnRequest);
+  };
+
   const openSellerModal = (seller) => {
     setSellerModalOpen(true);
     setActiveSeller(seller);
@@ -346,14 +436,24 @@ export default function AdminPanelDashboard() {
     setActiveCustomer(customer);
   };
 
-  const addSeller = (data) =>
-    setSellers((s) => [{ id: `s_${Date.now()}`, ...data }, ...s]);
-  const addPromo = (data) =>
-    setPromotions((p) => [
-      { id: `promo_${Date.now()}`, active: true, ...data },
-      ...p,
-    ]);
+  const openDiscountModal = (product) => {
+    setManualDiscount({});
+    setActiveDiscountProduct(product);
+    setDiscountModal(true);
+  };
+  const openMessageModal = (user) => {
+    setActiveMessage(user);
+    setMessageModalOpen(true);
+  };
 
+  const handleSetDiscount = (product) => {
+    setManualDiscount({
+      id: product.id,
+      discount: Number(manualDiscountValue),
+    });
+    setDiscountModal(false);
+  };
+  // 📦Products Filtering & Sorting
   const filteredProducts = useMemo(() => {
     let data = [...products];
     if (productSearch) {
@@ -384,24 +484,25 @@ export default function AdminPanelDashboard() {
       const q = orderSearch.toLowerCase();
       data = data.filter(
         (o) =>
-          (o.id || "").toLowerCase().includes(q) ||
-          (o.status || "").toLowerCase().includes(q) ||
-          (o.customer || "").toLowerCase().includes(q)
+          (o.order_id || "").toLowerCase().includes(q) ||
+          (o.customer_email || "").toLowerCase().includes(q) ||
+          (o.customer_name || "").toLowerCase().includes(q)
       );
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
     return data;
   }, [orders, orderSearch]);
 
+  // 📦 Return Orders Filtering & Sorting
   const filteredReturnOrders = useMemo(() => {
     let data = [...returns];
     if (returnOrderSearch) {
       const q = returnOrderSearch.toLowerCase();
       data = data.filter(
         (o) =>
-          (o.id || "").toLowerCase().includes(q) ||
-          (o.status || "").toLowerCase().includes(q) ||
-          (o.customer || "").toLowerCase().includes(q)
+          (o.order_id || "").toLowerCase().includes(q) ||
+          (o.customer_email || "").toLowerCase().includes(q) ||
+          (o.customer_name || "").toLowerCase().includes(q)
       );
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
@@ -453,6 +554,7 @@ export default function AdminPanelDashboard() {
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
     return data;
   }, [payments, paymentSearch]);
+
   //  🎟️ Promotions Filtering & Sorting
   const filteredPromotions = useMemo(() => {
     let data = [...promotions];
@@ -468,61 +570,38 @@ export default function AdminPanelDashboard() {
     return data;
   }, [promotions, promoSearch]);
 
+  const paginatedReturnRequests = returnRequests.slice(
+    (returnRequestsPage - 1) * currentPageSize,
+    returnRequestsPage * currentPageSize
+  );
   const paginatedProducts = filteredProducts.slice(
-    (productPage - 1) * productPageSize,
-    productPage * productPageSize
+    (productPage - 1) * currentPageSize,
+    productPage * currentPageSize
   );
   const paginatedOrders = filteredOrders.slice(
-    (orderPage - 1) * orderPageSize,
-    orderPage * orderPageSize
+    (orderPage - 1) * currentPageSize,
+    orderPage * currentPageSize
   );
   const paginatedReturnOrders = filteredReturnOrders.slice(
-    (returnOrderPage - 1) * returnOrderPageSize,
-    returnOrderPage * returnOrderPageSize
+    (returnOrderPage - 1) * currentPageSize,
+    returnOrderPage * currentPageSize
   );
   const paginatedCustomers = filteredCustomers.slice(
-    (customerPage - 1) * customerPageSize,
-    customerPage * customerPageSize
+    (customerPage - 1) * currentPageSize,
+    customerPage * currentPageSize
   );
   const paginatedSellers = filteredSellers.slice(
-    (sellerPage - 1) * sellerPageSize,
-    sellerPage * sellerPageSize
+    (sellerPage - 1) * currentPageSize,
+    sellerPage * currentPageSize
   );
   const paginatedPayments = filteredPayments.slice(
-    (paymentPage - 1) * paymentPageSize,
-    paymentPage * paymentPageSize
+    (paymentPage - 1) * currentPageSize,
+    paymentPage * currentPageSize
   );
   const paginatedPromotions = filteredPromotions.slice(
     (promoPage - 1) * 6,
     promoPage * 6
   );
-
-  const handleProfileSave = (e) => {
-    e && e.preventDefault();
-    setShowEditProfile(false);
-    alert("Profile updated");
-  };
-  // ----- Profile helpers -----
-  const handleAvatarChange = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setUser((prev) => ({ ...prev, avatar: url }));
-    }
-  };
-
-  const openDiscountModal = (product) => {
-    setActiveDiscountProduct(product);
-    setDiscountModal(true);
-  };
-
-  const handleSetDiscount = (product) => {
-    setManualDiscount({
-      id: product.id,
-      discount: Number(manualDiscountValue),
-    });
-    setDiscountModal(false);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
@@ -549,7 +628,7 @@ export default function AdminPanelDashboard() {
                 "Promotions",
                 "Reports",
                 "Coverage Areas",
-                "My Account",
+
                 "Settings",
               ]}
             />
@@ -563,6 +642,7 @@ export default function AdminPanelDashboard() {
               products={products}
               orders={orders}
               payments={payments}
+              messages={myMessages}
               items={[
                 "Dashboard",
                 "Products",
@@ -574,7 +654,7 @@ export default function AdminPanelDashboard() {
                 "Promotions",
                 "Reports",
                 "Coverage Areas",
-                "My Account",
+
                 "Settings",
               ]}
             >
@@ -590,7 +670,8 @@ export default function AdminPanelDashboard() {
                     {active !== "Dashboard" &&
                       active !== "My Account" &&
                       active !== "Settings" &&
-                      active !== "FlashSale" && (
+                      active !== "FlashSale" &&
+                      active !== "Notifications" && (
                         <>
                           {active === "Products" && (
                             <>
@@ -601,29 +682,63 @@ export default function AdminPanelDashboard() {
                                 className="hidden"
                                 onChange={handleBulkUpload}
                               />
-
                               <button
                                 onClick={() =>
                                   fileRef.current && fileRef.current.click()
                                 }
-                                className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
+                                className="btn border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
                               >
                                 Bulk Upload
                               </button>
+                              <ExportBtn exportBtnHandler={handleExport} />
                             </>
                           )}
-                          <ExportBtn exportBtnHandler={handleExport} />
+
+                          {active === "Coverage Areas" && (
+                            <>
+                              <input
+                                ref={fileRef}
+                                type="file"
+                                accept=".xlsx, .xls"
+                                className="hidden"
+                                onChange={handleBulkUploadPostalZones}
+                              />
+                              <button
+                                onClick={() =>
+                                  fileRef.current && fileRef.current.click()
+                                }
+                                className="btn border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
+                              >
+                                Bulk Upload Zones
+                              </button>
+                              <ExportBtn exportBtnHandler={handleExport} />
+                            </>
+                          )}
+
+                          {active === "Messages" &&
+                            user.role !== "super admin" && (
+                              <button className="btn border-none rounded shadow bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white sm:text-base text-[14px]">
+                                Chat with Bazarigo
+                              </button>
+                            )}
                         </>
                       )}
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-4">
+                <div className="p-4">
                   {active === "Dashboard" && (
                     <DashboardView
                       products={products}
                       orders={orders}
                       payments={payments}
+                      paginatedReturnRequests={paginatedReturnRequests}
+                      returnRequests={returnRequests}
+                      openImageGalleryModal={openImageGalleryModal}
+                      setReturnRequestsPage={setReturnRequestsPage}
+                      returnRequestsPage={returnRequestsPage}
+                      refetch={refetchReturnRequests}
+                      returnRequestsPageSize={currentPageSize}
                     />
                   )}
 
@@ -635,16 +750,13 @@ export default function AdminPanelDashboard() {
                       openNewProductModal={openNewProductModal}
                       openEditProductModal={openEditProductModal}
                       openPreviewModal={openPreviewModal}
-                      // setProducts={setProducts}
-                      setDisplayProducts={setDisplayProducts}
                       allSelected={
                         selected.length === products.length &&
                         products.length > 0
                       }
                       toggleSelectAll={selectAll}
-                      bulkDelete={bulkDelete}
                       productPage={productPage}
-                      productPageSize={productPageSize}
+                      productPageSize={currentPageSize}
                       setProductPage={setProductPage}
                       filteredProducts={filteredProducts}
                       paginatedProducts={paginatedProducts}
@@ -652,13 +764,12 @@ export default function AdminPanelDashboard() {
                       setProductSearch={setProductSearch}
                       productSort={productSort}
                       setProductSort={setProductSort}
+                      refetch={refetchProducts}
                     />
                   )}
                   {active === "FlashSale" && (
                     <FlashSaleView
                       products={products}
-                      setDisplayProducts={setDisplayProducts}
-                      displayProducts={displayProducts}
                       selected={selected}
                       setSelected={setSelected}
                       toggleSelect={toggleSelect}
@@ -666,9 +777,14 @@ export default function AdminPanelDashboard() {
                         selected.length === products.length &&
                         products.length > 0
                       }
+                      refetchProducts={refetchProducts}
+                      startTime={startTime}
+                      setStartTime={setStartTime}
+                      endTime={endTime}
+                      setEndTime={setEndTime}
                       toggleSelectAll={selectAll}
                       productPage={productPage}
-                      productPageSize={productPageSize}
+                      productPageSize={currentPageSize}
                       setProductPage={setProductPage}
                       filteredProducts={filteredProducts}
                       paginatedProducts={paginatedProducts}
@@ -677,7 +793,6 @@ export default function AdminPanelDashboard() {
                       productSort={productSort}
                       setProductSort={setProductSort}
                       flashSaleProducts={flashSaleProducts}
-                      setFlashSaleProducts={setFlashSaleProducts}
                       manualDiscount={manualDiscount}
                       setManualDiscount={setManualDiscount}
                       flashSaleProductPage={flashSaleProductPage}
@@ -691,6 +806,7 @@ export default function AdminPanelDashboard() {
                       setManualDiscountValue={setManualDiscountValue}
                       handleSetDiscount={handleSetDiscount}
                       activeDiscountProduct={activeDiscountProduct}
+                      refetch={refetchFlashSale}
                     />
                   )}
 
@@ -698,19 +814,17 @@ export default function AdminPanelDashboard() {
                     <OrdersView
                       orders={orders}
                       returns={returns}
-                      setReturns={setReturns}
                       openOrderModal={openOrderModal}
                       selected={selected}
                       toggleSelect={toggleSelect}
-                      setOrders={setOrders}
+                      refetch={refetchOrders}
                       allSelected={
                         selected.length === orders.length && orders.length > 0
                       }
                       toggleSelectAll={selectAll}
-                      bulkDelete={bulkDelete}
                       orderPage={orderPage}
                       setOrderPage={setOrderPage}
-                      orderPageSize={orderPageSize}
+                      orderPageSize={currentPageSize}
                       paginatedOrders={paginatedOrders}
                       orderSearch={orderSearch}
                       setOrderSearch={setOrderSearch}
@@ -721,7 +835,7 @@ export default function AdminPanelDashboard() {
                       paginatedReturnOrders={paginatedReturnOrders}
                       returnOrderPage={returnOrderPage}
                       setReturnOrderPage={setReturnOrderPage}
-                      returnOrderPageSize={returnOrderPageSize}
+                      returnOrderPageSize={currentPageSize}
                     />
                   )}
 
@@ -729,6 +843,7 @@ export default function AdminPanelDashboard() {
                     <CustomersView
                       customers={customers}
                       selected={selected}
+                      refetch={refetchCustomers}
                       toggleSelect={toggleSelect}
                       onAdd={() => setAddShowCustomerModal(true)}
                       allSelected={
@@ -737,10 +852,9 @@ export default function AdminPanelDashboard() {
                       }
                       openCustomerModal={openCustomerModal}
                       toggleSelectAll={selectAll}
-                      bulkDelete={bulkDelete}
                       customerPage={customerPage}
                       setCustomerPage={setCustomerPage}
-                      customerPageSize={customerPageSize}
+                      customerPageSize={currentPageSize}
                       paginatedCustomers={paginatedCustomers}
                       filteredCustomers={filteredCustomers}
                       customerSearch={customerSearch}
@@ -757,12 +871,12 @@ export default function AdminPanelDashboard() {
                       allSelected={
                         selected.length === sellers.length && sellers.length > 0
                       }
+                      refetch={refetchSellers}
                       openSellerModal={openSellerModal}
                       toggleSelectAll={selectAll}
-                      bulkDelete={bulkDelete}
                       sellerPage={sellerPage}
                       setSellerPage={setSellerPage}
-                      sellerPageSize={sellerPageSize}
+                      sellerPageSize={currentPageSize}
                       paginatedSellers={paginatedSellers}
                       filteredSellers={filteredSellers}
                       sellerSearch={sellerSearch}
@@ -773,12 +887,12 @@ export default function AdminPanelDashboard() {
                   {active === "Payments" && (
                     <PaymentsView
                       payments={payments}
-                      refetch={refetch}
+                      refetch={refetchPayments}
                       paymentPage={paymentPage}
                       setPaymentPage={setPaymentPage}
                       paymentSearch={paymentSearch}
                       setPaymentSearch={setPaymentSearch}
-                      paymentPageSize={paymentPageSize}
+                      paymentPageSize={currentPageSize}
                       filteredPayments={filteredPayments}
                       paginatedPayments={paginatedPayments}
                     />
@@ -788,16 +902,20 @@ export default function AdminPanelDashboard() {
                     <PromotionsView
                       promotions={promotions}
                       onAdd={() => setShowPromoModal(true)}
-                      setPromotions={setPromotions}
+                      refetch={refetchPromotions}
                       promoPage={promoPage}
                       setPromoPage={setPromoPage}
                       promoSearch={promoSearch}
                       setPromoSearch={setPromoSearch}
-                      promoPageSize={promoPageSize}
+                      promoPageSize={currentPageSize}
                       filteredPromotions={filteredPromotions}
                       paginatedPromotions={paginatedPromotions}
                     />
                   )}
+                  <NotificationsView
+                    activeTab={active}
+                    setActiveTab={setActive}
+                  />
 
                   {active === "Reports" && (
                     <ReportsView
@@ -814,36 +932,53 @@ export default function AdminPanelDashboard() {
                       postalZoneSearch={postalZoneSearch}
                       postalZonePage={postalZonePage}
                       setPostalZonePage={setPostalZonePage}
-                      postalZonePageSize={postalZonePageSize}
+                      postalZonePageSize={currentPageSize}
+                      coverageAreas={coverageAreas}
+                      refetch={refetchAreas}
+                      selected={selected}
+                      allSelected={
+                        selected.length === coverageAreas.length &&
+                        coverageAreas.length > 0
+                      }
+                      toggleSelectAll={selectAll}
+                      toggleSelect={toggleSelect}
+                    />
+                  )}
+                  {active === "Messages" && (
+                    <MessagesView
+                      messages={myMessages}
+                      openMessageModal={openMessageModal}
                     />
                   )}
 
                   {active === "My Account" && (
-                    <MyProfileView
-                      user={user}
-                      setShowEditProfile={setShowEditProfile}
-                      activeTab={active}
+                    <MyProfileView user={user} activeTab={active} />
+                  )}
+                  {active === "Settings" && (
+                    <SettingsView
+                      setShowAddUserModal={setShowAddMemberModal}
+                      admins={admins}
+                      refetchAdmins={refetchAdmins}
                     />
                   )}
-                  {active === "Settings" && <SettingsView />}
                 </div>
               </main>
             </Drawer>
           </div>
         </div>
 
-        <EditProfileModal
-          user={user}
-          setUser={setUser}
-          showEditProfile={showEditProfile}
-          setShowEditProfile={setShowEditProfile}
-          handleProfileSave={handleProfileSave}
-          handleAvatarChange={handleAvatarChange}
-        />
         {orderModalOpen && (
           <OrderModal
             order={activeOrder}
             onClose={() => setOrderModalOpen(false)}
+            refetch={refetchOrders}
+            refetchReturnOrders={refetchReturnOrders}
+          />
+        )}
+        {imageModalOpen && (
+          <ImageGalleryModal
+            images={activeReturnRequest}
+            onClose={() => setImageModalOpen(false)}
           />
         )}
 
@@ -871,11 +1006,30 @@ export default function AdminPanelDashboard() {
           <EditProductModal
             product={activeProduct}
             onClose={() => setEditProductModalOpen(false)}
+            refetch={refetchProducts}
           />
         )}
 
         {productModalOpen && (
-          <ProductModal onClose={() => setProductModalOpen(false)} />
+          <ProductModal
+            onClose={() => setProductModalOpen(false)}
+            refetch={refetchProducts}
+          />
+        )}
+
+        {messageModalOpen && (
+          <MessageModal
+            onClose={() => setMessageModalOpen(false)}
+            user={activeMessage}
+            senderId={user.id}
+            senderRole={user.role}
+          />
+        )}
+        {showAddMemberModal && (
+          <AddMemberModal
+            onClose={() => setShowAddMemberModal(false)}
+            refetch={refetchAdmins}
+          />
         )}
 
         {showAddCustomerModal && (
@@ -886,22 +1040,25 @@ export default function AdminPanelDashboard() {
             product={activeDiscountProduct}
             manualDiscountValue={manualDiscountValue}
             setManualDiscountValue={setManualDiscountValue}
-            setDiscountModal={setDiscountModal}
             handleSetDiscount={handleSetDiscount}
+            onClose={() => {
+              setDiscountModal(false);
+              setManualDiscountValue("");
+            }}
           />
         )}
 
         {showSellerModal && (
           <AddSellerModal
             onClose={() => setShowSellerModal(false)}
-            onSave={(d) => addSeller(d)}
+            refetch={refetchSellers}
           />
         )}
 
         {showPromoModal && (
           <AddPromotionModal
+            refetch={refetchPromotions}
             onClose={() => setShowPromoModal(false)}
-            onSave={(d) => addPromo(d)}
           />
         )}
       </>

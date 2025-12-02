@@ -5,8 +5,10 @@ import AddBtn from "../../../../components/ui/AddBtn";
 import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
 import { motion } from "framer-motion";
-import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import { Eye, PlusCircle } from "lucide-react";
+import Swal from "sweetalert2";
+import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 
 function CustomersView({
   customers,
@@ -15,7 +17,6 @@ function CustomersView({
   onAdd,
   allSelected,
   toggleSelectAll,
-  bulkDelete,
   customerPage,
   setCustomerPage,
   customerSearch,
@@ -24,7 +25,9 @@ function CustomersView({
   paginatedCustomers,
   filteredCustomers,
   openCustomerModal,
+  refetch,
 }) {
+  const axiosPublic = useAxiosPublic();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredCustomers.length / customerPageSize)
@@ -35,6 +38,68 @@ function CustomersView({
     totalPages,
     setCustomerPage
   );
+  const handleBulkDelete = async () => {
+    if (selected.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "No customers selected",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        icon: "warning",
+        title: "Are you sure you want to delete selected customers?",
+        showCancelButton: true,
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      });
+
+      if (result.isConfirmed) {
+        const res = await axiosPublic.delete("/users/bulk-delete", {
+          data: { ids: selected },
+        });
+
+        if (res.data.deletedCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Selected Customers removed successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops! Try again",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
+
+        refetch();
+      }
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: error.message,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
 
   return (
     <div>
@@ -63,13 +128,14 @@ function CustomersView({
             }}
           />
         </div>
+        {console.log(selected)}
 
         {/* Right: Buttons visible on large screens */}
         <div className="hidden md:flex items-center gap-2 order-3 lg:order-2">
           <AddBtn btnHandler={onAdd}>
             <PlusCircle /> Add Customer
           </AddBtn>
-          <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+          <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
         </div>
       </div>
 
@@ -122,7 +188,7 @@ function CustomersView({
                     <td>{c.user_name}</td>
                     <td>{c.name}</td>
                     <td>{c.email}</td>
-                    <td>{c.phone}</td>
+                    <td>{c.phone ? c.phone : "-"}</td>
                     <td>0</td>
                     <td>
                       <div className="flex items-center gap-2 justify-center">

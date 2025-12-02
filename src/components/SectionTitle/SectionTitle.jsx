@@ -7,7 +7,7 @@ export default function SectionTitle({ title, link = "/" }) {
       <h2 className="sm:text-3xl text-2xl md:text-4xl  text-center text-gray-800 ">
         {title}
       </h2>
-      <HashLink to={link} className="hover:text-[#FF0055] transition-colors ">
+      <HashLink to={link} className="hover:text-[#FF0055] transition-colors  ">
         <button className="flex items-center gap-1 ">
           <span>View All</span>{" "}
           <span>

@@ -6,7 +6,7 @@ export const InputField = ({
   errors,
   errorsMessage,
   label,
-  type,
+  type = "text",
   required,
   ...props
 }) => {

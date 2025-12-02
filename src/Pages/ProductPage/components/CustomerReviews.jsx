@@ -1,53 +1,209 @@
-import { useState } from "react";
-import { RatingStars } from "./RatingStars";
+import { useRef, useState } from "react";
+import { InputField } from "../../../components/ui/InputField";
+import { Plus, Star, X } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
+import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Rating from "react-rating";
+import moment from "moment/moment";
+import useAuth from "../../../Utils/Hooks/useAuth";
+import { RatingStars } from "../../../components/ui/RatingStars";
+
 // CustomerReviews.jsx content will be placed here
-export default function CustomerReviews({ reviews = [] }) {
-  const [allReviews, setAllReviews] = useState(reviews);
-  const [newReview, setNewReview] = useState({
-    name: "",
-    comment: "",
-    rating: 0,
+export default function CustomerReviews({ reviews = [], productId, refetch }) {
+  moment.updateLocale("en", {
+    relativeTime: {
+      future: "in %s",
+      past: "%s ago",
+      s: "few seconds",
+      ss: "%d seconds",
+      m: "1 minute",
+      mm: "%d minutes",
+      h: "1 hour",
+      hh: "%d hours",
+      d: "1 day",
+      dd: "%d days",
+      M: "1 month",
+      MM: "%d months",
+      y: "1 year",
+      yy: "%d years",
+    },
+  });
+  const axiosPublic = useAxiosPublic();
+  const queryClient = useQueryClient();
+  const [displayCount, setDisplayCount] = useState(5);
+  const baseUrl = import.meta.env.VITE_BASEURL;
+  const [selectedImages, setSelectedImages] = useState({});
+
+  // Click handler
+  const handleClick = (reviewIndex, img) => {
+    setSelectedImages((prev) => ({
+      ...prev,
+      [reviewIndex]: prev[reviewIndex] === img ? null : img,
+    }));
+  };
+
+  const mutation = useMutation({
+    mutationFn: (newReview) =>
+      axiosPublic.put(`/products/${productId}/reviews`, newReview),
+    onSuccess: () => {
+      Swal.fire({
+        icon: "success",
+        title: "Review submitted successfully",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      reset();
+      setImages([]);
+      refetch();
+      queryClient.invalidateQueries(["reviews"]);
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: "error",
+        title: error.response?.data?.message || "Something went wrong",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    },
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!newReview.name || !newReview.comment || newReview.rating === 0) return;
-    setAllReviews([
-      { ...newReview, date: new Date().toISOString() },
-      ...allReviews,
-    ]);
-    setNewReview({ name: "", comment: "", rating: 0 });
+  const { user } = useAuth();
+
+  const { register, handleSubmit, control, reset } = useForm({
+    defaultValues: {
+      name:
+        user?.role === "admin" || user?.role === "super admin"
+          ? ""
+          : user?.name,
+      comment: "",
+      rating: 0,
+      images: [],
+    },
+  });
+  const [images, setImages] = useState([]);
+  const fileInputRef = useRef(null);
+
+  const onSubmit = (data) => {
+    const payload = { ...data, images: images, date: new Date().toString() };
+    console.log(payload);
+    mutation.mutate(payload);
+  };
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    Promise.all(
+      files.map(
+        (file) =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file); // Base64 convert
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+          })
+      )
+    ).then((base64List) => {
+      setImages((prev) => [...prev, ...base64List]);
+    });
+  };
+
+  const removeImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+  const handleLoadMore = () => {
+    setDisplayCount((prev) => prev + 5); // প্রতি বার ৫টি review আরও দেখাবে
   };
 
   return (
     <section className="container mx-auto xl:px-6 lg:px-6  px-4 py-12 border-t border-gray-300">
       <h3 className="text-xl font-bold mb-6">Customer Reviews</h3>
       <form
-        onSubmit={handleSubmit}
-        className="mb-8 p-6 bg-gray-50 rounded-lg  space-y-4 shadow-md"
+        onSubmit={handleSubmit(onSubmit)}
+        className="mb-8 xl:p-6 lg:p-6 p-6 bg-gray-50 rounded-lg space-y-4 shadow-md"
       >
-        <input
-          type="text"
-          placeholder="Your Name"
-          value={newReview.name}
-          onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
-          className="w-full pl-12 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055] transition-all duration-300 focus:shadow-lg focus:scale-[1.02]"
-        />
-        <textarea
-          placeholder="Write your review..."
-          value={newReview.comment}
-          onChange={(e) =>
-            setNewReview({ ...newReview, comment: e.target.value })
-          }
-          className="w-full pl-12 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055] transition-all duration-300 focus:shadow-lg focus:scale-[1.02]"
-        />
+        {user?.role === "admin" ||
+          (user?.role === "super admin" && (
+            <InputField
+              type="text"
+              label="Your Name"
+              placeholder="Your Name"
+              {...register("name")}
+              className="w-full pl-12 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055] transition-all duration-300 focus:shadow-lg"
+            />
+          ))}
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Comment
+          </label>
+          <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20">
+            <button
+              type="button"
+              className="flex items-center justify-center w-10 h-10 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150"
+              aria-label="Add or New"
+              onClick={() => fileInputRef.current.click()}
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+              multiple
+              className="hidden"
+            />
+
+            <input
+              type="text"
+              placeholder="Write your review..."
+              {...register("comment")}
+              className="search-input flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full"
+            />
+          </div>
+
+          {images.length > 0 && (
+            <div className="flex gap-2 mt-2 overflow-x-auto">
+              {images.map((img, i) => (
+                <div
+                  key={i}
+                  className="relative w-auto h-20 rounded overflow-hidden flex-shrink-0"
+                >
+                  <img
+                    src={img}
+                    alt={`Preview ${i}`}
+                    className="w-full h-full object-fill rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 w-6 h-6 text-gray-500 rounded-full flex items-center justify-center transition"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center gap-2">
           <span className="font-medium">Your Rating:</span>
-          <RatingStars
-            rating={newReview.rating}
-            onRate={(val) => setNewReview({ ...newReview, rating: val })}
+          <Controller
+            control={control}
+            name="rating"
+            render={({ field }) => (
+              <RatingStars rating={field.value} onRate={field.onChange} />
+            )}
           />
         </div>
+
         <button
           type="submit"
           className="bg-[#FF0055] text-white px-6 py-3 rounded-lg shadow hover:bg-[#e6004e]"
@@ -56,22 +212,74 @@ export default function CustomerReviews({ reviews = [] }) {
         </button>
       </form>
 
-      {allReviews.length > 0 ? (
+      {reviews.length > 0 ? (
         <div className="space-y-6">
-          {allReviews.map((review, i) => (
+          {reviews.slice(0, displayCount).map((review, i) => (
             <div key={i} className="p-4 bg-white rounded-lg shadow-md">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold">{review.name}</span>
-                <RatingStars rating={review.rating} />
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex flex-col-reverse">
+                  <span className="font-semibold text-lg">{review.name}</span>
+                  <Rating
+                    emptySymbol={<Star size={18} className=" text-gray-300" />}
+                    fullSymbol={
+                      <Star
+                        size={18}
+                        className="text-[#FFD700] fill-[#FFD700]"
+                      />
+                    }
+                    initialRating={review.rating}
+                    readonly
+                  />
+                </div>
+
+                {review.date && (
+                  <span className="text-sm text-gray-500">
+                    {moment(review.date).fromNow()}
+                  </span>
+                )}
               </div>
               <p className="text-gray-700 text-sm mb-1">{review.comment}</p>
-              {review.date && (
-                <span className="text-xs text-gray-500">
-                  {new Date(review.date).toLocaleDateString()}
-                </span>
+
+              {review.images && review.images.length > 0 && (
+                <div className="flex gap-2 mt-2 overflow-x-auto">
+                  {review.images.map((img, j) => (
+                    <div
+                      key={j}
+                      className="w-24 h-24 rounded overflow-hidden flex-shrink-0 cursor-pointer"
+                      onClick={() => handleClick(i, `${baseUrl}${img}`)}
+                    >
+                      <img
+                        src={`${baseUrl}${img}`}
+                        alt={`Review ${i} image ${j}`}
+                        className="w-full h-full object-contain rounded-lg"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Bigger Image Below */}
+              {selectedImages[i] && (
+                <div className="mt-2 flex justify-start items-center gap-4 transition-all duration-300">
+                  <img
+                    src={selectedImages[i]}
+                    alt="Selected review"
+                    className="w-64 h-64 object-contain rounded-lg border border-gray-300"
+                  />
+                </div>
               )}
             </div>
           ))}
+
+          <div className="flex justify-center">
+            {displayCount < reviews.length && (
+              <button
+                onClick={handleLoadMore}
+                className="mt-4 px-4 py-2 bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white rounded "
+              >
+                Load More
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <p className="text-gray-500">No reviews yet. Be the first to review!</p>

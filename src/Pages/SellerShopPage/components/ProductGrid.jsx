@@ -1,6 +1,6 @@
 import ProductCard from "../../../components/ProductCard/ProductCard";
 import Pagination from "../../../components/ui/Pagination";
-import { useRenderPageNumbers } from "../../../Utils/Hooks/useRenderPageNumbers";
+import { useRenderPageNumbers } from "../../../Utils/Helpers/useRenderPageNumbers";
 import { motion } from "framer-motion";
 
 export default function ProductGrid({

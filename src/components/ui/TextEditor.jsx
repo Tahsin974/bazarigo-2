@@ -58,10 +58,6 @@ export default function TextEditor({ value, onChange }) {
         tabIndeX={1}
         onChange={onChange}
       />
-      <div>
-        <h2>Content Preview:</h2>
-        <div dangerouslySetInnerHTML={{ __html: value }} />
-      </div>
     </div>
   );
 }

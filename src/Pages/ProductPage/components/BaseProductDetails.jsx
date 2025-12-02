@@ -6,28 +6,56 @@ import {
   Truck,
   RotateCcw,
   Store,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomerReviews from "./CustomerReviews";
 import { RatingStars } from "./RatingStars";
 import VariantSelection from "./VariantSelection";
-import { Link, useNavigate } from "react-router";
-
+import { useNavigate } from "react-router";
 import ProductCard from "../../../components/ProductCard/ProductCard";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Swal from "sweetalert2";
 import useProducts from "../../../Utils/Hooks/useProducts";
 import { HashLink } from "react-router-hash-link";
+import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../../Utils/Hooks/useAuth";
+import { useLocation } from "react-router";
 
 export default function BaseProductDetails({
   product = {},
-  email = "tahsin123@gmail.com",
   isPending,
+  refetch,
 }) {
+  const baseUrl = import.meta.env.VITE_BASEURL;
+  const location = useLocation();
+  const { user } = useAuth();
+
+  const axiosPublic = useAxiosPublic();
   const [mainImage, setMainImage] = useState(null);
-  const [selectedVariant, setSelectedVariant] = useState({});
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const navigate = useNavigate();
+  const encodedId = btoa(product.seller_id);
+
+  useEffect(() => {
+    if (product.extras?.variants && product.extras.variants.length > 0) {
+      // sell_price > 0 অনুযায়ী filter & sort করা
+      const filteredVariants = product.extras.variants.filter(
+        (v) => v.sale_price > 0
+      );
+
+      if (filteredVariants.length > 0) {
+        const sortedVariants = [...filteredVariants].sort(
+          (a, b) => a.sale_price - b.sale_price
+        );
+        setSelectedVariant(sortedVariants[0]);
+      } else {
+        // যদি সব sell_price 0 হয়, তাহলে প্রথম variant select করা
+        setSelectedVariant(product.extras.variants[0]);
+      }
+    }
+  }, [product.extras?.variants]);
 
   useEffect(() => {
     if (product.images && product.images.length > 0) {
@@ -40,20 +68,28 @@ export default function BaseProductDetails({
       Object.keys(selectedVariant).length > 0 &&
       product.extras?.variants
     ) {
+      // const matchedVariant = product.extras.variants.find((variant) =>
+      //   Object.entries(selectedVariant).every(([key, value]) => {
+      //     // normalize keys: trim and lowercase
+      //     const variantKey = Object.keys(variant).find(
+      //       (k) => k.toLowerCase() === key.toLowerCase()
+      //     );
+
+      //     return variantKey && variant[variantKey] === value;
+      //   })
+      // );
+      const optionKeys = Object.keys(product.extras.variants[0]).filter(
+        (k) => !["sale_price", "regular_price", "stock"].includes(k)
+      );
+
       const matchedVariant = product.extras.variants.find((variant) =>
-        Object.entries(selectedVariant).every(([key, value]) => {
-          // normalize keys: trim and lowercase
-          const variantKey = Object.keys(variant).find(
-            (k) => k.toLowerCase() === key.toLowerCase()
-          );
-          return variantKey && variant[variantKey] === value;
-        })
+        optionKeys.every((key) => variant[key] === selectedVariant[key])
       );
 
       if (matchedVariant) {
         return {
-          sale_price: matchedVariant["sale price"],
-          regular_price: matchedVariant["regular price"],
+          sale_price: matchedVariant.sale_price,
+          regular_price: matchedVariant.regular_price,
           stock: matchedVariant.stock,
         };
       }
@@ -74,62 +110,22 @@ export default function BaseProductDetails({
   useEffect(() => {
     const fetchWishlistStatus = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3000/wishlist?email=${email}&id=${product.id}`
+        const res = await axiosPublic.get(
+          `/wishlist?email=${user?.email}&id=${product.id}`
         );
         setIsSelect(res.data.isInWishlist);
       } catch (err) {
         console.error("Wishlist check error:", err);
       }
     };
-    fetchWishlistStatus();
-  }, [email, product.id]);
+    if (user && user.email) {
+      fetchWishlistStatus();
+    }
+  }, [user?.email, product.id]);
 
   // Button toggle
-  const handleWishlistBtn = async () => {
-    const newToggle = !isSelect;
-    setIsSelect(newToggle); // UI update
-
-    try {
-      const res = await axios.post("http://localhost:3000/wishlist", {
-        email,
-        productId: product.id,
-        productName: product.product_name,
-        price: product.sale_price,
-        img: product.images[0],
-        toggle: newToggle,
-      });
-      if (res.data.createdCount > 0) {
-        Swal.fire({
-          icon: "success",
-          title: "Product Added To Wishlist Successfully",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      } else if (res.data.deletedCount > 0) {
-        Swal.fire({
-          icon: "success",
-          title: "Product Remove From Wishlist Successfully",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Opps! Try Again",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      }
-    } catch (err) {
-      console.error("Wishlist toggle error:", err);
-      setIsSelect(!newToggle); // UI revert if error
-    }
-  };
 
   if (!product || Object.keys(product).length === 0) return null;
-
-  const rating = Number.isFinite(product.rating) ? product.rating : 0;
 
   // Function to get related products
   function getRelatedProducts(products, currentProduct, limit = 4) {
@@ -154,111 +150,60 @@ export default function BaseProductDetails({
 
   const handleBuyNowBtn = async (product) => {
     try {
-      const checkOutItem = {
-        product_Id: product.id,
-        product_name: product.product_name,
-        sale_price: product.sale_price,
-        product_img: product.images[0],
-        regular_price: product.regular_price,
-        variants: selectedVariant,
-        weight: product.weight,
-        brand: product.brand,
-        qty: 1,
-      };
+      if (user && user.email) {
+        const checkOutItem = {
+          product_Id: product.id,
+          product_name: product.product_name,
+          sale_price: sale_price,
+          product_img: product.images[0],
+          product_category: product.category,
+          regular_price: regular_price,
+          variants: selectedVariant,
+          weight: parseInt(product.weight),
+          brand: product?.brand || "No Brand",
+          qty: 1,
+        };
 
-      const user = {
-        email: "tahsinislam974@gmail.com",
-        id: "438fdd77-ae20-40f9-9878-66342f07ac30", // userId backend API call এর জন্য
-      };
-
-      // === Step 1: Delivery fetch ===
-      const deliveryRes = await axios.get("http://localhost:3000/deliveries", {
-        params: {
-          sellerId: "2c576f40-7bbb-4df0-87ec-389e9a10a5ce",
+        const deliveryPayload = {
+          sellerId: product.seller_id || "SELA4976743F7B6",
+          sellerName: product.seller_name,
+          sellerStoreName: product.seller_store_name,
           userId: user.id,
-          weight: parseFloat(product.weight || 0), // ensure number
-          orderAmount: product.sale_price, // single item price
+          weight: parseInt(product.weight || 0), // ensure number
+          orderAmount: sale_price === 0 ? regular_price : sale_price, // single item price
           isCod: false, // বা তোমার state অনুযায়ী
-        },
-      });
+        };
+        console.log(deliveryPayload);
 
-      const deliveries = deliveryRes.data.result[0] || {};
-
-      // === Step 2: Prepare cart payload with delivery info ===
-      const payLoad = {
-        sellerId: "2c576f40-7bbb-4df0-87ec-389e9a10a5ce",
-        productinfo: [checkOutItem],
-        deliveries, // attach delivery info
-      };
-      navigate("/checkout", { state: { items: [payLoad] } });
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      return Swal.fire({
-        icon: "error",
-        title: "Something went wrong!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    }
-  };
-  const handleAddToCart = async (product) => {
-    try {
-      const cartItem = {
-        product_Id: product.id,
-        product_name: product.product_name,
-        sale_price: product.sale_price,
-        product_img: product.images[0],
-        regular_price: product.regular_price,
-        variants: selectedVariant,
-        weight: product.weight,
-        brand: product.brand,
-        qty: 1,
-      };
-
-      const user = {
-        email: "tahsinislam974@gmail.com",
-        id: "438fdd77-ae20-40f9-9878-66342f07ac30", // userId backend API call এর জন্য
-      };
-
-      // === Step 1: Delivery fetch ===
-      const deliveryRes = await axios.get("http://localhost:3000/deliveries", {
-        params: {
-          sellerId: "2c576f40-7bbb-4df0-87ec-389e9a10a5ce",
-          userId: user.id,
-          weight: parseFloat(product.weight || 0), // ensure number
-          orderAmount: product.sale_price, // single item price
-          isCod: false, // বা তোমার state অনুযায়ী
-        },
-      });
-
-      const deliveries = deliveryRes.data.result[0] || {};
-
-      // === Step 2: Prepare cart payload with delivery info ===
-      const payLoad = {
-        sellerId: "2c576f40-7bbb-4df0-87ec-389e9a10a5ce",
-        productInfo: [cartItem],
-        deliveries, // attach delivery info
-      };
-
-      // === Step 3: Add to cart API call ===
-      const res = await axios.post(
-        `http://localhost:3000/carts?email=${user.email}`,
-        payLoad
-      );
-
-      if (res.data.createdCount > 0 || res.data.updatedCount > 0) {
-        return Swal.fire({
-          icon: "success",
-          title: "Product Added To Cart Successfully",
-          showConfirmButton: false,
-          timer: 1500,
+        // === Step 1: Delivery fetch ===
+        const deliveryRes = await axiosPublic.get("/deliveries", {
+          params: deliveryPayload,
         });
+
+        const deliveries = deliveryRes.data.result[0] || {};
+
+        // === Step 2: Prepare cart payload with delivery info ===
+        const payLoad = {
+          sellerid: product.seller_id || "SELA4976743F7B6",
+          seller_name: product.seller_name,
+          seller_store_name: product.seller_store_name,
+          productinfo: [checkOutItem],
+          deliveries, // attach delivery info
+        };
+        navigate("/checkout", { state: { items: [payLoad] } });
       } else {
-        return Swal.fire({
-          icon: "error",
-          title: `${res.data.message}`,
-          showConfirmButton: false,
-          timer: 1500,
+        Swal.fire({
+          title: "You Are Not Logged In",
+          text: "Please Login For Buy This Product",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#00C853",
+          cancelButtonColor: "#f72c2c",
+          confirmButtonText: "Yes, Login",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/sign-up", { state: { pathName: location.pathname } });
+          }
         });
       }
     } catch (err) {
@@ -268,10 +213,103 @@ export default function BaseProductDetails({
         title: "Something went wrong!",
         showConfirmButton: false,
         timer: 1500,
+        toast: true,
+        position: "top",
       });
     }
   };
+  const handleAddToCart = async (product) => {
+    try {
+      if (user && user.email) {
+        const cartItem = {
+          product_Id: product.id,
+          product_name: product.product_name,
+          sale_price: sale_price,
+          product_img: product.images[0],
+          product_category: product.category,
+          regular_price: regular_price,
+          variants: selectedVariant,
+          weight: product.weight,
+          brand: product?.brand || "No Brand",
+          qty: 1,
+        };
 
+        const deliveryPayload = {
+          sellerId: product.seller_id || "SELA4976743F7B6",
+
+          userId: user.id,
+          weight: parseInt(product.weight || 0), // ensure number
+          orderAmount: sale_price === 0 ? regular_price : sale_price, // single item price
+          isCod: false, // বা তোমার state অনুযায়ী
+        };
+
+        // === Step 1: Delivery fetch ===
+        const deliveryRes = await axiosPublic.get("/deliveries", {
+          params: deliveryPayload,
+        });
+
+        const deliveries = deliveryRes.data.result[0] || {};
+
+        // === Step 2: Prepare cart payload with delivery info ===
+        const payLoad = {
+          sellerId: product.seller_id || "SELA4976743F7B6",
+
+          productInfo: [cartItem],
+          deliveries, // attach delivery info
+        };
+
+        // === Step 3: Add to cart API call ===
+        const res = await axiosPublic.post(
+          `/carts?email=${user?.email}`,
+          payLoad
+        );
+
+        if (res.data.createdCount > 0 || res.data.updatedCount > 0) {
+          return Swal.fire({
+            icon: "success",
+            title: "Product Added To Cart Successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        } else {
+          return Swal.fire({
+            icon: "error",
+            title: `${res.data.message}`,
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
+      } else {
+        Swal.fire({
+          title: "You Are Not Logged In",
+          text: "Please Login For Add Product To The Cart",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#00C853",
+          cancelButtonColor: "#f72c2c",
+          confirmButtonText: "Yes, Login",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/sign-up", { state: { pathName: location.pathname } });
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      return Swal.fire({
+        icon: "error",
+        title: "Something went wrong!",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+    }
+  };
   const handleShare = async (product) => {
     const shareData = {
       title: product.name || "Check this product",
@@ -291,7 +329,69 @@ export default function BaseProductDetails({
       alert("Link copied to clipboard!");
     }
   };
+  const handleWishlistBtn = async () => {
+    const newToggle = !isSelect;
+    setIsSelect(newToggle); // UI update
 
+    try {
+      if (user && user.email) {
+        const res = await axiosPublic.post("/wishlist", {
+          email: user?.email,
+          productId: product.id,
+          productName: product.product_name,
+          price:
+            product.sale_price > 0 ? product.sale_price : product.regular_price,
+          img: product.images[0],
+          toggle: newToggle,
+        });
+        if (res.data.createdCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Product Added To Wishlist Successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        } else if (res.data.deletedCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Product Remove From Wishlist Successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Opps! Try Again",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
+      } else {
+        Swal.fire({
+          title: "You Are Not Logged In",
+          text: "Please Login For Add Product To The Wishlist",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#00C853",
+          cancelButtonColor: "#f72c2c",
+          confirmButtonText: "Yes, Login",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/sign-up", { state: { pathName: location.pathname } });
+          }
+        });
+      }
+    } catch (err) {
+      console.log("Wishlist toggle error:", err);
+      setIsSelect(!newToggle); // UI revert if error
+    }
+  };
   return (
     <div className="w-full bg-white text-gray-800 font-sans">
       {isPending ? (
@@ -309,9 +409,9 @@ export default function BaseProductDetails({
             >
               {product.images && product.images[0] ? (
                 <img
-                  src={`http://localhost:3000${mainImage}`}
+                  src={`${baseUrl}${mainImage}`}
                   alt=""
-                  className="w-full max-h-[500px] object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                  className="w-full max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
                 <div className="w-full  flex items-center justify-center text-gray-400  object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105">
@@ -320,16 +420,46 @@ export default function BaseProductDetails({
               )}
 
               {product.images && product.images.length > 0 && (
-                <div className="flex gap-4 mt-4 overflow-x-auto">
-                  {product.images.map((thumb, i) => (
-                    <img
-                      key={i}
-                      src={`http://localhost:3000${thumb}`}
-                      alt={`Thumbnail ${i + 1}`}
-                      className="w-20 h-20 object-cover rounded-lg border hover:border-[#FF0055] cursor-pointer"
-                      onClick={() => setMainImage(thumb)}
-                    />
-                  ))}
+                <div className="relative mt-4 flex justify-center px-6">
+                  {/* Prev Button */}
+                  <button
+                    onClick={() => {
+                      document
+                        .getElementById("thumbScroll")
+                        .scrollBy({ left: -120, behavior: "smooth" });
+                    }}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-800 px-2 py-2 rounded-full"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  {/* Scroll Area */}
+                  <div
+                    id="thumbScroll"
+                    className="flex gap-4 overflow-x-auto no-scrollbar mx-3"
+                  >
+                    {product.images.map((thumb, i) => (
+                      <img
+                        key={i}
+                        src={`${baseUrl}${thumb}`}
+                        alt=""
+                        className="w-20 h-20 object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer"
+                        onClick={() => setMainImage(thumb)}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => {
+                      document
+                        .getElementById("thumbScroll")
+                        .scrollBy({ left: 120, behavior: "smooth" });
+                    }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-800 px-2 py-2 rounded-full"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
                 </div>
               )}
             </motion.div>
@@ -343,21 +473,28 @@ export default function BaseProductDetails({
               <h1 className="text-3xl md:text-4xl font-bold">
                 {product.product_name || "Unnamed Product"}
               </h1>
-              <HashLink
-                to={`/seller-page/rahimghosh/store#`}
-                className="flex gap-x-1.5 items-center my-1 text-gray-500 hover:text-orange-400 "
-              >
-                <Store size={20} />
-                <span>Rahim Ghosh</span>
-              </HashLink>
+              {/* id: product.seller_id  */}
+              {user && user.email && (
+                <HashLink
+                  to={`/seller-page/${product.seller_store_name}/store?id=${encodedId}#`}
+                  className="flex gap-x-1.5 items-center my-1 text-gray-500 hover:text-orange-400 "
+                >
+                  <Store size={20} />
+                  <span>{product.seller_store_name || "Rohim Ghosh"}</span>
+                </HashLink>
+              )}
 
               <div className="flex items-center gap-5">
                 <p className="text-[#FF0055] text-2xl  mt-3">
                   <span className="font-bold">
-                    ৳ {sale_price.toLocaleString("en-IN") || "—"}
+                    {sale_price > 0 ? (
+                      <> ৳ {sale_price.toLocaleString("en-IN") || "—"}</>
+                    ) : (
+                      <> ৳ {regular_price.toLocaleString("en-IN") || "—"}</>
+                    )}
                   </span>
                 </p>
-                {product.regular_price > 1 && (
+                {sale_price > 0 && (
                   <p className="text-gray-400 text-2xl  mt-3">
                     <span className="font-bold line-through">
                       ৳ {regular_price.toLocaleString("en-IN") || "—"}
@@ -365,8 +502,39 @@ export default function BaseProductDetails({
                   </p>
                 )}
               </div>
+              {user?.role === "seller" ||
+              user?.role === "admin" ||
+              user?.role === "super admin" ? (
+                <div className="flex items-center justify-between">
+                  <RatingStars
+                    rating={
+                      Number(product.rating) > 0
+                        ? product.rating
+                        : product.reviews && product.reviews.length > 0
+                        ? product.reviews.reduce((a, r) => a + r.rating, 0) /
+                          product.reviews.length
+                        : 0
+                    }
+                    reviews={product.reviews}
+                  />
+                  <button className="text-gray-600" onClick={handleShare}>
+                    <Share2 size={25} />
+                  </button>
+                </div>
+              ) : (
+                <RatingStars
+                  rating={
+                    Number(product.rating) > 0
+                      ? product.rating
+                      : product.reviews && product.reviews.length > 0
+                      ? product.reviews.reduce((a, r) => a + r.rating, 0) /
+                        product.reviews.length
+                      : 0
+                  }
+                  reviews={product.reviews}
+                />
+              )}
 
-              <RatingStars rating={rating} reviews={product.reviews} />
               {product.stock !== undefined && (
                 <p className="mt-2 text-sm">
                   {stock > 0 ? (
@@ -379,7 +547,7 @@ export default function BaseProductDetails({
                 </p>
               )}
               <p className="text-lg">
-                <strong>Brand:</strong> {product.brand}
+                <strong>Brand:</strong> {product?.brand || "No Brand"}
               </p>
 
               <VariantSelection
@@ -389,44 +557,52 @@ export default function BaseProductDetails({
               />
 
               <div className="mt-8 flex flex-wrap gap-4">
-                <button
-                  onClick={() => handleAddToCart(product)}
-                  className="bg-[#FF0055] text-white sm:px-8  sm:py-4  px-4 py-3 rounded-full shadow-md hover:bg-[#e6004e] transition flex items-center justify-center w-full sm:w-auto cursor-pointer"
-                >
-                  <ShoppingBag className="w-5 h-5 mr-2" /> Add to Cart
-                </button>
+                {user?.role !== "seller" &&
+                  user?.role !== "admin" &&
+                  user?.role !== "super admin" && (
+                    <>
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="bg-[#FF0055] text-white sm:px-8  sm:py-4  px-4 py-3 rounded-full shadow-md hover:bg-[#e6004e] transition flex items-center justify-center w-full sm:w-auto cursor-pointer"
+                      >
+                        <ShoppingBag className="w-5 h-5 mr-2" /> Add to Cart
+                      </button>
 
-                <button
-                  onClick={() => handleBuyNowBtn(product)}
-                  className="bg-gray-200 text-gray-800  sm:px-8  sm:py-4 px-4 py-3 rounded-full shadow hover:bg-gray-300 transition justify-center w-full sm:w-auto cursor-pointer"
-                >
-                  Buy Now
-                </button>
+                      <button
+                        onClick={() => handleBuyNowBtn(product)}
+                        className="bg-gray-200 text-gray-800  sm:px-8  sm:py-4 px-4 py-3 rounded-full shadow hover:bg-gray-300 transition justify-center w-full sm:w-auto cursor-pointer"
+                      >
+                        Buy Now
+                      </button>
 
-                <button
-                  onClick={handleWishlistBtn}
-                  className="bg-gray-100 text-gray-600  sm:px-8 sm:py-4 px-4 py-3 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
-                >
-                  <Heart className={`w-5 h-5 ${isSelect && "fill-red-600"} `} />
-                </button>
-
-                <button
-                  onClick={handleShare}
-                  className="bg-gray-100 text-gray-600 px-4 py-3 sm:px-8  sm:py-4 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
-                >
-                  <Share2 className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-6 sm:text-base text-sm text-gray-700 border border-dashed p-4 rounded-lg border-gray-300">
-                <div className="flex flex-col sm:flex-row items-center gap-2 sm:text-left text-center">
-                  <Truck size={25} className=" text-[#FF0055]" />
-                  <span>Enjoy Free Delivery On Orders Above ৳2,500!</span>
-                </div>
-                <div className="flex flex-col sm:flex-row items-center gap-2">
-                  <RotateCcw size={25} className=" text-[#FF0055]" />
-                  <span>7-day return policy</span>
-                </div>
+                      <button
+                        onClick={handleWishlistBtn}
+                        className="bg-gray-100 text-gray-600  sm:px-8 sm:py-4 px-4 py-3 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
+                      >
+                        <Heart
+                          className={`w-5 h-5 ${isSelect && "fill-red-600"} `}
+                        />
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        className="bg-gray-100 text-gray-600 px-4 py-3 sm:px-8  sm:py-4 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
+                      >
+                        <Share2 className="w-5 h-5" />
+                      </button>
+                      <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-6 sm:text-base text-sm text-gray-700 border border-dashed p-4 rounded-lg border-gray-300">
+                        <div className="flex flex-col sm:flex-row items-center gap-2 sm:text-left text-center">
+                          <Truck size={25} className=" text-[#FF0055]" />
+                          <span>
+                            Enjoy Free Delivery On Orders Above ৳2,500!
+                          </span>
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
+                          <RotateCcw size={25} className=" text-[#FF0055]" />
+                          <span>7-day return policy</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
               </div>
             </motion.div>
           </section>
@@ -443,7 +619,11 @@ export default function BaseProductDetails({
             </div>
           </section>
 
-          <CustomerReviews reviews={product.reviewsList || []} />
+          <CustomerReviews
+            reviews={product.reviews || []}
+            productId={product.id}
+            refetch={refetch}
+          />
 
           {relatedProducts.length > 0 && (
             <section className="bg-gray-50 py-16">

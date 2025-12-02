@@ -1,66 +1,177 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import axios from "axios";
-import { Trash2 } from "lucide-react";
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { HashLink } from "react-router-hash-link";
+import Swal from "sweetalert2";
+import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../Utils/Hooks/useAuth";
 
 export default function OrderSummary({
-  appliedPromos,
-  setAppliedPromos,
   items,
   isCashOnDelivery,
-
-  allowPromo = false,
-  showTitle = true,
-  promoCodes = {
-    SAVE10: { type: "flat", value: 10 },
-    SAVE15: { type: "percent", value: 15 },
-    FREESHIP: { type: "freeship" },
-  },
-  promo,
-  setPromo,
-  isFreeDelivery,
+  allowPromo,
   refetch,
+  paymentMethod,
+  customerPhone,
 }) {
-  const userId = "cd2528e8-4725-4c10-aac7-f7824d7ce1bb";
+  const axiosPublic = useAxiosPublic();
+  const [promoCode, setPromoCode] = useState(null);
+  const [appliedPromo, setAppliedPromo] = useState({ code: null, discount: 0 });
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const { user } = useAuth();
+
+  const applyPromo = async () => {
+    if (!promoCode) return;
+
+    try {
+      const res = await axiosPublic.post("/apply-promo", {
+        userId: user.id,
+        code: promoCode.toUpperCase(),
+      });
+
+      setAppliedPromo({
+        code: promoCode.toUpperCase(),
+        discount: res.data.discount || 0,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: res.data.message,
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 3000,
+      });
+
+      setPromoCode("");
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: err.response?.data?.message || "Something went wrong!",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 3000,
+      });
+    }
+  };
+
+  const orderItems = items.flatMap((item) => {
+    const productInfo = item.productinfo.map((prod) => {
+      const product = {
+        ...prod,
+        order_status: "Processing",
+      };
+      return product;
+    });
+
+    return {
+      ...item,
+      productinfo: productInfo,
+    };
+  });
 
   const subtotal = items.reduce((cartSum, item) => {
-    const itemTotal = item.productinfo.reduce(
-      (sum, prod) => sum + prod.qty * prod.sale_price,
-      0
-    );
+    const itemTotal = item.productinfo.reduce((sum, prod) => {
+      const price = prod.sale_price > 0 ? prod.sale_price : prod.regular_price;
+      return sum + prod.qty * price;
+    }, 0);
+
     return cartSum + itemTotal;
   }, 0);
 
-  const newSubtotal = items.map((item) => {
-    const itemTotal = item.productinfo.reduce(
-      (sum, prod) => sum + prod.qty * prod.sale_price,
-      0
-    );
-    return itemTotal;
-  });
-  console.log("new Subtotal", newSubtotal);
   const deliveryPerItem = items.reduce(
     (sum, item) => sum + item.deliveries.total_delivery_charge,
     0
   );
-  const total = subtotal + deliveryPerItem;
+  // fresh subtotal + delivery
+  let baseTotal = subtotal + deliveryPerItem;
 
-  useEffect(() => {}, []);
-  const handleApplyPromo = () => {
-    const code = promo.trim().toUpperCase();
-    if (!code || !promoCodes[code]) return setPromo("");
-    if (appliedPromos.find((p) => p.code === code)) return setPromo("");
-    setAppliedPromos([...appliedPromos, { code, ...promoCodes[code] }]);
-    setPromo("");
+  // appliedPromo শুধু টাকার মান (discount)
+  let total = appliedPromo.discount
+    ? Math.max(0, baseTotal - appliedPromo.discount)
+    : baseTotal;
+
+  const handleOrderBtn = async () => {
+    try {
+      const paymentPayload = {
+        payment_date: new Date().toLocaleString("en-CA", {
+          timeZone: "Asia/Dhaka",
+          hour12: false,
+        }),
+        amount: total,
+        payment_method: paymentMethod,
+        payment_status: "pending",
+        phoneNumber: customerPhone,
+      };
+      const payload = {
+        orderDate: new Date().toLocaleString("en-CA", {
+          timeZone: "Asia/Dhaka",
+          hour12: false,
+        }),
+        paymentMethod,
+        paymentStatus: "pending",
+        customerId: user.id,
+        customerEmail: user.email,
+        customerPhone,
+        customerName: user?.name,
+        customerAddress:
+          user?.address +
+          "," +
+          user?.thana +
+          "," +
+          user?.district +
+          "-" +
+          +user?.postal_code,
+
+        orderItems: orderItems,
+        subtotal,
+        deliveryCharge: deliveryPerItem,
+        total,
+      };
+
+      const res = await axiosPublic.post(`/orders`, {
+        payload,
+        paymentPayload,
+        promoCode: appliedPromo.code,
+        userId: user.id,
+      });
+
+      if (res.data.createdCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: "Order Placed Successfully",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+      return navigate("/");
+    } catch (err) {
+      if (err.response) {
+        return Swal.fire({
+          icon: "error",
+          title: `${err.response.data.message}`,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+      return Swal.fire({
+        icon: "error",
+        title: "Something went wrong!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
   };
 
-  const handleRemovePromo = (code) =>
-    setAppliedPromos(appliedPromos.filter((p) => p.code !== code));
   useEffect(() => {
     const fetchAndUpdateDelivery = async () => {
       try {
-        const updatedItems = await Promise.all(
+        await Promise.all(
           items.map(async (item) => {
             // seller এর total weight
             const totalWeight = item.productinfo.reduce(
@@ -73,10 +184,10 @@ export default function OrderSummary({
             );
 
             // Delivery API call
-            const res = await axios.get("http://localhost:3000/deliveries", {
+            const res = await axiosPublic.get("/deliveries", {
               params: {
                 sellerId: item.sellerid,
-                userId,
+                userId: user.id,
                 weight: totalWeight,
                 orderAmount: newSubtotal,
                 isCod: isCashOnDelivery,
@@ -86,7 +197,7 @@ export default function OrderSummary({
             const deliveries = res.data.result[0] || {};
 
             // Backend update call
-            await axios.patch("http://localhost:3000/carts", {
+            await axiosPublic.patch("/carts", {
               cartId: item.cartid,
               deliveries,
             });
@@ -95,7 +206,6 @@ export default function OrderSummary({
           })
         );
 
-        console.log("items updated with deliveries:", updatedItems);
         // যদি state রাখতে চাও
         // setItemsWithDeliveries(updatedItems);
       } catch (err) {
@@ -105,132 +215,153 @@ export default function OrderSummary({
 
     fetchAndUpdateDelivery();
     refetch();
-  }, [isCashOnDelivery]);
+  }, []);
 
-  console.log(items);
+  // Fetch active promo on load
+  useEffect(() => {
+    const fetchAppliedPromo = async () => {
+      try {
+        const res = await axiosPublic.get(`/user-promotions/${user.id}/active`);
+        if (res.data.promo) {
+          setAppliedPromo({
+            code: res.data.promo.code,
+            discount: res.data.promo.discount,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch applied promo:", err);
+      }
+    };
+    fetchAppliedPromo();
+  }, []);
 
   return (
-    <Card className="rounded-2xl shadow bg-white">
-      <CardContent className="md:p-6 p-4 space-y-4 sm:text-base text-sm">
-        {showTitle && (
+    <>
+      <Card className="rounded-2xl shadow bg-white">
+        <CardContent className="md:p-6 p-4 space-y-4 sm:text-base text-sm">
           <h2 className="text-xl font-semibold text-gray-800">Order Summary</h2>
-        )}
-        <div className="divide-y">
-          <div className="pb-3">
-            {items.map((item) => (
-              <div key={item.cartid}>
-                {item.productinfo.map((prod) => (
-                  <div
-                    key={prod.product_Id}
-                    className="flex justify-between py-3 text-gray-700"
-                  >
-                    <h2>
-                      {prod.product_name || "Empty"}{" "}
-                      <span className="text-sm text-gray-500">
-                        {prod.qty > 1 && <span>(x{prod.qty})</span>}
-                      </span>
-                    </h2>
-                    <h2>
-                      ৳
-                      {(prod.sale_price * prod.qty || 0).toLocaleString(
-                        "en-IN"
-                      )}
-                    </h2>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <div className="space-y-3">
-            <div className="flex justify-between text-gray-600 mt-4">
-              <h2>Subtotal</h2>
-              <h2>৳{subtotal.toLocaleString("en-IN") || 0}</h2>
+
+          <div className="divide-y">
+            <div className="pb-3">
+              {items.map((item) => (
+                <div key={item.cartid}>
+                  {item.productinfo.map((prod) => (
+                    <div
+                      key={prod.product_Id}
+                      className="flex justify-between py-3 text-gray-700"
+                    >
+                      <h2>
+                        {prod.product_name || "Empty"}{" "}
+                        <span className="text-sm text-gray-500">
+                          {prod.qty > 1 && <span>(x{prod.qty})</span>}
+                        </span>
+                      </h2>
+                      <h2>
+                        ৳
+                        {(
+                          (prod.sale_price > 0
+                            ? prod.sale_price
+                            : prod.regular_price) * prod.qty
+                        ).toLocaleString("en-IN")}
+                      </h2>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between text-gray-600">
-              <h2>Delivery Charges</h2>
-              <h2>
-                {isFreeDelivery ? (
-                  <span className="text-green-600 font-medium">Free</span>
+            <div className="space-y-3">
+              <div className="flex justify-between text-gray-600 mt-4">
+                <h2>Subtotal</h2>
+                <h2>৳{subtotal.toLocaleString("en-IN") || 0}</h2>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <h2>Delivery Charges</h2>
+                <h2>৳ {deliveryPerItem || 0}</h2>
+              </div>
+            </div>
+          </div>
+
+          {isCashOnDelivery && (
+            <div className="flex justify-center text-gray-600">
+              <h2>Cash On Delivery</h2>
+            </div>
+          )}
+
+          <div className="flex justify-between font-bold text-gray-800 sm:text-lg text-base border-t pt-4">
+            <h2>Total</h2>
+            <h2>৳{total.toLocaleString("en-IN") || 0}</h2>
+          </div>
+          {allowPromo && (
+            <div className="mt-4">
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="text"
+                  placeholder="Promo code"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  className="flex-1 px-4 py-2 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none w-full sm:w-auto"
+                />
+                {!promoCode ? (
+                  <Button className="bg-gray-300 text-gray-500 px-4 py-2 rounded-md  transition ">
+                    Apply
+                  </Button>
                 ) : (
-                  `৳ ${deliveryPerItem || 0}`
+                  <Button
+                    onClick={applyPromo}
+                    className="bg-[#00C853] text-white px-4 py-2 rounded-md hover:bg-[#00B34A] transition cursor-pointer"
+                  >
+                    Apply
+                  </Button>
                 )}
-              </h2>
-            </div>
-          </div>
-        </div>
-
-        {isCashOnDelivery && (
-          <div className="flex justify-center text-gray-600">
-            <h2>Cash On Delivery</h2>
-          </div>
-        )}
-
-        {appliedPromos?.length > 0 && (
-          <div className="space-y-2">
-            {appliedPromos.map((p, idx) => (
-              <div
-                key={idx}
-                className="flex justify-between text-green-600 font-medium"
-              >
-                <span>
-                  {p.code}{" "}
-                  {p.type === "flat"
-                    ? `($${p.value} off)`
-                    : p.type === "percent"
-                    ? `(${p.value}% off)`
-                    : "(Free delivery)"}
-                </span>
-                <button
-                  onClick={() => handleRemovePromo(p.code)}
-                  className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
-                >
-                  <Trash2 size={20} />
-                </button>
+                {appliedPromo.code && (
+                  <p className="text-green-600 mt-1">
+                    Promo "{appliedPromo.code}" applied! Discount: ৳
+                    {appliedPromo.discount}
+                  </p>
+                )}
               </div>
-            ))}
-          </div>
-        )}
-        <div className="flex justify-between font-bold text-gray-800 sm:text-lg text-base border-t pt-4">
-          <h2>Total</h2>
-          <h2>৳{total.toLocaleString("en-IN") || 0}</h2>
-        </div>
-        {allowPromo && (
-          <div className="mt-4">
-            <div className="flex flex-wrap gap-2">
-              <input
-                type="text"
-                placeholder="Promo code"
-                value={promo}
-                onChange={(e) => setPromo(e.target.value)}
-                className="flex-1 px-4 py-2 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none w-full sm:w-auto"
-              />
-              <Button
-                onClick={handleApplyPromo}
-                className="bg-[#00C853] text-white px-4 py-2 rounded-md hover:bg-[#00B34A] transition cursor-pointer"
-              >
-                Apply
-              </Button>
             </div>
-            {/* {Object.keys(promoCodes).length > 0 && (
-              <p className="text-sm text-gray-500 mt-2">
-                Try codes:{" "}
-                {Object.entries(promoCodes).map(
-                  ([code, { type, value }], idx) => (
-                    <span key={idx} className="font-semibold mr-3">
-                      {code}{" "}
-                      {type === "flat"
-                        ? `($${value} off)`
-                        : type === "percent"
-                        ? `(${value}% off)`
-                        : "(Free Shipping)"}
-                    </span>
-                  )
-                )}
-              </p>
-            )} */}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+
+      {!location.pathname.includes("cart") ? (
+        !items?.length ||
+        (!isCashOnDelivery && paymentMethod === "") ||
+        !user?.name ||
+        !user?.address ||
+        !user?.district ||
+        !user?.thana ||
+        !user?.postal_code ||
+        !customerPhone ? (
+          <Button
+            disabled={"disabled"}
+            className="w-full mt-6 bg-gray-300 text-gray-500  py-3 rounded-full transition "
+          >
+            Place Order
+          </Button>
+        ) : (
+          <Button
+            onClick={handleOrderBtn}
+            className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition"
+          >
+            Place Order
+          </Button>
+        )
+      ) : !items?.length ? (
+        <Button
+          disabled={"disabled"}
+          className="w-full mt-6 bg-gray-300 text-gray-500  py-3 rounded-full transition "
+        >
+          Proceed Checkout
+        </Button>
+      ) : (
+        <HashLink to={"/checkout#"} state={{ items: items }}>
+          <Button className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition">
+            Proceed Checkout
+          </Button>
+        </HashLink>
+      )}
+    </>
   );
 }

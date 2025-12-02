@@ -1,98 +1,513 @@
+import DatePicker from "react-datepicker";
+import AddBtn from "../../../../../components/ui/AddBtn";
+import { InputField } from "../../../../../components/ui/InputField";
 import SelectField from "../../../../../components/ui/SelectField";
+import { useState } from "react";
+import useAuth from "../../../../../Utils/Hooks/useAuth";
+import useAxiosPublic from "../../../../../Utils/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
+import { Camera, Plus, User } from "lucide-react";
 
-export default function AccountSettings({
-  activeTab,
-  settings,
-  setSettings,
-  saveSettings,
-}) {
+export default function AccountSettings({ activeTab }) {
+  const axiosPublic = useAxiosPublic();
+
+  const [profileImg, setProfileImg] = useState(null);
+
+  const { user, refreshUser } = useAuth();
+  const [gender, setGender] = useState(user.gender || "");
+  // const [provider, setProvider] = useState("");
+  const [date, setDate] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState(null);
+  const [confirmPassword, setConfirmPassword] = useState(null);
+
+  const [payments, setPayments] = useState(() => {
+    const userPayment = user.payment_methods;
+
+    // যদি payment_methods খালি বা object থাকে, একটি empty array দিয়ে শুরু
+    if (!userPayment || Object.keys(userPayment).length === 0) {
+      return [{ provider: "", account: "", is_primary: false }];
+    }
+
+    // যদি array থাকে
+    if (Array.isArray(userPayment)) {
+      return userPayment.map((pay) => ({
+        provider: pay.provider || "",
+        account: pay.account || "",
+        is_primary: pay.is_primary || false,
+      }));
+    }
+
+    // Default fallback
+    return [{ provider: "", account: "", is_primary: false }];
+  });
+  console.log(payments);
+
+  // Add Payment Field
+  const addPaymentField = () => {
+    setPayments([
+      ...payments,
+      { provider: "", account: "", is_primary: false },
+    ]);
+  };
+
+  // Remove Payment Field
+  const removePayment = (index) => {
+    setPayments(payments.filter((_, i) => i !== index));
+  };
+
+  // Handle field change
+  const handlePaymentChange = (index, field, value) => {
+    const updated = [...payments];
+    updated[index][field] = value;
+    setPayments(updated);
+  };
+
+  // Toggle primary payment
+  const setPrimaryPayment = (index) => {
+    const updated = payments.map((pay, i) => ({
+      ...pay,
+      is_primary: i === index ? !pay.is_primary : false,
+    }));
+    setPayments(updated);
+  };
+
+  const baseUrl = import.meta.env.VITE_BASEURL;
+
+  const handleProfileImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProfileImg(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUpdate = async (type, updatedData) => {
+    try {
+      // পুরো ইউজার অবজেক্ট থেকে কপি
+      const { new_password, old_password, ...safedata } = updatedData;
+      let payload = {
+        ...user, // আগের সব ডেটা রেখে দিচ্ছি
+        ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
+
+        date_of_birth: user.date_of_birth || date,
+      };
+      if (old_password && new_password) {
+        payload = {
+          ...user, // আগের সব ডেটা রেখে দিচ্ছি
+          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
+          new_password,
+          old_password,
+
+          date_of_birth: user.date_of_birth || date,
+        };
+      }
+      if (profileImg) {
+        payload = {
+          ...user, // আগের সব ডেটা রেখে দিচ্ছি
+          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
+          img: profileImg,
+
+          date_of_birth: user.date_of_birth || date,
+        };
+      }
+
+      console.log(payload);
+
+      const res = await axiosPublic.put(`/users/update/${user.id}`, payload);
+      console.log(res.data);
+
+      if (res.data.updatedCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: `${type} updated successfully`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+          position: "top",
+        });
+        refreshUser();
+        return window.location.reload();
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: err.response?.data?.message || "Something went wrong!",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+    }
+  };
   return (
     <div>
       {/* Settings */}
       {activeTab === "Settings" && (
-        <form
-          onSubmit={saveSettings}
-          className="bg-white p-6 rounded-2xl shadow-md space-y-4 max-w-md"
-        >
-          <h3 className="text-lg font-semibold">Settings</h3>
-          <label className="flex flex-col gap-1">
-            <span>Language</span>
-            <div>
-              <SelectField
-                selectValue={settings.language}
-                selectValueChange={(e) =>
-                  setSettings((prev) => ({ ...prev, language: e.target.value }))
-                }
-                isWide={true}
-              >
-                <option>English</option>
-                <option>বাংলা</option>
-              </SelectField>
-            </div>
-          </label>
+        <>
+          <div className="space-y-12 ">
+            {/* Personal Information*/}
 
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-              checked={settings.notifications}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  notifications: e.target.checked,
-                }))
-              }
-            />{" "}
-            Enable Notifications
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-              checked={settings.twoFactor}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  twoFactor: e.target.checked,
-                }))
-              }
-            />{" "}
-            Enable Two-Factor Authentication
-          </label>
-          <label className="block">
-            Old Password
-            <input
-              type="password"
-              value={settings.oldPassword}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  oldPassword: e.target.value,
-                }))
-              }
-              placeholder="Old password"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white mt-1"
-            />
-          </label>
-          <label className="block">
-            New Password
-            <input
-              type="password"
-              value={settings.password}
-              onChange={(e) =>
-                setSettings((prev) => ({ ...prev, password: e.target.value }))
-              }
-              placeholder="New password"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2  focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white mt-1"
-            />
-          </label>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md"
-          >
-            Save Settings
-          </button>
-        </form>
+            <section className="bg-white rounded-lg shadow-sm p-4 space-y-4">
+              <h3 className="font-semibold text-lg">Personal Information</h3>
+              <div>
+                <div className="flex justify-center mb-6">
+                  <div className="relative w-max">
+                    {/* মূল User আইকন */}
+                    <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
+                      {user?.img || profileImg ? (
+                        <img
+                          src={user?.img ? `${baseUrl}${user.img}` : profileImg}
+                          alt="product"
+                          className="w-full h-full object-fill rounded-full"
+                        />
+                      ) : (
+                        <User size={32} />
+                      )}
+                    </div>
+
+                    {/* ছোট পেন আইকন */}
+                    <div
+                      onClick={() => {
+                        document.getElementById("image-upload").click();
+                      }}
+                      className="absolute bottom-0 right-0 bg-white p-1 rounded-full border border-gray-300 cursor-pointer"
+                    >
+                      <Camera size={12} className="text-[#FF0055]" />
+                    </div>
+                  </div>
+                </div>
+
+                <input
+                  id="image-upload"
+                  name="file-upload"
+                  type="file"
+                  className="sr-only"
+                  accept="image/*"
+                  onChange={handleProfileImageUpload}
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <InputField
+                  label="Full Name"
+                  placeholder="Full Name"
+                  id="full_name"
+                  defaultValue={user.name}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+
+                <div className="flex flex-col">
+                  <label className="text-sm mb-1">Date Of Birth</label>
+                  <DatePicker
+                    selected={date || user.date_of_birth}
+                    onChange={setDate}
+                    dateFormat="dd/MM/yyyy"
+                    yearDropdownItemNumber={40}
+                    scrollableYearDropdown
+                    showYearDropdown
+                    showMonthDropdown
+                    placeholderText={"Select Birth Date"}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Gender
+                  </label>
+                  <SelectField
+                    selectValue={gender}
+                    selectValueChange={(e) => setGender(e.target.value)}
+                    isWide={true}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Gender
+                    </option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Others">Others</option>
+                  </SelectField>
+                </div>
+
+                <InputField
+                  label="Phone Number"
+                  placeholder="Phone Number"
+                  id="phone_number"
+                  defaultValue={user.phone}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+
+                <InputField
+                  label="Address"
+                  placeholder="Address"
+                  id="address"
+                  defaultValue={user.address}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+
+                <InputField
+                  label="District"
+                  placeholder="District"
+                  id="district"
+                  defaultValue={user.district}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+                <InputField
+                  label="Thana"
+                  placeholder="Thana"
+                  id="thana"
+                  defaultValue={user.thana}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+                <InputField
+                  label="Postal Code"
+                  placeholder="Postal Code"
+                  id="postal_code"
+                  type="number"
+                  defaultValue={user.postal_code}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                      e.preventDefault(); // keyboard up/down disable
+                    }
+                  }}
+                  onWheel={(e) => e.target.blur()}
+                />
+                <AddBtn
+                  btnHandler={() =>
+                    handleUpdate("Personal Information", {
+                      full_name: document.getElementById("full_name").value,
+                      phone: document.getElementById("phone_number").value,
+                      address: document.getElementById("address").value,
+                      district: document.getElementById("district").value,
+                      thana: document.getElementById("thana").value,
+                      postal_code: document.getElementById("postal_code").value,
+                      gender: gender === "" ? user.gender : gender,
+                    })
+                  }
+                >
+                  Save
+                </AddBtn>
+              </div>
+            </section>
+
+            {/* Account Information */}
+
+            <section className="bg-white rounded-lg shadow-sm p-4 space-y-4">
+              <h3 className="font-semibold text-lg">Account Information</h3>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <InputField
+                  label="Email"
+                  placeholder="Email"
+                  type="email"
+                  id="email"
+                  defaultValue={user.email}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+                <InputField
+                  label="Old Password"
+                  placeholder="Old Password"
+                  type="password"
+                  defaultValue={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+                <InputField
+                  label="New Password"
+                  placeholder="New Password"
+                  type="password"
+                  disabled={password.length === 0}
+                  defaultValue={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white disabled:bg-gray-100 m-0"
+                />
+                <InputField
+                  label="Confirm Password"
+                  placeholder="Confirm Password"
+                  type="password"
+                  disabled={password.length === 0}
+                  defaultValue={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white disabled:bg-gray-100 m-0"
+                />
+              </div>
+              <div className="flex flex-wrap gap-4 mt-2">
+                <AddBtn
+                  btnHandler={() =>
+                    handleUpdate("Account Information", {
+                      email: document.getElementById("email").value,
+                    })
+                  }
+                >
+                  Save
+                </AddBtn>
+                {newPassword?.length && confirmPassword === newPassword && (
+                  <AddBtn
+                    btnHandler={() =>
+                      handleUpdate("New Password Set ", {
+                        old_password: password,
+                        new_password: newPassword,
+                      })
+                    }
+                  >
+                    Set New Password
+                  </AddBtn>
+                )}
+              </div>
+            </section>
+            {/* Payment Information */}
+
+            {/* <section className="bg-white rounded-lg shadow-sm p-4 space-y-4">
+              <h3 className="font-semibold text-lg">Payment Information</h3>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Mobile Bank Name
+                  </label>
+                  <SelectField
+                    selectValue={provider}
+                    selectValueChange={(e) => setProvider(e.target.value)}
+                    isWide={true}
+                  >
+                    <option value="" disabled>
+                      Select Provider
+                    </option>
+                    <option value="bKash">bKash</option>
+                    <option value="Nagad">Nagad</option>
+                    <option value="Rocket">Rocket</option>
+                  </SelectField>
+                </div>
+
+                <InputField
+                  label="Mobile Banking Account Number"
+                  placeholder="11-digit mobile number"
+                  type="tel"
+                  id="mobile_bank_account_number"
+                  defaultValue={user.phone}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                />
+              </div>
+              <div className="flex flex-wrap gap-4 mt-2">
+                <AddBtn
+                  btnHandler={() =>
+                    handleUpdate("Payment Information", {
+                      mobile_bank_name: provider,
+                      mobile_bank_account_number: document.getElementById(
+                        "mobile_bank_account_number"
+                      ).value,
+                    })
+                  }
+                >
+                  Save
+                </AddBtn>
+              </div>
+            </section> */}
+
+            <section className="bg-white rounded-2xl shadow-md p-6 space-y-6 border border-gray-100">
+              <h3 className="font-semibold text-lg">Payment Information</h3>
+
+              <div className="space-y-5">
+                {payments.map((pay, index) => (
+                  <div
+                    key={index}
+                    className="rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 p-5 shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      {/* Provider */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Mobile Bank Name
+                        </label>
+                        <SelectField
+                          selectValue={pay.provider}
+                          selectValueChange={(e) =>
+                            handlePaymentChange(
+                              index,
+                              "provider",
+                              e.target.value
+                            )
+                          }
+                          isWide={true}
+                        >
+                          <option value="" disabled>
+                            Select Provider
+                          </option>
+                          <option value="bKash">bKash</option>
+                          <option value="Nagad">Nagad</option>
+                          <option value="Rocket">Rocket</option>
+                        </SelectField>
+                      </div>
+
+                      {/* Account Number */}
+                      <InputField
+                        label="Account Number"
+                        placeholder="11-digit mobile number"
+                        type="tel"
+                        defaultValue={pay.account}
+                        onChange={(e) =>
+                          handlePaymentChange(index, "account", e.target.value)
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                      />
+                    </div>
+
+                    {/* Primary Checkbox */}
+                    <div className="mt-3">
+                      <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-[#FF0055] transition">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                          checked={pay.is_primary}
+                          onChange={() => setPrimaryPayment(index)}
+                        />
+                        <span className="select-none">Make Primary</span>
+                      </label>
+                    </div>
+
+                    {/* Remove Option */}
+                    {payments.length > 1 && pay.provider && (
+                      <button
+                        type="button"
+                        onClick={() => removePayment(index)}
+                        className="text-red-500 text-sm font-medium mt-3 hover:text-red-600 transition"
+                      >
+                        Remove this method
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Add More Button */}
+
+              <AddBtn btnHandler={addPaymentField}>
+                <Plus size={20} /> Add Payment Method
+              </AddBtn>
+
+              {/* Save Button */}
+              <div>
+                <AddBtn
+                  btnHandler={() => {
+                    const filteredPayments = payments.filter(
+                      (pay) => pay.provider || pay.account
+                    );
+
+                    handleUpdate("Payment Information", {
+                      payment_methods: filteredPayments,
+                    });
+                  }}
+                >
+                  Save
+                </AddBtn>
+              </div>
+            </section>
+          </div>
+        </>
       )}
     </div>
   );

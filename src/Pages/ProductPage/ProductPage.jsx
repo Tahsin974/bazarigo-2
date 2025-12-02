@@ -1,17 +1,37 @@
 import { useParams } from "react-router";
 import ProductDetails from "./components/ProductDetails";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { useLocation } from "react-router";
+import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../Utils/Hooks/useAuth";
+import Loading from "../../components/Loading/Loading";
 
 export default function ProductPage() {
   const { id } = useParams();
+  const encodedId = atob(id);
+
+  const axiosPublic = useAxiosPublic();
   const location = useLocation();
-  const { data: productDetails = {}, isPending } = useQuery({
-    queryKey: ["product", location.pathname],
+  const fromFlashSale = location.state?.fromFlashSale;
+  const { isLoading } = useAuth();
+  const {
+    data: productDetails = {},
+    isPending,
+    refetch,
+  } = useQuery({
+    queryKey: ["product", encodedId],
     queryFn: async () => {
-      const res = await axios.get(`http://localhost:3000/products/${id}`);
-      return res.data.product;
+      const res = await axiosPublic.get(`/products/${encodedId}`);
+      const product = res.data.product;
+
+      if (fromFlashSale) {
+        const flashRes = await axiosPublic.get(`/flash-sale/active`);
+        const flashSaleProducts = flashRes.data.sale_products || [];
+        const flashProduct = flashSaleProducts.find((p) => p.id === product.id);
+        if (flashProduct) return flashProduct; // Flash Sale ডাটা রিটার্ন
+      }
+
+      return product; // সাধারণ প্রোডাক্ট
     },
   });
 
@@ -23,100 +43,22 @@ export default function ProductPage() {
     );
   }
   return (
-    <div className="space-y-24 xl:px-6 lg:px-6  px-4 bg-gray-100">
-      <ProductDetails
-        product={productDetails}
-        category={productDetails.category}
-        subcategory={productDetails.subcategory || ""}
-        isPending={isPending}
-      />
-    </div>
+    <>
+      {!isPending && !isLoading ? (
+        <div className="space-y-24 xl:px-6 lg:px-6  px-4 bg-gray-100">
+          <ProductDetails
+            product={productDetails}
+            category={productDetails.category}
+            subcategory={productDetails.subcategory || ""}
+            isPending={isPending}
+            refetch={refetch}
+          />
+        </div>
+      ) : (
+        <>
+          <Loading />
+        </>
+      )}
+    </>
   );
 }
-
-// const SAMPLE = {
-//   electronics: {
-//     name: "Sleek Wireless Headphones",
-//     price: "৳120.00",
-//     rating: 4,
-//     reviews: 87,
-//     stock: 12,
-//     img: "https://placehold.co/600x600/FF0055/fff?text=Headphones",
-//     brand: "AudioTech",
-//     model: "AT-X100",
-//     specs: "Bluetooth 5.2, 30h battery, Noise-canceling",
-//     related: [
-//       {
-//         name: "Portable Bluetooth Speaker",
-//         price: "৳85.00",
-//         img: "https://placehold.co/400x400/F39C12/ffffff?text=Speaker",
-//       },
-//     ],
-//     variants: {
-//       size: ["S", "M", "L"],
-//       color: ["Red", "Blue"],
-//       weight: ["Light", "Regular", "Heavy"],
-//     },
-//     recommendations: [],
-//     reviewsList: [
-//       {
-//         name: "Jane Doe",
-//         rating: 5,
-//         comment: "Fantastic sound!",
-//         date: new Date().toISOString(),
-//       },
-//     ],
-//   },
-//   fashion: {
-//     name: "Classic Cotton Shirt",
-//     price: "৳35.00",
-//     rating: 5,
-//     stock: 30,
-//     img: "https://placehold.co/600x600/00C48C/fff?text=Shirt",
-//     material: "100% Cotton",
-//     size: "S, M, L, XL",
-//     color: "Navy",
-//     related: [],
-//     recommendations: [],
-//     reviewsList: [],
-//   },
-//   book: {
-//     name: "The Modern Developer",
-//     price: "৳22.00",
-//     rating: 4,
-//     stock: 5,
-//     img: "https://placehold.co/600x600/9B59B6/fff?text=Book",
-//     author: "A. Coder",
-//     publisher: "Tech Press",
-//     isbn: "978-1-23456-789-7",
-//     related: [],
-//     recommendations: [],
-//     reviewsList: [],
-//   },
-//   home: {
-//     name: "Ceramic Coffee Mug",
-//     price: "৳12.00",
-//     rating: 4,
-//     stock: 100,
-//     img: "https://placehold.co/600x600/FF7B7B/fff?text=Mug",
-//     material: "Ceramic",
-//     dimensions: "8cm x 10cm",
-//     care: "Dishwasher safe",
-//     related: [],
-//     recommendations: [],
-//     reviewsList: [],
-//   },
-//   decor: {
-//     name: "Minimalist Wall Clock",
-//     price: "৳48.00",
-//     rating: 4,
-//     stock: 7,
-//     img: "https://placehold.co/600x600/E5FFFF/333?text=Clock",
-//     material: "Metal & Glass",
-//     style: "Scandinavian",
-//     dimensions: "30cm diameter",
-//     related: [],
-//     recommendations: [],
-//     reviewsList: [],
-//   },
-// };

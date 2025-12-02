@@ -1,8 +1,5 @@
-import { useMemo, useRef, useState } from "react";
-import {
-  buildInventoryFromProducts,
-  samplePayments,
-} from "./SellerHelpers/SellerHelpers";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { samplePayments } from "./SellerHelpers/SellerHelpers";
 import * as XLSX from "xlsx";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 import DashboardView from "./views/DashboardView";
@@ -13,111 +10,130 @@ import PaymentsView from "./views/PaymentsView";
 import ReportsView from "./views/ReportsView";
 import SettingsView from "./views/SettingsView";
 import Drawer from "../../../components/Drawer/Drawer";
-import EditProfileModal from "../../../components/EditProfileModal/EditProfileModal";
-import MyProfileView from "../../../components/MyProfileView/MyProfileView";
-import ProductModal from "../../../components/ProductModal/ProductModal";
-import {
-  sampleOrders,
-  sampleProducts,
-  sampleReturns,
-} from "../../../Utils/Helpers/Helpers";
+
 import ExportBtn from "../../../components/ui/ExportBtn";
 
-export default function SellerPanelDashboard() {
-  const [user, setUser] = useState({
-    name: "রাহিম উদ্দিন",
-    email: "rahim@example.com",
-    phone: "01712345678",
-    avatar: "https://placehold.co/400x400/FF0055/ffffff?text=Wristwatch",
-    role: "seller",
-  });
-  // --- Navigation + global data ---
-  const [active, setActive] = useState("Dashboard");
+import useAuth from "../../../Utils/Hooks/useAuth";
+import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+import { useQuery } from "@tanstack/react-query";
+import MessageModal from "../../../components/Modals/MessageModal/MessageModal";
+import ProductModal from "../../../components/Modals/ProductModal/ProductModal";
+import MyProfileView from "../../../components/MyProfileView/MyProfileView";
+import useAxiosSecure from "../../../Utils/Hooks/useAxiosSecure";
+import Swal from "sweetalert2";
+import EditProductModal from "../../../components/Modals/EditProductModal/EditProductModal";
+import PreviewModal from "../../../components/Modals/PreviewModal/PreviewModal";
+import OrderModal from "../../../components/Modals/OrderModal/OrderModal";
+import NotificationsView from "../../../components/NotificationsView/NotificationsView";
+import MessagesView from "../../../components/MessagesView/MessagesView";
+import { useLocation } from "react-router";
+import useSuperAdmin from "../../../Utils/Hooks/useSuperAdmin";
+import useMessages from "../../../Utils/Hooks/useMessages";
 
-  const [showEditProfile, setShowEditProfile] = useState(false);
+export default function SellerPanelDashboard() {
+  const [selected, setSelected] = useState([]);
+  const location = useLocation();
+  const { user } = useAuth();
+  const axiosPublic = useAxiosPublic();
+  const { bazarigo } = useSuperAdmin();
+
+  const axiosSecure = useAxiosSecure();
+  const { data: products = [], refetch: refetchProducts } = useQuery({
+    queryKey: ["seller-products"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/products/seller/${user.id}`);
+      return res.data.products;
+    },
+  });
+
+  const {
+    data: inventory = [],
+
+    refetch: refetchInventory,
+  } = useQuery({
+    queryKey: ["inventory"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/inventory/${user.id}`);
+      return res.data.inventory;
+    },
+  });
+
+  console.log(inventory);
+  const {
+    data: orders = [],
+
+    refetch: refetchOrders,
+  } = useQuery({
+    queryKey: ["seller-orders"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/orders/seller/${user.id}`);
+      return res.data.orders;
+    },
+  });
+  const {
+    data: returns = [],
+
+    refetch: refetchReturnsOrders,
+  } = useQuery({
+    queryKey: ["seller-return-orders"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/return-orders/seller/${user.id}`);
+      return res.data.returnOrders;
+    },
+  });
+  const { myMessages } = useMessages();
+
+  // --- Navigation + global data ---
+  const [active, setActive] = useState(location?.state || "Dashboard");
 
   // Core data
-  const [products, setProducts] = useState(sampleProducts());
-  const [displayProducts, setDisplayProducts] = useState(products);
-  const [orders, setOrders] = useState(sampleOrders());
-  const [returns, setReturns] = useState(sampleReturns());
-  const [inventory, setInventory] = useState(displayProducts);
-  const [displayInventory, setDisplayInventory] = useState(inventory);
+
   const [payments] = useState(samplePayments());
   const fileRef = useRef(null);
 
   // Product UI state
-  const [productModalOpen, setProductModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [selectedProductIds, setSelectedProductIds] = useState([]);
+
+  const currentPageSize = 6;
 
   // Products filters/pagination
   const [productSearch, setProductSearch] = useState("");
   const [productSort, setProductSort] = useState("name");
   const [productPage, setProductPage] = useState(1);
-  const productPageSize = 6;
 
   // Orders filters/pagination
   const [orderSearch, setOrderSearch] = useState("");
-  const [orderSort, setOrderSort] = useState("customer");
   const [orderPage, setOrderPage] = useState(1);
-  const orderPageSize = 6;
-  const [selectedOrderIds, setSelectedOrderIds] = useState([]);
 
   const [returnOrderSearch, setReturnOrderSearch] = useState("");
   const [returnOrderPage, setReturnOrderPage] = useState(1);
-  const returnOrderPageSize = 6;
 
   // Payments filters/pagination
   const [paymentSearch, setPaymentSearch] = useState("");
   const [paymentSort, setPaymentSort] = useState("date");
   const [paymentPage, setPaymentPage] = useState(1);
-  const paymentPageSize = 5;
 
   // inventory filters/pagination
   const [inventorySearch, setInventorySearch] = useState("");
   const [inventorySort, setInventorySort] = useState("name");
   const [inventoryPage, setInventoryPage] = useState(1);
-  const inventoryPageSize = 6;
 
-  // Reports filters (status + date range)
-  const [reportFilter, setReportFilter] = useState("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  // Modal controls
 
-  // Settings state (Payment settings split)
-  const [bankSettings, setBankSettings] = useState({
-    bankName: "",
-    accountNumber: "",
-    routingNumber: "",
-  });
-  const [bdSettings, setBdSettings] = useState({
-    bkash: "",
-    nagad: "",
-    rocket: "",
-  });
-  const [profile, setProfile] = useState({
-    shopName: "",
-    email: "",
-    phone: "",
-  });
-  const [notifications, setNotifications] = useState({
-    orderAlerts: true,
-    paymentAlerts: true,
-    weeklyReports: false,
-  });
+  const [productModalOpen, setProductModalOpen] = useState(false);
+  const [editProductModalOpen, setEditProductModalOpen] = useState(false);
 
-  // Security state
-  const [oldPasswordStored] = useState("old-password-stub"); // stub - in real app fetch from server
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [twoFA, setTwoFA] = useState("Disabled");
-  const [loginAlert, setLoginAlert] = useState("Disabled");
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState(null);
+
+  const [activeOrder, setActiveOrder] = useState(null);
+  const [orderModalOpen, setOrderModalOpen] = useState(null);
+
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [activeMessage, setActiveMessage] = useState(null);
 
   // --- Derived lists ---
   const filteredProducts = useMemo(() => {
-    let data = [...displayProducts];
+    let data = [...products];
     if (productSearch) {
       const q = productSearch.toLowerCase();
       data = data.filter(
@@ -132,14 +148,14 @@ export default function SellerPanelDashboard() {
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
     else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     return data;
-  }, [displayProducts, productSearch, productSort]);
+  }, [products, productSearch, productSort]);
 
   const paginatedProducts = filteredProducts.slice(
-    (productPage - 1) * productPageSize,
-    productPage * productPageSize
+    (productPage - 1) * currentPageSize,
+    productPage * currentPageSize
   );
   const filteredInventory = useMemo(() => {
-    let data = [...displayInventory];
+    let data = [...inventory];
     if (inventorySearch) {
       const q = inventorySearch.toLowerCase();
       data = data.filter((p) => (p.name || "").toLowerCase().includes(q));
@@ -147,11 +163,11 @@ export default function SellerPanelDashboard() {
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
     else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     return data;
-  }, [displayInventory, inventorySearch, inventorySort]);
+  }, [inventory, inventorySearch, inventorySort]);
 
   const paginatedInventory = filteredInventory.slice(
-    (inventoryPage - 1) * inventoryPageSize,
-    inventoryPage * inventoryPageSize
+    (inventoryPage - 1) * currentPageSize,
+    inventoryPage * currentPageSize
   );
 
   const filteredOrders = useMemo(() => {
@@ -160,20 +176,18 @@ export default function SellerPanelDashboard() {
       const q = orderSearch.toLowerCase();
       data = data.filter(
         (o) =>
-          (o.number || "").toLowerCase().includes(q) ||
-          (o.customer || "").toLowerCase().includes(q)
+          (o.order_id || "").toLowerCase().includes(q) ||
+          (o.customer_email || "").toLowerCase().includes(q) ||
+          (o.customer_name || "").toLowerCase().includes(q)
       );
     }
-    if (orderSort === "total")
-      data.sort((a, b) => (a.total || 0) - (b.total || 0));
-    else
-      data.sort((a, b) => (a.customer || "").localeCompare(b.customer || ""));
+    data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
     return data;
-  }, [orders, orderSearch, orderSort]);
+  }, [orders, orderSearch]);
 
   const paginatedOrders = filteredOrders.slice(
-    (orderPage - 1) * orderPageSize,
-    orderPage * orderPageSize
+    (orderPage - 1) * currentPageSize,
+    orderPage * currentPageSize
   );
 
   const filteredReturnOrders = useMemo(() => {
@@ -192,8 +206,8 @@ export default function SellerPanelDashboard() {
   }, [returns, returnOrderSearch]);
 
   const paginatedReturnOrders = filteredReturnOrders.slice(
-    (returnOrderPage - 1) * returnOrderPageSize,
-    returnOrderPage * returnOrderPageSize
+    (returnOrderPage - 1) * currentPageSize,
+    returnOrderPage * currentPageSize
   );
 
   const filteredPayments = useMemo(() => {
@@ -214,192 +228,82 @@ export default function SellerPanelDashboard() {
   }, [payments, paymentSearch, paymentSort]);
 
   const paginatedPayments = filteredPayments.slice(
-    (paymentPage - 1) * paymentPageSize,
-    paymentPage * paymentPageSize
+    (paymentPage - 1) * currentPageSize,
+    paymentPage * currentPageSize
   );
-
-  const filteredOrdersForReport = useMemo(() => {
-    let data = [...orders];
-    if (reportFilter === "Processing")
-      data = data.filter((o) => o.status === "Processing");
-    if (reportFilter === "Shipped")
-      data = data.filter((o) => o.status === "Shipped");
-    if (reportFilter === "Out for Delivery")
-      data = data.filter((o) => o.status === "Out for Delivery");
-    if (reportFilter === "Delivered")
-      data = data.filter((o) => o.status === "Delivered");
-    if (startDate)
-      data = data.filter((o) => new Date(o.date) >= new Date(startDate));
-    if (endDate)
-      data = data.filter((o) => new Date(o.date) <= new Date(endDate));
-    return data;
-  }, [orders, reportFilter, startDate, endDate]);
 
   // --- Handlers & helpers ---
   const openNewProductModal = () => {
-    setEditingProduct({
-      id: null,
-      name: "",
-      price: "",
-      category: "Fashion",
-      description: "",
-      stock: 0,
-      images: [],
-      extras: {},
-    });
     setProductModalOpen(true);
   };
 
-  const openEditProductModal = (p) => {
-    setEditingProduct({ ...p });
-    setProductModalOpen(true);
+  const openEditProductModal = (product) => {
+    setActiveProduct(product);
+    setEditProductModalOpen(true);
   };
-  const saveProduct = (product) => {
-    if (!product.name) return alert("Product name required");
-    if (product.id) {
-      setProducts((ps) => ps.map((x) => (x.id === product.id ? product : x)));
-      setDisplayProducts((ps) =>
-        ps.map((x) => (x.id === product.id ? product : x))
-      );
-    } else {
-      product.id = `p_${Date.now()}`;
-      setProducts((ps) => [product, ...ps]);
-      setDisplayProducts((ps) => [product, ...ps]);
-    }
-    setProductModalOpen(false);
+  const openOrderModal = (order) => {
+    setOrderModalOpen(true);
+    setActiveOrder(order);
   };
-  // function saveProduct() {
-  //   if (!productForm.name || !productForm.price)
-  //     return alert("Name and price required");
-  //   if (editingProduct) {
-  //     setProducts((prev) =>
-  //       prev.map((x) =>
-  //         x.id === editingProduct.id ? { ...x, ...productForm } : x
-  //       )
-  //     );
-  //   } else {
-  //     const newP = { id: Date.now().toString(), ...productForm };
-  //     setProducts((prev) => [newP, ...prev]);
-  //   }
-  //   setProductModalOpen(false);
-  // }
+  const openPreviewModal = (product) => {
+    setPreviewModalOpen(true);
+    setActiveProduct(product);
+  };
 
-  function toggleSelectProduct(id) {
-    setSelectedProductIds((s) =>
-      s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
-    );
-  }
-  function bulkDeleteProducts() {
-    if (!selectedProductIds.length) return alert("No products selected");
-    if (!confirm(`Delete ${selectedProductIds.length} products?`)) return;
-    setProducts((p) => p.filter((x) => !selectedProductIds.includes(x.id)));
-    setDisplayProducts((p) =>
-      p.filter((x) => !selectedProductIds.includes(x.id))
-    );
-    setSelectedProductIds([]);
-  }
-
-  function toggleSelectOrder(id) {
-    setSelectedOrderIds((s) =>
-      s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
-    );
-  }
+  const openMessageModal = (user) => {
+    setActiveMessage(user);
+    setMessageModalOpen(true);
+  };
 
   // Bulk upload
-
-  const handleBulkUpload = (event) => {
-    const file = event.target.files[0];
-
-    if (!file) return alert("Please select an Excel file first.");
-
-    try {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: "array" });
-
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-
-          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-          const processedData = jsonData.map((item) => ({
-            ...item,
-            price: Number(item.price) || 0,
-            oldPrice: Number(item.oldPrice) || 0,
-            discount: Number(item.discount) || 0,
-            rating: Number(item.rating) || 0,
-            stock: Number(item.stock) || 0,
-            isBestSeller:
-              item.isBestSeller === "true" || item.isBestSeller === true,
-            isHot: item.isHot === "true" || item.isHot === true,
-            isNew: item.isNew === "true" || item.isNew === true,
-            isTrending: item.isTrending === "true" || item.isTrending === true,
-            isLimitedStock:
-              item.isLimitedStock === "true" || item.isLimitedStock === true,
-            isExclusive:
-              item.isExclusive === "true" || item.isExclusive === true,
-            isFlashSale:
-              item.isFlashSale === "true" || item.isFlashSale === true,
-            images: item.images
-              ? item.images.split(",").map((i) => i.trim())
-              : [],
-            extras: item.extras ? JSON.parse(item.extras) : {},
-          }));
-
-          // Update state
-          setProducts((prev) => [...processedData, ...prev]);
-          setDisplayProducts((prev) => [...processedData, ...prev]);
-
-          alert(`${processedData.length} products uploaded successfully!`);
-        } catch (err) {
-          console.error("Error processing Excel data:", err);
-          alert("Failed to process Excel file. Check the format.");
-        }
-      };
-
-      reader.readAsArrayBuffer(file); // ✅ Call this AFTER setting onload
-    } catch (e) {
-      console.error("Error reading file:", e);
-      alert("Failed to read file.");
+  useEffect(() => {
+    if (selected.length !== 0) {
+      setSelected([]);
     }
+  }, [active, products, orders]);
+
+  const toggleSelect = (id) => {
+    console.log(id);
+    setSelected((s) =>
+      s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
+    );
   };
 
-  const topProducts = displayProducts
-    .slice()
-    .sort((a, b) => b.stock * b.price - a.stock * a.price)
-    .slice(0, 5)
-    .map((p) => ({
-      ...p,
-      potentialValue: (p.stock * p.price).toFixed(2),
-    }));
   const handleExport = () => {
     let rows = [];
 
     if (active === "Products") {
-      rows = displayProducts.map((product) => ({
+      rows = products.map((product) => ({
         id: product.id,
-        name: product.name,
-        oldPrice: product.oldPrice ?? "",
-        price: product.price ?? "",
-        discount: product.discount ?? "",
-        rating: product.rating ?? "",
-        isBestSeller: product.isBestSeller ? "true" : "false",
-        isHot: product.isHot ? "true" : "false",
-        isNew: product.isNew ? "true" : "false",
-        isTrending: product.isTrending ? "true" : "false",
-        isLimitedStock: product.isLimitedStock ? "true" : "false",
-        isExclusive: product.isExclusive ? "true" : "false",
-        isFlashSale: product.isFlashSale ? "true" : "false",
-        category: product.category,
-        subcategory: product.subcategory,
-        description: product.description,
-        stock: product.stock,
-        images: product.images?.join(", "), // convert array to comma-separated string
-        extras: JSON.stringify(product.extras, null, 2), // prettify nested object
-        createdAt: new Date(product.createdAt).toLocaleString(),
+        productName: product.product_name,
+        regular_price: product.regular_price ?? 0,
+        sale_price: product.sale_price ?? 0,
+        discount: product.discount ?? 0,
+        // rating: Number(product.rating),
+        // isBestSeller: product.isbestseller ? "Yes" : "No",
+        // isHot: product.ishot ? "Yes" : "No",
+        // isNew: product.isnew ? "Yes" : "No",
+        // isTrending: product.istrending ? "Yes" : "No",
+        // isLimitedStock: product.islimitedstock ? "Yes" : "No",
+        // isExclusive: product.isexclusive ? "Yes" : "No",
+        // isFlashSale: product.isflashsale ? "Yes" : "No",
+        category: product.category ?? "",
+        subcategory: product.subcategory ?? "",
+        description: product.description ?? "",
+        stock: product.stock ?? 0,
+        brand: product.brand ?? "No Brand",
+        weight: product.weight ?? 1,
+        images: (product.images || []).join(";"), // multiple images separated by ;
+        extras: JSON.stringify(product.extras || {}, null, 2),
+        // createdAt: product.createdat
+        //   ? new Date(product.createdat).toISOString()
+        //   : new Date\(\)\.toISOString\(\),
+        // updatedAt: product.updatedat
+        //   ? new Date(product.updatedat).toISOString()
+        //   : "",
+        // sellerId: product.sellerid ?? "",
+        // sellerName: product.sellername ?? "",
+        // sellerStoreName: product.sellerstorename ?? "",
       }));
     }
 
@@ -410,190 +314,101 @@ export default function SellerPanelDashboard() {
       }));
 
     if (active === "Payments") rows = payments;
-    // if (active === "Reports") {
-    //   // Export filtered orders for report
-    //   if (!filteredOrdersForReport.length)
-    //     return alert("No report data to export");
-
-    //   rows = filteredOrdersForReport.map((order) => ({
-    //     id: order.orderId,
-    //     customer: order.customer,
-    //     total: order.total,
-    //     status: order.status,
-    //     date: order.date,
-    //     items_count: order.items?.length || 0,
-    //     // Optional: include revenue breakdown per order
-    //     revenue: order.total,
-    //   }));
-    // }
-    if (active === "Reports") {
-      if (!filteredOrdersForReport.length)
-        return alert("No report data to export");
-
-      // Prepare report rows
-      rows = filteredOrdersForReport.map((order) => ({
-        id: order.orderId,
-        customer: order.customer,
-        total: order.total,
-        status: order.status,
-        date: order.date,
-        items_count: order.items?.length || 0,
-        revenue: order.total,
-      }));
-
-      // ✅ Create Excel workbook
-      const wb = XLSX.utils.book_new();
-
-      // ✅ Add main report sheet
-      const wsReport = XLSX.utils.json_to_sheet(rows);
-      const reportColWidths = Object.keys(rows[0]).map((key) => ({
-        wch: Math.max(key.length, 20),
-      }));
-      wsReport["!cols"] = reportColWidths;
-      XLSX.utils.book_append_sheet(wb, wsReport, "Report");
-
-      // ✅ Prepare topProducts table
-      const topProducts = displayProducts
-        .slice()
-        .sort((a, b) => b.stock * b.price - a.stock * a.price)
-        .slice(0, 5)
-        .map((p) => ({
-          name: p.name,
-          stock: p.stock,
-          price: p.price,
-          potentialValue: (p.stock * p.price).toFixed(2),
-        }));
-
-      const wsTopProducts = XLSX.utils.json_to_sheet(topProducts);
-      const topColWidths = Object.keys(topProducts[0]).map((key) => ({
-        wch: Math.max(key.length, 20),
-      }));
-      wsTopProducts["!cols"] = topColWidths;
-      XLSX.utils.book_append_sheet(wb, wsTopProducts, "TopProducts");
-
-      // ✅ Save Excel file
-      XLSX.writeFile(wb, "Reports_with_TopProducts.xlsx");
-    }
 
     if (!rows.length) return alert("Nothing to export for this section");
 
-    // ✅ Create Excel workbook
+    // Create Excel workbook
     const wb = XLSX.utils.book_new();
-
-    // ✅ Convert data to sheet
     const ws = XLSX.utils.json_to_sheet(rows);
 
-    // ✅ Optional: Set column width automatically
+    // Optional: set column widths
     const colWidths = Object.keys(rows[0]).map((key) => ({
       wch: Math.max(key.length, 20),
     }));
     ws["!cols"] = colWidths;
 
-    // ✅ Add sheet to workbook
     XLSX.utils.book_append_sheet(wb, ws, active);
-
-    // ✅ Save Excel file
     XLSX.writeFile(wb, `${active}_export.xlsx`);
   };
 
-  function generatePaymentQR() {
-    alert("QR generation stub — integrate provider API to make this live");
-  }
-
-  // Settings save handlers
-  function savePaymentSettings() {
-    alert("Payment settings saved (stub)");
-  }
-  function saveProfileSettings() {
-    alert("Profile saved (stub)");
-  }
-  function saveNotificationSettings() {
-    alert("Notification settings saved (stub)");
-  }
-  function saveSecurity() {
-    if (!oldPassword) return alert("Enter old password");
-    if (oldPassword !== oldPasswordStored)
-      return alert("Old password is incorrect (stub)");
-    if (newPassword.length < 6) return alert("New password must be >= 6 chars");
-    if (newPassword !== confirmPassword)
-      return alert("Password confirmation does not match");
-    alert("Password updated (stub)");
-    setOldPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-  }
-  const revenueBreakdown = (list) => {
-    const map = {};
-
-    list.forEach((o) => {
-      (o.items || []).forEach((it) => {
-        const prod = sampleProducts().find((p) => p.id === it.productId) || {};
-        const cat = prod.category || "Other";
-        map[cat] = (map[cat] || 0) + (it.qty || 1) * (it.price || 0);
-      });
-    });
-
-    if (Object.keys(map).length === 0)
-      map["Other"] = list.reduce((a, b) => a + (b.total || 0), 0);
-
-    const palette = ["#FF0055", "#FF7F50", "#FFD700", "#7DD3FC", "#A78BFA"];
-    return Object.keys(map).map((k, i) => ({
-      name: k,
-      value: map[k],
-      color: palette[i % palette.length],
-    }));
-  };
-
-  const calculateRevenue = (orders) => {
-    return orders
-      .filter((o) => o.status !== "Cancelled")
-      .reduce((sum, order) => sum + order.total, 0);
-  };
-
-  const totalRevenue = useMemo(() => calculateRevenue(orders), [orders]);
-
-  const calculateSalesData = (orders) => {
-    const data = {};
-    const today = new Date().toISOString().substring(0, 10);
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .substring(0, 10);
-
-    orders
-      .filter((o) => o.status !== "Cancelled")
-      .forEach((order) => {
-        const date = order.date;
-        if (date >= oneWeekAgo && date <= today) {
-          data[date] = (data[date] || 0) + order.total;
-        }
-      });
-    const chartData = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .substring(0, 10);
-      chartData.push({
-        date: new Date(date).toLocaleDateString("en-US", {
-          day: "numeric",
-          month: "short",
-        }),
-        revenue: data[date] || 0,
-      });
+  const selectAll = () => {
+    if (active === "Products") {
+      const id = products.map((p) => p.id);
+      setSelected(selected.length === id.length ? [] : id);
     }
-    return chartData;
+    if (active === "Orders") {
+      const id = orders.map((o) => o.order_id);
+      setSelected(selected.length === id.length ? [] : id);
+    }
   };
-  const salesData = useMemo(() => calculateSalesData(orders), [orders]);
-  const handleProfileSave = (e) => {
-    e && e.preventDefault();
-    setShowEditProfile(false);
-    alert("Profile updated");
-  };
-  // ----- Profile helpers -----
-  const handleAvatarChange = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setUser((prev) => ({ ...prev, avatar: url }));
+
+  const handleBulkUpload = async () => {
+    const file = fileRef.current.files[0]; // get file from ref
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+      // Convert boolean/number fields
+      const products = jsonData.map((item) => ({
+        ...item,
+        isBestSeller: false,
+        isHot: false,
+        isNew: true,
+        isTrending: false,
+        isLimitedStock: false,
+        isExclusive: false,
+        isFlashSale: false,
+        regular_price: Number(item.regular_price || 0),
+        sale_price: Number(item.sale_price || 0),
+        discount: Number(item.discount || 0),
+        rating: Number(item.rating || 0),
+        stock: Number(item.stock || 0),
+        weight: 1,
+        productName: item.productName,
+        images: item.images ? item.images.split(";") : [],
+        extras: item.extras ? JSON.parse(item.extras) : {},
+        createdAt: new Date().toLocaleString("en-CA", {
+          timeZone: "Asia/Dhaka",
+          hour12: false,
+        }),
+        updatedAt: item.updatedAt || null,
+        seller_id: user.id,
+        seller_name: user.full_name,
+        seller_store_name: user.store_name,
+      }));
+
+      const res = await axiosPublic.post("/products/bulk", products);
+
+      if (res.data.insertedCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: "Product Upload Successfully",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        refetchProducts();
+        return (fileRef.current.value = null);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Opps! Try Again",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+
+      // Reset file input
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: `${err.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
   };
 
@@ -605,7 +420,7 @@ export default function SellerPanelDashboard() {
             user={user}
             active={active}
             setActive={setActive}
-            products={displayProducts}
+            products={products}
             orders={orders}
             payments={payments}
             items={[
@@ -615,7 +430,6 @@ export default function SellerPanelDashboard() {
               "Inventory",
               "Payments",
               "Reports",
-              "My Account",
               "Settings",
             ]}
           />
@@ -625,10 +439,10 @@ export default function SellerPanelDashboard() {
             user={user}
             activeTab={active}
             setActiveTab={setActive}
-            notifications={notifications}
-            products={displayProducts}
+            products={products}
             orders={orders}
             payments={payments}
+            messages={myMessages}
             items={[
               "Dashboard",
               "Products",
@@ -636,7 +450,6 @@ export default function SellerPanelDashboard() {
               "Inventory",
               "Payments",
               "Reports",
-              "My Account",
               "Settings",
             ]}
           >
@@ -648,106 +461,117 @@ export default function SellerPanelDashboard() {
                 </h1>
 
                 {/* Right: Buttons + Admin */}
-                <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
-                  {active !== "Dashboard" &&
-                    active !== "My Account" &&
-                    active !== "Settings" &&
-                    active !== "FlashSale" && (
-                      <>
-                        {active === "Products" && (
-                          <>
-                            <input
-                              ref={fileRef}
-                              type="file"
-                              accept=".xlsx, .xls"
-                              className="hidden"
-                              onChange={handleBulkUpload}
-                            />
 
-                            <button
-                              onClick={() =>
-                                fileRef.current && fileRef.current.click()
-                              }
-                              className="btn  border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
-                            >
-                              Bulk Upload
-                            </button>
-                          </>
-                        )}
-                        <ExportBtn exportBtnHandler={handleExport} />
-                      </>
-                    )}
+                <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
+                  {![
+                    "Dashboard",
+                    "My Account",
+                    "Settings",
+                    "FlashSale",
+                    "Notifications",
+                  ].includes(active) && (
+                    <>
+                      {active === "Products" && (
+                        <>
+                          <input
+                            ref={fileRef}
+                            type="file"
+                            accept=".xlsx, .xls"
+                            className="hidden"
+                            onChange={handleBulkUpload}
+                          />
+                          <button
+                            onClick={() =>
+                              fileRef.current && fileRef.current.click()
+                            }
+                            className="btn border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
+                          >
+                            Bulk Upload
+                          </button>
+                          <ExportBtn exportBtnHandler={handleExport} />
+                        </>
+                      )}
+
+                      {active === "Messages" && (
+                        <button
+                          onClick={() => openMessageModal(bazarigo)}
+                          className="btn border-none rounded shadow bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white sm:text-base text-[14px]"
+                        >
+                          Chat with Bazarigo
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
-              <DashboardView
-                active={active}
-                products={displayProducts}
-                orders={orders}
-                inventory={inventory}
-                salesData={salesData}
-              />
+              <DashboardView active={active} />
               <ProductsView
                 active={active}
-                products={displayProducts}
-                setProducts={setProducts}
-                setDisplayProducts={setDisplayProducts}
-                selectedProductIds={selectedProductIds}
-                setSelectedProductIds={setSelectedProductIds}
-                toggleSelectProduct={toggleSelectProduct}
-                bulkDeleteProducts={bulkDeleteProducts}
+                products={products}
+                selected={selected}
+                toggleSelect={toggleSelect}
                 openNewProductModal={openNewProductModal}
                 openEditProductModal={openEditProductModal}
+                openPreviewModal={openPreviewModal}
+                allSelected={
+                  selected.length === products.length && products.length > 0
+                }
+                toggleSelectAll={selectAll}
+                productPage={productPage}
+                productPageSize={currentPageSize}
+                setProductPage={setProductPage}
+                filteredProducts={filteredProducts}
+                paginatedProducts={paginatedProducts}
                 productSearch={productSearch}
                 setProductSearch={setProductSearch}
                 productSort={productSort}
                 setProductSort={setProductSort}
-                productPage={productPage}
-                setProductPage={setProductPage}
-                productPageSize={productPageSize}
-                filteredProducts={filteredProducts}
-                paginatedProducts={paginatedProducts}
+                refetch={refetchProducts}
               />
               <OrdersView
                 active={active}
                 orders={orders}
-                setOrders={setOrders}
                 returns={returns}
-                setReturns={setReturns}
-                selectedOrderIds={selectedOrderIds}
-                setSelectedOrderIds={setSelectedOrderIds}
-                toggleSelectOrder={toggleSelectOrder}
-                orderSearch={orderSearch}
-                setOrderSearch={setOrderSearch}
-                orderSort={orderSort}
-                setOrderSort={setOrderSort}
+                openOrderModal={openOrderModal}
+                selected={selected}
+                toggleSelect={toggleSelect}
+                refetch={refetchOrders}
+                refetchReturnsOrders={refetchReturnsOrders}
+                allSelected={
+                  selected.length === orders.length && orders.length > 0
+                }
+                toggleSelectAll={selectAll}
                 orderPage={orderPage}
                 setOrderPage={setOrderPage}
-                orderPageSize={orderPageSize}
-                filteredOrders={filteredOrders}
+                orderPageSize={currentPageSize}
                 paginatedOrders={paginatedOrders}
+                orderSearch={orderSearch}
+                setOrderSearch={setOrderSearch}
+                filteredOrders={filteredOrders}
                 returnOrderSearch={returnOrderSearch}
                 setReturnOrderSearch={setReturnOrderSearch}
                 filteredReturnOrders={filteredReturnOrders}
                 paginatedReturnOrders={paginatedReturnOrders}
                 returnOrderPage={returnOrderPage}
                 setReturnOrderPage={setReturnOrderPage}
-                returnOrderPageSize={returnOrderPageSize}
+                returnOrderPageSize={currentPageSize}
               />
               <InventoryView
                 active={active}
                 inventory={inventory}
-                setInventory={setInventory}
-                setDisplayInventory={setDisplayInventory}
+                refetch={refetchInventory}
+                refetchProducts={refetchProducts}
                 inventorySearch={inventorySearch}
                 setInventorySearch={setInventorySearch}
                 inventorySort={inventorySort}
                 setInventorySort={setInventorySort}
                 inventoryPage={inventoryPage}
                 setInventoryPage={setInventoryPage}
-                inventoryPageSize={inventoryPageSize}
+                inventoryPageSize={currentPageSize}
                 filteredInventory={filteredInventory}
                 paginatedInventory={paginatedInventory}
               />
+              <NotificationsView activeTab={active} setActiveTab={setActive} />
               <PaymentsView
                 active={active}
                 filteredPayments={filteredPayments}
@@ -758,73 +582,58 @@ export default function SellerPanelDashboard() {
                 setPaymentSort={setPaymentSort}
                 paymentPage={paymentPage}
                 setPaymentPage={setPaymentPage}
-                paymentPageSize={paymentPageSize}
+                paymentPageSize={currentPageSize}
               />
-              <ReportsView
-                active={active}
-                totalRevenue={totalRevenue}
-                reportFilter={reportFilter}
-                setReportFilter={setReportFilter}
-                filteredOrdersForReport={filteredOrdersForReport}
-                revenueBreakdown={revenueBreakdown}
-                startDate={startDate}
-                setStartDate={setStartDate}
-                endDate={endDate}
-                setEndDate={setEndDate}
-                topProducts={topProducts}
-              />
-              <MyProfileView
-                user={user}
-                setShowEditProfile={setShowEditProfile}
-                activeTab={active}
-              />
-              <SettingsView
-                active={active}
-                bankSettings={bankSettings}
-                setBankSettings={setBankSettings}
-                bdSettings={bdSettings}
-                setBdSettings={setBdSettings}
-                profile={profile}
-                setProfile={setProfile}
-                notifications={notifications}
-                setNotifications={setNotifications}
-                oldPassword={oldPassword}
-                setOldPassword={setOldPassword}
-                newPassword={newPassword}
-                setNewPassword={setNewPassword}
-                confirmPassword={confirmPassword}
-                setConfirmPassword={setConfirmPassword}
-                twoFA={twoFA}
-                setTwoFA={setTwoFA}
-                loginAlert={loginAlert}
-                setLoginAlert={setLoginAlert}
-                savePaymentSettings={savePaymentSettings}
-                saveProfileSettings={saveProfileSettings}
-                saveNotificationSettings={saveNotificationSettings}
-                saveSecurity={saveSecurity}
-                generatePaymentQR={generatePaymentQR}
-              />
+              {active === "Messages" && (
+                <MessagesView
+                  messages={myMessages}
+                  openMessageModal={openMessageModal}
+                />
+              )}
+              <ReportsView active={active} />
+              <MyProfileView user={user} activeTab={active} />
+              <SettingsView active={active} />
             </main>
           </Drawer>
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
-      <EditProfileModal
-        user={user}
-        setUser={setUser}
-        showEditProfile={showEditProfile}
-        setShowEditProfile={setShowEditProfile}
-        handleProfileSave={handleProfileSave}
-        handleAvatarChange={handleAvatarChange}
-      />
+      {messageModalOpen && (
+        <MessageModal
+          onClose={() => setMessageModalOpen(false)}
+          user={activeMessage}
+          senderId={user.id}
+          senderRole={user.role}
+        />
+      )}
 
       {productModalOpen && (
         <ProductModal
           user={user}
-          product={editingProduct}
+          product={activeProduct}
           onClose={() => setProductModalOpen(false)}
-          onSave={saveProduct}
+        />
+      )}
+
+      {orderModalOpen && (
+        <OrderModal
+          order={activeOrder}
+          onClose={() => setOrderModalOpen(false)}
+        />
+      )}
+
+      {previewModalOpen && (
+        <PreviewModal
+          product={activeProduct}
+          onClose={() => setPreviewModalOpen(false)}
+        />
+      )}
+
+      {editProductModalOpen && (
+        <EditProductModal
+          product={activeProduct}
+          onClose={() => setEditProductModalOpen(false)}
+          refetch={refetchProducts}
         />
       )}
     </div>

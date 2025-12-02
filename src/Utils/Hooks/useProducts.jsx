@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import useAxiosPublic from "./useAxiosPublic";
 
 export default function useProducts() {
+  const axiosPublic = useAxiosPublic();
   const {
     data: products = [],
     isPending: loading,
@@ -9,7 +10,7 @@ export default function useProducts() {
   } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:3000/products");
+      const res = await axiosPublic.get("/products");
       return res.data.products;
     },
   });

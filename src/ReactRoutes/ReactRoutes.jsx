@@ -7,7 +7,7 @@ import JustArrivedPage from "../Pages/JustArrivedPage/JustArrivedPage";
 import TrendingNowPage from "../Pages/TrendingNowPage/TrendingNowPage";
 import ProductPage from "../Pages/ProductPage/ProductPage";
 import CartPage from "../Pages/CartPage/CartPage";
-import CheckOutPage from "../Pages/CheckoutPage/CheckoutPage";
+
 import ThankYouPage from "../Pages/ThankYouPage/ThankYouPage";
 import SignUpPage from "../Pages/SignUpPage/SignUpPage";
 import UserAccountDashboard from "../Pages/Dashboard/UserAccountDashboard/UserAccountDashboard";
@@ -23,15 +23,41 @@ import SellerRegistrationPage from "../Pages/SellerRegistration/SellerRegistrati
 import SellerTermsConditionsPage from "../Pages/SellerTermsConditionsPage/SellerTermsConditionsPage";
 import SellerShopPage from "../Pages/SellerShopPage/SellerShopPage";
 import InstructionPage from "../Pages/InstructionPage/InstructionPage";
+import DataDeletionPage from "../Pages/DataDeletionPage/DataDeletionPage";
+import CheckOutPage from "../Pages/CheckOutPage/CheckOutPage";
+import VerifyOtp from "../Pages/SignUpPage/VerifyOtp";
+import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
+import ErrorPage from "../Pages/ErrorPage/ErrorPage";
 
 export const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <DashBoardLayOut />,
     children: [
-      { path: "/dashboard", element: <UserAccountDashboard /> },
-      { path: "/dashboard/admin", element: <AdminPanelDashboard /> },
-      { path: "/dashboard/seller", element: <SellerPanelDashboard /> },
+      {
+        path: "/dashboard",
+        element: (
+          <ProtectedRoute allowRoles={["customer", "admin", "super admin"]}>
+            <UserAccountDashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/admin",
+        element: (
+          <ProtectedRoute allowRoles={["admin", "super admin"]}>
+            <AdminPanelDashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/dashboard/seller",
+        element: (
+          <ProtectedRoute allowRoles={["admin", "super admin", "seller"]}>
+            <SellerPanelDashboard />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   {
@@ -64,11 +90,19 @@ export const router = createBrowserRouter([
       },
       {
         path: "/cart",
-        element: <CartPage />,
+        element: (
+          <ProtectedRoute allowRoles={["customer"]}>
+            <CartPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/checkout",
-        element: <CheckOutPage />,
+        element: (
+          <ProtectedRoute allowRoles={["customer"]}>
+            <CheckOutPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/about",
@@ -80,11 +114,19 @@ export const router = createBrowserRouter([
       },
       {
         path: "/thank-you",
-        element: <ThankYouPage />,
+        element: (
+          <ProtectedRoute allowRoles={["customer"]}>
+            <ThankYouPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/sign-up",
         element: <SignUpPage />,
+      },
+      {
+        path: "/verify-otp",
+        element: <VerifyOtp />,
       },
       {
         path: "/seller-registration",
@@ -112,9 +154,21 @@ export const router = createBrowserRouter([
         element: <ReturnRefundPolicyPage />,
       },
       {
+        path: "/data-deletion",
+        element: <DataDeletionPage />,
+      },
+      {
         path: "/instruction",
-        element: <InstructionPage />,
+        element: (
+          <ProtectedRoute allowRoles={["admin", "super admin", "seller"]}>
+            <InstructionPage />
+          </ProtectedRoute>
+        ),
       },
     ],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
   },
 ]);

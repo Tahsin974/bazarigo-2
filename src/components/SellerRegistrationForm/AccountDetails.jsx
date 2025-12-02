@@ -28,9 +28,10 @@ export default function AccountDetails({ PRIMARY_COLOR, register, errors }) {
             {...register("password", {
               required: "Password is required",
               pattern: {
-                value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
+                value:
+                  /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?])[A-Za-z\d!@#$%^&*()_\-+=<>?]{8,}$/,
                 message:
-                  "Must be at least 8 chars, include one uppercase, one number, and one special character",
+                  "Password must be at least 8 characters long, include one uppercase letter, one number, and one special character",
               },
             })}
             className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}

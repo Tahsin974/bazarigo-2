@@ -1,12 +1,13 @@
 import { CheckCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import UseCart from "../../Utils/Hooks/UseCart";
 import OrderSummary from "../../components/OrderSummary/OrderSummary";
 import { Link } from "react-router";
+import useCart from "../../Utils/Hooks/useCart";
 
 export default function ThankYouPage() {
-  const { cartItems } = UseCart();
+  const { carts } = useCart();
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-6 py-12">
       <div className="w-full max-w-3xl space-y-6">
@@ -20,7 +21,7 @@ export default function ThankYouPage() {
             confirmation email shortly.
           </p>
         </div>
-        <OrderSummary items={cartItems} allowPromo={false} />
+        <OrderSummary items={carts} allowPromo={false} />
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/">
             <Button className="bg-[#00C853] text-white px-8 py-3 rounded-full hover:bg-[#00B34A] transition">

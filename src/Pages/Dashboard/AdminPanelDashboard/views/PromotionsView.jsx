@@ -1,14 +1,16 @@
-import React from "react";
 import AddBtn from "../../../../components/ui/AddBtn";
-import { MoreHorizontal, Trash2 } from "lucide-react";
 import Pagination from "../../../../components/ui/Pagination";
 import SearchField from "../../../../components/ui/SearchField";
-import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
+import Swal from "sweetalert2";
+import { Trash2 } from "lucide-react";
+import FormattedDate from "../../../../Utils/Helpers/FormattedDate";
+import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 
 function PromotionsView({
-  promotions,
   onAdd,
-  setPromotions,
+  promotions,
+  refetch,
   promoPage,
   setPromoPage,
   promoSearch,
@@ -16,18 +18,77 @@ function PromotionsView({
   promoPageSize = 10,
   filteredPromotions,
 }) {
-  const toggleActive = (id) =>
-    setPromotions((p) =>
-      p.map((x) => (x.id === id ? { ...x, active: !x.active } : x))
-    );
-  const removePromo = (id) =>
-    setPromotions((p) => p.filter((x) => x.id !== id));
+  const axiosPublic = useAxiosPublic();
+  const toggleActive = async (p) => {
+    try {
+      const res = await axiosPublic.patch(`/promotions/${p.id}`, {
+        is_active: !p.is_active,
+      });
+      if (res.data.updatedCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: `Promotion Is ${!p.is_active ? "Active" : "Inactive"} Now`,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        refetch();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: `Try Again!`,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: `${error.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
+
+  const removePromo = async (id) => {
+    try {
+      const res = await axiosPublic.delete(`/promotions/${id}`);
+      if (res.data.deletedCount > 0) {
+        Swal.fire({
+          icon: "success",
+          title: `Promomotion Delete Successfully`,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        refetch();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: `Try Again!`,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: `${error.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
 
   const totalPages = Math.max(
     1,
     Math.ceil(filteredPromotions.length / promoPageSize)
   );
 
+  const renderPageNumbers = useRenderPageNumbers(
+    promoPage,
+    totalPages,
+    setPromoPage
+  );
   return (
     <div>
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-3">
@@ -60,52 +121,57 @@ function PromotionsView({
         </div>
       </div>
 
-      <div className="bg-white rounded shadow-sm p-3">
-        {promotions.map((p) => (
-          <div
-            key={p.id}
-            className="flex flex-col xl:flex-row lg:flex-row md:flex-row items-center justify-between border-b py-2 gap-4"
-          >
-            <div>
-              <div className="font-medium">
-                {p.code}{" "}
-                <span className="text-xs text-gray-500">{p.discount}</span>
-              </div>
-              <div className="text-xs text-gray-500">
-                {p.start || "-"} → {p.end || "-"}
-              </div>
-            </div>
-            <div className="flex gap-2 items-center">
-              <button
-                onClick={() => toggleActive(p.id)}
-                className={`px-2 py-1 rounded ${
-                  p.active
-                    ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
-                    : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
-                }`}
+      {!promotions.length ? (
+        <div className="col-span-full text-center text-gray-500 py-8">
+          No products found
+        </div>
+      ) : (
+        <>
+          <div className="bg-white rounded shadow-sm p-3">
+            {promotions.map((p) => (
+              <div
+                key={p.id}
+                className="flex flex-col xl:flex-row lg:flex-row md:flex-row items-center justify-between border-b py-2 gap-4"
               >
-                {p.active ? "Active" : "Inactive"}
-              </button>
-              <button
-                onClick={() => removePromo(p.id)}
-                className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
-              >
-                <Trash2 size={20} />
-              </button>
-            </div>
+                <div>
+                  <div className="font-medium">
+                    {p.code}{" "}
+                    <span className="text-xs text-gray-500">{p.discount}</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {FormattedDate(p.start_date) || "-"} →{" "}
+                    {FormattedDate(p.end_date) || "-"}
+                  </div>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <button
+                    onClick={() => toggleActive(p)}
+                    className={`px-2 py-1 rounded ${
+                      !p.is_active
+                        ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
+                        : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
+                    }`}
+                  >
+                    {!p.is_active ? "Active" : "Inactive"}
+                  </button>
+                  <button
+                    onClick={() => removePromo(p.id)}
+                    className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <Pagination
-        currentPage={promoPage}
-        totalPages={totalPages}
-        setCurrentPage={setPromoPage}
-        renderPageNumbers={useRenderPageNumbers(
-          promoPage,
-          totalPages,
-          setPromoPage
-        )}
-      />
+          <Pagination
+            currentPage={promoPage}
+            totalPages={totalPages}
+            setCurrentPage={setPromoPage}
+            renderPageNumbers={renderPageNumbers}
+          />
+        </>
+      )}
     </div>
   );
 }

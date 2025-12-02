@@ -15,7 +15,9 @@ import {
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import { motion } from "framer-motion";
-import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
+import Swal from "sweetalert2";
+import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 
 function ProductsView({
   products,
@@ -23,11 +25,8 @@ function ProductsView({
   toggleSelect,
   openNewProductModal,
   openEditProductModal,
-  setProducts,
-  setDisplayProducts,
   allSelected,
   toggleSelectAll,
-  bulkDelete,
   productPage,
   setProductPage,
   productPageSize = 10,
@@ -38,7 +37,11 @@ function ProductsView({
   setProductSearch,
   productSort,
   setProductSort,
+  refetch,
 }) {
+  const axiosPublic = useAxiosPublic();
+  const baseUrl = import.meta.env.VITE_BASEURL;
+
   const totalPages = Math.max(
     1,
     Math.ceil(filteredProducts.length / productPageSize)
@@ -48,6 +51,116 @@ function ProductsView({
     totalPages,
     setProductPage
   );
+
+  const HandleDelete = async (id) => {
+    try {
+      Swal.fire({
+        icon: "warning",
+        title: "Are You Sure?",
+        showCancelButton: true, // confirm + cancel button
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const res = await axiosPublic.delete(`/products/${id}`);
+          if (res.data.deletedCount > 0) {
+            Swal.fire({
+              icon: "success",
+              title: "Product Deleted Successfully",
+              showConfirmButton: false,
+              timer: 1500,
+              toast: true,
+              position: "top",
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Opps! Try Again",
+              showConfirmButton: false,
+              timer: 1500,
+              toast: true,
+              position: "top",
+            });
+          }
+          refetch();
+        } else {
+          return;
+        }
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: `${error.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+    }
+  };
+  const handleBulkDelete = async () => {
+    if (selected.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "No products selected",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        icon: "warning",
+        title: "Are you sure you want to delete selected products?",
+        showCancelButton: true,
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      });
+
+      if (result.isConfirmed) {
+        const res = await axiosPublic.delete("/products/bulk-delete", {
+          data: { ids: selected },
+        });
+
+        if (res.data.deletedCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Selected Products deleted successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops! Try again",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
+
+        refetch();
+      }
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: error.message,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
 
   return (
     <div className="space-y-10">
@@ -65,7 +178,7 @@ function ProductsView({
               <PlusCircle />
               Add Product
             </AddBtn>
-            <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
           </div>
         </div>
 
@@ -100,7 +213,7 @@ function ProductsView({
           <AddBtn btnHandler={openNewProductModal}>
             <PlusCircle /> Add Product
           </AddBtn>
-          <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+          <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
         </div>
       </div>
       {products.length === 0 ? (
@@ -131,7 +244,7 @@ function ProductsView({
                     />
                   </th>
                   <th>Product Name</th>
-                  <th>Store Name</th>
+                  <th>Seller Name</th>
                   <th>Price</th>
                   <th>Stock</th>
                   <th>Category</th>
@@ -156,7 +269,7 @@ function ProductsView({
                         <div className="avatar">
                           <div className="mask mask-squircle h-12 w-12">
                             <img
-                              src={`http://localhost:3000${p.images[0]}`}
+                              src={`${baseUrl}${p.images[0]}`}
                               alt={p.name}
                             />
                           </div>
@@ -170,12 +283,12 @@ function ProductsView({
                     </td>
                     <td>
                       {" "}
-                      <span className="font-semibold">Rahim Ghosh</span>
+                      <span className="font-semibold">{p.seller_name}</span>
                     </td>
 
                     <td className="px-4 py-3">
                       <span className="font-semibold">
-                        ৳{p.sale_price.toLocaleString("en-IN")}
+                        ৳{p.regular_price.toLocaleString("en-IN")}
                       </span>
                     </td>
                     <td>
@@ -190,7 +303,17 @@ function ProductsView({
                           size={15}
                           className="fill-amber-400 text-amber-400"
                         />
-                        <span className="font-semibold">{p.rating}</span>
+                        {console.log(p.rating)}
+                        <span className="font-semibold">
+                          {Number(p.rating) > 0
+                            ? p.rating
+                            : p.reviews && p.reviews.length > 0
+                            ? (
+                                p.reviews.reduce((a, r) => a + r.rating, 0) /
+                                p.reviews.length
+                              ).toFixed(1)
+                            : "0.0"}
+                        </span>
                       </div>
                     </td>
                     <td>
@@ -208,15 +331,7 @@ function ProductsView({
                           <SquarePen size={20} />
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm("Delete product?"))
-                              setProducts((prev) =>
-                                prev.filter((x) => x.id !== p.id)
-                              );
-                            setDisplayProducts((prev) =>
-                              prev.filter((x) => x.id !== p.id)
-                            );
-                          }}
+                          onClick={() => HandleDelete(p.id)}
                           className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
                           cursor-pointer"
                         >

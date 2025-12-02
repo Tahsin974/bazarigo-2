@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import Pagination from "../../../../components/ui/Pagination";
-import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 
 export default function PaymentsView({
   active,

@@ -1,8 +1,8 @@
-import axios from "axios";
 import Pagination from "../../../../components/ui/Pagination";
 import SearchField from "../../../../components/ui/SearchField";
-import FormattedDate from "../../../../Utils/Hooks/FormattedDate";
-import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
+import FormattedDate from "../../../../Utils/Helpers/FormattedDate";
+import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
+import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 
 function PaymentsView({
   payments,
@@ -15,19 +15,26 @@ function PaymentsView({
   paginatedPayments,
   refetch,
 }) {
+  const axiosPublic = useAxiosPublic();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredPayments.length / paymentPageSize)
   );
 
-  const handleApprove = async (id) => {
-    const res = await axios.patch(`http://localhost:3000/payments/${id}`, {
+  const handleApprove = async (id, orderId) => {
+    const res = await axiosPublic.patch(`/payments/${id}`, {
       status: "Approved",
+      orderId,
     });
     if (res.data.updatedCount > 0) {
       return refetch();
     }
   };
+  const renderPageNumbers = useRenderPageNumbers(
+    paymentPage,
+    totalPages,
+    setPaymentPage
+  );
 
   return (
     <div>
@@ -51,60 +58,57 @@ function PaymentsView({
           />
         </div>
       </div>
-
-      <div className="overflow-x-auto bg-white rounded-box">
-        <table className="table text-center">
-          <thead className="bg-gray-50">
-            <tr className="text-black">
-              <th>Payment ID</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Method</th>
-              <th>Number</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedPayments
-              .sort((a, b) => {
-                if (a.status === "pending" && b.status !== "pending") return -1;
-                if (a.status !== "pending" && b.status === "pending") return 1;
-                return 0;
-              })
-              .map((p) => (
-                <tr key={p.id} className="border-b">
-                  <td>{p.transactionid}</td>
-                  <td>{FormattedDate(p.payment_date)}</td>
-                  <td>৳{p.amount}</td>
-                  <td>{p.payment_method}</td>
-                  <td>{p.phone_number ? p.phone_number : "N/A"}</td>
-                  <td>
-                    {p.status === "pending" ? (
-                      <button
-                        onClick={() => handleApprove(p.transactionid)}
-                        className="px-3 py-1  rounded bg-[#00C853] hover:bg-[#00B34A] text-white"
-                      >
-                        Approve
-                      </button>
-                    ) : (
-                      <p className="text-green-400">Approved</p>
-                    )}
-                  </td>
+      {payments.length ? (
+        <>
+          <div className="overflow-x-auto bg-white rounded-box">
+            <table className="table text-center">
+              <thead className="bg-gray-50">
+                <tr className="text-black">
+                  <th>Payment ID</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Number</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-      <Pagination
-        currentPage={paymentPage}
-        totalPages={totalPages}
-        setCurrentPage={setPaymentPage}
-        renderPageNumbers={useRenderPageNumbers(
-          paymentPage,
-          totalPages,
-          setPaymentPage
-        )}
-      />
+              </thead>
+              <tbody>
+                {paginatedPayments.map((p) => (
+                  <tr key={p.id} className="border-b">
+                    <td>{p.id}</td>
+                    <td>{FormattedDate(p.payment_date)}</td>
+                    <td>৳{p.amount}</td>
+                    <td>{p.payment_method}</td>
+                    <td>{p.phone_number ? p.phone_number : "N/A"}</td>
+                    <td>
+                      {p.status === "pending" ? (
+                        <button
+                          onClick={() => handleApprove(p.id, p.order_id)}
+                          className="px-3 py-1  rounded bg-[#00C853] hover:bg-[#00B34A] text-white"
+                        >
+                          Approve
+                        </button>
+                      ) : (
+                        <p className="text-green-400">Approved</p>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            currentPage={paymentPage}
+            totalPages={totalPages}
+            setCurrentPage={setPaymentPage}
+            renderPageNumbers={renderPageNumbers}
+          />
+        </>
+      ) : (
+        <div className=" mt-3 flex flex-col items-center justify-center py-20 bg-white text-gray-400">
+          No payment records found
+        </div>
+      )}
     </div>
   );
 }

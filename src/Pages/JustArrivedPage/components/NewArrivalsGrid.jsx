@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import ProductCard from "../../../components/ProductCard/ProductCard";
 import Pagination from "../../../components/ui/Pagination";
-import { useRenderPageNumbers } from "../../../Utils/Hooks/useRenderPageNumbers";
+import { useRenderPageNumbers } from "../../../Utils/Helpers/useRenderPageNumbers";
 
 export default function NewArrivalsGrid({
   filtered,

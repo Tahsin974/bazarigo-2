@@ -45,6 +45,14 @@ label {
   font-family: "Poppins";
   font-weight: 500;
 }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 @layer base {
   *,
@@ -80,4 +88,30 @@ input[type="number"]::-webkit-outer-spin-button {
 /* Hide arrows in Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+body,
+a,
+button,
+select,
+img {
+  cursor: pointer;
+}
+
+.loading-img {
+  animation: loading 1s linear infinite alternate;
+}
+@keyframes loading {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.15);
+  }
+}
+/* Remove outline/border on click or focus */
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus {
+  outline: none !important;
+  box-shadow: none !important;
 }

@@ -1,4 +1,4 @@
-import useExtractVariants from "../../../Utils/Hooks/useExtractVariants";
+import useExtractVariants from "../../../Utils/Helpers/useExtractVariants";
 
 export default function VariantSelection({ product, selected, setSelected }) {
   const variants = useExtractVariants(product);
@@ -14,15 +14,17 @@ export default function VariantSelection({ product, selected, setSelected }) {
   return (
     <div className="mt-6 ">
       {variants.map((variant) => (
-        <div key={variant.name} className="mb-4 flex items-center gap-3.5">
-          <h4 className="font-semibold  capitalize">{variant.name} :</h4>
-          <div className="flex gap-2">
+        <div key={variant.name} className="mb-4 flex items-center gap-4">
+          <h4 className="font-semibold  capitalize flex-shrink-0">
+            {variant.name} :
+          </h4>
+          <div className="flex flex-wrap gap-2">
             {variant.options.map((option) => (
               <button
                 key={option}
                 onClick={() => handleSelect(variant.name, option)}
-                className={`px-4 py-2 rounded border ${
-                  selected[variant.name] === option
+                className={`px-2 py-1 min-w-10 sm:text-base text-[10px] rounded border ${
+                  selected?.[variant.name] === option
                     ? "bg-[#FF0055] text-white border-[#FF0055]"
                     : "bg-white text-gray-800 border-gray-300"
                 }`}

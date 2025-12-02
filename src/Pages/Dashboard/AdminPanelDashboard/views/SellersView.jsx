@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
-import { useRenderPageNumbers } from "../../../../Utils/Hooks/useRenderPageNumbers";
-import axios from "axios";
+import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
+import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 function SellersView({
   sellers,
@@ -20,7 +21,6 @@ function SellersView({
   onAdd,
   allSelected,
   toggleSelectAll,
-  bulkDelete,
   sellerPage,
   setSellerPage,
   sellerSearch,
@@ -28,18 +28,91 @@ function SellersView({
   sellerPageSize = 10,
   filteredSellers,
   openSellerModal,
+  refetch,
 }) {
+  const axiosPublic = useAxiosPublic();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredSellers.length / sellerPageSize)
   );
   const handleAccept = async (id) => {
-    const res = await axios.patch(
-      `http://localhost:3000/sellers/${id}/status`,
-      {
-        status: "seller",
+    const res = await axiosPublic.patch(`/sellers/${id}/status`, {
+      status: "approved",
+    });
+    if (res.data.updatedCount > 0) {
+      return refetch();
+    }
+  };
+  const handleReject = async (id) => {
+    const res = await axiosPublic.patch(`/sellers/${id}/status`, {
+      status: "rejected",
+    });
+    if (res.data.deletedCount > 0) {
+      return refetch();
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selected.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "No Sellers selected",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+      return;
+    }
+
+    try {
+      const result = await Swal.fire({
+        icon: "warning",
+        title: "Are you sure you want to delete selected sellers?",
+        showCancelButton: true,
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      });
+
+      if (result.isConfirmed) {
+        const res = await axiosPublic.delete("/sellers/bulk", {
+          data: { ids: selected },
+        });
+
+        if (res.data.deletedCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Selected Products deleted successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+          return refetch();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops! Try again",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
       }
-    );
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: error.message,
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+    }
   };
 
   return (
@@ -58,7 +131,7 @@ function SellersView({
             <AddBtn btnHandler={onAdd}>
               <PlusCircle /> Add Seller
             </AddBtn>
-            <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
           </div>
         </div>
 
@@ -79,7 +152,7 @@ function SellersView({
           <AddBtn btnHandler={onAdd}>
             <PlusCircle /> Add Seller
           </AddBtn>
-          <DeleteAllBtn selected={selected} bulkDelete={bulkDelete} />
+          <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
         </div>
       </div>
       <div className="mt-3 bg-white p-3 rounded shadow-sm">
@@ -150,7 +223,10 @@ function SellersView({
                             >
                               <CircleCheckBig size={20} />
                             </button>
-                            <button className="px-3 py-2  rounded bg-red-100 hover:bg-red-600 text-red-600 hover:text-white cursor-pointer">
+                            <button
+                              onClick={() => handleReject(s.id)}
+                              className="px-3 py-2  rounded bg-red-100 hover:bg-red-600 text-red-600 hover:text-white cursor-pointer"
+                            >
                               <CircleX size={20} />
                             </button>
                           </>
