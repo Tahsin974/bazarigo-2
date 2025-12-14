@@ -1,4 +1,3 @@
-import React from "react";
 import CategoryList from "./CategoryList";
 
 export default function Sidebar({
@@ -7,6 +6,7 @@ export default function Sidebar({
   setActiveCategory,
   openDropdown,
   setOpenDropdown,
+  subcategory,
 }) {
   return (
     <aside className="w-full lg:w-72">
@@ -20,11 +20,10 @@ export default function Sidebar({
             setActiveCategory={setActiveCategory}
             openDropdown={openDropdown}
             setOpenDropdown={setOpenDropdown}
+            subcategory={subcategory}
           />
         </div>
       </div>
-      {/* Mobile Sidebar trigger & drawer এখানে যুক্ত হবে */}
-      {/* ...existing code... */}
     </aside>
   );
 }

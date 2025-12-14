@@ -10,6 +10,7 @@ import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import ZoneEditModal from "../../../../components/Modals/ZoneEditModal/ZoneEditModal";
+import useAuth from "../../../../Utils/Hooks/useAuth";
 
 export default function ZoneView({
   setPostalZoneSearch,
@@ -25,6 +26,7 @@ export default function ZoneView({
   toggleSelect,
 }) {
   const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
   const [openZoneModal, setOpenZoneModal] = useState(false);
   const [activeZone, setActiveZone] = useState(null);
   const [selectArea, setSelectArea] = useState("0");
@@ -56,6 +58,8 @@ export default function ZoneView({
               title: "Postal Zone Deleted Successfully",
               showConfirmButton: false,
               timer: 1500,
+              toast: true,
+              position: "top",
             });
           } else {
             Swal.fire({
@@ -63,6 +67,8 @@ export default function ZoneView({
               title: "Opps! Try Again",
               showConfirmButton: false,
               timer: 1500,
+              toast: true,
+              position: "top",
             });
           }
           refetch();
@@ -76,6 +82,8 @@ export default function ZoneView({
         title: `${error.message}`,
         showConfirmButton: false,
         timer: 1500,
+        toast: true,
+        position: "top",
       });
     }
   };
@@ -86,6 +94,8 @@ export default function ZoneView({
         title: "No zones selected",
         showConfirmButton: false,
         timer: 1500,
+        toast: true,
+        position: "top",
       });
       return;
     }
@@ -112,6 +122,8 @@ export default function ZoneView({
             title: "Selected zones deleted successfully",
             showConfirmButton: false,
             timer: 1500,
+            toast: true,
+            position: "top",
           });
         } else {
           Swal.fire({
@@ -119,6 +131,8 @@ export default function ZoneView({
             title: "Oops! Try again",
             showConfirmButton: false,
             timer: 1500,
+            toast: true,
+            position: "top",
           });
         }
 
@@ -131,6 +145,8 @@ export default function ZoneView({
         title: error.message,
         showConfirmButton: false,
         timer: 1500,
+        toast: true,
+        position: "top",
       });
     }
   };
@@ -188,12 +204,14 @@ export default function ZoneView({
           </div>
 
           {/* Right: Buttons on large screens */}
-          <div className="flex gap-2 order-2 ">
-            <AddBtn btnHandler={handleAdd}>
-              <PlusCircle /> Add Coverage Area
-            </AddBtn>
-            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-          </div>
+          {user.role !== "moderator" && (
+            <div className="flex gap-2 order-2 ">
+              <AddBtn btnHandler={handleAdd}>
+                <PlusCircle /> Add Coverage Area
+              </AddBtn>
+              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+            </div>
+          )}
         </div>
         {!coverageAreas.length ? (
           <div className="col-span-full text-center text-gray-500 py-8">
@@ -205,14 +223,17 @@ export default function ZoneView({
               <table className="table  text-center">
                 <thead>
                   <tr className="text-black">
-                    <th>
-                      <SelectAllCheckbox
-                        selected={selected}
-                        allSelected={allSelected}
-                        toggleSelectAll={toggleSelectAll}
-                        isShowCounter={false}
-                      />
-                    </th>
+                    {user.role !== "moderator" && (
+                      <th>
+                        <SelectAllCheckbox
+                          selected={selected}
+                          allSelected={allSelected}
+                          toggleSelectAll={toggleSelectAll}
+                          isShowCounter={false}
+                        />
+                      </th>
+                    )}
+
                     <th>Division</th>
                     <th>District</th>
                     <th>Upazila/Thana</th>
@@ -221,51 +242,88 @@ export default function ZoneView({
                     <th>Longitude</th>
                     <th>Post Code</th>
                     <th>Area Type</th>
-                    <th>Action</th>
+                    {user.role !== "moderator" && <th>Action</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedPostalZones.map((postalZone) => (
                     <tr key={postalZone.id} className="border-t">
+                      {user.role !== "moderator" && (
+                        <td>
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                            checked={selected.includes(postalZone.id)}
+                            onChange={() => toggleSelect(postalZone.id)}
+                          />
+                        </td>
+                      )}
+
                       <td>
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                          checked={selected.includes(postalZone.id)}
-                          onChange={() => toggleSelect(postalZone.id)}
-                        />
+                        <span className="font-semibold">
+                          {postalZone.division}
+                        </span>
                       </td>
-                      <td>{postalZone.division}</td>
-                      <td>{postalZone.district}</td>
-                      <td>{postalZone.thana}</td>
-                      <td>{postalZone.place}</td>
-                      <td>{postalZone.latitude}</td>
-                      <td>{postalZone.longitude}</td>
-                      <td>{postalZone.postal_code}</td>
+                      <td>
+                        <span className="font-semibold">
+                          {postalZone.district}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">
+                          {postalZone.thana}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">
+                          {postalZone.place}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">
+                          {postalZone.latitude}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">
+                          {postalZone.longitude}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">
+                          {postalZone.postal_code}
+                        </span>
+                      </td>
                       <td>
                         {postalZone.is_remote ? (
-                          <span className="text-red-500">Hard-to-Reach</span>
+                          <span className="text-red-500 font-semibold">
+                            Hard-to-Reach
+                          </span>
                         ) : (
-                          <span className="text-green-500">Normal</span>
+                          <span className="text-green-500 font-semibold">
+                            Normal
+                          </span>
                         )}
                       </td>
-                      <td>
-                        <div className="flex gap-2 justify-center">
-                          <button
-                            onClick={() => handleEdit(postalZone)}
-                            className="px-3 py-2 bg-orange-100 text-[#E6612A] hover:bg-orange-400 hover:text-white rounded cursor-pointer"
-                          >
-                            <SquarePen size={20} />
-                          </button>
+                      {user.role !== "moderator" && (
+                        <td>
+                          <div className="flex gap-2 justify-center">
+                            <button
+                              onClick={() => handleEdit(postalZone)}
+                              className="px-3 py-2 bg-orange-100 text-[#E6612A] hover:bg-orange-400 hover:text-white rounded cursor-pointer"
+                            >
+                              <SquarePen size={20} />
+                            </button>
 
-                          <button
-                            onClick={() => HandleDeleteArea(postalZone.id)}
-                            className="bg-red-100 hover:bg-red-600 text-red-600 rounded px-3 py-2 hover:text-white"
-                          >
-                            <Trash2 size={20} />
-                          </button>
-                        </div>
-                      </td>
+                            <button
+                              onClick={() => HandleDeleteArea(postalZone.id)}
+                              className="bg-red-100 hover:bg-red-600 text-red-600 rounded px-3 py-2 hover:text-white"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

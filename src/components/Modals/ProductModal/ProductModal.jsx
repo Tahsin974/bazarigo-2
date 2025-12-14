@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Trash2, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Pause, Play, Trash2, X } from "lucide-react";
 import SelectField from "../../ui/SelectField";
 import { motion } from "framer-motion";
 import UploadImages from "../../ui/UploadImages";
@@ -15,6 +15,8 @@ export default function ProductModal({ onClose, refetch }) {
   const [attributes, setAttributes] = useState({});
   const [variants, setVariants] = useState([]);
   const { user } = useAuth();
+  const videoRef = useRef();
+  const [isPaused, setIsPaused] = useState(true);
 
   const [form, setForm] = useState(() => ({
     id: null,
@@ -163,14 +165,17 @@ export default function ProductModal({ onClose, refetch }) {
 
   const onImageChange = (e) => {
     const files = Array.from(e.target.files || []);
-    const maxSize = 1 * 1024 * 1024; // 1MB
+    const maxSizeImage = 2 * 1024 * 1024; // 1MB
     const validFiles = [];
     let hasInvalid = false;
 
     files.forEach((file) => {
-      if (file.size > maxSize) {
+      if (file.type.startsWith("image") && file.size > maxSizeImage) {
         hasInvalid = true;
-      } else {
+      } else if (
+        file.type.startsWith("image") ||
+        file.type.startsWith("video")
+      ) {
         validFiles.push(file);
       }
     });
@@ -185,20 +190,14 @@ export default function ProductModal({ onClose, refetch }) {
     }
 
     if (validFiles.length === 0) return;
-    Promise.all(
-      files.map(
-        (f) =>
-          new Promise((res) => {
-            const r = new FileReader();
-            r.onload = () => res(r.result);
-            r.readAsDataURL(f);
-          })
-      )
-    ).then((imgs) =>
-      setForm((s) => ({ ...s, images: [...imgs, ...(s.images || [])] }))
-    );
+
+    // Update state with files directly (for FormData)
+    setForm((prev) => ({
+      ...prev,
+      images: [...(prev.images || []), ...validFiles],
+    }));
   };
-  // Function to remove image by index
+
   const removeImage = (index) => {
     setForm((s) => ({
       ...s,
@@ -229,9 +228,8 @@ export default function ProductModal({ onClose, refetch }) {
       "Ethnic & Traditional Wear",
     ],
     Groceries: [
-      "Fresh Fruits & Vegetables",
       "Dairy & Eggs",
-      "Meat & Seafood",
+
       "Packaged & Snacks",
       "Beverages",
       "Cooking Essentials",
@@ -249,7 +247,7 @@ export default function ProductModal({ onClose, refetch }) {
     "Home & Living": [
       "Furniture",
       "Home Decor",
-      "Kitchen & Dining",
+      "Kitchen Appliances",
       "Bedding & Bath",
       "Lighting",
       "Storage & Organization",
@@ -264,6 +262,14 @@ export default function ProductModal({ onClose, refetch }) {
       "Sportswear & Footwear",
       "Accessories",
     ],
+    "Pet Supplies": [
+      "Accessories",
+      "Pet Food",
+      "Pet Grooming",
+      "Pet Health",
+      "Pet Clothing",
+      "Pet Training & Safety",
+    ],
   };
 
   // Get subcategories based on selected category
@@ -272,12 +278,12 @@ export default function ProductModal({ onClose, refetch }) {
   const subcategoryVariants = {
     Electronics: {
       "Mobile Phones": ["Color", "Storage", "RAM"],
-      "Laptops & Computers": ["Processor", "RAM", "Storage"],
+      "Laptops & Computers": ["Processor", "RAM", "Storage", "Weight"],
       "Audio & Headphones": ["Color", "Connectivity"],
-      "Cameras & Photography": ["Megapixels", "Lens Type"],
+      "Cameras & Photography": ["Megapixels", "Lens Type", "Weight"],
       Wearables: ["Color"],
-      "TV & Home Theater": ["Screen Size", "Resolution"],
-      "Gaming Consoles": ["Storage", "Color"],
+      "TV & Home Theater": ["Screen Size", "Resolution", "Weight"],
+      "Gaming Consoles": ["Storage", "Color", "Weight"],
       Accessories: ["Type", "Color"],
     },
     Fashion: {
@@ -291,9 +297,7 @@ export default function ProductModal({ onClose, refetch }) {
       "Ethnic & Traditional Wear": ["Size", "Color", "Material"],
     },
     Groceries: {
-      "Fresh Fruits & Vegetables": ["Weight", "Organic/Regular"],
       "Dairy & Eggs": ["Pack Size"],
-      "Meat & Seafood": ["Weight", "Fresh/Frozen"],
       "Packaged & Snacks": ["Pack Size", "Flavor"],
       Beverages: ["Volume", "Flavor"],
       "Cooking Essentials": ["Weight/Volume"],
@@ -311,20 +315,28 @@ export default function ProductModal({ onClose, refetch }) {
     "Home & Living": {
       Furniture: ["Material", "Color", "Size/Dimensions"],
       "Home Decor": ["Material", "Color", "Type"],
-      "Kitchen & Dining": ["Material", "Color", "Size"],
-      "Bedding & Bath": ["Size", "Material", "Color"],
+      "Kitchen Appliances": ["Material", "Color", "Size", "Weight"],
+      "Bedding & Bath": ["Size", "Material", "Color", "Weight"],
       Lighting: ["Type", "Size", "Color"],
-      "Storage & Organization": ["Size", "Material", "Color"],
-      "Cleaning Supplies": ["Type", "Quantity"],
-      Accessories: ["Type"],
+      "Storage & Organization": ["Size", "Material", "Color", "Weight"],
+      "Cleaning Supplies": ["Type", "Quantity", "Weight"],
+      Accessories: ["Type", "Weight"],
     },
     Sports: {
-      "Outdoor Sports": ["Type", "Size"],
+      "Outdoor Sports": ["Type", "Size", "Weight"],
       "Gym & Fitness Equipment": ["Type", "Weight"],
-      "Cycling & Scooters": ["Type", "Color"],
-      "Water Sports": ["Type", "Size"],
+      "Cycling & Scooters": ["Type", "Color", "Weight"],
+      "Water Sports": ["Type", "Size", "Weight"],
       "Sportswear & Footwear": ["Size", "Color"],
-      Accessories: ["Type"],
+      Accessories: ["Type", "Weight"],
+    },
+    "Pet Supplies": {
+      "Pet Food": ["Type", "Flavor", "Pack Size", "Weight"],
+      "Pet Accessories": ["Type", "Size", "Color", "Weight"],
+      "Pet Grooming": ["Type", "Size", "Weight"],
+      "Pet Health": ["Type", "Quantity", "Weight"],
+      "Pet Clothing": ["Size", "Color", "Material", "Weight"],
+      "Pet Training & Safety": ["Type", "Size", "Weight"],
     },
   };
 
@@ -333,20 +345,35 @@ export default function ProductModal({ onClose, refetch }) {
   };
   const variablesType = getVariantsFor(form.category, form.subcategory);
 
-  // const handleSave = async () => {
-  //   onSave({ ...form });
-  // };
-
   const handleCreate = async () => {
     try {
-      const payload = { ...form };
-      // FormData নয়, base64 string গুলো JSON এ থাকবে
-      const res = await axiosPublic.post("/products", payload);
+      const formData = new FormData();
+
+      // Normal fields যোগ করুন
+      for (let key in form) {
+        if (key !== "images") {
+          formData.append(key, form[key]);
+        }
+      }
+
+      // Images & videos যোগ করুন
+      (form.images || []).forEach((file) => {
+        formData.append("images", file); // Multer single/multiple জন্য একই নাম
+      });
+
+      const res = await axiosPublic.post("/products", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       if (res.data.createdCount > 0) {
         Swal.fire({
           icon: "success",
-          title: `${payload.productName} has added successfully`,
+          title: `${form.productName} has been added successfully`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         refetch();
@@ -620,27 +647,64 @@ export default function ProductModal({ onClose, refetch }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Upload Image
             </label>
-            <UploadImages handleImageUpload={onImageChange}>
+            <UploadImages video={true} handleImageUpload={onImageChange}>
               <div className="mt-3 grid grid-cols-4 gap-2">
-                {(form.images || []).map((src, i) => (
-                  <div
-                    key={i}
-                    className="w-full h-24 rounded overflow-hidden relative"
-                  >
-                    <img
-                      src={src}
-                      alt={`product-${i}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {/* ❌ X Button */}
-                    <button
-                      onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 w-6 h-6  text-gray-500 rounded-full flex items-center justify-center text-sm  transition"
+                {(form.images || []).map((file, i) => {
+                  const isVideo = file.type.startsWith("video");
+                  const mediaURL = URL.createObjectURL(file); // File থেকে preview
+
+                  return (
+                    <div
+                      key={i}
+                      className="w-full h-24 rounded overflow-hidden relative flex justify-center items-center bg-gray-100"
                     >
-                      <X size={18} />
-                    </button>
-                  </div>
-                ))}
+                      {!isVideo && (
+                        <img
+                          src={mediaURL}
+                          alt={`media-${i}`}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+
+                      {isVideo && (
+                        <>
+                          <video
+                            ref={videoRef}
+                            src={mediaURL}
+                            className="w-full h-full object-cover"
+                            onEnded={() => setIsPaused(true)}
+                          />
+
+                          <button
+                            onClick={() => {
+                              if (videoRef.current.paused) {
+                                videoRef.current.play();
+                                setIsPaused(false);
+                              } else {
+                                videoRef.current.pause();
+                                setIsPaused(true);
+                              }
+                            }}
+                            className="absolute bottom-2 left-2 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-md transition duration-200 ease-in-out "
+                          >
+                            {isPaused ? (
+                              <Play size={16} />
+                            ) : (
+                              <Pause size={16} />
+                            )}
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        onClick={() => removeImage(i)}
+                        className="absolute top-1 right-1 w-6 h-6 text-gray-500 rounded-full flex items-center justify-center text-sm transition"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </UploadImages>
           </div>
@@ -654,29 +718,27 @@ export default function ProductModal({ onClose, refetch }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {user?.role === "seller" ? (
                 <>
-                  {["isHot", "isNew", "isTrending", "isLimitedStock"].map(
-                    (flag) => (
-                      <label
-                        key={flag}
-                        className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-[#FF0055] transition"
-                      >
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                          checked={form[flag]}
-                          onChange={(e) =>
-                            setForm((s) => ({
-                              ...s,
-                              [flag]: e.target.checked,
-                            }))
-                          }
-                        />
-                        <span className="select-none">
-                          {flag.replace(/([A-Z])/g, " $1").trim()}
-                        </span>
-                      </label>
-                    )
-                  )}
+                  {["isHot", "isNew", "isLimitedStock"].map((flag) => (
+                    <label
+                      key={flag}
+                      className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-[#FF0055] transition"
+                    >
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                        checked={form[flag]}
+                        onChange={(e) =>
+                          setForm((s) => ({
+                            ...s,
+                            [flag]: e.target.checked,
+                          }))
+                        }
+                      />
+                      <span className="select-none">
+                        {flag.replace(/([A-Z])/g, " $1").trim()}
+                      </span>
+                    </label>
+                  ))}
                 </>
               ) : (
                 <>

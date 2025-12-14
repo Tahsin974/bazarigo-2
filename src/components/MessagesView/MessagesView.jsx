@@ -46,6 +46,8 @@ export default function MessagesView({ messages, openMessageModal }) {
     return words.slice(0, limit).join(" ") + "...";
   };
 
+  console.log(messages);
+
   return (
     <div>
       {" "}
@@ -86,17 +88,22 @@ export default function MessagesView({ messages, openMessageModal }) {
                     {/* Name + Message */}
                     <div className="flex-1">
                       <div className="flex justify-between items-center gap-2">
-                        <p className="font-semibold text-gray-800">
+                        <span className="font-bold text-gray-800">
                           {message.name}
-                        </p>
+                        </span>
                         <span className="text-xs text-gray-500">
                           {moment(message.last_message_time).fromNow()}
                         </span>
                       </div>
 
-                      <p className="text-sm md:text-lg text-gray-600 flex justify-between ">
-                        <span>{truncateMessage(message.last_message)}</span>
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm md:text-lg text-gray-600 flex justify-between ">
+                          <span>{truncateMessage(message.last_message)}</span>
+                        </p>
+                        {message.unread_count > 0 && (
+                          <span className="inline-block w-2.5 h-2.5 bg-green-500 rounded-full mr-2"></span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -23,7 +23,7 @@ export default function TrendingNowSection() {
   const products = shuffledProducts.slice(0, 8);
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-10 bg-gray-50">
       <div className="container mx-auto xl:px-6 lg:px-6  px-4">
         <SectionTitle title={"Trending Now"} link="/trending-now#" />
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

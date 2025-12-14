@@ -18,6 +18,8 @@ import { motion } from "framer-motion";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../../../Utils/Hooks/useAuth";
+import Loading from "../../../../components/Loading/Loading";
 
 function ProductsView({
   products,
@@ -41,7 +43,7 @@ function ProductsView({
 }) {
   const axiosPublic = useAxiosPublic();
   const baseUrl = import.meta.env.VITE_BASEURL;
-
+  const { user } = useAuth();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredProducts.length / productPageSize)
@@ -100,11 +102,30 @@ function ProductsView({
       });
     }
   };
+
   const handleBulkDelete = async () => {
     if (selected.length === 0) {
       Swal.fire({
         icon: "info",
         title: "No products selected",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+      return;
+    }
+
+    // Moderator only allowed products filter
+    const deletableProducts = selected.filter((id) => {
+      const product = products.find((p) => p.id === id);
+      return !(user.role === "moderator" && !product.canDeleteByModerator);
+    });
+
+    if (deletableProducts.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "No products you can delete",
         showConfirmButton: false,
         timer: 1500,
         toast: true,
@@ -126,7 +147,7 @@ function ProductsView({
 
       if (result.isConfirmed) {
         const res = await axiosPublic.delete("/products/bulk-delete", {
-          data: { ids: selected },
+          data: { ids: deletableProducts },
         });
 
         if (res.data.deletedCount > 0) {
@@ -157,9 +178,22 @@ function ProductsView({
         icon: "error",
         title: error.message,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
+  };
+
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
   };
 
   return (
@@ -168,9 +202,9 @@ function ProductsView({
         {/* Left: SelectAll + Title + small screen Add/Delete buttons */}
         <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1  gap-4">
           <div className="flex items-center gap-4">
-            <div className="font-medium sm:text-md text-[15px]">
+            <h3 className="font-medium sm:text-md text-[15px]">
               Products {!products?.length ? "" : <>({products.length})</>}
-            </div>
+            </h3>
           </div>
           {/* Small screen buttons */}
           <div className="ml-2 lg:hidden flex gap-2">
@@ -178,6 +212,7 @@ function ProductsView({
               <PlusCircle />
               Add Product
             </AddBtn>
+
             <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
           </div>
         </div>
@@ -213,6 +248,7 @@ function ProductsView({
           <AddBtn btnHandler={openNewProductModal}>
             <PlusCircle /> Add Product
           </AddBtn>
+
           <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
         </div>
       </div>
@@ -223,11 +259,7 @@ function ProductsView({
           </div>
         </div>
       ) : products.length === null ? (
-        <div>
-          <div className="flex flex-col items-center justify-center min-h-screen">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
-        </div>
+        <Loading />
       ) : (
         <>
           <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
@@ -269,7 +301,7 @@ function ProductsView({
                         <div className="avatar">
                           <div className="mask mask-squircle h-12 w-12">
                             <img
-                              src={`${baseUrl}${p.images[0]}`}
+                              src={`${baseUrl}${getImages(p.images)[0]}`}
                               alt={p.name}
                             />
                           </div>
@@ -324,16 +356,21 @@ function ProductsView({
                         >
                           <Eye size={20} />
                         </button>
+
                         <button
                           onClick={() => openEditProductModal(p)}
                           className="px-3 py-2 bg-orange-100 text-[#E6612A] hover:bg-orange-400 hover:text-white rounded cursor-pointer"
                         >
                           <SquarePen size={20} />
                         </button>
+
+                        {/* Single Delete */}
                         <button
                           onClick={() => HandleDelete(p.id)}
-                          className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
-                          cursor-pointer"
+                          disabled={
+                            user.role === "moderator" && !p.canDeleteByModerator
+                          }
+                          className={`bg-red-100 hover:bg-red-600 text-red-600 rounded px-3 py-2 hover:text-white cursor-pointer disabled:bg-gray-300 disabled:text-gray-500`}
                         >
                           <Trash2 size={20} />
                         </button>

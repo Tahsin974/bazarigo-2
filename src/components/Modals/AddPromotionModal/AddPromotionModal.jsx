@@ -35,6 +35,8 @@ function AddPromotionModal({ onClose, refetch }) {
           icon: "success",
           title: `Promomotion Create Successfully`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         reset();
@@ -47,6 +49,8 @@ function AddPromotionModal({ onClose, refetch }) {
           icon: "error",
           title: `Try Again!`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -55,6 +59,8 @@ function AddPromotionModal({ onClose, refetch }) {
         icon: "error",
         title: `${error.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }

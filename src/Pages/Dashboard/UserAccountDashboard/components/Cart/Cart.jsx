@@ -93,6 +93,7 @@ export default function Cart({ activeTab }) {
             icon: "error",
             title: "Oops!",
             text: "Try Again!",
+            showConfirmButton: false,
             toast: true,
             position: "top",
           });
@@ -105,12 +106,14 @@ export default function Cart({ activeTab }) {
           icon: "error",
           title: "Oops!",
           text: "Failed to delete selected products.",
+          showConfirmButton: false,
           toast: true,
           position: "top",
         });
       }
     }
   };
+  console.log(carts);
 
   {
     /* filteredSelectedItems তৈরি করা হলো */
@@ -185,6 +188,8 @@ export default function Cart({ activeTab }) {
         icon: "error",
         toast: true,
         position: "top",
+        showConfirmButton: false,
+        timer: 1500,
       });
     }
   };
@@ -253,9 +258,7 @@ export default function Cart({ activeTab }) {
                       <hr class="border-t border-gray-200" />
                       {!carts.length ? (
                         <div className="h-screen flex items-center justify-center bg-white">
-                          <h1 className="text-3xl text-gray-300">
-                            Your Cart Is Empty
-                          </h1>
+                          Your Cart Is Empty
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 gap-4  px-5">
@@ -297,6 +300,7 @@ export default function Cart({ activeTab }) {
                                         </>
                                       ) : (
                                         <>
+                                          ৳
                                           {item.regular_price.toLocaleString(
                                             "en-IN"
                                           )}

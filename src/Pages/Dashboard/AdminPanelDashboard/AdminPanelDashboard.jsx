@@ -33,7 +33,7 @@ import CustomerModal from "../../../components/Modals/CustomerModal/CustomerModa
 import EditProductModal from "../../../components/Modals/EditProductModal/EditProductModal";
 import ProductModal from "../../../components/Modals/ProductModal/ProductModal";
 import MessageModal from "../../../components/Modals/MessageModal/MessageModal";
-import AddMemberModal from "../../../components/Modals/AddMemberModal/AddMemberModal";
+
 import AddCustomerModal from "../../../components/Modals/AddCustomerModal/AddCustomerModal";
 import DiscountModal from "../../../components/Modals/DiscountModal/DiscountModal";
 import AddSellerModal from "../../../components/Modals/AddSellerModal/AddSellerModal";
@@ -46,6 +46,23 @@ import NotificationsView from "../../../components/NotificationsView/Notificatio
 import MessagesView from "../../../components/MessagesView/MessagesView";
 import { useLocation } from "react-router";
 import useMessages from "../../../Utils/Hooks/useMessages";
+import InventoryView from "./views/InventoryView";
+import AddMemberModal from "../../../components/Modals/AddMemberModal/AddMemberModal";
+import PaymentModal from "../../../components/Modals/PaymentModal/PaymentModal";
+import {
+  BarChart3,
+  Boxes,
+  CreditCard,
+  Gift,
+  Home,
+  Map,
+  Package,
+  Settings,
+  ShoppingCart,
+  Store,
+  Users,
+  Zap,
+} from "lucide-react";
 
 export default function AdminPanelDashboard() {
   const location = useLocation();
@@ -61,6 +78,60 @@ export default function AdminPanelDashboard() {
   // Datas (Products,Sellers,Orders,FlashSale,Payments,Promotions,Coverage Areas,Returns,Customers,user)
 
   const { user } = useAuth();
+  const navItems = [
+    { label: "Dashboard", icon: <Home size={18} /> },
+    { label: "Products", icon: <Package size={18} /> },
+    { label: "Inventory", icon: <Boxes size={18} /> },
+    { label: "FlashSale", icon: <Zap size={18} /> },
+    { label: "Orders", icon: <ShoppingCart size={18} /> },
+    { label: "Customers", icon: <Users size={18} /> },
+    { label: "Sellers", icon: <Store size={18} /> },
+    { label: "Payments", icon: <CreditCard size={18} /> },
+    { label: "Promotions", icon: <Gift size={18} /> },
+    { label: "Reports", icon: <BarChart3 size={18} /> },
+    { label: "Coverage Areas", icon: <Map size={18} /> },
+    { label: "Settings", icon: <Settings size={18} /> },
+  ];
+
+  const navOptions =
+    user.role !== "moderator"
+      ? navItems
+      : navItems.filter(
+          (item) => item.label !== "Payments" // moderator থেকে Payments বাদ
+        );
+
+  // const navOptions =
+  //   user.role !== "moderator"
+  //     ? [
+  //         "Dashboard",
+  //         "Products",
+  //         "Inventory",
+  //         "FlashSale",
+  //         "Orders",
+  //         "Customers",
+  //         "Sellers",
+  //         "Payments",
+  //         "Promotions",
+  //         "Reports",
+  //         "Coverage Areas",
+
+  //         "Settings",
+  //       ]
+  //     : [
+  //         "Dashboard",
+  //         "Products",
+  //         "Inventory",
+  //         "FlashSale",
+  //         "Orders",
+  //         "Customers",
+  //         "Sellers",
+
+  //         "Promotions",
+  //         "Reports",
+  //         "Coverage Areas",
+
+  //         "Settings",
+  //       ];
   // , refetch: refetchMessages
   const { myMessages } = useMessages();
 
@@ -77,6 +148,27 @@ export default function AdminPanelDashboard() {
   const { sellers, refetch: refetchSellers } = useSellers();
 
   const { payments, refetch: refetchPayments } = usePayments();
+  const { data: sellerPayments = [], refetch: refetchSellerPayments } =
+    useQuery({
+      queryKey: ["seller-payments"],
+      queryFn: async () => {
+        const res = await axiosSecure.get(`/seller-payments`);
+        return res.data.payments;
+      },
+    });
+  const {
+    data: inventory = [],
+
+    refetch: refetchInventory,
+  } = useQuery({
+    queryKey: ["inventory"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/inventory/${user.id}`);
+
+      return res.data.inventory;
+    },
+  });
+
   const { data: coverageAreas = [], refetch: refetchAreas } = useQuery({
     queryKey: ["postalZones"],
     queryFn: async () => {
@@ -118,7 +210,13 @@ export default function AdminPanelDashboard() {
   const [customerSearch, setCustomerSearch] = useState("");
   const [sellerSearch, setSellerSearch] = useState("");
   const [paymentSearch, setPaymentSearch] = useState("");
+  const [sellerPaymentsSearch, setSellerPaymentsSearch] = useState("");
   const [promoSearch, setPromoSearch] = useState("");
+
+  // inventory filters/pagination
+  const [inventorySearch, setInventorySearch] = useState("");
+  const [inventorySort, setInventorySort] = useState("name");
+  const [inventoryPage, setInventoryPage] = useState(1);
 
   // Pagination states
   const [orderPage, setOrderPage] = useState(1);
@@ -126,6 +224,7 @@ export default function AdminPanelDashboard() {
   const [customerPage, setCustomerPage] = useState(1);
   const [sellerPage, setSellerPage] = useState(1);
   const [paymentPage, setPaymentPage] = useState(1);
+  const [sellerPaymentsPage, setSellerPaymentsPage] = useState(1);
   const [promoPage, setPromoPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
   const [postalZonePage, setPostalZonePage] = useState(1);
@@ -157,6 +256,8 @@ export default function AdminPanelDashboard() {
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [activeMessage, setActiveMessage] = useState(null);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [isPaymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedSeller, setSelectedSeller] = useState(null);
 
   // FlashSale
 
@@ -192,31 +293,14 @@ export default function AdminPanelDashboard() {
         regular_price: product.regular_price ?? 0,
         sale_price: product.sale_price ?? 0,
         discount: product.discount ?? 0,
-        // rating: Number(product.rating),
-        // isBestSeller: product.isbestseller ? "Yes" : "No",
-        // isHot: product.ishot ? "Yes" : "No",
-        // isNew: product.isnew ? "Yes" : "No",
-        // isTrending: product.istrending ? "Yes" : "No",
-        // isLimitedStock: product.islimitedstock ? "Yes" : "No",
-        // isExclusive: product.isexclusive ? "Yes" : "No",
-        // isFlashSale: product.isflashsale ? "Yes" : "No",
         category: product.category ?? "",
         subcategory: product.subcategory ?? "",
         description: product.description ?? "",
         stock: product.stock ?? 0,
         brand: product.brand ?? "No Brand",
         weight: product.weight ?? 1,
-        images: (product.images || []).join(";"), // multiple images separated by ;
+        images: (product.images || []).join(";"),
         extras: JSON.stringify(product.extras || {}, null, 2),
-        // createdAt: product.createdat
-        //   ? new Date(product.createdat).toISOString()
-        //   : new Date\(\)\.toISOString\(\),
-        // updatedAt: product.updatedat
-        //   ? new Date(product.updatedat).toISOString()
-        //   : "",
-        // sellerId: product.sellerid ?? "",
-        // sellerName: product.sellername ?? "",
-        // sellerStoreName: product.sellerstorename ?? "",
       }));
     }
 
@@ -228,7 +312,32 @@ export default function AdminPanelDashboard() {
 
     if (active === "Customers") rows = customers;
     if (active === "Sellers") rows = sellers;
-    if (active === "Payments") rows = payments;
+    if (active === "Payments") {
+      // Export payments.xlsx
+      if (payments.length) {
+        const wb1 = XLSX.utils.book_new();
+        const ws1 = XLSX.utils.json_to_sheet(payments);
+        ws1["!cols"] = Object.keys(payments[0] || {}).map((key) => ({
+          wch: Math.max(key.length, 20),
+        }));
+        XLSX.utils.book_append_sheet(wb1, ws1, "Payments"); // fresh workbook, কোনো conflict নেই
+        XLSX.writeFile(wb1, "Payments_export.xlsx");
+      }
+
+      // Export sellerPayments.xlsx
+      if (sellerPayments.length) {
+        const wb2 = XLSX.utils.book_new(); // fresh workbook
+        const ws2 = XLSX.utils.json_to_sheet(sellerPayments);
+        ws2["!cols"] = Object.keys(sellerPayments[0] || {}).map((key) => ({
+          wch: Math.max(key.length, 20),
+        }));
+        XLSX.utils.book_append_sheet(wb2, ws2, "SellerPayments");
+        XLSX.writeFile(wb2, "SellerPayments_export.xlsx");
+      }
+
+      return;
+    }
+
     if (active === "Promotions") rows = promotions.map((p) => ({ ...p }));
     if (active === "Coverage Areas")
       rows = coverageAreas.map((zone) => ({
@@ -309,15 +418,7 @@ export default function AdminPanelDashboard() {
         weight: 1,
         productName: item.productName,
         images: item.images ? item.images.split(";") : [],
-        extras: item.extras ? JSON.parse(item.extras) : {},
-        createdAt: new Date().toLocaleString("en-CA", {
-          timeZone: "Asia/Dhaka",
-          hour12: false,
-        }),
-        updatedAt: item.updatedAt || null,
-        seller_id: "",
-        seller_name: "",
-        seller_store_name: "",
+        extras: item.extras ? JSON.stringify(item.extras) : {},
       }));
 
       const res = await axiosPublic.post("/products/bulk", products);
@@ -327,6 +428,8 @@ export default function AdminPanelDashboard() {
           icon: "success",
           title: "Product Upload Successfully",
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         refetchProducts();
@@ -336,6 +439,8 @@ export default function AdminPanelDashboard() {
           icon: "error",
           title: "Opps! Try Again",
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -346,6 +451,8 @@ export default function AdminPanelDashboard() {
         icon: "error",
         title: `${err.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -383,6 +490,8 @@ export default function AdminPanelDashboard() {
           icon: "success",
           title: `${res.data.createdCount} Postal Zones Created Successfully`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
 
@@ -393,6 +502,8 @@ export default function AdminPanelDashboard() {
           icon: "error",
           title: "Oops! Try Again",
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -401,6 +512,8 @@ export default function AdminPanelDashboard() {
         icon: "error",
         title: `${err.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -430,6 +543,11 @@ export default function AdminPanelDashboard() {
   const openSellerModal = (seller) => {
     setSellerModalOpen(true);
     setActiveSeller(seller);
+  };
+
+  const openPaymentModal = (seller) => {
+    setSelectedSeller(seller);
+    setPaymentModalOpen(true);
   };
   const openCustomerModal = (customer) => {
     setCustomerModalOpen(true);
@@ -464,18 +582,59 @@ export default function AdminPanelDashboard() {
           (p.category || "").toLowerCase().includes(q)
       );
     }
-    if (productSort === "price")
-      data.sort((a, b) => (a.regular_price || 0) - (b.regular_price || 0));
-    else if (productSort === "stock")
+    data = data.sort((a, b) => {
+      if (productSort === "stock") return (b.stock || 0) - (a.stock || 0);
+      if (productSort === "price")
+        return (
+          (b.sale_price > 0 ? b.sale_price : b.regular_price) -
+          (a.sale_price > 0 ? a.sale_price : a.regular_price)
+        );
+      if (productSort === "rating") {
+        // Compute b's rating
+        const bRating =
+          b.rating > 0
+            ? b.rating
+            : b.reviews && b.reviews.length > 0
+            ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
+            : 0;
+
+        // Compute a's rating
+        const aRating =
+          a.rating > 0
+            ? a.rating
+            : a.reviews && a.reviews.length > 0
+            ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
+            : 0;
+
+        return bRating - aRating; // High → Low
+      } else {
+        (a.product_name || "").localeCompare(b.product_name || "");
+      }
+    });
+
+    return data;
+  }, [products, productSearch, productSort]);
+
+  const filteredInventory = useMemo(() => {
+    let data = [...inventory];
+    if (inventorySearch) {
+      const q = inventorySearch.toLowerCase();
+      data = data.filter((p) =>
+        (p.product_name || "").toLowerCase().includes(q)
+      );
+    } else if (inventorySort === "stock")
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
-    else if (productSort === "rating")
-      data.sort((a, b) => (a.rating || 0) - (b.rating || 0));
     else
       data.sort((a, b) =>
         (a.product_name || "").localeCompare(b.product_name || "")
       );
     return data;
-  }, [products, productSearch, productSort]);
+  }, [inventory, inventorySearch, inventorySort]);
+
+  const paginatedInventory = filteredInventory.slice(
+    (inventoryPage - 1) * currentPageSize,
+    inventoryPage * currentPageSize
+  );
 
   // 📦 Orders Filtering & Sorting
   const filteredOrders = useMemo(() => {
@@ -540,6 +699,21 @@ export default function AdminPanelDashboard() {
   }, [sellers, sellerSearch]);
 
   // 💳 Payments Filtering & Sorting
+  const filteredSellerPayments = useMemo(() => {
+    let data = [...sellerPayments];
+    if (sellerPaymentsSearch) {
+      const q = sellerPaymentsSearch.toLowerCase();
+      data = data.filter(
+        (p) =>
+          (p.id || "").toLowerCase().includes(q) ||
+          (p.method || "").toLowerCase().includes(q) ||
+          (p.status || "").toLowerCase().includes(q)
+      );
+    }
+
+    return data;
+  }, [sellerPayments, sellerPaymentsSearch]);
+
   const filteredPayments = useMemo(() => {
     let data = [...payments];
     if (paymentSearch) {
@@ -598,6 +772,10 @@ export default function AdminPanelDashboard() {
     (paymentPage - 1) * currentPageSize,
     paymentPage * currentPageSize
   );
+  const paginatedSellerPayments = filteredSellerPayments.slice(
+    (sellerPaymentsPage - 1) * currentPageSize,
+    sellerPaymentsPage * currentPageSize
+  );
   const paginatedPromotions = filteredPromotions.slice(
     (promoPage - 1) * 6,
     promoPage * 6
@@ -617,20 +795,7 @@ export default function AdminPanelDashboard() {
               customers={customers}
               sellers={sellers}
               promotions={promotions}
-              items={[
-                "Dashboard",
-                "Products",
-                "FlashSale",
-                "Orders",
-                "Customers",
-                "Sellers",
-                "Payments",
-                "Promotions",
-                "Reports",
-                "Coverage Areas",
-
-                "Settings",
-              ]}
+              items={navOptions}
             />
           </div>
 
@@ -643,20 +808,7 @@ export default function AdminPanelDashboard() {
               orders={orders}
               payments={payments}
               messages={myMessages}
-              items={[
-                "Dashboard",
-                "Products",
-                "FlashSale",
-                "Orders",
-                "Customers",
-                "Sellers",
-                "Payments",
-                "Promotions",
-                "Reports",
-                "Coverage Areas",
-
-                "Settings",
-              ]}
+              items={navOptions}
             >
               <main className="xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
@@ -667,52 +819,58 @@ export default function AdminPanelDashboard() {
 
                   {/* Right: Buttons + Admin */}
                   <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
-                    {active !== "Dashboard" &&
-                      active !== "My Account" &&
+                    {active !== "My Account" &&
+                      active !== "Dashboard" &&
+                      active !== "Reports" &&
                       active !== "Settings" &&
                       active !== "FlashSale" &&
                       active !== "Notifications" && (
                         <>
-                          {active === "Products" && (
-                            <>
-                              <input
-                                ref={fileRef}
-                                type="file"
-                                accept=".xlsx, .xls"
-                                className="hidden"
-                                onChange={handleBulkUpload}
-                              />
-                              <button
-                                onClick={() =>
-                                  fileRef.current && fileRef.current.click()
-                                }
-                                className="btn border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
-                              >
-                                Bulk Upload
-                              </button>
-                              <ExportBtn exportBtnHandler={handleExport} />
-                            </>
-                          )}
+                          {user.role !== "moderator" &&
+                            active === "Products" && (
+                              <>
+                                <input
+                                  ref={fileRef}
+                                  type="file"
+                                  accept=".xlsx, .xls"
+                                  className="hidden"
+                                  onChange={handleBulkUpload}
+                                />
+                                <button
+                                  onClick={() =>
+                                    fileRef.current && fileRef.current.click()
+                                  }
+                                  className="btn border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
+                                >
+                                  Bulk Upload
+                                </button>
+                                <ExportBtn exportBtnHandler={handleExport} />
+                              </>
+                            )}
 
-                          {active === "Coverage Areas" && (
-                            <>
-                              <input
-                                ref={fileRef}
-                                type="file"
-                                accept=".xlsx, .xls"
-                                className="hidden"
-                                onChange={handleBulkUploadPostalZones}
-                              />
-                              <button
-                                onClick={() =>
-                                  fileRef.current && fileRef.current.click()
-                                }
-                                className="btn border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
-                              >
-                                Bulk Upload Zones
-                              </button>
-                              <ExportBtn exportBtnHandler={handleExport} />
-                            </>
+                          {user.role !== "moderator" &&
+                            active === "Coverage Areas" && (
+                              <>
+                                <input
+                                  ref={fileRef}
+                                  type="file"
+                                  accept=".xlsx, .xls"
+                                  className="hidden"
+                                  onChange={handleBulkUploadPostalZones}
+                                />
+                                <button
+                                  onClick={() =>
+                                    fileRef.current && fileRef.current.click()
+                                  }
+                                  className="btn border-none rounded shadow bg-[#00C853] hover:bg-[#00B34A] text-white sm:text-base text-[14px]"
+                                >
+                                  Bulk Upload Zones
+                                </button>
+                                <ExportBtn exportBtnHandler={handleExport} />
+                              </>
+                            )}
+                          {active === "Payments" && (
+                            <ExportBtn exportBtnHandler={handleExport} />
                           )}
 
                           {active === "Messages" &&
@@ -767,6 +925,22 @@ export default function AdminPanelDashboard() {
                       refetch={refetchProducts}
                     />
                   )}
+
+                  <InventoryView
+                    active={active}
+                    inventory={inventory}
+                    refetch={refetchInventory}
+                    refetchProducts={refetchProducts}
+                    inventorySearch={inventorySearch}
+                    setInventorySearch={setInventorySearch}
+                    inventorySort={inventorySort}
+                    setInventorySort={setInventorySort}
+                    inventoryPage={inventoryPage}
+                    setInventoryPage={setInventoryPage}
+                    inventoryPageSize={currentPageSize}
+                    filteredInventory={filteredInventory}
+                    paginatedInventory={paginatedInventory}
+                  />
                   {active === "FlashSale" && (
                     <FlashSaleView
                       products={products}
@@ -866,6 +1040,7 @@ export default function AdminPanelDashboard() {
                     <SellersView
                       sellers={sellers}
                       selected={selected}
+                      openPaymentModal={openPaymentModal}
                       toggleSelect={toggleSelect}
                       onAdd={() => setShowSellerModal(true)}
                       allSelected={
@@ -887,14 +1062,21 @@ export default function AdminPanelDashboard() {
                   {active === "Payments" && (
                     <PaymentsView
                       payments={payments}
+                      sellerPayments={sellerPayments}
                       refetch={refetchPayments}
                       paymentPage={paymentPage}
+                      sellerPaymentsPage={sellerPaymentsPage}
                       setPaymentPage={setPaymentPage}
+                      setSellerPaymentsPage={setSellerPaymentsPage}
                       paymentSearch={paymentSearch}
+                      sellerPaymentsSearch={sellerPaymentsSearch}
+                      setSellerPaymentsSearch={setSellerPaymentsSearch}
                       setPaymentSearch={setPaymentSearch}
                       paymentPageSize={currentPageSize}
                       filteredPayments={filteredPayments}
+                      filteredSellerPayments={filteredSellerPayments}
                       paginatedPayments={paginatedPayments}
+                      paginatedSellerPayments={paginatedSellerPayments}
                     />
                   )}
 
@@ -1059,6 +1241,13 @@ export default function AdminPanelDashboard() {
           <AddPromotionModal
             refetch={refetchPromotions}
             onClose={() => setShowPromoModal(false)}
+          />
+        )}
+        {isPaymentModalOpen && (
+          <PaymentModal
+            seller={selectedSeller}
+            onClose={() => setPaymentModalOpen(false)}
+            refetch={refetchSellerPayments}
           />
         )}
       </>

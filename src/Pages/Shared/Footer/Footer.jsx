@@ -2,7 +2,7 @@ import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import img from "../../../assets/Bazarigo-White.svg";
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-300 py-10">
+    <footer className="bg-gray-900 text-gray-300 py-8">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-4  sm:gap-12 md:grid-cols-3 sm:grid-cols-2  lg:justify-items-center">
           <div className="space-y-4">
@@ -152,7 +152,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <hr className="my-10 border-gray-700" />
+        <hr className="my-8 border-gray-700" />
         <div className="text-center text-gray-500 text-sm">
           &copy; {new Date().getFullYear()} Bazarigo. All Rights Reserved.
         </div>

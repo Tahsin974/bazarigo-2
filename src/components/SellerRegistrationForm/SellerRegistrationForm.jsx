@@ -25,60 +25,69 @@ export default function SellerRegistrationForm({ PRIMARY_COLOR, refetch }) {
   const [mainProductCategory, setMainProductCategory] = useState("");
   const [mobileBankName, setMobileBankName] = useState("");
   const [isAcceptTerms, setIsAcceptTerms] = useState(false);
+
   const onSubmit = async (data) => {
     try {
-      const payload = {
-        ...data,
-        nidFrontImg,
-        nidBackImg,
-        date_of_birth: date,
-        gender,
-        product_category: mainProductCategory,
-        mobile_bank_name: mobileBankName,
-        created_at: new Date().toLocaleString("en-CA", {
-          timeZone: "Asia/Dhaka",
-          hour12: false,
-        }),
-        updated_at: null,
-      };
+      const formData = new FormData();
 
-      const res = await axiosPublic.post("/sellers", payload);
+      // Append normal fields
+      for (let key in data) {
+        formData.append(key, data[key]);
+      }
+
+      // Append files
+      if (nidFrontImg) formData.append("nidFrontImg", nidFrontImg);
+      if (nidBackImg) formData.append("nidBackImg", nidBackImg);
+
+      // Other custom fields
+      if (date) formData.append("date_of_birth", new Date(date).toISOString());
+      if (gender) formData.append("gender", gender);
+      if (mainProductCategory)
+        formData.append("product_category", mainProductCategory);
+      if (mobileBankName) formData.append("mobile_bank_name", mobileBankName);
+
+      const res = await axiosPublic.post("/sellers", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       console.log(res.data);
-      if (res.data.createdCount > 0) {
+      if (res.data?.otp_required) {
         Swal.fire({
-          icon: "success",
-          title: "Registration Successful",
-          text: "Your account is pending admin approval. Please wait.",
-          showConfirmButton: false,
-          timer: 3000,
+          icon: "info",
+          title: "OTP sent to your email!",
           toast: true,
           position: "top",
+          timer: 1500,
+          showConfirmButton: false,
         });
-
-        // Clear form
+        navigate("/verify-otp", {
+          replace: true,
+          state: {
+            email: data.email,
+            from: "seller-register",
+            pathName: location?.state?.pathName,
+          },
+        });
         reset();
         setNidBackImg(null);
         setNidFrontImg(null);
         setGender("");
         setDate(null);
         refetch();
-        navigate("/sign-up");
-        // Do NOT navigate to dashboard until approved
-        // navigator("/dashboard/seller");  <-- comment out
+        return;
       }
     } catch (error) {
       console.log(error);
       Swal.fire({
         icon: "error",
-        title: `${error.response?.data?.message}`,
-        showConfirmButton: false,
+        title: error.response?.data?.message || "Something went wrong!",
         timer: 1500,
         toast: true,
         position: "top",
       });
     }
   };
+
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

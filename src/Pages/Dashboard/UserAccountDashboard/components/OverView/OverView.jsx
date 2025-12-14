@@ -31,6 +31,8 @@ export default function Overview({
     currentPage * 6
   );
 
+  console.log(followingLists);
+
   const handleUnFollow = async (userId, sellerId) => {
     try {
       const res = await axiosPublic.post("/following", {
@@ -114,9 +116,19 @@ export default function Overview({
                     <tbody>
                       {paginatedFollowingLists.map((f, idx) => (
                         <tr key={idx} className="border-t">
-                          <td>{idx + 1}</td>
-                          <td>{f.seller_full_name}</td>
-                          <td>{f.seller_email}</td>
+                          <td>
+                            <span className="font-semibold">{idx + 1}</span>
+                          </td>
+                          <td>
+                            <span className="font-semibold">
+                              {f.seller_full_name}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="font-semibold">
+                              {f.seller_email}
+                            </span>
+                          </td>
 
                           <td>
                             <div className="flex items-center gap-2 justify-center">

@@ -36,7 +36,6 @@ export default function PaymentDetails({
               isWide={true}
               selectValue={mobileBankName}
               selectValueChange={(e) => setMobileBankName(e.target.value)}
-              required
             >
               <option value="" disabled>
                 Select
@@ -48,7 +47,7 @@ export default function PaymentDetails({
           </div>
 
           <InputField
-            {...register("mobileBankAccountNumber", { require: true })}
+            {...register("mobileBankAccountNumber")}
             className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}
             errors={errors.mobileBankAccountNumber}
             errorsMessage={errors.mobileBankAccountNumber?.message}
@@ -70,7 +69,7 @@ export default function PaymentDetails({
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InputField
-            {...register("bankName", { require: true })}
+            {...register("bankName")}
             className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}
             label={"Bank Name"}
             errors={errors.bankName}
@@ -79,7 +78,7 @@ export default function PaymentDetails({
             placeholder="e.g., Sonali Bank, Dutch-Bangla Bank"
           />
           <InputField
-            {...register("branchName", { require: true })}
+            {...register("branchName")}
             className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}
             errors={errors.branchName}
             errorsMessage={errors.branchName?.message}
@@ -88,7 +87,7 @@ export default function PaymentDetails({
             placeholder="e.g., Motijheel Branch"
           />
           <InputField
-            {...register("accountNumber", { require: true })}
+            {...register("accountNumber")}
             className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}
             errors={errors.accountNumber}
             errorsMessage={errors.accountNumber?.message}
@@ -98,7 +97,7 @@ export default function PaymentDetails({
           />
 
           <InputField
-            {...register("accountHolderName", { require: true })}
+            {...register("accountHolderName")}
             className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}
             errors={errors.accountHolderName}
             errorsMessage={errors.accountHolderName?.message}
@@ -108,7 +107,7 @@ export default function PaymentDetails({
           />
         </div>
         <InputField
-          {...register("routingNumber", { require: true })}
+          {...register("routingNumber")}
           className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}
           errors={errors.routingNumber}
           errorsMessage={errors.routingNumber?.message}

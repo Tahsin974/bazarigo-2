@@ -9,9 +9,16 @@ import Rating from "react-rating";
 import moment from "moment/moment";
 import useAuth from "../../../Utils/Hooks/useAuth";
 import { RatingStars } from "../../../components/ui/RatingStars";
+import { useNavigate } from "react-router";
 
 // CustomerReviews.jsx content will be placed here
-export default function CustomerReviews({ reviews = [], productId, refetch }) {
+export default function CustomerReviews({
+  reviews = [],
+  productId,
+  refetch,
+  sellerId,
+}) {
+  const navigate = useNavigate();
   moment.updateLocale("en", {
     relativeTime: {
       future: "in %s",
@@ -44,9 +51,27 @@ export default function CustomerReviews({ reviews = [], productId, refetch }) {
     }));
   };
 
+  const { user } = useAuth();
+
+  const { register, handleSubmit, control, reset } = useForm({
+    defaultValues: {
+      name:
+        user?.role === "admin" || user?.role === "super admin"
+          ? ""
+          : user?.name,
+      comment: "",
+      rating: 0,
+      images: [],
+    },
+  });
+
+  const [images, setImages] = useState([]);
+  const fileInputRef = useRef(null);
   const mutation = useMutation({
     mutationFn: (newReview) =>
-      axiosPublic.put(`/products/${productId}/reviews`, newReview),
+      axiosPublic.put(`/products/${productId}/reviews`, newReview, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
     onSuccess: () => {
       Swal.fire({
         icon: "success",
@@ -73,43 +98,39 @@ export default function CustomerReviews({ reviews = [], productId, refetch }) {
     },
   });
 
-  const { user } = useAuth();
-
-  const { register, handleSubmit, control, reset } = useForm({
-    defaultValues: {
-      name:
-        user?.role === "admin" || user?.role === "super admin"
-          ? ""
-          : user?.name,
-      comment: "",
-      rating: 0,
-      images: [],
-    },
-  });
-  const [images, setImages] = useState([]);
-  const fileInputRef = useRef(null);
-
   const onSubmit = (data) => {
-    const payload = { ...data, images: images, date: new Date().toString() };
-    console.log(payload);
-    mutation.mutate(payload);
-  };
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
+    if (user && user.email) {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("comment", data.comment);
+      formData.append("rating", data.rating);
+      formData.append("date", new Date().toString());
 
-    Promise.all(
-      files.map(
-        (file) =>
-          new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file); // Base64 convert
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-          })
-      )
-    ).then((base64List) => {
-      setImages((prev) => [...prev, ...base64List]);
-    });
+      images.forEach((img) => {
+        formData.append("images", img); // Multer expects the field name
+      });
+
+      mutation.mutate(formData);
+    } else {
+      Swal.fire({
+        title: "You Are Not Logged In",
+        text: "Please Login For Add Product To The Wishlist",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes, Login",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/sign-up", { state: { pathName: location.pathname } });
+        }
+      });
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    setImages((prev) => [...prev, ...files]);
   };
 
   const removeImage = (index) => {
@@ -120,97 +141,191 @@ export default function CustomerReviews({ reviews = [], productId, refetch }) {
   };
 
   return (
-    <section className="container mx-auto xl:px-6 lg:px-6  px-4 py-12 border-t border-gray-300">
+    <section className="container mx-auto xl:px-6 lg:px-6  px-4 py-10 border-t border-gray-300">
       <h3 className="text-xl font-bold mb-6">Customer Reviews</h3>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="mb-8 xl:p-6 lg:p-6 p-6 bg-gray-50 rounded-lg space-y-4 shadow-md"
-      >
-        {user?.role === "admin" ||
-          (user?.role === "super admin" && (
-            <InputField
-              type="text"
-              label="Your Name"
-              placeholder="Your Name"
-              {...register("name")}
-              className="w-full pl-12 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055] transition-all duration-300 focus:shadow-lg"
-            />
-          ))}
+      {user?.role === "seller" ? (
+        user?.id !== sellerId && (
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="mb-8 xl:p-6 lg:p-6 p-6 bg-gray-50 rounded-lg space-y-4 shadow-md"
+          >
+            {user?.role === "admin" ||
+              (user?.role === "super admin" && (
+                <InputField
+                  type="text"
+                  label="Your Name"
+                  placeholder="Your Name"
+                  {...register("name")}
+                  className="w-full pl-12 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055] transition-all duration-300 focus:shadow-lg"
+                />
+              ))}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Comment
-          </label>
-          <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Comment
+              </label>
+              <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20">
+                <button
+                  type="button"
+                  className="flex items-center justify-center w-10 h-10 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150"
+                  aria-label="Add or New"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  multiple
+                  className="hidden"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Write your review..."
+                  {...register("comment")}
+                  className="search-input flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full"
+                />
+              </div>
+
+              {images.length > 0 && (
+                <div className="flex gap-2 mt-2 overflow-x-auto">
+                  {images.map((img, i) => (
+                    <div
+                      key={i}
+                      className="relative w-auto h-20 rounded overflow-hidden flex-shrink-0"
+                    >
+                      <img
+                        src={URL.createObjectURL(img)}
+                        alt={`Preview ${i}`}
+                        className="w-full h-full object-fill rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i)}
+                        className="absolute top-1 right-1 w-6 h-6 text-gray-500 rounded-full flex items-center justify-center transition"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Your Rating:</span>
+              <Controller
+                control={control}
+                name="rating"
+                render={({ field }) => (
+                  <RatingStars rating={field.value} onRate={field.onChange} />
+                )}
+              />
+            </div>
+
             <button
-              type="button"
-              className="flex items-center justify-center w-10 h-10 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150"
-              aria-label="Add or New"
-              onClick={() => fileInputRef.current.click()}
+              type="submit"
+              className="bg-[#FF0055] text-white px-6 py-3 rounded-lg shadow hover:bg-[#e6004e]"
             >
-              <Plus className="w-5 h-5" />
+              Submit Review
             </button>
+          </form>
+        )
+      ) : (
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mb-8 xl:p-6 lg:p-6 p-6 bg-gray-50 rounded-lg space-y-4 shadow-md"
+        >
+          {user?.role === "admin" ||
+            (user?.role === "super admin" && (
+              <InputField
+                type="text"
+                label="Your Name"
+                placeholder="Your Name"
+                {...register("name")}
+                className="w-full pl-12 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055] transition-all duration-300 focus:shadow-lg"
+              />
+            ))}
 
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleImageUpload}
-              multiple
-              className="hidden"
-            />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Comment
+            </label>
+            <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20">
+              <button
+                type="button"
+                className="flex items-center justify-center w-10 h-10 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150"
+                aria-label="Add or New"
+                onClick={() => fileInputRef.current.click()}
+              >
+                <Plus className="w-5 h-5" />
+              </button>
 
-            <input
-              type="text"
-              placeholder="Write your review..."
-              {...register("comment")}
-              className="search-input flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full"
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                multiple
+                className="hidden"
+              />
+
+              <input
+                type="text"
+                placeholder="Write your review..."
+                {...register("comment")}
+                className="search-input flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full"
+              />
+            </div>
+
+            {images.length > 0 && (
+              <div className="flex gap-2 mt-2 overflow-x-auto">
+                {images.map((img, i) => (
+                  <div
+                    key={i}
+                    className="relative w-auto h-20 rounded overflow-hidden flex-shrink-0"
+                  >
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt={`Preview ${i}`}
+                      className="w-full h-full object-fill rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 right-1 w-6 h-6 text-gray-500 rounded-full flex items-center justify-center transition"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Your Rating:</span>
+            <Controller
+              control={control}
+              name="rating"
+              render={({ field }) => (
+                <RatingStars rating={field.value} onRate={field.onChange} />
+              )}
             />
           </div>
 
-          {images.length > 0 && (
-            <div className="flex gap-2 mt-2 overflow-x-auto">
-              {images.map((img, i) => (
-                <div
-                  key={i}
-                  className="relative w-auto h-20 rounded overflow-hidden flex-shrink-0"
-                >
-                  <img
-                    src={img}
-                    alt={`Preview ${i}`}
-                    className="w-full h-full object-fill rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 w-6 h-6 text-gray-500 rounded-full flex items-center justify-center transition"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="font-medium">Your Rating:</span>
-          <Controller
-            control={control}
-            name="rating"
-            render={({ field }) => (
-              <RatingStars rating={field.value} onRate={field.onChange} />
-            )}
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="bg-[#FF0055] text-white px-6 py-3 rounded-lg shadow hover:bg-[#e6004e]"
-        >
-          Submit Review
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="bg-[#FF0055] text-white px-6 py-3 rounded-lg shadow hover:bg-[#e6004e]"
+          >
+            Submit Review
+          </button>
+        </form>
+      )}
 
       {reviews.length > 0 ? (
         <div className="space-y-6">

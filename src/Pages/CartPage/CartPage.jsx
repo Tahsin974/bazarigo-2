@@ -96,6 +96,7 @@ export default function CartPage() {
             icon: "error",
             title: "Oops!",
             text: "Try Again!",
+            showConfirmButton: false,
             toast: true,
             position: "top",
           });
@@ -108,6 +109,7 @@ export default function CartPage() {
           icon: "error",
           title: "Oops!",
           text: "Failed to delete selected products.",
+          showConfirmButton: false,
           toast: true,
           position: "top",
         });
@@ -168,7 +170,8 @@ export default function CartPage() {
         });
 
         if (data.deletedCount) {
-          await Swal.fire({
+          refetch();
+          return await Swal.fire({
             title: "Removed!",
             text: "Product has been removed successfully.",
             icon: "success",
@@ -177,7 +180,6 @@ export default function CartPage() {
             toast: true,
             position: "top",
           });
-          refetch();
         }
       }
     } catch (error) {
@@ -186,6 +188,7 @@ export default function CartPage() {
         title: "Error!",
         text: "Something went wrong while removing the product.",
         icon: "error",
+        showConfirmButton: false,
         toast: true,
         position: "top",
       });
@@ -194,7 +197,7 @@ export default function CartPage() {
 
   return (
     <div className=" bg-[#f7f7f8]">
-      <div className="container mx-auto xl:px-6 lg:px-6  px-4 py-16 space-y-5">
+      <div className="container mx-auto xl:px-6 lg:px-6  px-4 py-10 space-y-5">
         <h1 className="text-3xl font-bold text-gray-600 mb-8">Shopping Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">

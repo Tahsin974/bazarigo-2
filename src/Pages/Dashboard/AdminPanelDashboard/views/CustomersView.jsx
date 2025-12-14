@@ -9,6 +9,8 @@ import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNum
 import { Eye, PlusCircle } from "lucide-react";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../../../Utils/Hooks/useAuth";
+import Loading from "../../../../components/Loading/Loading";
 
 function CustomersView({
   customers,
@@ -28,6 +30,7 @@ function CustomersView({
   refetch,
 }) {
   const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredCustomers.length / customerPageSize)
@@ -96,6 +99,8 @@ function CustomersView({
         icon: "error",
         title: error.message,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -105,16 +110,22 @@ function CustomersView({
     <div>
       <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
         {/* Left: Title + small screen button */}
-        <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
-          <h3 className="font-semibold sm:text-md text-[15px]">
-            Customers ({customers.length})
-          </h3>
-          {/* Add button only on small screens */}
-          <div className="ml-2 md:hidden">
-            <AddBtn btnHandler={onAdd}>
-              <PlusCircle /> Add Customer
-            </AddBtn>
+        <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1 md:order-1 gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold sm:text-md text-[15px]">
+              Customers ({customers.length})
+            </h3>
           </div>
+
+          {/* Add button only on small screens */}
+          {user.role !== "moderator" && (
+            <div className="ml-2 md:hidden flex items-center gap-2 ">
+              <AddBtn btnHandler={onAdd}>
+                <PlusCircle /> Add Customer
+              </AddBtn>
+              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+            </div>
+          )}
         </div>
 
         {/* Middle: Search field */}
@@ -131,12 +142,14 @@ function CustomersView({
         {console.log(selected)}
 
         {/* Right: Buttons visible on large screens */}
-        <div className="hidden md:flex items-center gap-2 order-3 lg:order-2">
-          <AddBtn btnHandler={onAdd}>
-            <PlusCircle /> Add Customer
-          </AddBtn>
-          <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-        </div>
+        {user.role !== "moderator" && (
+          <div className="hidden md:flex items-center gap-2 order-3 lg:order-2">
+            <AddBtn btnHandler={onAdd}>
+              <PlusCircle /> Add Customer
+            </AddBtn>
+            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+          </div>
+        )}
       </div>
 
       {customers.length === 0 ? (
@@ -146,11 +159,7 @@ function CustomersView({
           </div>
         </div>
       ) : customers.length === null ? (
-        <div>
-          <div className="flex flex-col items-center justify-center min-h-screen">
-            <span className="loading loading-spinner loading-xl"></span>
-          </div>
-        </div>
+        <Loading />
       ) : (
         <>
           <div className="overflow-x-auto bg-white rounded-box">
@@ -158,14 +167,17 @@ function CustomersView({
               {/* head */}
               <thead className="bg-gray-50 ">
                 <tr className="text-black">
-                  <th>
-                    <SelectAllCheckbox
-                      selected={selected}
-                      allSelected={allSelected}
-                      toggleSelectAll={toggleSelectAll}
-                      isShowCounter={false}
-                    />
-                  </th>
+                  {user.role !== "moderator" && (
+                    <th>
+                      <SelectAllCheckbox
+                        selected={selected}
+                        allSelected={allSelected}
+                        toggleSelectAll={toggleSelectAll}
+                        isShowCounter={false}
+                      />
+                    </th>
+                  )}
+
                   <th>User Name</th>
                   <th>Name</th>
                   <th>Email</th>
@@ -177,19 +189,34 @@ function CustomersView({
               <tbody>
                 {paginatedCustomers.map((c) => (
                   <tr key={c.id}>
+                    {user.role !== "moderator" && (
+                      <td>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                          checked={selected.includes(c.id)}
+                          onChange={() => toggleSelect(c.id)}
+                        />
+                      </td>
+                    )}
+
                     <td>
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                        checked={selected.includes(c.id)}
-                        onChange={() => toggleSelect(c.id)}
-                      />
+                      <span className="font-semibold">{c.user_name}</span>
                     </td>
-                    <td>{c.user_name}</td>
-                    <td>{c.name}</td>
-                    <td>{c.email}</td>
-                    <td>{c.phone ? c.phone : "-"}</td>
-                    <td>0</td>
+                    <td>
+                      <span className="font-semibold">{c.name}</span>
+                    </td>
+                    <td>
+                      <span className="font-semibold">{c.email}</span>
+                    </td>
+                    <td>
+                      <span className="font-semibold">
+                        {c.phone ? c.phone : "-"}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="font-semibold">{c.orders_count}</span>
+                    </td>
                     <td>
                       <div className="flex items-center gap-2 justify-center">
                         <button

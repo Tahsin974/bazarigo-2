@@ -30,6 +30,7 @@ export default function CustomerModal({ customer, onClose }) {
     gender,
     payment_methods,
   } = customer;
+  console.log(customer);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -150,23 +151,30 @@ export default function CustomerModal({ customer, onClose }) {
               <Wallet className="text-[#FF0055]" size={18} /> Payment Methods
             </h4>
 
-            <div className="grid grid-cols-2 gap-6">
-              {payment_methods.map((pay, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl shadow-sm"
-                >
-                  <MdPayment className="text-[#FF0055]" size={18} />
-                  <div>
-                    <p className="text-sm text-gray-500 capitalize">
-                      {pay.provider}
-                    </p>
-                    <p className="font-medium text-gray-800">{pay.account}</p>
+            {!payment_methods.length ? (
+              <p className="text-gray-500 text-sm">
+                No payment methods added yet.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-6">
+                {payment_methods?.map((pay, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl shadow-sm"
+                  >
+                    <MdPayment className="text-[#FF0055]" size={18} />
+                    <div>
+                      <p className="text-sm text-gray-500 capitalize">
+                        {pay.provider}
+                      </p>
+                      <p className="font-medium text-gray-800">{pay.account}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
+
           <div className="bg-gray-50 p-5 rounded-xl shadow-inner">
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <ShoppingBag className="text-[#FF0055]" size={18} /> Recent Orders

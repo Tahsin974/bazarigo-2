@@ -30,6 +30,7 @@ export default function CheckOutPage() {
     location.state && location.state.items ? location.state.items : [];
 
   const [checkoutItems, setCheckoutItems] = useState(items);
+  console.log(checkoutItems);
 
   const baseUrl = import.meta.env.VITE_BASEURL;
 
@@ -77,6 +78,9 @@ export default function CheckOutPage() {
         title: "Error!",
         text: "Something went wrong while removing the product.",
         icon: "error",
+        showConfirmButton: false,
+        toast: true,
+        position: "top",
       });
     }
   };
@@ -205,7 +209,7 @@ export default function CheckOutPage() {
       {!checkoutItems.length && !isLoading && !user ? (
         <Loading />
       ) : (
-        <div className="container mx-auto xl:px-6 lg:px-6  px-2 py-16 ">
+        <div className="container mx-auto xl:px-6 lg:px-6  px-2 py-10 ">
           <h1 className="text-3xl font-bold text-gray-600 mb-8">Checkout</h1>
           <div className="flex  lg:flex-row flex-col gap-10">
             <div className="flex-1 space-y-6">

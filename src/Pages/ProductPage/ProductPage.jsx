@@ -22,7 +22,7 @@ export default function ProductPage() {
     queryKey: ["product", encodedId],
     queryFn: async () => {
       const res = await axiosPublic.get(`/products/${encodedId}`);
-      const product = res.data.product;
+      const product = { ...res.data.product, isflashsale: false };
 
       if (fromFlashSale) {
         const flashRes = await axiosPublic.get(`/flash-sale/active`);
@@ -42,10 +42,11 @@ export default function ProductPage() {
       </div>
     );
   }
+  console.log(productDetails);
   return (
     <>
       {!isPending && !isLoading ? (
-        <div className="space-y-24 xl:px-6 lg:px-6  px-4 bg-gray-100">
+        <div className="space-y-10 xl:px-6 lg:px-6  px-4 bg-gray-100">
           <ProductDetails
             product={productDetails}
             category={productDetails.category}

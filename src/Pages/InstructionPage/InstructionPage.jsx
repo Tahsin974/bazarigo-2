@@ -1,9 +1,38 @@
+import Swal from "sweetalert2";
 import img1 from "../../assets/Instruction/Instraction 1.png";
 import img2 from "../../assets/Instruction/Instraction 2.JPG";
 import img3 from "../../assets/Instruction/Instraction 3.png";
 import img4 from "../../assets/Instruction/Instraction 4.png";
+import useAxiosSecure from "../../Utils/Hooks/useAxiosSecure";
 
 export default function InstructionPage() {
+  const axiosSecure = useAxiosSecure();
+  const handleDownload = async () => {
+    try {
+      const response = await axiosSecure.get("/api/download-excel", {
+        responseType: "blob", // Important: tells axios to handle binary data
+      });
+
+      // Create a link element and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Products.xlsx"); // Filename
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: error.response.data.message || "Something Went Wrong!!",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
   return (
     <div className="p-4 md:p-8 bg-[#f7f7f7] font-sans">
       <div className="container mx-auto bg-white rounded-xl overflow-hidden shadow-lg">
@@ -232,11 +261,8 @@ export default function InstructionPage() {
               বাল্ক আপলোডের জন্য টেম্পলেট ডাউনলোড করুন
             </p>
             <div className="space-x-4 flex justify-center">
-              <a
-                href="/files/Product-Upload-Template.xlsx"
-                download="Product-Upload-Template For Seller.xlsx"
-              >
-                <button className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg  transition duration-150">
+              <a onClick={handleDownload}>
+                <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg  transition duration-150">
                   ডাউনলোড
                 </button>
               </a>

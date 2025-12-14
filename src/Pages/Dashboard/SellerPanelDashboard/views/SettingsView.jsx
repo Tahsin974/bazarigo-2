@@ -42,108 +42,79 @@ export default function SettingsView({ active }) {
   const handleProfileImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setProfileImg(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setProfileImg(file);
   };
   const handleStoreLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setStoreImg(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setStoreImg(file);
   };
 
   const handleUpdate = async (type, updatedData) => {
     try {
-      // পুরো ইউজার অবজেক্ট থেকে কপি
       const { new_password, old_password, ...safedata } = updatedData;
-      let payload = {
-        ...user, // আগের সব ডেটা রেখে দিচ্ছি
-        ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
 
-        date_of_birth: user.date_of_birth || date,
-      };
+      const formData = new FormData();
+
+      // Append normal fields
+      for (let key in safedata) {
+        formData.append(key, safedata[key]);
+      }
+
+      // Append passwords if exists
       if (old_password && new_password) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          new_password,
-          old_password,
-
-          date_of_birth: user.date_of_birth || date,
-        };
+        formData.append("old_password", old_password);
+        formData.append("new_password", new_password);
       }
-      if (profileImg) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          img: profileImg,
 
-          date_of_birth: user.date_of_birth || date,
-        };
-      }
-      if (storeImg) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          storeImg: storeImg,
+      // Append images/files if exists
+      if (profileImg) formData.append("profileImg", profileImg);
+      if (storeImg) formData.append("storeImg", storeImg);
+      if (nidFrontImg) formData.append("nidFrontImg", nidFrontImg);
+      if (nidBackImg) formData.append("nidBackImg", nidBackImg);
 
-          date_of_birth: user.date_of_birth || date,
-        };
-      }
-      if (nidFrontImg && nidBackImg) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          nid_front_file: nidFrontImg,
-          nid_back_file: nidBackImg,
+      // Append DOB separately if needed
+      formData.append(
+        "date_of_birth",
+        date ? new Date(date).toISOString() : user.date_of_birth
+      );
 
-          date_of_birth: user.date_of_birth || date,
-        };
-      }
-      if (storeImg) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          storeImg: storeImg,
+      console.log("FormData entries:", [...formData.entries()]);
 
-          date_of_birth: user.date_of_birth || date,
-        };
-      }
-      console.log(payload);
-
-      const res = await axiosPublic.put(`/sellers/update/${user.id}`, payload);
+      const res = await axiosPublic.put(
+        `/sellers/update/${user.id}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       if (res.data.updatedCount > 0) {
         Swal.fire({
           icon: "success",
           title: `${type} updated successfully`,
-          showConfirmButton: false,
           timer: 1500,
           toast: true,
+          showConfirmButton: false,
           position: "top",
         });
         refreshUser();
-        return window.location.reload();
+        window.location.reload();
       }
     } catch (err) {
+      console.log(err);
       Swal.fire({
         icon: "error",
         title: err.response?.data?.message || "Something went wrong!",
-        showConfirmButton: false,
         timer: 1500,
+        showConfirmButton: false,
         toast: true,
         position: "top",
       });
     }
   };
+
   return (
     <div>
       {active === "Settings" && (
@@ -162,10 +133,16 @@ export default function SettingsView({ active }) {
                   <div className="relative w-max">
                     {/* মূল User আইকন */}
                     <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
-                      {user?.img || profileImg ? (
+                      {profileImg ? (
                         <img
-                          src={user.img ? `${baseUrl}${user.img}` : profileImg}
-                          alt="product"
+                          src={URL.createObjectURL(profileImg)}
+                          alt="preview"
+                          className="w-full h-full object-fill rounded-full"
+                        />
+                      ) : user?.img ? (
+                        <img
+                          src={`${baseUrl}${user.img}`}
+                          alt="profile"
                           className="w-full h-full object-fill rounded-full"
                         />
                       ) : (
@@ -244,19 +221,20 @@ export default function SettingsView({ active }) {
                   defaultValue={user.phone_number}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
                 />
-
-                <AddBtn
-                  btnHandler={() =>
-                    handleUpdate("Personal Information", {
-                      full_name: document.getElementById("full_name").value,
-                      phone_number:
-                        document.getElementById("phone_number").value,
-                      gender: gender === "" ? user.gender : gender,
-                    })
-                  }
-                >
-                  Save
-                </AddBtn>
+                <div className="sm:col-span-2 ms-auto">
+                  <AddBtn
+                    btnHandler={() =>
+                      handleUpdate("Personal Information", {
+                        full_name: document.getElementById("full_name").value,
+                        phone_number:
+                          document.getElementById("phone_number").value,
+                        gender: gender === "" ? user.gender : gender,
+                      })
+                    }
+                  >
+                    Save
+                  </AddBtn>
+                </div>
               </div>
             </section>
             {/* Account Information */}
@@ -299,7 +277,7 @@ export default function SettingsView({ active }) {
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white disabled:bg-gray-100 m-0"
                 />
               </div>
-              <div className="flex flex-wrap gap-4 mt-2">
+              <div className="flex flex-wrap gap-4 mt-2 justify-end">
                 <AddBtn
                   btnHandler={() =>
                     handleUpdate("Account Information", {
@@ -333,13 +311,15 @@ export default function SettingsView({ active }) {
                   <div className="relative w-max">
                     {/* মূল User আইকন */}
                     <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
-                      {user?.store_img || storeImg ? (
+                      {storeImg ? (
                         <img
-                          src={
-                            user?.store_img
-                              ? `${baseUrl}${user.store_img}`
-                              : storeImg
-                          }
+                          src={URL.createObjectURL(storeImg)}
+                          alt="store-preview"
+                          className="w-full h-full object-fill rounded-full"
+                        />
+                      ) : user?.store_img ? (
+                        <img
+                          src={`${baseUrl}${user.store_img}`}
                           alt="store"
                           className="w-full h-full object-fill rounded-full"
                         />
@@ -475,27 +455,30 @@ export default function SettingsView({ active }) {
                   </div>
                 </div>
 
-                <AddBtn
-                  btnHandler={() =>
-                    handleUpdate("Business Information", {
-                      store_name: document.getElementById("store_name").value,
-                      product_category:
-                        mainProductCategory === ""
-                          ? user.product_category
-                          : mainProductCategory,
-                      business_address:
-                        document.getElementById("businessAddress").value,
-                      district: document.getElementById("district").value,
-                      thana: document.getElementById("thana").value,
-                      postal_code: document.getElementById("postal_code").value,
-                      nid_number: document.getElementById("nidNumber").value,
-                      trade_license_number:
-                        document.getElementById("tradeLicenseNumber").value,
-                    })
-                  }
-                >
-                  Save
-                </AddBtn>
+                <div className="sm:col-span-2 ms-auto">
+                  <AddBtn
+                    btnHandler={() =>
+                      handleUpdate("Business Information", {
+                        store_name: document.getElementById("store_name").value,
+                        product_category:
+                          mainProductCategory === ""
+                            ? user.product_category
+                            : mainProductCategory,
+                        business_address:
+                          document.getElementById("businessAddress").value,
+                        district: document.getElementById("district").value,
+                        thana: document.getElementById("thana").value,
+                        postal_code:
+                          document.getElementById("postal_code").value,
+                        nid_number: document.getElementById("nidNumber").value,
+                        trade_license_number:
+                          document.getElementById("tradeLicenseNumber").value,
+                      })
+                    }
+                  >
+                    Save
+                  </AddBtn>
+                </div>
               </div>
             </section>
 

@@ -34,7 +34,12 @@ export default function Sidebar({
           ? ""
           : stores.notifications.length;
       case "Cart":
-        return stores.cart.length === 0 ? "" : stores.cart.length;
+        return stores.cart.length === 0
+          ? ""
+          : stores.cart.reduce(
+              (total, cartItem) => total + (cartItem.product_count || 0),
+              0
+            );
       case "Wishlist":
         return stores.wishlist.length === 0 ? "" : stores.wishlist.length;
 
@@ -59,7 +64,7 @@ export default function Sidebar({
             <X />
           </button>
         </div>
-        <nav className="p-4 space-y-1">
+        {/* <nav className="p-4 space-y-1">
           {items.map((item) => (
             <button
               key={item}
@@ -90,7 +95,44 @@ export default function Sidebar({
               </span>
             </button>
           ))}
+        </nav> */}
+        <nav className="p-4 space-y-1">
+          {items.map(({ label, icon }) => (
+            <button
+              key={label}
+              onClick={() => setActive(label)}
+              className={`w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 flex items-center justify-between ${
+                active === label
+                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
+                  : "text-gray-700"
+              }`}
+            >
+              <span className="flex items-center gap-2 font-medium">
+                {icon}
+                {label}
+              </span>
+
+              <span
+                className={`text-xs ${
+                  active === label ? "text-white" : "text-gray-400"
+                }`}
+              >
+                {getCount(label, {
+                  products,
+                  orders,
+                  customers,
+                  sellers,
+                  payments,
+                  promotions,
+                  notifications,
+                  cart,
+                  wishlist,
+                })}
+              </span>
+            </button>
+          ))}
         </nav>
+
         <div className="p-4 border-t border-gray-300 space-y-2">
           <a
             href="/"

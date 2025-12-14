@@ -24,20 +24,7 @@ export default function ReturnForm({ refetch }) {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-
-    Promise.all(
-      files.map(
-        (file) =>
-          new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file); // Base64 convert
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-          })
-      )
-    ).then((base64List) => {
-      setImages((prev) => [...prev, ...base64List]);
-    });
+    setImages((prev) => [...prev, ...files]); // সরাসরি File object রাখুন
   };
 
   const removeImage = (index) => {
@@ -45,7 +32,10 @@ export default function ReturnForm({ refetch }) {
   };
 
   const mutation = useMutation({
-    mutationFn: (newReview) => axiosPublic.post(`/return-requests`, newReview),
+    mutationFn: (formData) =>
+      axiosPublic.post(`/return-requests`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
     onSuccess: () => {
       Swal.fire({
         icon: "success",
@@ -74,13 +64,35 @@ export default function ReturnForm({ refetch }) {
   });
 
   const onSubmit = async (data) => {
-    const payload = {
-      ...data,
-      images,
-      customer_id: user.id,
-    };
-    console.log(payload);
-    mutation.mutate(payload);
+    try {
+      const formData = new FormData();
+
+      // সাধারণ ফিল্ডগুলো append করা
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== undefined && data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      });
+
+      // ফাইলগুলো append করা
+      images.forEach((file) => {
+        formData.append("images", file); // ব্যাকএন্ডে Multer অনুযায়ী field name
+      });
+
+      formData.append("customer_id", user.id);
+
+      mutation.mutate(formData);
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to submit return request",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
   };
 
   return (
@@ -152,7 +164,7 @@ export default function ReturnForm({ refetch }) {
                 className="w-full h-24 rounded overflow-hidden relative"
               >
                 <img
-                  src={src}
+                  src={URL.createObjectURL(src)}
                   alt={`product-${i}`}
                   className="w-full h-full object-cover"
                 />

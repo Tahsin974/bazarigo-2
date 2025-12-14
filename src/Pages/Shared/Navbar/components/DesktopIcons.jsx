@@ -18,7 +18,7 @@ export default function DesktopIcons() {
   const baseUrl = import.meta.env.VITE_BASEURL;
   const logOut = async () => {
     await userLogOut();
-    queryClient.setQueryData(["user"], null); // cached value instant null
+    queryClient.setQueryData(["authenticated-user"], null); // cached value instant null
 
     navigate("/");
   };
@@ -60,7 +60,11 @@ export default function DesktopIcons() {
                   <ShoppingCart size={20} />
                   {carts.length > 0 && (
                     <span className="indicator-item badge badge-xs bg-[#FF0055]  border-0 text-white">
-                      {carts.length || 0}
+                      {carts.reduce(
+                        (total, cartItem) =>
+                          total + (cartItem.product_count || 0),
+                        0
+                      )}
                     </span>
                   )}
                 </div>
@@ -186,7 +190,7 @@ export default function DesktopIcons() {
               className="menu menu-sm dropdown-content bg-white text-gray-800 rounded-box z-1 mt-3 w-52 p-2 shadow "
             >
               <li>
-                <a href="/#" className="text-sm hover:text-[#FF0055]">
+                <a href="/#" className="text-sm hover:text-[#FF0055] ">
                   Home
                 </a>
               </li>
@@ -196,6 +200,8 @@ export default function DesktopIcons() {
                     href={
                       user?.role === "admin" || user?.role === "super admin"
                         ? "/dashboard/admin"
+                        : user?.role === "moderator"
+                        ? "/dashboard/moderator"
                         : user?.role === "seller"
                         ? "/dashboard/seller"
                         : "/dashboard"
@@ -209,7 +215,8 @@ export default function DesktopIcons() {
               {user.role &&
                 user?.role !== "seller" &&
                 user?.role !== "admin" &&
-                user?.role !== "super admin" && (
+                user?.role !== "super admin" &&
+                user?.role !== "moderator" && (
                   <li>
                     <a
                       href="/seller-registration#"

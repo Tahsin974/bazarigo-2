@@ -11,6 +11,7 @@ import useBanners from "../../../../Utils/Hooks/useBanners";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 import useAuth from "../../../../Utils/Hooks/useAuth";
 import DatePicker from "react-datepicker";
+import Loading from "../../../../components/Loading/Loading";
 
 function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
   const axiosPublic = useAxiosPublic();
@@ -49,6 +50,8 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
           icon: "success",
           title: `Admin Is ${!admin.is_active ? "Active" : "Inactive"} Now`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         refetchAdmins();
@@ -57,6 +60,8 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
           icon: "error",
           title: `Try Again!`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -65,6 +70,8 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
         icon: "error",
         title: `${error.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -82,13 +89,22 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
         ...data,
         image,
       };
-      const res = await axiosPublic.post("/banner", payload);
+      const formData = new FormData();
+      formData.append("link", data.link);
+      formData.append("image", image);
+      console.log(payload);
+
+      const res = await axiosPublic.post("/banner", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       if (res.data.createdCount > 0) {
         Swal.fire({
           icon: "success",
           title: `Banner has added successfully`,
-          showConfirmButton: false,
           timer: 1500,
+          toast: true,
+          showConfirmButton: false,
+          position: "top",
         });
         reset();
         setImage(null);
@@ -99,6 +115,8 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
         icon: "error",
         title: `${error.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -121,7 +139,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
           icon: "success",
           title: "Deleted successfully",
           showConfirmButton: false,
-          timer: 1200,
+          timer: 1500,
           toast: true,
           position: "top",
         });
@@ -147,7 +165,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
           icon: "success",
           title: "Deleted successfully",
           showConfirmButton: false,
-          timer: 1200,
+          timer: 1500,
           toast: true,
           position: "top",
         });
@@ -155,75 +173,67 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
       }
     });
   };
+
   const handleProfileImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setProfileImg(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setProfileImg(file); // direct file object
   };
+
   const handleStoreLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setStoreImg(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setStoreImg(file);
   };
 
   const handleUpdate = async (type, updatedData) => {
     try {
-      // পুরো ইউজার অবজেক্ট থেকে কপি
       const { new_password, old_password, ...safedata } = updatedData;
-      let payload = {
-        ...user, // আগের সব ডেটা রেখে দিচ্ছি
-        ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
 
-        date_of_birth: user.date_of_birth || date,
-      };
+      const formData = new FormData();
+
+      // normal values append
+      for (let key in safedata) {
+        formData.append(key, safedata[key]);
+      }
+
+      // password update
       if (old_password && new_password) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          new_password,
-          old_password,
-
-          date_of_birth: user.date_of_birth || date,
-        };
+        formData.append("old_password", old_password);
+        formData.append("new_password", new_password);
       }
+
+      // profile image
       if (profileImg) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          img: profileImg,
-
-          date_of_birth: user.date_of_birth || date,
-        };
+        formData.append("profileImg", profileImg); // <-- file object
       }
+
+      // store image
       if (storeImg) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          storeImg: storeImg,
-
-          date_of_birth: user.date_of_birth || date,
-        };
+        formData.append("storeImg", storeImg); // <-- file object
       }
-      console.log(payload);
 
-      const res = await axiosPublic.put(`/admins/update/${user.id}`, payload);
+      // other user data
+      formData.append(
+        "date_of_birth",
+        date ? new Date(date).toISOString() : user.date_of_birth
+      );
+
+      console.log("Sending:", [...formData.entries()]); // debugging
+
+      const res = await axiosPublic.put(`/admins/update/${user.id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (res.data.updatedCount > 0) {
         Swal.fire({
           icon: "success",
           title: `${type} updated successfully`,
-          showConfirmButton: false,
           timer: 1500,
+          showConfirmButton: false,
           toast: true,
           position: "top",
         });
@@ -234,7 +244,6 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
       Swal.fire({
         icon: "error",
         title: err.response?.data?.message || "Something went wrong!",
-        showConfirmButton: false,
         timer: 1500,
         toast: true,
         position: "top",
@@ -282,14 +291,16 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
             <div className="relative w-max">
               {/* মূল User আইকন */}
               <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
-                {user?.profile_img || profileImg ? (
+                {profileImg ? (
                   <img
-                    src={
-                      user?.profile_img
-                        ? `${baseUrl}${user.profile_img}`
-                        : profileImg
-                    }
-                    alt="product"
+                    src={URL.createObjectURL(profileImg)}
+                    alt="preview"
+                    className="w-full h-full object-fill rounded-full"
+                  />
+                ) : user?.profile_img ? (
+                  <img
+                    src={`${baseUrl}${user.profile_img}`}
+                    alt="profile"
                     className="w-full h-full object-fill rounded-full"
                   />
                 ) : (
@@ -403,229 +414,230 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
             }}
             onWheel={(e) => e.target.blur()}
           />
-          <AddBtn
-            btnHandler={() =>
-              handleUpdate("Personal Information", {
-                full_name: document.getElementById("full_name").value,
-                phone_number: document.getElementById("phone_number").value,
-                address: document.getElementById("address").value,
-                district: document.getElementById("district").value,
-                thana: document.getElementById("thana").value,
-                postal_code: document.getElementById("postal_code").value,
-                gender: gender === "" ? user.gender : gender,
-              })
-            }
-          >
-            Save
-          </AddBtn>
+          <div className="ms-auto sm:col-span-2">
+            <AddBtn
+              btnHandler={() =>
+                handleUpdate("Personal Information", {
+                  full_name: document.getElementById("full_name").value,
+                  phone_number: document.getElementById("phone_number").value,
+                  address: document.getElementById("address").value,
+                  district: document.getElementById("district").value,
+                  thana: document.getElementById("thana").value,
+                  postal_code: document.getElementById("postal_code").value,
+                  gender: gender === "" ? user.gender : gender,
+                })
+              }
+            >
+              Save
+            </AddBtn>
+          </div>
         </div>
       </section>
-
       {/* Team Management */}
-      <section className="bg-white rounded-xl shadow-md p-6 border border-gray-100 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-gray-800 tracking-wide">
-            Team Management
-          </h3>
+      {user.role !== "moderator" && (
+        <section className="bg-white rounded-xl shadow-md p-6 border border-gray-100 space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-gray-800 tracking-wide">
+              Team Management
+            </h3>
 
-          <AddBtn btnHandler={() => setShowAddUserModal(true)}>
-            Add Member
-          </AddBtn>
-        </div>
+            <AddBtn btnHandler={() => setShowAddUserModal(true)}>
+              Add Member
+            </AddBtn>
+          </div>
 
-        {/* Admin Users */}
-        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h4 className="text-md font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-            Admins
-          </h4>
+          {/* Admin Users */}
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h4 className="text-md font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+              Admins
+            </h4>
 
-          <ul className="space-y-3 text-sm">
-            {admins.admins?.length === 0 ? (
+            <ul className="space-y-3 text-sm">
+              {admins.admins?.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                  admins not found
+                </div>
+              ) : admins.admins?.length === null ? (
+                <Loading />
+              ) : (
+                admins.admins
+                  ?.sort((a, b) => {
+                    // ধরছি role ফিল্ডে super admin লেখা আছে
+                    if (a.role === "super admin") return -1;
+                    if (b.role === "super admin") return 1;
+                    return 0;
+                  })
+                  .map((admin) => (
+                    <li
+                      key={admin.id}
+                      className="flex items-center justify-between bg-white p-3 rounded-md shadow-sm border border-gray-100"
+                    >
+                      <div cla>
+                        <p className="font-medium text-gray-800">
+                          {admin.email}
+                        </p>
+                        <span className="text-xs text-gray-500 capitalize">
+                          Role: {admin.role}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md font-medium capitalize">
+                          {admin.role}
+                        </span>
+                        {!(
+                          user.role !== "super admin" &&
+                          admin.role === "super admin"
+                        ) && (
+                          <select
+                            value={admin.role}
+                            onChange={(e) => handleUpdateStatus(e, admin.id)}
+                            className="bg-white border border-gray-300 text-gray-900 hover:border-gray-400  rounded px-2 py-1 text-sm focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
+                            disabled={
+                              admin.role === "super admin" &&
+                              user.role !== "super admin"
+                            }
+                          >
+                            <option value="super admin">Super Admin</option>
+                            <option value="admin">Admin</option>
+                            <option value="moderator">Moderator</option>
+                          </select>
+                        )}
+
+                        {/* Delete Button Logic */}
+                        {admin.role === "super admin" &&
+                        user.role !== "super admin" ? (
+                          <div className="relative inline-block group">
+                            <button
+                              disabled
+                              className="px-3 py-2 rounded bg-gray-200 cursor-not-allowed"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+
+                            <span
+                              className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 
+    text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 
+    transition whitespace-nowrap"
+                            >
+                              Not allowed
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 items-center">
+                            <button
+                              onClick={() => toggleActive(admin)}
+                              className={`px-3 py-2 rounded ${
+                                !admin.is_active
+                                  ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
+                                  : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
+                              }`}
+                            >
+                              {!admin.is_active ? "Active" : "Inactive"}
+                            </button>
+                            <button
+                              onClick={() => {
+                                handleRemoveAdmins(admin.id);
+                              }}
+                              className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
+                          cursor-pointer"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </li>
+                  ))
+              )}
+            </ul>
+          </div>
+
+          {/* Moderator Users */}
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h4 className="text-md font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              Moderators
+            </h4>
+
+            {admins.moderators == null ? (
+              <Loading />
+            ) : admins.moderators.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20">
-                admins not found
-              </div>
-            ) : admins.admins?.length === null ? (
-              <div className="flex flex-col items-center justify-center min-h-screen">
-                <span className="loading loading-spinner loading-xl"></span>
+                moderators not found
               </div>
             ) : (
-              admins.admins
-                ?.sort((a, b) => {
-                  // ধরছি role ফিল্ডে super admin লেখা আছে
-                  if (a.role === "super admin") return -1;
-                  if (b.role === "super admin") return 1;
-                  return 0;
-                })
-                .map((admin) => (
+              <ul className="space-y-3 text-sm">
+                {admins.moderators.map((moderator) => (
                   <li
-                    key={admin.id}
+                    key={moderator.id}
                     className="flex items-center justify-between bg-white p-3 rounded-md shadow-sm border border-gray-100"
                   >
-                    <div cla>
-                      <p className="font-medium text-gray-800">{admin.email}</p>
+                    <div>
+                      <p className="font-medium text-gray-800">
+                        {moderator.email}
+                      </p>
                       <span className="text-xs text-gray-500 capitalize">
-                        Role: {admin.role}
+                        Role: {moderator.role}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md font-medium capitalize">
-                        {admin.role}
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-600 rounded-md font-medium capitalize">
+                        {moderator.role}
                       </span>
-                      {!(
-                        user.role !== "super admin" &&
-                        admin.role === "super admin"
-                      ) && (
-                        <select
-                          value={admin.role}
-                          onChange={(e) => handleUpdateStatus(e, admin.id)}
-                          className="bg-white border border-gray-300 text-gray-900 hover:border-gray-400  rounded px-2 py-1 text-sm focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
-                          disabled={
-                            admin.role === "super admin" &&
-                            user.role !== "super admin"
-                          }
+
+                      {/* Updated Delete Button */}
+                      <div className="flex gap-2 items-center">
+                        {user.role === "admin" ||
+                          (user.role === "super admin" && (
+                            <>
+                              <select
+                                value={moderator.role}
+                                onChange={(e) =>
+                                  handleUpdateStatus(e, moderator.id)
+                                }
+                                className="bg-white border border-gray-300 text-gray-900 hover:border-gray-400  rounded px-2 py-1 text-sm focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
+                                disabled={
+                                  moderator.role === "super admin" &&
+                                  user.role !== "super admin"
+                                }
+                              >
+                                <option value="admin">Admin</option>
+                                <option value="moderator">Moderator</option>
+                              </select>
+                            </>
+                          ))}
+                        <button
+                          onClick={() => toggleActive(moderator)}
+                          className={`px-3 py-2 rounded ${
+                            !moderator.is_active
+                              ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
+                              : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
+                          }`}
                         >
-                          <option value="super admin">Super Admin</option>
-                          <option value="admin">Admin</option>
-                          <option value="moderator">Moderator</option>
-                        </select>
-                      )}
-
-                      {/* Delete Button Logic */}
-                      {admin.role === "super admin" &&
-                      user.role !== "super admin" ? (
-                        <div className="relative inline-block group">
-                          <button
-                            disabled
-                            className="px-3 py-2 rounded bg-gray-200 cursor-not-allowed"
-                          >
-                            <Trash2 size={20} />
-                          </button>
-
-                          <span
-                            className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 
-    text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 
-    transition whitespace-nowrap"
-                          >
-                            Not allowed
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2 items-center">
-                          <button
-                            onClick={() => toggleActive(admin)}
-                            className={`px-3 py-2 rounded ${
-                              !admin.is_active
-                                ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
-                                : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
-                            }`}
-                          >
-                            {!admin.is_active ? "Active" : "Inactive"}
-                          </button>
-                          <button
-                            onClick={() => {
-                              handleRemoveAdmins(admin.id);
-                            }}
-                            className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
+                          {!moderator.is_active ? "Active" : "Inactive"}
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleRemoveAdmins(moderator.id);
+                          }}
+                          className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
                           cursor-pointer"
-                          >
-                            <Trash2 size={20} />
-                          </button>
-                        </div>
-                      )}
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      </div>
                     </div>
                   </li>
-                ))
+                ))}
+              </ul>
             )}
-          </ul>
-        </div>
-
-        {/* Moderator Users */}
-        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-          <h4 className="text-md font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500"></span>
-            Moderators
-          </h4>
-
-          {admins.moderators == null ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <span className="loading loading-spinner loading-xl"></span>
-            </div>
-          ) : admins.moderators.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              moderators not found
-            </div>
-          ) : (
-            <ul className="space-y-3 text-sm">
-              {admins.moderators.map((moderator) => (
-                <li
-                  key={moderator.id}
-                  className="flex items-center justify-between bg-white p-3 rounded-md shadow-sm border border-gray-100"
-                >
-                  <div>
-                    <p className="font-medium text-gray-800">
-                      {moderator.email}
-                    </p>
-                    <span className="text-xs text-gray-500 capitalize">
-                      Role: {moderator.role}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="px-2 py-1 text-xs bg-green-100 text-green-600 rounded-md font-medium capitalize">
-                      {moderator.role}
-                    </span>
-
-                    {/* Updated Delete Button */}
-                    <div className="flex gap-2 items-center">
-                      {user.role === "admin" ||
-                        (user.role === "super admin" && (
-                          <>
-                            <select
-                              value={moderator.role}
-                              onChange={(e) =>
-                                handleUpdateStatus(e, moderator.id)
-                              }
-                              className="bg-white border border-gray-300 text-gray-900 hover:border-gray-400  rounded px-2 py-1 text-sm focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
-                              disabled={
-                                moderator.role === "super admin" &&
-                                user.role !== "super admin"
-                              }
-                            >
-                              <option value="admin">Admin</option>
-                              <option value="moderator">Moderator</option>
-                            </select>
-                          </>
-                        ))}
-                      <button
-                        onClick={() => toggleActive(moderator)}
-                        className={`px-3 py-2 rounded ${
-                          !moderator.is_active
-                            ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
-                            : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
-                        }`}
-                      >
-                        {!moderator.is_active ? "Active" : "Inactive"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          handleRemoveAdmins(moderator.id);
-                        }}
-                        className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
-                          cursor-pointer"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Account Information */}
 
@@ -667,7 +679,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white disabled:bg-gray-100 m-0"
           />
         </div>
-        <div className="flex flex-wrap gap-4 mt-2">
+        <div className="flex flex-wrap gap-4 mt-2 sm:col-span-2 justify-end">
           <AddBtn
             btnHandler={() =>
               handleUpdate("Account Information", {
@@ -702,13 +714,15 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
               <div className="relative w-max">
                 {/* মূল User আইকন */}
                 <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
-                  {user?.store_img || storeImg ? (
+                  {storeImg ? (
                     <img
-                      src={
-                        user?.store_img
-                          ? `${baseUrl}${user.store_img}`
-                          : storeImg
-                      }
+                      src={URL.createObjectURL(storeImg)}
+                      alt="preview"
+                      className="w-full h-full object-fill rounded-full"
+                    />
+                  ) : user?.store_img ? (
+                    <img
+                      src={`${baseUrl}${user?.store_img}`}
                       alt="store"
                       className="w-full h-full object-fill rounded-full"
                     />
@@ -766,19 +780,21 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                 ))}
               </SelectField>
             </div>
-            <AddBtn
-              btnHandler={() =>
-                handleUpdate("Business Information", {
-                  store_name: document.getElementById("store_name").value,
-                  product_category:
-                    mainProductCategory === ""
-                      ? user.product_category
-                      : mainProductCategory,
-                })
-              }
-            >
-              Save
-            </AddBtn>
+            <div className="sm:col-span-2 ms-auto">
+              <AddBtn
+                btnHandler={() =>
+                  handleUpdate("Business Information", {
+                    store_name: document.getElementById("store_name").value,
+                    product_category:
+                      mainProductCategory === ""
+                        ? user.product_category
+                        : mainProductCategory,
+                  })
+                }
+              >
+                Save
+              </AddBtn>
+            </div>
           </div>
         </section>
       )}
@@ -851,6 +867,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
       </section> */}
 
       {/* Hero Section Settings*/}
+
       <section className="space-y-3 bg-white rounded-lg shadow-sm p-4">
         <h3 className="font-semibold text-lg">Hero Section Settings</h3>
 
@@ -877,13 +894,14 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
             type="url"
             placeholder="Enter Link"
           />
-
-          <AddBtn
-            type="submit"
-            className="bg-[#FF0055] hover:bg-[#e6004e] text-white px-6 py-2 rounded-lg  transition"
-          >
-            Upload
-          </AddBtn>
+          <div className="flex justify-end">
+            <AddBtn
+              type="submit"
+              className="bg-[#FF0055] hover:bg-[#e6004e] text-white px-6 py-2 rounded-lg  transition"
+            >
+              Upload
+            </AddBtn>
+          </div>
         </form>
         <div className="grid sm:grid-cols-2  gap-4 mt-6">
           {banners.map((banner) => (

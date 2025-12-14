@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { Trash2 } from "lucide-react";
 import FormattedDate from "../../../../Utils/Helpers/FormattedDate";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../../../Utils/Hooks/useAuth";
 
 function PromotionsView({
   onAdd,
@@ -19,6 +20,7 @@ function PromotionsView({
   filteredPromotions,
 }) {
   const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
   const toggleActive = async (p) => {
     try {
       const res = await axiosPublic.patch(`/promotions/${p.id}`, {
@@ -29,6 +31,8 @@ function PromotionsView({
           icon: "success",
           title: `Promotion Is ${!p.is_active ? "Active" : "Inactive"} Now`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         refetch();
@@ -37,6 +41,8 @@ function PromotionsView({
           icon: "error",
           title: `Try Again!`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -45,6 +51,8 @@ function PromotionsView({
         icon: "error",
         title: `${error.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -58,6 +66,8 @@ function PromotionsView({
           icon: "success",
           title: `Promomotion Delete Successfully`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         refetch();
@@ -66,6 +76,8 @@ function PromotionsView({
           icon: "error",
           title: `Try Again!`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -74,6 +86,8 @@ function PromotionsView({
         icon: "error",
         title: `${error.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -98,9 +112,11 @@ function PromotionsView({
             Promotions ({promotions.length})
           </h3>
           {/* Hide this button on md+, show only on sm */}
-          <div className="ml-2 lg:hidden">
-            <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
-          </div>
+          {user.role !== "moderator" && (
+            <div className="ml-2 lg:hidden">
+              <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
+            </div>
+          )}
         </div>
 
         {/* Middle (Search field, center on large screens) */}
@@ -116,9 +132,11 @@ function PromotionsView({
         </div>
 
         {/* Right (Button on md+ only) */}
-        <div className="hidden lg:block order-3">
-          <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
-        </div>
+        {user.role !== "moderator" && (
+          <div className="hidden lg:block order-3">
+            <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
+          </div>
+        )}
       </div>
 
       {!promotions.length ? (
@@ -134,8 +152,8 @@ function PromotionsView({
                 className="flex flex-col xl:flex-row lg:flex-row md:flex-row items-center justify-between border-b py-2 gap-4"
               >
                 <div>
-                  <div className="font-medium">
-                    {p.code}{" "}
+                  <div>
+                    <span className="font-medium"> {p.code}</span>{" "}
                     <span className="text-xs text-gray-500">{p.discount}</span>
                   </div>
                   <div className="text-xs text-gray-500">
@@ -154,12 +172,14 @@ function PromotionsView({
                   >
                     {!p.is_active ? "Active" : "Inactive"}
                   </button>
-                  <button
-                    onClick={() => removePromo(p.id)}
-                    className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
-                  >
-                    <Trash2 size={20} />
-                  </button>
+                  {user.role !== "moderator" && (
+                    <button
+                      onClick={() => removePromo(p.id)}
+                      className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

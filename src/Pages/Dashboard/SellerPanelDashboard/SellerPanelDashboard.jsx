@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { samplePayments } from "./SellerHelpers/SellerHelpers";
 import * as XLSX from "xlsx";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 import DashboardView from "./views/DashboardView";
@@ -29,6 +28,15 @@ import MessagesView from "../../../components/MessagesView/MessagesView";
 import { useLocation } from "react-router";
 import useSuperAdmin from "../../../Utils/Hooks/useSuperAdmin";
 import useMessages from "../../../Utils/Hooks/useMessages";
+import {
+  BarChart3,
+  Boxes,
+  CreditCard,
+  Home,
+  Package,
+  Settings,
+  ShoppingCart,
+} from "lucide-react";
 
 export default function SellerPanelDashboard() {
   const [selected, setSelected] = useState([]);
@@ -36,6 +44,15 @@ export default function SellerPanelDashboard() {
   const { user } = useAuth();
   const axiosPublic = useAxiosPublic();
   const { bazarigo } = useSuperAdmin();
+  const navItems = [
+    { label: "Dashboard", icon: <Home size={18} /> },
+    { label: "Products", icon: <Package size={18} /> },
+    { label: "Orders", icon: <ShoppingCart size={18} /> },
+    { label: "Inventory", icon: <Boxes size={18} /> },
+    { label: "Payments", icon: <CreditCard size={18} /> },
+    { label: "Reports", icon: <BarChart3 size={18} /> },
+    { label: "Settings", icon: <Settings size={18} /> },
+  ];
 
   const axiosSecure = useAxiosSecure();
   const { data: products = [], refetch: refetchProducts } = useQuery({
@@ -88,7 +105,14 @@ export default function SellerPanelDashboard() {
 
   // Core data
 
-  const [payments] = useState(samplePayments());
+  const { data: payments = [], refetch: refetchPayments } = useQuery({
+    queryKey: ["seller-payments"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/seller-payments/${user.id}`);
+      return res.data.payments;
+    },
+  });
+  console.log(payments);
   const fileRef = useRef(null);
 
   // Product UI state
@@ -142,11 +166,18 @@ export default function SellerPanelDashboard() {
           (p.category || "").toLowerCase().includes(q)
       );
     }
-    if (productSort === "price")
-      data.sort((a, b) => (a.price || 0) - (b.price || 0));
-    else if (productSort === "stock")
-      data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
-    else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    data = data.sort((a, b) => {
+      if (productSort === "stock") return (b.stock || 0) - (a.stock || 0);
+      if (productSort === "price")
+        return (
+          (b.sale_price > 0 ? b.sale_price : b.regular_price) -
+          (a.sale_price > 0 ? a.sale_price : a.regular_price)
+        );
+      else {
+        (a.product_name || "").localeCompare(b.product_name || "");
+      }
+    });
+
     return data;
   }, [products, productSearch, productSort]);
 
@@ -158,10 +189,15 @@ export default function SellerPanelDashboard() {
     let data = [...inventory];
     if (inventorySearch) {
       const q = inventorySearch.toLowerCase();
-      data = data.filter((p) => (p.name || "").toLowerCase().includes(q));
+      data = data.filter((p) =>
+        (p.product_name || "").toLowerCase().includes(q)
+      );
     } else if (inventorySort === "stock")
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
-    else data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    else
+      data.sort((a, b) =>
+        (a.product_name || "").localeCompare(b.product_name || "")
+      );
     return data;
   }, [inventory, inventorySearch, inventorySort]);
 
@@ -388,6 +424,8 @@ export default function SellerPanelDashboard() {
           icon: "success",
           title: "Product Upload Successfully",
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         refetchProducts();
@@ -397,6 +435,8 @@ export default function SellerPanelDashboard() {
           icon: "error",
           title: "Opps! Try Again",
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -407,6 +447,8 @@ export default function SellerPanelDashboard() {
         icon: "error",
         title: `${err.message}`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -423,15 +465,7 @@ export default function SellerPanelDashboard() {
             products={products}
             orders={orders}
             payments={payments}
-            items={[
-              "Dashboard",
-              "Products",
-              "Orders",
-              "Inventory",
-              "Payments",
-              "Reports",
-              "Settings",
-            ]}
+            items={navItems}
           />
         </div>
         <div className=" flex-1">
@@ -443,15 +477,7 @@ export default function SellerPanelDashboard() {
             orders={orders}
             payments={payments}
             messages={myMessages}
-            items={[
-              "Dashboard",
-              "Products",
-              "Orders",
-              "Inventory",
-              "Payments",
-              "Reports",
-              "Settings",
-            ]}
+            items={navItems}
           >
             <main className=" xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
@@ -574,6 +600,7 @@ export default function SellerPanelDashboard() {
               <NotificationsView activeTab={active} setActiveTab={setActive} />
               <PaymentsView
                 active={active}
+                payments={payments}
                 filteredPayments={filteredPayments}
                 paginatedPayments={paginatedPayments}
                 paymentSearch={paymentSearch}
@@ -583,6 +610,7 @@ export default function SellerPanelDashboard() {
                 paymentPage={paymentPage}
                 setPaymentPage={setPaymentPage}
                 paymentPageSize={currentPageSize}
+                refetch={refetchPayments}
               />
               {active === "Messages" && (
                 <MessagesView

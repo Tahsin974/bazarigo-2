@@ -7,6 +7,16 @@ import { HashLink } from "react-router-hash-link";
 
 export default function ProductCard({ product: item, viewMode }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
+  };
   return (
     <HashLink to={`/product/${btoa(item.id)}#`}>
       <Card
@@ -22,7 +32,7 @@ export default function ProductCard({ product: item, viewMode }) {
         >
           {item.images && item.images[0] ? (
             <img
-              src={`${baseUrl}${item.images[0]}`}
+              src={`${baseUrl}${getImages(item.images)[0]}`}
               alt=""
               className={`  ${
                 viewMode === "list"
@@ -49,14 +59,14 @@ export default function ProductCard({ product: item, viewMode }) {
                     : item.isnew
                     ? "top-3 right-3 "
                     : "top-3 left-3"
-                }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-pulse`}
+                }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg  animate-pulse`}
               >
                 Limited Stock
               </span>
             )}
 
             {item.isnew && (
-              <span className="absolute top-3 left-3 bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-pulse">
+              <span className="absolute top-3 left-3 bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg  animate-pulse">
                 New
               </span>
             )}
@@ -70,7 +80,7 @@ export default function ProductCard({ product: item, viewMode }) {
                     : item.islimitedstock
                     ? "top-3 right-3"
                     : "top-3 left-3"
-                }  text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white animate-gradient`}
+                }  text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg  animate-gradient`}
                 style={{
                   background:
                     "linear-gradient(90deg, #FFD700 0%, #FFFACD 100%)",

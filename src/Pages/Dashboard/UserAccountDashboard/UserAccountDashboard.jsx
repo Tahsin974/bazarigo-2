@@ -22,12 +22,31 @@ import NotificationsView from "../../../components/NotificationsView/Notificatio
 import { useLocation } from "react-router";
 import useMessages from "../../../Utils/Hooks/useMessages";
 import useSuperAdmin from "../../../Utils/Hooks/useSuperAdmin";
+import {
+  Heart,
+  Home,
+  RotateCcw,
+  Settings,
+  ShoppingBag,
+  ShoppingCart,
+  Undo2,
+} from "lucide-react";
 
 export default function UserAccountDashboard() {
   const location = useLocation();
   const axiosPublic = useAxiosPublic();
   // Open/Close Menu
   // User
+
+  const navItems = [
+    { label: "Overview", icon: <Home size={18} /> },
+    { label: "Orders", icon: <ShoppingCart size={18} /> },
+    { label: "Cart", icon: <ShoppingBag size={18} /> },
+    { label: "Wishlist", icon: <Heart size={18} /> },
+    { label: "Returns", icon: <RotateCcw size={18} /> },
+
+    { label: "Settings", icon: <Settings size={18} /> },
+  ];
 
   const { user } = useAuth();
 
@@ -90,14 +109,7 @@ export default function UserAccountDashboard() {
           orders={orders}
           cart={carts}
           wishlist={wishlists}
-          items={[
-            "Overview",
-            "Orders",
-            "Cart",
-            "Wishlist",
-            "Returns",
-            "Settings",
-          ]}
+          items={navItems}
         />
       </div>
 
@@ -113,14 +125,7 @@ export default function UserAccountDashboard() {
           cart={carts}
           wishlist={wishlists}
           messages={myMessages}
-          items={[
-            "Overview",
-            "Orders",
-            "Cart",
-            "Wishlist",
-            "Returns",
-            "Settings",
-          ]}
+          items={navItems}
         >
           <main className="xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3 overflow-auto">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">

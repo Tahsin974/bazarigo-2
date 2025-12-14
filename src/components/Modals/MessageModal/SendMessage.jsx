@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
-import { SendHorizontal } from "lucide-react";
+import { Check, CheckCheck, SendHorizontal } from "lucide-react";
 import Loading from "../../Loading/Loading";
 
 export default function SendMessage({
@@ -118,24 +118,29 @@ export default function SendMessage({
 
                     {/* Bubble */}
                     <div
-                      className={`px-4 py-2 rounded-2xl shadow-sm text-sm leading-relaxed flex gap-1.5 ${
+                      className={` rounded-2xl shadow-sm text-sm leading-relaxed flex gap-1.5 px-4 py-2 ${
                         isSender
                           ? "bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white rounded-br-none"
                           : "bg-gray-100 text-gray-800 rounded-bl-none"
                       }`}
                     >
-                      <span>{msg.content}</span>
-                      <span>
-                        {isSender && (
-                          <span
-                            className={`text-[10px] mt-1 self-end ${
-                              isSeen ? "text-blue-500" : "text-gray-400"
-                            }`}
-                          >
-                            {isSeen ? "✓✓" : "✓"}
-                          </span>
-                        )}
-                      </span>
+                      <div className="flex items-end gap-2">
+                        <span>{msg.content}</span>
+                        <span>
+                          {isSender && (
+                            <span
+                              className={`text-[10px] mt-1 self-end text-white
+                              `}
+                            >
+                              {isSeen ? (
+                                <CheckCheck size={20} />
+                              ) : (
+                                <Check size={20} />
+                              )}
+                            </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Seen/Unseen tick for sender */}

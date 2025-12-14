@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const queryClient = useQueryClient();
 
   const { data: user, isLoading } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["authenticated-user"],
     queryFn: async () => {
       const res = await axiosSecure.get("/user");
 
@@ -20,7 +20,8 @@ export function AuthProvider({ children }) {
     retry: false,
   });
 
-  const refreshUser = () => queryClient.invalidateQueries(["user"]);
+  const refreshUser = () =>
+    queryClient.invalidateQueries(["authenticated-user"]);
   const userLogOut = async () => {
     try {
       await axiosPublic.post("/logout"); // সার্ভার কল

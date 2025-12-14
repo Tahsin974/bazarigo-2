@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import SellerHeader from "./components/SellerHeader";
 import FilterSection from "./components/FilterSection";
 import ProductGrid from "./components/ProductGrid";
-import ReviewsSection from "./components/ReviewsSection";
 import { useParams } from "react-router";
 import { X } from "lucide-react";
 
@@ -102,9 +101,6 @@ export default function SellerShopPage() {
             totalPages={totalPages}
             setCurrentPage={setCurrentPage}
           />
-
-          {/* Reviews Section */}
-          <ReviewsSection />
 
           {/* Message Modal */}
           {isMessageOpen && (

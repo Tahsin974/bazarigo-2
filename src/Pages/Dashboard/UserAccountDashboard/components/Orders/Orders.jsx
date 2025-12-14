@@ -38,7 +38,7 @@ export default function Orders({ orders, activeTab, refetch }) {
         toast: true,
         position: "top",
         showConfirmButton: false,
-        timer: 3000,
+        timer: 1500,
       });
       refetch();
       return window.location.reload();

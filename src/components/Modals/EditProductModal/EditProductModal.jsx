@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import SelectField from "../../ui/SelectField";
 import TextEditor from "../../ui/TextEditor";
 import UploadImages from "../../ui/UploadImages";
-import { Trash2, X } from "lucide-react";
+import { Pause, Play, Trash2, X } from "lucide-react";
 import Swal from "sweetalert2";
 import { InputField } from "../../ui/InputField";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
@@ -13,8 +13,8 @@ export default function EditProductModal({
   refetch,
   user,
 }) {
+  console.log(product);
   const baseUrl = import.meta.env.VITE_BASEURL;
-
   const axiosPublic = useAxiosPublic();
   const [form, setForm] = useState({
     productName: product.product_name || "",
@@ -45,6 +45,23 @@ export default function EditProductModal({
     sellerName: product.sellerName || "",
     sellerStoreName: product.sellerStoreName || "",
   });
+  const videoRefs = useRef([]); // All refs stored here
+  const [pausedVideos, setPausedVideos] = useState(
+    form.images.reduce((acc, _, i) => ({ ...acc, [i]: true }), {})
+  ); // Store pause state per index
+  const togglePlayPause = (idx) => {
+    const video = videoRefs.current[idx];
+    if (!video) return;
+    console.log(video.paused);
+
+    if (video.paused) {
+      video.play();
+      setPausedVideos((p) => ({ ...p, [idx]: false }));
+    } else {
+      video.pause();
+      setPausedVideos((p) => ({ ...p, [idx]: true }));
+    }
+  };
 
   const [attributes, setAttributes] = useState({});
   const [variants, setVariants] = useState(product.extras?.variants || []);
@@ -126,17 +143,22 @@ export default function EditProductModal({
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files || []);
-    const maxSize = 1 * 1024 * 1024; // 1MB
+    const maxSizeImage = 2 * 1024 * 1024; // 1MB for images
+
+    console.log(files);
     const validFiles = [];
     let hasInvalid = false;
 
     files.forEach((file) => {
-      if (file.size > maxSize) {
+      if (file.type.startsWith("image") && file.size > maxSizeImage) {
         hasInvalid = true;
+      } else if (file.type.startsWith("video")) {
+        validFiles.push(file);
       } else {
         validFiles.push(file);
       }
     });
+    console.log(validFiles);
 
     if (hasInvalid) {
       Swal.fire({
@@ -148,18 +170,13 @@ export default function EditProductModal({
     }
 
     if (validFiles.length === 0) return;
-    Promise.all(
-      files.map(
-        (f) =>
-          new Promise((res) => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.readAsDataURL(f);
-          })
-      )
-    ).then((imgs) =>
-      setForm((prev) => ({ ...prev, images: [...imgs, ...prev.images] }))
-    );
+
+    // FormData তে সংরক্ষণ করুন
+
+    setForm((prev) => ({
+      ...prev,
+      images: [...validFiles, ...(prev.images || [])],
+    }));
   };
 
   const removeImage = (index) => {
@@ -191,9 +208,8 @@ export default function EditProductModal({
       "Ethnic & Traditional Wear",
     ],
     Groceries: [
-      "Fresh Fruits & Vegetables",
       "Dairy & Eggs",
-      "Meat & Seafood",
+
       "Packaged & Snacks",
       "Beverages",
       "Cooking Essentials",
@@ -211,7 +227,7 @@ export default function EditProductModal({
     "Home & Living": [
       "Furniture",
       "Home Decor",
-      "Kitchen & Dining",
+      "Kitchen Appliances",
       "Bedding & Bath",
       "Lighting",
       "Storage & Organization",
@@ -226,17 +242,25 @@ export default function EditProductModal({
       "Sportswear & Footwear",
       "Accessories",
     ],
+    "Pet Supplies": [
+      "Accessories",
+      "Pet Food",
+      "Pet Grooming",
+      "Pet Health",
+      "Pet Clothing",
+      "Pet Training & Safety",
+    ],
   };
 
   const subcategoryVariants = {
     Electronics: {
       "Mobile Phones": ["Color", "Storage", "RAM"],
-      "Laptops & Computers": ["Processor", "RAM", "Storage"],
+      "Laptops & Computers": ["Processor", "RAM", "Storage", "Weight"],
       "Audio & Headphones": ["Color", "Connectivity"],
-      "Cameras & Photography": ["Megapixels", "Lens Type"],
+      "Cameras & Photography": ["Megapixels", "Lens Type", "Weight"],
       Wearables: ["Color"],
-      "TV & Home Theater": ["Screen Size", "Resolution"],
-      "Gaming Consoles": ["Storage", "Color"],
+      "TV & Home Theater": ["Screen Size", "Resolution", "Weight"],
+      "Gaming Consoles": ["Storage", "Color", "Weight"],
       Accessories: ["Type", "Color"],
     },
     Fashion: {
@@ -250,9 +274,7 @@ export default function EditProductModal({
       "Ethnic & Traditional Wear": ["Size", "Color", "Material"],
     },
     Groceries: {
-      "Fresh Fruits & Vegetables": ["Weight", "Organic/Regular"],
       "Dairy & Eggs": ["Pack Size"],
-      "Meat & Seafood": ["Weight", "Fresh/Frozen"],
       "Packaged & Snacks": ["Pack Size", "Flavor"],
       Beverages: ["Volume", "Flavor"],
       "Cooking Essentials": ["Weight/Volume"],
@@ -270,20 +292,28 @@ export default function EditProductModal({
     "Home & Living": {
       Furniture: ["Material", "Color", "Size/Dimensions"],
       "Home Decor": ["Material", "Color", "Type"],
-      "Kitchen & Dining": ["Material", "Color", "Size"],
-      "Bedding & Bath": ["Size", "Material", "Color"],
+      "Kitchen Appliances": ["Material", "Color", "Size", "Weight"],
+      "Bedding & Bath": ["Size", "Material", "Color", "Weight"],
       Lighting: ["Type", "Size", "Color"],
-      "Storage & Organization": ["Size", "Material", "Color"],
-      "Cleaning Supplies": ["Type", "Quantity"],
-      Accessories: ["Type"],
+      "Storage & Organization": ["Size", "Material", "Color", "Weight"],
+      "Cleaning Supplies": ["Type", "Quantity", "Weight"],
+      Accessories: ["Type", "Weight"],
     },
     Sports: {
-      "Outdoor Sports": ["Type", "Size"],
+      "Outdoor Sports": ["Type", "Size", "Weight"],
       "Gym & Fitness Equipment": ["Type", "Weight"],
-      "Cycling & Scooters": ["Type", "Color"],
-      "Water Sports": ["Type", "Size"],
+      "Cycling & Scooters": ["Type", "Color", "Weight"],
+      "Water Sports": ["Type", "Size", "Weight"],
       "Sportswear & Footwear": ["Size", "Color"],
-      Accessories: ["Type"],
+      Accessories: ["Type", "Weight"],
+    },
+    "Pet Supplies": {
+      "Pet Food": ["Type", "Flavor", "Pack Size", "Weight"],
+      "Pet Accessories": ["Type", "Size", "Color", "Weight"],
+      "Pet Grooming": ["Type", "Size", "Weight"],
+      "Pet Health": ["Type", "Quantity", "Weight"],
+      "Pet Clothing": ["Size", "Color", "Material", "Weight"],
+      "Pet Training & Safety": ["Type", "Size", "Weight"],
     },
   };
 
@@ -305,14 +335,55 @@ export default function EditProductModal({
 
   const handleSave = async () => {
     try {
-      const payload = { ...form };
-      // FormData নয়, base64 string গুলো JSON এ থাকবে
-      const res = await axiosPublic.put(`/products/${product.id}`, payload);
+      const formData = new FormData();
+      formData.append("productName", form.productName);
+      formData.append("regular_price", form.regular_price);
+      formData.append("sale_price", form.sale_price);
+      formData.append("discount", form.discount);
+      formData.append("rating", form.rating);
+      formData.append("isBestSeller", form.isBestSeller);
+      formData.append("isHot", form.isHot);
+      formData.append("isNew", form.isNew);
+      formData.append("isTrending", form.isTrending);
+      formData.append("isLimitedStock", form.isLimitedStock);
+      formData.append("isExclusive", form.isExclusive);
+      formData.append("isFlashSale", form.isFlashSale);
+      formData.append("category", form.category);
+      formData.append("subcategory", form.subcategory);
+      formData.append("description", form.description);
+      formData.append("stock", form.stock);
+      formData.append("brand", form.brand);
+      formData.append("weight", form.weight);
+      formData.append("extras", JSON.stringify(form.extras || {}));
+
+      // Multer-এর জন্য প্রতিটি ফাইল আলাদা append করুন
+
+      // আগের image path গুলো বের করা
+      const existingPaths = form.images.filter(
+        (item) => typeof item === "string"
+      );
+
+      // backend এ পাঠানো
+      formData.append("existingPaths", JSON.stringify(existingPaths));
+
+      // নতুন file object গুলো পাঠানো
+      form.images
+        .filter((item) => item instanceof File)
+        .forEach((file) => {
+          formData.append("images", file);
+        });
+
+      const res = await axiosPublic.put(`/products/${product.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       if (res.data.updatedCount > 0) {
         Swal.fire({
           icon: "success",
-          title: `${payload.productName} has updated successfully`,
+          title: `${form.productName} has updated successfully`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
         refetch();
@@ -322,6 +393,7 @@ export default function EditProductModal({
       console.error(err.response?.data || err.message);
     }
   };
+  console.log(form.images);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -578,27 +650,74 @@ export default function EditProductModal({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Upload Image
             </label>
-            <UploadImages handleImageUpload={handleImageChange}>
+            <UploadImages video={true} handleImageUpload={handleImageChange}>
               <div className="mt-3 grid grid-cols-4 gap-2">
-                {(form.images || []).map((src, i) => (
-                  <div
-                    key={i}
-                    className="w-full h-24 rounded overflow-hidden relative"
-                  >
-                    <img
-                      src={src.includes("/uploads") ? `${baseUrl}${src}` : src}
-                      alt={`product-${i}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {/* ❌ X Button */}
-                    <button
-                      onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 w-6 h-6  text-gray-500 rounded-full flex items-center justify-center text-sm  transition cursor-pointer"
+                {(form.images || []).map((src, i) => {
+                  if (!src) return null;
+
+                  const isVideo =
+                    (typeof src === "object" &&
+                      src.type?.startsWith("video")) ||
+                    (typeof src === "string" && /\.(mp4|webm|mov)$/i.test(src));
+
+                  let mediaURL = "";
+                  if (typeof src === "object") {
+                    mediaURL = URL.createObjectURL(src);
+                  } else if (typeof src === "string") {
+                    mediaURL = src.includes("/uploads")
+                      ? `${baseUrl}${src}`
+                      : src;
+                  }
+
+                  return (
+                    <div
+                      key={i}
+                      className="w-full h-24 rounded overflow-hidden relative flex justify-center items-center bg-gray-100"
                     >
-                      <X size={18} />
-                    </button>
-                  </div>
-                ))}
+                      {/* IMAGE */}
+                      {!isVideo && (
+                        <img
+                          src={mediaURL}
+                          alt={`media-${i}`}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+
+                      {/* VIDEO */}
+                      {isVideo && (
+                        <>
+                          <video
+                            ref={(el) => (videoRefs.current[i] = el)}
+                            src={mediaURL}
+                            className="w-full h-full object-cover"
+                            onEnded={() =>
+                              setPausedVideos((p) => ({ ...p, [i]: true }))
+                            }
+                          />
+
+                          <button
+                            onClick={() => togglePlayPause(i)}
+                            className="absolute bottom-2 left-2 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-md transition duration-200 ease-in-out "
+                          >
+                            {pausedVideos[i] ? (
+                              <Play size={16} />
+                            ) : (
+                              <Pause size={16} />
+                            )}
+                          </button>
+                        </>
+                      )}
+                      {console.log(!pausedVideos[i])}
+
+                      <button
+                        onClick={() => removeImage(i)}
+                        className="absolute top-1 right-1 w-6 h-6 text-gray-500 rounded-full flex items-center justify-center text-sm transition"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </UploadImages>
           </div>

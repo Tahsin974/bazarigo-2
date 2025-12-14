@@ -3,7 +3,6 @@ import HeroSection from "./components/HeroSection";
 import ControlsSection from "./components/ControlsSection";
 import ProductsGrid from "./components/ProductsGrid";
 import Pagination from "../../components/ui/Pagination";
-import { motion } from "framer-motion";
 
 import { useRenderPageNumbers } from "../../Utils/Helpers/useRenderPageNumbers";
 import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
@@ -103,7 +102,7 @@ export default function TrendingNowPage() {
   );
 
   return (
-    <div className="w-full bg-gray-50 font-sans text-gray-800">
+    <div className="w-full bg-gray-50 font-sans text-gray-800 ">
       <HeroSection />
       <ControlsSection
         filterTag={filterTag}
@@ -114,7 +113,7 @@ export default function TrendingNowPage() {
         sortOption={sortOption}
         setSortOption={setSortOption}
       />
-      <section className="py-12">
+      <section className="py-10">
         {isPending ? (
           <Loading />
         ) : (
@@ -124,12 +123,14 @@ export default function TrendingNowPage() {
               containerVariants={containerVariants}
               itemVariants={itemVariants}
             />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              setCurrentPage={setCurrentPage}
-              renderPageNumbers={renderPageNumbers}
-            />
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                setCurrentPage={setCurrentPage}
+                renderPageNumbers={renderPageNumbers}
+              />
+            )}
           </div>
         )}
       </section>

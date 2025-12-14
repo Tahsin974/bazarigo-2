@@ -115,3 +115,40 @@ img {
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Ring Border Base */
+.progress-ring {
+  position: relative;
+}
+
+.progress-ring::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+}
+
+/* Animated Loading Ring */
+.progress-ring::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #00c853; /* Green */
+  animation: spinner 0.7s linear infinite;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.menu a:active {
+  background-color: white;
+  color: #ff0055;
+}

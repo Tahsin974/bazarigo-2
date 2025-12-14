@@ -16,7 +16,7 @@ export default function Topbar({ setActiveTab, messages }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
   const logOut = async () => {
     await userLogOut();
-    queryClient.setQueryData(["user"], null); // cached value instant null
+    queryClient.setQueryData(["authenticated-user"], null); // cached value instant null
 
     navigate("/");
   };
@@ -101,7 +101,7 @@ export default function Topbar({ setActiveTab, messages }) {
                     </span>
                     <button
                       onClick={() => setActiveTab("Notifications")}
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-[#FF0055] hover:underline"
                     >
                       See All
                     </button>
@@ -181,8 +181,7 @@ export default function Topbar({ setActiveTab, messages }) {
                       <HashLink
                         to={`/seller-page/${
                           user.store_name || user.full_name
-                        }/store#`}
-                        state={{ id: user.id }}
+                        }/store?id=${btoa(user.id)}#`}
                         className="text-sm"
                       >
                         My Store

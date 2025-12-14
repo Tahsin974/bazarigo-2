@@ -8,6 +8,7 @@ import SelectField from "../../../../components/ui/SelectField";
 import { Eye, PlusCircle, SquarePen, Star, Trash2 } from "lucide-react";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import Pagination from "../../../../components/ui/Pagination";
+import Loading from "../../../../components/Loading/Loading";
 
 function ProductsView({
   active,
@@ -148,9 +149,21 @@ function ProductsView({
         icon: "error",
         title: error.message,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
+  };
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
   };
 
   return (
@@ -161,9 +174,9 @@ function ProductsView({
             {/* Left: SelectAll + Title + small screen Add/Delete buttons */}
             <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1  gap-4">
               <div className="flex items-center gap-4">
-                <div className="font-medium sm:text-md text-[15px]">
+                <h3 className="font-medium sm:text-md text-[15px]">
                   Products {!products?.length ? "" : <>({products.length})</>}
-                </div>
+                </h3>
               </div>
               {/* Small screen buttons */}
               <div className="ml-2 lg:hidden flex gap-2">
@@ -217,11 +230,7 @@ function ProductsView({
               No Products Found
             </div>
           ) : products.length === null ? (
-            <div>
-              <div className="flex flex-col items-center justify-center min-h-screen">
-                <span className="loading loading-spinner loading-xl"></span>
-              </div>
-            </div>
+            <Loading />
           ) : (
             <>
               <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
@@ -263,7 +272,7 @@ function ProductsView({
                             <div className="avatar">
                               <div className="mask mask-squircle h-12 w-12">
                                 <img
-                                  src={`${baseUrl}${p.images[0]}`}
+                                  src={`${baseUrl}${getImages(p.images)[0]}`}
                                   alt={p.name}
                                 />
                               </div>

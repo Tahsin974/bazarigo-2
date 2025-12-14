@@ -8,6 +8,7 @@ import { User, Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+import useUsers from "../../../Utils/Hooks/useUsers";
 
 export default function AddCustomerModal({ onClose }) {
   const axiosPublic = useAxiosPublic();
@@ -17,47 +18,59 @@ export default function AddCustomerModal({ onClose }) {
     reset,
     formState: { errors, isValid },
   } = useForm({ mode: "onChange" });
+  const { refetch } = useUsers();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [image, setImage] = useState(null);
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    if (!file) {
+      setImage(null);
+      return;
+    }
+    setImage(file); // সরাসরি File object সংরক্ষণ
   };
 
   const onSubmit = async (data) => {
+    if (!image) {
+      Swal.fire({
+        icon: "error",
+        title: "Please select an image",
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: "top",
+      });
+      refetch();
+      return;
+    }
+
     try {
-      const payload = {
-        name: data.first_Name + " " + data.last_Name,
-        user_name: data.user_Name,
-        email: data.email,
-        phone: data.phone,
-        img: image,
-        password: data.password,
-        address: data.address,
-        district: data.district,
-        thana: data.thana,
-        postal_code: data.postal_code,
-        created_at: new Date().toLocaleString("en-CA", {
-          timeZone: "Asia/Dhaka",
-          hour12: false,
-        }),
-        updated_at: null,
-      };
-      const res = await axiosPublic.post("/register", payload);
+      const formData = new FormData();
+      formData.append("profileImg", image); // ফাইল ফিল্ড
+      formData.append("name", data.first_Name + " " + data.last_Name);
+
+      formData.append("email", data.email);
+      formData.append("phone", data.phone);
+      formData.append("password", data.password);
+      formData.append("address", data.address);
+      formData.append("district", data.district);
+      formData.append("thana", data.thana);
+      formData.append("postal_code", data.postal_code);
+
+      const res = await axiosPublic.post("/register", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       if (res.data.createdCount > 0) {
         Swal.fire({
           icon: "success",
-          title: "Customer Create Successfully",
-          showConfirmButton: false,
+          title: "Customer Created Successfully",
           timer: 1500,
+          showConfirmButton: false,
+          toast: true,
+          position: "top",
         });
         reset();
         setImage(null);
@@ -65,16 +78,20 @@ export default function AddCustomerModal({ onClose }) {
       } else {
         Swal.fire({
           icon: "error",
-          title: "Opps! Try Again",
+          title: "Oops! Try Again",
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: `${error.message}`,
+        title: error.message,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -109,7 +126,7 @@ export default function AddCustomerModal({ onClose }) {
                     <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
                       {image ? (
                         <img
-                          src={`${image}`}
+                          src={URL.createObjectURL(image)}
                           alt="product"
                           className="w-full h-full object-cover rounded-full"
                         />
@@ -187,27 +204,6 @@ export default function AddCustomerModal({ onClose }) {
                     {errors.last_Name && (
                       <p className="mt-1 text-xs text-red-500">
                         {errors.last_Name.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="w-full">
-                    <input
-                      {...register("user_Name", {
-                        required: "Username is required",
-                        pattern: {
-                          value: /^[a-zA-Z0-9_]{3,20}$/,
-                          message:
-                            "Username must be 3–20 characters (letters, numbers, or underscores)",
-                        },
-                      })}
-                      placeholder="Username"
-                      className={`w-full px-4 py-3 rounded-lg border ${
-                        errors.user_Name ? "border-red-500" : "border-gray-300"
-                      } focus:outline-none focus:ring-2 focus:ring-[#FF0055]`}
-                    />
-                    {errors.user_Name && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {errors.user_Name.message}
                       </p>
                     )}
                   </div>
@@ -423,21 +419,13 @@ export default function AddCustomerModal({ onClose }) {
                   </div>
                 </div>
 
-                {!isValid ? (
-                  <Button
-                    disabled
-                    className="w-full bg-gray-300 text-gray-500 font-semibold py-3 rounded-lg shadow-none hover:bg-gray-300 transition-colors flex justify-center"
-                  >
-                    Add Customer
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    className="w-full bg-[#FF0055] text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-[#e6004d] transition-colors flex justify-center cursor-pointer"
-                  >
-                    Add Customer
-                  </Button>
-                )}
+                <Button
+                  disabled={!isValid}
+                  type="submit"
+                  className="w-full bg-[#FF0055] text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-[#e6004d] transition-colors flex justify-center cursor-pointer disabled:bg-gray-300 disabled:text-gray-500"
+                >
+                  Add Customer
+                </Button>
               </form>
             </CardContent>
           </Card>

@@ -26,6 +26,8 @@ export default function ZoneEditModal({
             title: "Postal Zone Updated Successfully",
             showConfirmButton: false,
             timer: 1500,
+            toast: true,
+            position: "top",
           });
           reset();
 
@@ -36,6 +38,8 @@ export default function ZoneEditModal({
             title: "Opps! Try Again",
             showConfirmButton: false,
             timer: 1500,
+            toast: true,
+            position: "top",
           });
         }
       } else {
@@ -46,6 +50,8 @@ export default function ZoneEditModal({
             title: "Postal Zone Created Successfully",
             showConfirmButton: false,
             timer: 1500,
+            toast: true,
+            position: "top",
           });
           reset();
 
@@ -56,6 +62,8 @@ export default function ZoneEditModal({
             title: "Opps! Try Again",
             showConfirmButton: false,
             timer: 1500,
+            toast: true,
+            position: "top",
           });
         }
       }
@@ -67,6 +75,8 @@ export default function ZoneEditModal({
         title: `${error.message}`,
         showConfirmButton: false,
         timer: 1500,
+        toast: true,
+        position: "top",
       });
     }
   };

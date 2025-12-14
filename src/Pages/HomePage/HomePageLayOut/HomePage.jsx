@@ -24,7 +24,7 @@ export default function HomePage() {
   });
 
   return (
-    <div className="w-full bg-white font-sans text-gray-800">
+    <div className="w-full bg-white font-sans text-gray-800 space-y-10">
       {isLoading || isFlashSaleLoading ? (
         <Loading />
       ) : (
@@ -39,7 +39,6 @@ export default function HomePage() {
 
           <JustArrivedSection />
           <TrendingNowSection />
-          {/* <CallToActionSection /> */}
         </>
       )}
     </div>

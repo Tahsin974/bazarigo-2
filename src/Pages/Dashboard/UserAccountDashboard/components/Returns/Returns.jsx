@@ -10,9 +10,8 @@ export default function Returns({ returnRequests, activeTab, refetch }) {
   const getStatusClass = (status) => {
     switch (status) {
       case "approved":
-        return "text-blue-600 bg-blue-100 border-blue-300";
-      case "Completed":
         return "text-green-600 bg-green-100 border-green-300";
+
       case "pending":
       default:
         return "text-yellow-700 bg-yellow-100 border-yellow-300";

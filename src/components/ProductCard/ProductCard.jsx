@@ -6,6 +6,16 @@ import { HashLink } from "react-router-hash-link";
 
 export default function ProductCard({ item, fromFlashSale = false }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
+  };
 
   return (
     <>
@@ -17,7 +27,7 @@ export default function ProductCard({ item, fromFlashSale = false }) {
           <div className="relative">
             {item.images && item.images[0] ? (
               <img
-                src={`${baseUrl}${item.images[0]}`}
+                src={`${baseUrl}${getImages(item.images)[0]}`}
                 alt=""
                 className="w-full h-48 sm:h-56 object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
               />
@@ -27,6 +37,28 @@ export default function ProductCard({ item, fromFlashSale = false }) {
               </div>
             )}
 
+            {item.istrending && (
+              <span
+                style={{
+                  fontWeight: "bold",
+
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                }}
+                className={`absolute ${
+                  item.isbestseller && item.isnew && item.islimitedstock
+                    ? "bottom-3 left-3"
+                    : item.isnew
+                    ? "top-3 right-3 "
+                    : item.isbestseller
+                    ? "top-3 left-3"
+                    : item.islimitedstock
+                    ? "top-3 right-3"
+                    : "top-3 left-3"
+                }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full    animate-pulse`}
+              >
+                Trending
+              </span>
+            )}
             {item.islimitedstock && (
               <span
                 style={{
@@ -57,6 +89,7 @@ export default function ProductCard({ item, fromFlashSale = false }) {
                 New
               </span>
             )}
+
             {item.isbestseller && (
               <span
                 className={`absolute  top-3 right-3 text-white text-xs font-bold px-3 py-1 rounded-full animate-gradient`}

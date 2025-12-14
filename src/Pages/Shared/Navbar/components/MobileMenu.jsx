@@ -19,7 +19,7 @@ export default function MobileMenu({ isMenuOpen }) {
 
   const logOut = async () => {
     await userLogOut();
-    queryClient.setQueryData(["user"], null); // cached value instant null
+    queryClient.setQueryData(["authenticated-user"], null); // cached value instant null
 
     navigate("/");
   };
@@ -73,7 +73,11 @@ export default function MobileMenu({ isMenuOpen }) {
                             <ShoppingCart size={22} />
                             {carts.length > 0 && (
                               <span className="indicator-item badge badge-xs bg-[#FF0055]  border-0 text-white">
-                                {carts.length || 0}
+                                {carts.reduce(
+                                  (total, cartItem) =>
+                                    total + (cartItem.product_count || 0),
+                                  0
+                                )}
                               </span>
                             )}
                           </div>
@@ -159,6 +163,8 @@ export default function MobileMenu({ isMenuOpen }) {
                       ? "/sign-up"
                       : user?.role === "admin" || user?.role === "super admin"
                       ? "/dashboard/admin"
+                      : user?.role === "moderator"
+                      ? "/dashboard/moderator"
                       : user?.role === "seller"
                       ? "/dashboard/seller"
                       : "/dashboard"
@@ -184,7 +190,8 @@ export default function MobileMenu({ isMenuOpen }) {
 
               {user?.role !== "seller" &&
                 user?.role !== "admin" &&
-                user?.role !== "super admin" && (
+                user?.role !== "super admin" &&
+                user?.role !== "moderator" && (
                   <>
                     <a href="/seller-registration#">
                       <button className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white font-semibold px-5 py-2 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-center cursor-pointer w-full">

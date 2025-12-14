@@ -21,6 +21,7 @@ export default function AccountSettings({ activeTab }) {
   const [newPassword, setNewPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState(null);
 
+  console.log(user);
   const [payments, setPayments] = useState(() => {
     const userPayment = user.payment_methods;
 
@@ -77,47 +78,43 @@ export default function AccountSettings({ activeTab }) {
   const handleProfileImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setProfileImg(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setProfileImg(file);
   };
 
   const handleUpdate = async (type, updatedData) => {
     try {
-      // পুরো ইউজার অবজেক্ট থেকে কপি
-      const { new_password, old_password, ...safedata } = updatedData;
-      let payload = {
-        ...user, // আগের সব ডেটা রেখে দিচ্ছি
-        ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
+      const formData = new FormData();
 
-        date_of_birth: user.date_of_birth || date,
-      };
-      if (old_password && new_password) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          new_password,
-          old_password,
-
-          date_of_birth: user.date_of_birth || date,
-        };
+      // Append normal fields
+      for (let key in updatedData) {
+        if (updatedData[key] !== undefined && updatedData[key] !== null) {
+          if (
+            key === "payment_methods" &&
+            typeof updatedData[key] === "object"
+          ) {
+            formData.append(key, JSON.stringify(updatedData[key]));
+          } else {
+            formData.append(key, updatedData[key]);
+          }
+        }
       }
+
+      // Append profile image if exists
       if (profileImg) {
-        payload = {
-          ...user, // আগের সব ডেটা রেখে দিচ্ছি
-          ...safedata, // যেগুলো আপডেট হবে সেগুলো ওভাররাইট হবে
-          img: profileImg,
-
-          date_of_birth: user.date_of_birth || date,
-        };
+        formData.append("profileImg", profileImg);
       }
 
-      console.log(payload);
+      // Append date_of_birth separately if needed
+      if (date)
+        formData.append(
+          "date_of_birth",
+          date ? new Date(date).toISOString() : user.date_of_birth
+        );
 
-      const res = await axiosPublic.put(`/users/update/${user.id}`, payload);
+      const res = await axiosPublic.put(`/users/update/${user.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       console.log(res.data);
 
       if (res.data.updatedCount > 0) {
@@ -143,6 +140,7 @@ export default function AccountSettings({ activeTab }) {
       });
     }
   };
+
   return (
     <div>
       {/* Settings */}
@@ -158,9 +156,19 @@ export default function AccountSettings({ activeTab }) {
                   <div className="relative w-max">
                     {/* মূল User আইকন */}
                     <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
-                      {user?.img || profileImg ? (
+                      {profileImg ? (
                         <img
-                          src={user?.img ? `${baseUrl}${user.img}` : profileImg}
+                          src={URL.createObjectURL(profileImg)}
+                          alt="store-preview"
+                          className="w-full h-full object-fill rounded-full"
+                        />
+                      ) : user?.img ? (
+                        <img
+                          src={
+                            user?.img
+                              ? `${baseUrl}${user.img}`
+                              : URL.createObjectURL(profileImg)
+                          }
                           alt="product"
                           className="w-full h-full object-fill rounded-full"
                         />
@@ -277,21 +285,24 @@ export default function AccountSettings({ activeTab }) {
                   }}
                   onWheel={(e) => e.target.blur()}
                 />
-                <AddBtn
-                  btnHandler={() =>
-                    handleUpdate("Personal Information", {
-                      full_name: document.getElementById("full_name").value,
-                      phone: document.getElementById("phone_number").value,
-                      address: document.getElementById("address").value,
-                      district: document.getElementById("district").value,
-                      thana: document.getElementById("thana").value,
-                      postal_code: document.getElementById("postal_code").value,
-                      gender: gender === "" ? user.gender : gender,
-                    })
-                  }
-                >
-                  Save
-                </AddBtn>
+                <div className="sm:col-span-2 ms-auto">
+                  <AddBtn
+                    btnHandler={() =>
+                      handleUpdate("Personal Information", {
+                        full_name: document.getElementById("full_name").value,
+                        phone: document.getElementById("phone_number").value,
+                        address: document.getElementById("address").value,
+                        district: document.getElementById("district").value,
+                        thana: document.getElementById("thana").value,
+                        postal_code:
+                          document.getElementById("postal_code").value,
+                        gender: gender === "" ? user.gender : gender,
+                      })
+                    }
+                  >
+                    Save
+                  </AddBtn>
+                </div>
               </div>
             </section>
 
@@ -335,7 +346,7 @@ export default function AccountSettings({ activeTab }) {
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white disabled:bg-gray-100 m-0"
                 />
               </div>
-              <div className="flex flex-wrap gap-4 mt-2">
+              <div className="flex flex-wrap gap-4 mt-2 justify-end">
                 <AddBtn
                   btnHandler={() =>
                     handleUpdate("Account Information", {
@@ -483,14 +494,15 @@ export default function AccountSettings({ activeTab }) {
                 ))}
               </div>
 
-              {/* Add More Button */}
+              <div className="flex gap-4 items-center justify-end">
+                {/* Add More Button */}
 
-              <AddBtn btnHandler={addPaymentField}>
-                <Plus size={20} /> Add Payment Method
-              </AddBtn>
+                <AddBtn btnHandler={addPaymentField}>
+                  <Plus size={20} /> Add Payment Method
+                </AddBtn>
 
-              {/* Save Button */}
-              <div>
+                {/* Save Button */}
+
                 <AddBtn
                   btnHandler={() => {
                     const filteredPayments = payments.filter(

@@ -21,7 +21,7 @@ export default function ControlsSection({
     "Trending",
   ];
   return (
-    <section className="py-10 border-b bg-white shadow-sm">
+    <section className="py-6 border-b bg-white shadow-sm">
       <div className="xl:container mx-auto px-6 flex flex-col xl:flex-row justify-between items-center gap-6">
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-3">

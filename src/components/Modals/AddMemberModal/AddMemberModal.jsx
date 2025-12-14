@@ -20,7 +20,7 @@ export default function AddMemberModal({ onClose, refetch }) {
     "Update Settings",
   ];
   const axiosPublic = useAxiosPublic();
-  const [image, setImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
   const [gender, setGender] = useState("");
   const [date, setDate] = useState(null);
   const defaultPermissions = permissionOptions.reduce((acc, perm) => {
@@ -39,26 +39,60 @@ export default function AddMemberModal({ onClose, refetch }) {
     },
   });
 
+  // const handleImageUpload = (e) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     setImage(reader.result);
+  //   };
+  //   reader.readAsDataURL(file);
+  // };
+
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
+    console.log("File selected:", file);
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setProfileImage(file); // File object সরাসরি সংরক্ষণ
   };
 
+  console.log(profileImage);
+
   const onSubmit = async (data) => {
+    if (!profileImage) {
+      Swal.fire({
+        icon: "error",
+        title: "Please select an image",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      return;
+    }
+
     try {
-      const payload = {
-        ...data,
-        img: image,
-        gender: gender,
-        date_of_birth: date,
-      };
-      const res = await axiosPublic.post("/admins", payload);
+      const formData = new FormData();
+      formData.append("profile_img", profileImage); // Multer field name
+      formData.append("full_name", data.full_name);
+      formData.append("email", data.email);
+      formData.append("phone", data.phone);
+      formData.append("password", data.password);
+      formData.append("role", data.role || "admin");
+      formData.append("gender", gender);
+      formData.append("date_of_birth", date ? date.toISOString() : "");
+      formData.append("address", data.address || "");
+      formData.append("district", data.district || "");
+      formData.append("thana", data.thana || "");
+      formData.append("postal_code", data.postal_code || "");
+      formData.append("permissions", JSON.stringify(data.permissions || {}));
+
+      const res = await axiosPublic.post("/admins", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       if (res.status === 201) {
         Swal.fire({
           icon: "success",
@@ -68,9 +102,10 @@ export default function AddMemberModal({ onClose, refetch }) {
           showConfirmButton: false,
           timer: 1500,
         });
-
         reset();
-
+        setProfileImage(null);
+        setGender("");
+        setDate(null);
         onClose();
         return refetch();
       }
@@ -112,9 +147,9 @@ export default function AddMemberModal({ onClose, refetch }) {
                   <div className="relative w-max">
                     {/* মূল User আইকন */}
                     <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
-                      {image ? (
+                      {profileImage ? (
                         <img
-                          src={`${image}`}
+                          src={URL.createObjectURL(profileImage)}
                           alt="product"
                           className="w-full h-full object-cover rounded-full"
                         />
@@ -126,7 +161,7 @@ export default function AddMemberModal({ onClose, refetch }) {
                     {/* ছোট পেন আইকন */}
                     <div
                       onClick={() => {
-                        document.getElementById("image-upload").click();
+                        document.getElementById("profile-upload").click();
                       }}
                       className="absolute bottom-0 right-0 bg-white p-1 rounded-full border border-gray-300 cursor-pointer"
                     >
@@ -135,7 +170,7 @@ export default function AddMemberModal({ onClose, refetch }) {
                   </div>
                 </div>
                 <input
-                  id="image-upload"
+                  id="profile-upload"
                   name="file-upload"
                   type="file"
                   className="sr-only"

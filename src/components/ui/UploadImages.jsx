@@ -1,6 +1,10 @@
 import { UploadCloud, X } from "lucide-react";
 
-export default function UploadImages({ handleImageUpload, children }) {
+export default function UploadImages({
+  handleImageUpload,
+  children,
+  video = false,
+}) {
   return (
     <div>
       <div>
@@ -15,11 +19,12 @@ export default function UploadImages({ handleImageUpload, children }) {
               className={`mx-auto h-12 w-12 text-gray-500 
               `}
             />
-            <div className="flex text-sm text-[#FF0055]">
-              <p className="pl-1">Click or drag to upload images</p>
+            <div className="flex text-sm text-[#FF0055] ">
+              <p className="pl-1 ">Click or drag to upload images</p>
             </div>
-            <p className="text-xs text-gray-500]">
-              PNG, JPG (Max 1MB per image)
+            <p className="text-xs text-gray-500] ">
+              PNG, JPG (Max 1MB per image),
+              {video && "MP4 (Max 2MB per Video)"}
             </p>
           </div>
         </div>
@@ -28,7 +33,7 @@ export default function UploadImages({ handleImageUpload, children }) {
           name="file-upload"
           type="file"
           className="sr-only"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           onChange={handleImageUpload}
         />

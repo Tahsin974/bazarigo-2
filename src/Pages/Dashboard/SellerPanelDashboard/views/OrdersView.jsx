@@ -6,6 +6,7 @@ import SearchField from "../../../../components/ui/SearchField";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import { Eye } from "lucide-react";
 import Pagination from "../../../../components/ui/Pagination";
+import Loading from "../../../../components/Loading/Loading";
 
 function OrdersView({
   active,
@@ -125,6 +126,8 @@ function OrdersView({
         icon: "error",
         title: error.message,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -187,11 +190,7 @@ function OrdersView({
                   </div>
                 </div>
               ) : orders.length === null ? (
-                <div>
-                  <div className="flex flex-col items-center justify-center min-h-screen">
-                    <span className="loading loading-spinner loading-xl"></span>
-                  </div>
-                </div>
+                <Loading />
               ) : (
                 <>
                   <div className="overflow-x-auto bg-white rounded-box  ">
@@ -226,10 +225,26 @@ function OrdersView({
                                 onChange={() => toggleSelect(o.order_id)}
                               />
                             </td>
-                            <td>{o.order_id} </td>
-                            <td>{o.customer_name}</td>
-                            <td>৳{o.total.toLocaleString("en-IN")}</td>
-                            <td>{getProductsTotal(o)}</td>
+                            <td>
+                              <span className="font-semibold">
+                                {o.order_id}
+                              </span>{" "}
+                            </td>
+                            <td>
+                              <span className="font-semibold">
+                                {o.customer_name}
+                              </span>
+                            </td>
+                            <td>
+                              <span className="font-semibold">
+                                ৳{o.total.toLocaleString("en-IN")}
+                              </span>
+                            </td>
+                            <td>
+                              <span className="font-semibold">
+                                {getProductsTotal(o)}
+                              </span>
+                            </td>
 
                             <td>
                               <div className="flex justify-center items-center gap-2">
@@ -294,11 +309,29 @@ function OrdersView({
                       <tbody>
                         {paginatedReturnOrders.map((r) => (
                           <tr key={r.id} className="border-t">
-                            <td className="px-4 py-3">{r.id}</td>
-                            <td className="px-4 py-3">{r.order_id}</td>
-                            <td className="px-4 py-3">{r.customer_name}</td>
-                            <td className="px-4 py-3">{r.reason || "N/A"}</td>
-                            <td className="px-4 py-3">{r.products.length}</td>
+                            <td className="px-4 py-3">
+                              <span className="font-semibold">{r.id}</span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="font-semibold">
+                                {r.order_id}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="font-semibold">
+                                {r.customer_name}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="font-semibold">
+                                {r.reason || "N/A"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="font-semibold">
+                                {r.products.length}
+                              </span>
+                            </td>
                           </tr>
                         ))}
                       </tbody>

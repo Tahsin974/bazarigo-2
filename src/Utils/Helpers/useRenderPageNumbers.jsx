@@ -32,15 +32,15 @@ export const useRenderPageNumbers = (
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setCurrentPage(i)}
-        className={`flex items-center justify-center font-semibold shadow-md transition cursor-pointer rounded-md 
-    w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 
+        className={`flex items-center justify-center  shadow-md transition cursor-pointer rounded-md 
+    w-8 h-8  
     ${
       currentPage === i
-        ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055]"
+        ? "bg-[#FF0055] text-white shadow-lg border border-[#FF0055] "
         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
     }`}
       >
-        {i}
+        <span className="font-semibold">{i}</span>
       </motion.div>
     );
   }

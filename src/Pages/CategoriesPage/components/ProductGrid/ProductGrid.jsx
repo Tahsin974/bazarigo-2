@@ -21,15 +21,17 @@ export default function ProductGrid({
           No products found
         </div>
       )}
+
       {products.map((product) => (
         <motion.div
           key={product.id}
           whileHover={{ scale: 1.02 }}
-          className="cursor-pointer"
+          className={`cursor-pointer `}
         >
           <ProductCard product={product} viewMode={viewMode} />
         </motion.div>
       ))}
+
       {/* skeleton placeholders while loading (for infinite load) */}
       {loading &&
         Array.from({

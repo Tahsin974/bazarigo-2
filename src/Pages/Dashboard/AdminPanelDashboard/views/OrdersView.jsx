@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
+import useAuth from "../../../../Utils/Hooks/useAuth";
+import Loading from "../../../../components/Loading/Loading";
 
 function OrdersView({
   orders,
@@ -35,6 +37,7 @@ function OrdersView({
   refetch,
 }) {
   const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredOrders.length / orderPageSize)
@@ -127,6 +130,8 @@ function OrdersView({
         icon: "error",
         title: error.message,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }
@@ -150,9 +155,15 @@ function OrdersView({
               </h3>
             </div>
             {/* DeleteAllBtn only on small screens */}
-            <div className="ml-2 md:hidden">
-              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-            </div>
+
+            {user.role !== "moderator" && (
+              <div className="ml-2 md:hidden">
+                <DeleteAllBtn
+                  selected={selected}
+                  bulkDelete={handleBulkDelete}
+                />
+              </div>
+            )}
           </div>
 
           {/* Middle: Search field */}
@@ -168,9 +179,11 @@ function OrdersView({
           </div>
 
           {/* Right: DeleteAllBtn on large screens */}
-          <div className="hidden md:flex order-3">
-            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-          </div>
+          {user.role !== "moderator" && (
+            <div className="hidden md:flex order-3">
+              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+            </div>
+          )}
         </div>
 
         <div className="mt-3 bg-white p-3 rounded shadow-sm">
@@ -181,11 +194,7 @@ function OrdersView({
               </div>
             </div>
           ) : orders.length === null ? (
-            <div>
-              <div className="flex flex-col items-center justify-center min-h-screen">
-                <span className="loading loading-spinner loading-xl"></span>
-              </div>
-            </div>
+            <Loading />
           ) : (
             <>
               <div className="overflow-x-auto bg-white rounded-box  ">
@@ -193,14 +202,17 @@ function OrdersView({
                   {/* head */}
                   <thead className="text-black">
                     <tr>
-                      <th>
-                        <SelectAllCheckbox
-                          selected={selected}
-                          allSelected={allSelected}
-                          toggleSelectAll={toggleSelectAll}
-                          isShowCounter={false}
-                        />
-                      </th>
+                      {user.role !== "moderator" && (
+                        <th>
+                          <SelectAllCheckbox
+                            selected={selected}
+                            allSelected={allSelected}
+                            toggleSelectAll={toggleSelectAll}
+                            isShowCounter={false}
+                          />
+                        </th>
+                      )}
+
                       <th># Order</th>
                       <th>Customer Name</th>
                       <th>Total</th>
@@ -212,18 +224,35 @@ function OrdersView({
                   <tbody className="">
                     {activeOrders.map((o) => (
                       <tr key={o.orderId} className="border-t">
+                        {user.role !== "moderator" && (
+                          <td>
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                              checked={selected.includes(o.order_id)}
+                              onChange={() => toggleSelect(o.order_id)}
+                            />
+                          </td>
+                        )}
+
                         <td>
-                          <input
-                            type="checkbox"
-                            className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                            checked={selected.includes(o.order_id)}
-                            onChange={() => toggleSelect(o.order_id)}
-                          />
+                          <span className="font-semibold">{o.order_id}</span>{" "}
                         </td>
-                        <td>{o.order_id} </td>
-                        <td>{o.customer_name}</td>
-                        <td>৳{o.total.toLocaleString("en-IN")}</td>
-                        <td>{getProductsTotal(o)}</td>
+                        <td>
+                          <span className="font-semibold">
+                            {o.customer_name}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="font-semibold">
+                            ৳{o.total.toLocaleString("en-IN")}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="font-semibold">
+                            {getProductsTotal(o)}
+                          </span>
+                        </td>
 
                         <td>
                           <div className="flex justify-center items-center gap-2">
@@ -289,11 +318,27 @@ function OrdersView({
                   <tbody>
                     {paginatedReturnOrders.map((r) => (
                       <tr key={r.id} className="border-t">
-                        <td className="px-4 py-3">{r.id}</td>
-                        <td className="px-4 py-3">{r.order_id}</td>
-                        <td className="px-4 py-3">{r.customer_name}</td>
-                        <td className="px-4 py-3">{r.reason || "N/A"}</td>
-                        <td className="px-4 py-3">{r.products.length}</td>
+                        <td className="px-4 py-3">
+                          <span className="font-semibold">{r.id}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-semibold">{r.order_id}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-semibold">
+                            {r.customer_name}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-semibold">
+                            {r.reason || "N/A"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-semibold">
+                            {r.products.length}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

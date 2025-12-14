@@ -10,7 +10,7 @@ export default function useCart() {
     isPending,
     refetch,
   } = useQuery({
-    queryKey: ["cart"],
+    queryKey: ["cart", user],
     queryFn: async () => {
       const res = await axiosSecure.get(`/carts?email=${user.email}`);
       return res.data.carts;

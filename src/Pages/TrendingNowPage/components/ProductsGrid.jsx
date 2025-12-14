@@ -8,7 +8,7 @@ export default function ProductsGrid({
 }) {
   if (paginatedProducts.length === 0) {
     return (
-      <p className="text-center text-gray-500 text-lg font-medium py-16">
+      <p className="text-center text-gray-500 text-lg font-medium py-10">
         No products found matching your search.
       </p>
     );

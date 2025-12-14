@@ -28,6 +28,7 @@ export default function FlashSalePage() {
     "Health & Beauty",
     "Home & Living",
     "Sports",
+    "Pet Supplies",
   ];
 
   let products = (flashProducts?.sale_products || []).filter(
@@ -72,17 +73,17 @@ export default function FlashSalePage() {
         sort={sort}
         setSort={setSort}
       />
-      <section className="py-8 bg-gray-50">
+      <section className="py-10 bg-gray-50">
         <div className="container mx-auto xl:px-6 lg:px-6  px-4">
           {paginated.length === 0 ? (
             <>
-              <div className=" text-center text-gray-500 py-8">
-                No products found
+              <div className=" text-center py-10 text-gray-500 ">
+                <h2>No products found</h2>
               </div>
             </>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 ">
                 {paginated.map((product, index) => (
                   <ProductCard
                     key={index}
@@ -91,12 +92,14 @@ export default function FlashSalePage() {
                   />
                 ))}
               </div>
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                setCurrentPage={setCurrentPage}
-                renderPageNumbers={renderPageNumbers}
-              />
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  setCurrentPage={setCurrentPage}
+                  renderPageNumbers={renderPageNumbers}
+                />
+              )}
             </>
           )}
         </div>

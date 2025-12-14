@@ -1,10 +1,9 @@
 import { motion } from "framer-motion";
-import AddBtn from "../../../../components/ui/AddBtn";
 
 import Pagination from "../../../../components/ui/Pagination";
 import SelectField from "../../../../components/ui/SelectField";
 import SearchField from "../../../../components/ui/SearchField";
-import { Layers, Minus, Package, Plus } from "lucide-react";
+import { Layers, Minus, Plus } from "lucide-react";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
@@ -93,9 +92,8 @@ export default function InventoryView({
 
   // Calculate total stock
   const calculateTotalStock = (product) => {
-    if (!product.extras?.variants || product.extras.variants.length === 0) {
+    if (!product.extras?.variants || product.extras.variants.length === 0)
       return product.stock;
-    }
     return product.extras.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
   };
 
@@ -152,6 +150,7 @@ export default function InventoryView({
                           Total Stock: {calculateTotalStock(p)}
                         </h3>
                       </div>
+
                       <div className="flex gap-2">
                         <button
                           onClick={() => updateAllStocks(p.id, -10)}
@@ -210,12 +209,12 @@ export default function InventoryView({
                                   ))}
                                 <td>
                                   <span className="font-semibold">
-                                    {v.regular_price.toLocaleString("en-IN")}
+                                    ৳{v.regular_price.toLocaleString("en-IN")}
                                   </span>
                                 </td>
                                 <td>
                                   <span className="font-semibold">
-                                    {v.sale_price.toLocaleString("en-IN")}
+                                    ৳{v.sale_price.toLocaleString("en-IN")}
                                   </span>
                                 </td>
                                 <td>
@@ -223,6 +222,7 @@ export default function InventoryView({
                                     {v.stock}
                                   </span>
                                 </td>
+
                                 <td className="flex justify-center items-center gap-2">
                                   <button
                                     onClick={() =>

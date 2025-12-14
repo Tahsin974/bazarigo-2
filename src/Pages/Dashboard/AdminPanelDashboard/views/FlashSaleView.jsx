@@ -1,4 +1,4 @@
-import { SquarePen, Trash2, ZapIcon } from "lucide-react";
+import { Power, PowerOff, SquarePen, Trash2, ZapIcon } from "lucide-react";
 import AddBtn from "../../../../components/ui/AddBtn";
 import Pagination from "../../../../components/ui/Pagination";
 import SearchField from "../../../../components/ui/SearchField";
@@ -11,6 +11,7 @@ import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 import "react-datepicker/dist/react-datepicker.css";
 import { useEffect, useState } from "react";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
+import useAuth from "../../../../Utils/Hooks/useAuth";
 
 export default function FlashSaleView({
   products,
@@ -42,8 +43,9 @@ export default function FlashSaleView({
   setEndTime,
 }) {
   const axiosPublic = useAxiosPublic();
+  const formData = new FormData();
   const baseUrl = import.meta.env.VITE_BASEURL;
-
+  const { user } = useAuth();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredProducts.length / productPageSize)
@@ -60,6 +62,16 @@ export default function FlashSaleView({
     } catch (err) {
       console.error("Failed to toggle auto flash sale:", err);
     }
+  };
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
   };
 
   useEffect(() => {
@@ -85,6 +97,16 @@ export default function FlashSaleView({
   }, []);
 
   const handleApplySale = async () => {
+    if (!startTime || !endTime) {
+      return Swal.fire({
+        icon: "error",
+        title: `${!startTime ? "Start Time" : "End Time"}`,
+        showConfirmButton: false,
+        toast: true,
+        position: "top",
+        timer: 1500,
+      });
+    }
     const minDiscount = 10;
     const maxDiscount = 30;
 
@@ -163,9 +185,6 @@ export default function FlashSaleView({
         const flashSaleStock =
           Math.floor(Math.random() * (maxStock - minStock + 1)) + minStock;
         const newStock = prod.stock - flashSaleStock;
-        console.log("old Stock", prod.stock);
-        console.log("flashSale Stock", flashSaleStock);
-        console.log("new Stock", newStock);
 
         flashSaleProd = {
           ...flashSaleProd,
@@ -195,9 +214,6 @@ export default function FlashSaleView({
       });
     }
 
-    console.log("flashSalePayload=", flashSalePayload);
-    console.log("productPayload=", productPayload);
-
     const flashSaleRes = await axiosPublic.post("/flash-sale", {
       isActive: true,
       start_time: Math.floor(new Date(startTime).getTime() / 1000),
@@ -210,45 +226,51 @@ export default function FlashSaleView({
         icon: "success",
         title: `Products have added successfully`,
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
       setManualDiscount({});
 
+      setStartTime(null);
+
+      setEndTime(null);
       refetch();
     }
+
     for (const prod of productPayload) {
+      console.log(prod.isflashsale);
       try {
-        const updateData = {
-          productName: prod.product_name,
-          regular_price: prod.regular_price,
-          sale_price: prod.sale_price,
-          discount: prod.discount,
-          rating: prod.rating,
-          isBestSeller: prod.isbestseller,
-          isHot: prod.ishot,
-          isNew: prod.isnew,
-          isTrending: prod.istrending,
-          isLimitedStock: prod.islimitedstock,
-          isExclusive: prod.isexclusive,
-          isFlashSale: prod.isflashsale,
-          category: prod.category,
-          subcategory: prod.subcategory,
-          description: prod.description,
-          stock: prod.stock,
-          brand: prod?.brand || "No Brand",
-          images: prod.images,
-          extras: prod.extras,
-          updatedAt: new Date().toLocaleString("en-CA", {
-            timeZone: "Asia/Dhaka",
-            hour12: false,
-          }),
-        };
-        await axiosPublic.put(
-          `/products/${prod.id}`,
-          updateData // ✅ এখানে পুরো productPayload না পাঠিয়ে শুধু একক prod পাঠাবে
-        );
+        formData.append("productName", prod.product_name);
+        formData.append("regular_price", prod.regular_price);
+        formData.append("sale_price", prod.sale_price);
+        formData.append("discount", prod.discount);
+        formData.append("rating", prod.rating);
+        formData.append("isBestSeller", prod.isbestseller);
+        formData.append("isHot", prod.ishot);
+        formData.append("isNew", prod.isnew);
+        formData.append("isTrending", prod.istrending);
+        formData.append("isLimitedStock", prod.islimitedstock);
+        formData.append("isExclusive", prod.isexclusive);
+        formData.append("isFlashSale", prod.isflashsale);
+        formData.append("category", prod.category);
+        formData.append("subcategory", prod.subcategory);
+        formData.append("description", prod.description);
+        formData.append("stock", prod.stock);
+        formData.append("brand", prod?.brand);
+        formData.append("extras", JSON.stringify(prod.extras));
+        formData.append("existingPaths", JSON.stringify(prod.images));
+
+        // যদি নতুন images থাকে
+        prod.newImages?.forEach((file) => {
+          formData.append("images", file);
+        });
+
+        await axiosPublic.put(`/products/${prod.id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       } catch (error) {
-        console.error(`❌ Product ${prod.id} update failed:`, error);
+        console.error(` Product ${prod.id} update failed:`, error);
       }
     }
     refetchProducts();
@@ -260,9 +282,17 @@ export default function FlashSaleView({
   );
 
   const autoSelect = () => {
-    const candidates = products.filter(
-      (p) => (p.rating > 4.5 || p.isNew) && p.stock > 30
-    );
+    const candidates = products.filter((p) => {
+      const avgRating =
+        p.rating > 0
+          ? p.rating
+          : p.reviews && p.reviews.length > 0
+          ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / p.reviews.length
+          : 0;
+
+      return (avgRating > 4.5 || p.isnew) && p.stock > 30;
+    });
+
     const shuffled = [...candidates].sort(() => Math.random() - 0.5);
     const limited = shuffled.slice(0, 100);
 
@@ -297,13 +327,14 @@ export default function FlashSaleView({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log("refetch");
       refetch();
       refetchProducts();
     }, 60000); // 60 সেকেন্ডে একবার
 
     return () => clearInterval(interval);
   }, []);
+
+  console.log(user);
 
   return (
     <div className="space-y-6">
@@ -312,39 +343,39 @@ export default function FlashSaleView({
           {/* Left: Total + Selected + Small screen buttons */}
           <div className="flex flex-wrap items-center gap-4 w-full md:w-auto order-1">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-              <div className="font-medium text-[15px] sm:text-md">
+              <h3 className="font-medium text-[15px] sm:text-md">
                 Total Products ({products.length})
-              </div>
-              <div className="font-medium text-[15px] sm:text-md">
+              </h3>
+              <h3 className="font-medium text-[15px] sm:text-md">
                 Selected Products ({selected.length})
-              </div>
+              </h3>
             </div>
 
             {/* Small screen buttons */}
             <div className="flex lg:hidden gap-2 mt-2 sm:mt-0">
               <AddBtn btnHandler={autoSelect}>Auto Select</AddBtn>
-              {!selected.length ? (
+              <AddBtn disabled={!selected.length} btnHandler={handleApplySale}>
+                Apply Sale
+              </AddBtn>
+
+              {user.role !== "moderator" && (
                 <button
-                  className="bg-gray-300 text-gray-500 flex items-center gap-2 px-3 py-2 rounded border-none shadow-none text-[14px] sm:text-base"
-                  disabled
+                  onClick={toggleAutoFlashSale}
+                  className={`flex items-center justify-center px-3 py-2 rounded font-medium shadow-md transition-all duration-300 sm:text-base text-[12px]
+    ${
+      autoFlashSaleOn
+        ? "bg-red-500 hover:bg-red-600 text-white"
+        : "bg-green-500 hover:bg-green-600 text-white"
+    }`}
                 >
-                  Apply Sale
+                  {autoFlashSaleOn ? (
+                    <PowerOff size={18} className="mr-1 " />
+                  ) : (
+                    <Power size={18} className="mr-1" />
+                  )}
+                  {autoFlashSaleOn ? "Stop " : "Start "}
                 </button>
-              ) : (
-                <AddBtn btnHandler={handleApplySale}>Apply Sale</AddBtn>
               )}
-              <button
-                onClick={toggleAutoFlashSale}
-                className={`px-4 py-2 rounded ${
-                  autoFlashSaleOn
-                    ? "bg-red-500 text-white"
-                    : "bg-green-500 text-white"
-                }`}
-              >
-                {autoFlashSaleOn
-                  ? "Turn Off Auto Flash Sale"
-                  : "Turn On Auto Flash Sale"}
-              </button>
             </div>
           </div>
 
@@ -380,7 +411,7 @@ export default function FlashSaleView({
                 timeIntervals={1}
                 dateFormat="dd/MM/yyyy HH:mm"
                 placeholderText="Select Start Date & Time"
-                className="w-full md:w-auto border border-gray-300 rounded-lg px-4 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                className="w-full md:w-auto border border-gray-300 rounded-lg  px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
               />
               <DatePicker
                 selected={endTime}
@@ -389,7 +420,7 @@ export default function FlashSaleView({
                 timeIntervals={1}
                 dateFormat="dd/MM/yyyy HH:mm"
                 placeholderText="Select End Date & Time"
-                className="w-full md:w-auto border border-gray-300 rounded-lg px-4 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                className="w-full md:w-auto border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
               />
             </div>
           </div>
@@ -403,28 +434,28 @@ export default function FlashSaleView({
             >
               Auto Select
             </AddBtn>
-            {!selected.length ? (
+            <AddBtn disabled={!selected.length} btnHandler={handleApplySale}>
+              Apply Sale
+            </AddBtn>
+
+            {user.role !== "moderator" && (
               <button
-                className="bg-gray-300 text-gray-500 flex items-center gap-2 px-3 py-2 rounded border-none shadow-none text-[14px] sm:text-base"
-                disabled
+                onClick={toggleAutoFlashSale}
+                className={`flex items-center justify-center px-3 py-2 rounded font-medium shadow-md transition-all duration-300 sm:text-base text-[12px]
+    ${
+      autoFlashSaleOn
+        ? "bg-red-500 hover:bg-red-600 text-white"
+        : "bg-green-500 hover:bg-green-600 text-white"
+    }`}
               >
-                Apply Sale
+                {autoFlashSaleOn ? (
+                  <PowerOff size={18} className="mr-1" />
+                ) : (
+                  <Power size={18} className="mr-1" />
+                )}
+                {autoFlashSaleOn ? "Stop " : "Start "}
               </button>
-            ) : (
-              <AddBtn btnHandler={handleApplySale}>Apply Sale</AddBtn>
             )}
-            <button
-              onClick={toggleAutoFlashSale}
-              className={`px-4 py-2 rounded ${
-                autoFlashSaleOn
-                  ? "bg-red-500 text-white"
-                  : "bg-green-500 text-white"
-              }`}
-            >
-              {autoFlashSaleOn
-                ? "Turn Off Auto Flash Sale"
-                : "Turn On Auto Flash Sale"}
-            </button>
           </div>
         </div>
 
@@ -464,10 +495,13 @@ export default function FlashSaleView({
                     />
                   </td>
                   <td>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 text-start">
                       <div className="avatar">
                         <div className="mask mask-squircle h-12 w-12">
-                          <img src={`${baseUrl}${p.images[0]}`} alt={p.name} />
+                          <img
+                            src={`${baseUrl}${getImages(p.images)[0]}`}
+                            alt={p.name}
+                          />
                         </div>
                       </div>
                       <div>
@@ -477,9 +511,11 @@ export default function FlashSaleView({
                   </td>
                   <td>
                     {" "}
-                    <span className="font-semibold">Rahim Ghosh</span>
+                    <span className="font-semibold">{p.seller_name}</span>
                   </td>
-                  <td className="px-4 py-3">{p.category}</td>
+                  <td className="px-4 py-3">
+                    <span className="font-semibold">{p.category}</span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className="font-semibold">
                       ৳{p.regular_price.toLocaleString("en-IN")}
@@ -594,24 +630,38 @@ export default function FlashSaleView({
                   .map((p) => (
                     <tr key={p.id} className="border-t">
                       <td>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 text-start">
                           <div className="avatar">
                             <div className="mask mask-squircle h-12 w-12">
                               <img
-                                src={`${p.images[0]}`}
+                                src={`${baseUrl}${getImages(p.images)[0]}`}
                                 alt={p.product_name}
                               />
                             </div>
                           </div>
                           <div>
-                            <p className="font-bold">{p.product_name}</p>
+                            <span className="font-semibold">
+                              {p.product_name}
+                            </span>
                           </div>
                         </div>
                       </td>
-                      <td>{p.category}</td>
-                      <td>৳{p.regular_price}</td>
-                      <td>৳{p.sale_price}</td>
-                      <td>{p.stock}</td>
+                      <td>
+                        <span className="font-semibold">{p.category}</span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">
+                          ৳{p.regular_price.toLocaleString("en-IN")}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">
+                          ৳{p.sale_price.toLocaleString("en-IN")}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">{p.stock}</span>
+                      </td>
                       <td>
                         {p.isflashsale ? (
                           <p className="inline-flex items-center px-3 py-0.5 rounded-full text-base font-medium bg-red-100 text-red-800">

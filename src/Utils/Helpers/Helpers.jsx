@@ -124,7 +124,7 @@
 //       switch (subcat) {
 //         case "Furniture":
 //         case "Home Decor":
-//         case "Kitchen & Dining":
+//         case "Kitchen Appliances":
 //         case "Bedding & Bath":
 //         case "Lighting":
 //         case "Storage & Organization":
@@ -297,7 +297,7 @@ export const getExtrasByCategory = (cat, subcat = "") => {
       switch (subcat) {
         case "Furniture":
         case "Home Decor":
-        case "Kitchen & Dining":
+        case "Kitchen Appliances":
         case "Bedding & Bath":
         case "Lighting":
         case "Storage & Organization":
@@ -1620,7 +1620,7 @@ export const sampleSellers = () => [
 //     isExclusive: false,
 //     isFlashSale: false,
 //     category: "Home & Living",
-//     subcategory: "Kitchen & Dining",
+//     subcategory: "Kitchen Appliances",
 //     description: "Durable non-stick cookware set suitable for all stovetops.",
 //     stock: 80,
 //     images: ["https://placehold.co/300x300/ea580c/FFFFFF?text=Cookware"],

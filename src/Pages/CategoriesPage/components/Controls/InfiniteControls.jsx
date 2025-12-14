@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 export default function InfiniteControls({
-  autoLoad,
   visibleCount,
   sortedProducts,
   loading,
@@ -11,7 +10,7 @@ export default function InfiniteControls({
 }) {
   return (
     <div className="flex items-center gap-4 w-full justify-center">
-      {!autoLoad && visibleCount < sortedProducts.length && (
+      {visibleCount < sortedProducts.length && (
         <Button
           onClick={loadMore}
           className="bg-[#FF0055] text-white px-6 py-3 rounded-xl shadow"
@@ -25,7 +24,7 @@ export default function InfiniteControls({
           )}
         </Button>
       )}
-      {autoLoad && visibleCount < sortedProducts.length && loading && (
+      {visibleCount < sortedProducts.length && loading && (
         <div className="flex items-center gap-2 text-[#FF0055]">
           <Loader2 className="w-5 h-5 animate-spin" /> Loading more...
         </div>

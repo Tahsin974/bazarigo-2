@@ -8,6 +8,8 @@ import {
   Store,
   ChevronRight,
   ChevronLeft,
+  Play,
+  Pause,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import CustomerReviews from "./CustomerReviews";
@@ -15,13 +17,16 @@ import { RatingStars } from "./RatingStars";
 import VariantSelection from "./VariantSelection";
 import { useNavigate } from "react-router";
 import ProductCard from "../../../components/ProductCard/ProductCard";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 import useProducts from "../../../Utils/Hooks/useProducts";
 import { HashLink } from "react-router-hash-link";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
 import useAuth from "../../../Utils/Hooks/useAuth";
 import { useLocation } from "react-router";
+import useCart from "../../../Utils/Hooks/useCart";
+import AskQuestion from "./AskQuestion";
+import Loading from "../../../components/Loading/Loading";
 
 export default function BaseProductDetails({
   product = {},
@@ -30,10 +35,14 @@ export default function BaseProductDetails({
 }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
   const location = useLocation();
+  const { refetch: refetchCarts } = useCart();
   const { user } = useAuth();
+  const videoRef = useRef();
+  const [isPaused, setIsPaused] = useState(true);
 
   const axiosPublic = useAxiosPublic();
   const [mainImage, setMainImage] = useState(null);
+  const video = mainImage ? mainImage.endsWith(".mp4") : false;
   const [selectedVariant, setSelectedVariant] = useState(null);
   const navigate = useNavigate();
   const encodedId = btoa(product.seller_id);
@@ -125,8 +134,6 @@ export default function BaseProductDetails({
 
   // Button toggle
 
-  if (!product || Object.keys(product).length === 0) return null;
-
   // Function to get related products
   function getRelatedProducts(products, currentProduct, limit = 4) {
     // Filter products by same category/subcategory, exclude the current product
@@ -157,12 +164,23 @@ export default function BaseProductDetails({
           sale_price: sale_price,
           product_img: product.images[0],
           product_category: product.category,
+          isflashsale: product.isflashsale,
           regular_price: regular_price,
           variants: selectedVariant,
           weight: parseInt(product.weight),
           brand: product?.brand || "No Brand",
           qty: 1,
         };
+        if (stock === 0) {
+          return Swal.fire({
+            icon: "error",
+            title: `sorry this product is out of stock`,
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
 
         const deliveryPayload = {
           sellerId: product.seller_id || "SELA4976743F7B6",
@@ -227,12 +245,24 @@ export default function BaseProductDetails({
           sale_price: sale_price,
           product_img: product.images[0],
           product_category: product.category,
+          isflashsale: product.isflashsale,
           regular_price: regular_price,
           variants: selectedVariant,
           weight: product.weight,
           brand: product?.brand || "No Brand",
           qty: 1,
         };
+
+        if (stock === 0) {
+          return Swal.fire({
+            icon: "error",
+            title: `sorry this product is out of stock`,
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
 
         const deliveryPayload = {
           sellerId: product.seller_id || "SELA4976743F7B6",
@@ -265,6 +295,7 @@ export default function BaseProductDetails({
         );
 
         if (res.data.createdCount > 0 || res.data.updatedCount > 0) {
+          refetchCarts();
           return Swal.fire({
             icon: "success",
             title: "Product Added To Cart Successfully",
@@ -337,12 +368,17 @@ export default function BaseProductDetails({
       if (user && user.email) {
         const res = await axiosPublic.post("/wishlist", {
           email: user?.email,
-          productId: product.id,
-          productName: product.product_name,
-          price:
-            product.sale_price > 0 ? product.sale_price : product.regular_price,
-          img: product.images[0],
-          toggle: newToggle,
+          product_Id: product.id,
+          product_name: product.product_name,
+          sale_price: sale_price,
+          product_img: product.images[0],
+          product_category: product.category,
+          isflashsale: product.isflashsale,
+          regular_price: regular_price,
+          variants: selectedVariant,
+          weight: product.weight,
+          brand: product?.brand || "No Brand",
+          qty: 1,
         });
         if (res.data.createdCount > 0) {
           Swal.fire({
@@ -392,15 +428,18 @@ export default function BaseProductDetails({
       setIsSelect(!newToggle); // UI revert if error
     }
   };
+  useEffect(() => {
+    setIsPaused(true);
+  }, [mainImage]);
+
+  if (!product || Object.keys(product).length === 0) return null;
   return (
     <div className="w-full bg-white text-gray-800 font-sans">
       {isPending ? (
-        <div class="flex justify-center items-center h-screen">
-          <div class="loading loading-spinner text-primary"></div>
-        </div>
+        <Loading />
       ) : (
         <>
-          <section className="container mx-auto xl:px-6 lg:px-6  px-4 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <section className="container mx-auto xl:px-6 lg:px-6  px-4 py-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -408,11 +447,42 @@ export default function BaseProductDetails({
               className="flex flex-col gap-4 items-center"
             >
               {product.images && product.images[0] ? (
-                <img
-                  src={`${baseUrl}${mainImage}`}
-                  alt=""
-                  className="w-full max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
-                />
+                <>
+                  {!video && (
+                    <img
+                      src={`${baseUrl}${mainImage}`}
+                      alt=""
+                      className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                    />
+                  )}
+                  {video && (
+                    <div className="relative group">
+                      <video
+                        ref={videoRef}
+                        controls
+                        src={`${baseUrl}${mainImage}`}
+                        className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                        onEnded={() => setIsPaused(true)}
+                        controlsList="nodownload noremoteplayback" // more options বাদ
+                        disablePictureInPicture
+                      />
+                      <button
+                        onClick={() => {
+                          if (videoRef.current.paused) {
+                            videoRef.current.play();
+                            setIsPaused(false);
+                          } else {
+                            videoRef.current.pause();
+                            setIsPaused(true);
+                          }
+                        }}
+                        className="absolute inset-0 m-auto flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-gray-500/60 text-gray-200 p-3 rounded-full shadow-md transition duration-200 ease-in-out w-16 h-16 "
+                      >
+                        {isPaused ? <Play size={20} /> : <Pause size={20} />}
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="w-full  flex items-center justify-center text-gray-400  object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105">
                   No Image
@@ -421,7 +491,6 @@ export default function BaseProductDetails({
 
               {product.images && product.images.length > 0 && (
                 <div className="relative mt-4 flex justify-center px-6">
-                  {/* Prev Button */}
                   <button
                     onClick={() => {
                       document
@@ -433,23 +502,47 @@ export default function BaseProductDetails({
                     <ChevronLeft size={20} />
                   </button>
 
-                  {/* Scroll Area */}
                   <div
                     id="thumbScroll"
                     className="flex gap-4 overflow-x-auto no-scrollbar mx-3"
                   >
-                    {product.images.map((thumb, i) => (
-                      <img
-                        key={i}
-                        src={`${baseUrl}${thumb}`}
-                        alt=""
-                        className="w-20 h-20 object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer"
-                        onClick={() => setMainImage(thumb)}
-                      />
-                    ))}
+                    {product.images.map((thumb, i) => {
+                      const isVideo = thumb.endsWith(".mp4");
+                      console.log(isVideo);
+                      return (
+                        <>
+                          {!isVideo && (
+                            <img
+                              key={i}
+                              src={`${baseUrl}${thumb}`}
+                              alt=""
+                              className="w-20 h-20 object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer"
+                              onClick={() => setMainImage(thumb)}
+                            />
+                          )}
+                          {isVideo && (
+                            <div
+                              className="relative"
+                              onClick={() => setMainImage(thumb)}
+                            >
+                              <video
+                                src={
+                                  thumb.includes("/uploads")
+                                    ? `${baseUrl}${thumb}`
+                                    : thumb
+                                }
+                                className="w-20 h-20 object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer"
+                              />
+                              <button className="absolute inset-0 m-auto flex items-center justify-center   text-white p-3 rounded shadow-md transition duration-200 ease-in-out w-12 border border-white h-10">
+                                <Play size={20} />
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })}
                   </div>
 
-                  {/* Next Button */}
                   <button
                     onClick={() => {
                       document
@@ -610,12 +703,15 @@ export default function BaseProductDetails({
           <section className="container mx-auto xl:px-6 lg:px-6 px-4 py-12 border-t border-gray-300">
             <div>
               <h3 className="text-xl font-bold mb-6">Description</h3>
-              {product.description && (
-                <div
-                  dangerouslySetInnerHTML={{ __html: product.description }}
-                  className="mt-6 text-gray-600 leading-relaxed"
-                ></div>
-              )}
+              <div className="mt-6 text-gray-600 leading-relaxed">
+                {product.description ? (
+                  <div
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  ></div>
+                ) : (
+                  <p>No description available for this product.</p>
+                )}
+              </div>
             </div>
           </section>
 
@@ -623,10 +719,18 @@ export default function BaseProductDetails({
             reviews={product.reviews || []}
             productId={product.id}
             refetch={refetch}
+            sellerId={product.seller_id}
+          />
+          <AskQuestion
+            questions={product.questions || []}
+            productId={product.id}
+            productName={product.product_name}
+            sellerId={product.seller_id}
+            refetch={refetch}
           />
 
           {relatedProducts.length > 0 && (
-            <section className="bg-gray-50 py-16">
+            <section className="bg-gray-50 py-10">
               <div className="container mx-auto xl:px-6 lg:px-6  px-4">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-800 text-center">
                   Related Products

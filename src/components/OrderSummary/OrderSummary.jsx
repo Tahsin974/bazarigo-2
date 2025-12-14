@@ -44,7 +44,7 @@ export default function OrderSummary({
         toast: true,
         position: "top",
         showConfirmButton: false,
-        timer: 3000,
+        timer: 1500,
       });
 
       setPromoCode("");
@@ -146,6 +146,8 @@ export default function OrderSummary({
           icon: "success",
           title: "Order Placed Successfully",
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -156,6 +158,8 @@ export default function OrderSummary({
           icon: "error",
           title: `${err.response.data.message}`,
           showConfirmButton: false,
+          toast: true,
+          position: "top",
           timer: 1500,
         });
       }
@@ -163,6 +167,8 @@ export default function OrderSummary({
         icon: "error",
         title: "Something went wrong!",
         showConfirmButton: false,
+        toast: true,
+        position: "top",
         timer: 1500,
       });
     }

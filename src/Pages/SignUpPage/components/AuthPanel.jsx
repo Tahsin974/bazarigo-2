@@ -36,62 +36,67 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setImage(file); // এখন সরাসরি File object রাখছি
   };
+
   const isSignUp = type === "signup";
 
   const onSubmit = async (data) => {
-    setLoading(true); // ✅ start loading
+    setLoading(true); // start loading
     try {
       if (isSignUp) {
-        const payload = {
-          name: data.first_Name + " " + data.last_Name,
-          user_name: data.user_Name,
-          email: data.email,
-          phone: data.phone,
-          img: image,
-          password: data.password,
-          date_of_birth: date,
-          gender: gender,
-          address: data.address,
-          district: data.district,
-          thana: data.thana,
-          postal_code: data.postal_code,
-          created_at: new Date().toLocaleString("en-CA", {
-            timeZone: "Asia/Dhaka",
-            hour12: false,
-          }),
-          updated_at: null,
-        };
-        const res = await axiosPublic.post("/register", payload);
+        const formData = new FormData();
 
-        if (res.data.createdCount > 0) {
+        // সাধারণ ফিল্ডগুলো FormData তে append করা
+        formData.append("name", data.first_Name + " " + data.last_Name);
+        formData.append("user_name", data.user_Name);
+        formData.append("email", data.email);
+        formData.append("phone", data.phone);
+        formData.append("password", data.password);
+        formData.append("date_of_birth", new Date(date).toISOString());
+        formData.append("gender", gender);
+        formData.append("address", data.address);
+        formData.append("district", data.district);
+        formData.append("thana", data.thana);
+        formData.append("postal_code", data.postal_code);
+
+        // profile image File object হিসেবে append করা
+        if (image) {
+          formData.append("profileImg", image);
+        }
+
+        const res = await axiosPublic.post("/register", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (res.data?.otp_required) {
           Swal.fire({
-            icon: "success",
-            title: "Sign Up Successfull",
-            showConfirmButton: false,
-            timer: 1500,
+            icon: "info",
+            title: "OTP sent to your email!",
             toast: true,
             position: "top",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          navigate("/verify-otp", {
+            replace: true,
+            state: {
+              email: data.email,
+              from: "sign-up",
+              pathName: location?.state?.pathName,
+            },
           });
           reset();
           setImage(null);
           setDate(null);
 
-          return onNavigate("login");
+          return;
         }
       } else {
-        // Login Step 1
-        const payload = {
-          email: data.email,
-          password: data.password,
-        };
+        // Login Step
+        const payload = { email: data.email, password: data.password };
         const res = await axiosPublic.post("/login", payload);
+        console.log(res.data);
 
         if (res.data?.otp_required) {
           Swal.fire({
@@ -109,11 +114,12 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
               from: "login",
               pathName: location?.state?.pathName,
             },
-          }); // show OTP input
+          });
           return;
         }
       }
     } catch (error) {
+      console.log(error);
       Swal.fire({
         icon: "error",
         title: `${error.response?.data?.message}`,
@@ -123,7 +129,7 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
         timer: 1500,
       });
     } finally {
-      setLoading(false); // ✅ stop loading
+      setLoading(false); // stop loading
     }
   };
 
@@ -145,7 +151,7 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
                     <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
                       {image ? (
                         <img
-                          src={image}
+                          src={URL.createObjectURL(image)}
                           alt="product"
                           className="w-full h-full object-cover rounded-full"
                         />
@@ -162,7 +168,7 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
                     <div className=" w-24 h-24 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
                       {image ? (
                         <img
-                          src={image}
+                          src={URL.createObjectURL(image)}
                           alt="product"
                           className="w-full h-full object-cover rounded-full"
                         />

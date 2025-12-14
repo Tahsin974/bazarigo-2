@@ -4,6 +4,7 @@ import AddBtn from "../../../../components/ui/AddBtn";
 import {
   CircleCheckBig,
   CircleX,
+  CreditCard,
   Eye,
   MoreHorizontal,
   PlusCircle,
@@ -13,6 +14,8 @@ import Pagination from "../../../../components/ui/Pagination";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
+import useAuth from "../../../../Utils/Hooks/useAuth";
+import Loading from "../../../../components/Loading/Loading";
 
 function SellersView({
   sellers,
@@ -29,8 +32,10 @@ function SellersView({
   filteredSellers,
   openSellerModal,
   refetch,
+  openPaymentModal,
 }) {
   const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
   const totalPages = Math.max(
     1,
     Math.ceil(filteredSellers.length / sellerPageSize)
@@ -127,12 +132,15 @@ function SellersView({
           </div>
 
           {/* Add/Delete buttons visible only on small screens */}
-          <div className="flex items-center gap-2 lg:hidden">
-            <AddBtn btnHandler={onAdd}>
-              <PlusCircle /> Add Seller
-            </AddBtn>
-            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-          </div>
+
+          {user.role !== "moderator" && (
+            <div className="flex items-center gap-2 lg:hidden">
+              <AddBtn btnHandler={onAdd}>
+                <PlusCircle /> Add Seller
+              </AddBtn>
+              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+            </div>
+          )}
         </div>
 
         {/* Middle: Search field (centered on large screens) */}
@@ -148,12 +156,14 @@ function SellersView({
         </div>
 
         {/* Right: Add/Delete buttons (visible on large screens) */}
-        <div className="hidden lg:flex items-center gap-2 order-3">
-          <AddBtn btnHandler={onAdd}>
-            <PlusCircle /> Add Seller
-          </AddBtn>
-          <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-        </div>
+        {user.role !== "moderator" && (
+          <div className="hidden lg:flex items-center gap-2 order-3">
+            <AddBtn btnHandler={onAdd}>
+              <PlusCircle /> Add Seller
+            </AddBtn>
+            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+          </div>
+        )}
       </div>
       <div className="mt-3 bg-white p-3 rounded shadow-sm">
         {sellers.length === 0 ? (
@@ -163,25 +173,24 @@ function SellersView({
             </div>
           </div>
         ) : sellers.length === null ? (
-          <div>
-            <div className="flex flex-col items-center justify-center min-h-screen">
-              <span className="loading loading-spinner loading-xl"></span>
-            </div>
-          </div>
+          <Loading />
         ) : (
           <div className="overflow-x-auto bg-white rounded-box">
             <table className="table text-center">
               {/* head */}
               <thead className="bg-gray-50 ">
                 <tr className="text-black">
-                  <th className="px-4 py-3">
-                    <SelectAllCheckbox
-                      selected={selected}
-                      allSelected={allSelected}
-                      toggleSelectAll={toggleSelectAll}
-                      isShowCounter={false}
-                    />
-                  </th>
+                  {user.role !== "moderator" && (
+                    <th className="px-4 py-3">
+                      <SelectAllCheckbox
+                        selected={selected}
+                        allSelected={allSelected}
+                        toggleSelectAll={toggleSelectAll}
+                        isShowCounter={false}
+                      />
+                    </th>
+                  )}
+
                   <th className="px-4 py-3">Seller ID</th>
                   <th className="px-4 py-3">Seller Name</th>
                   <th className="px-4 py-3">Seller Store Name</th>
@@ -193,20 +202,33 @@ function SellersView({
               <tbody>
                 {filteredSellers.map((s) => (
                   <tr key={s.id} className="border-t">
+                    {user.role !== "moderator" && (
+                      <td className="px-4 py-3">
+                        {" "}
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                          checked={selected.includes(s.id)}
+                          onChange={() => toggleSelect(s.id)}
+                        />
+                      </td>
+                    )}
+
                     <td className="px-4 py-3">
-                      {" "}
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                        checked={selected.includes(s.id)}
-                        onChange={() => toggleSelect(s.id)}
-                      />
+                      <span className="font-semibold">{s.id}</span>
                     </td>
-                    <td className="px-4 py-3">{s.id}</td>
-                    <td className="px-4 py-3">{s.full_name}</td>
-                    <td className="px-4 py-3">{s.store_name}</td>
-                    <td className="px-4 py-3">{s.email}</td>
-                    <td className="px-4 py-3">{s.phone_number}</td>
+                    <td className="px-4 py-3">
+                      <span className="font-semibold">{s.full_name}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-semibold">{s.store_name}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-semibold">{s.email}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-semibold">{s.phone_number}</span>
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 justify-center">
                         <button
@@ -215,6 +237,17 @@ function SellersView({
                         >
                           <Eye size={20} />
                         </button>
+                        {/* Payment Details Modal */}
+                        {s.status === "approved" &&
+                          user.role !== "moderator" && (
+                            <button
+                              onClick={() => openPaymentModal(s)}
+                              className="px-3 py-2 rounded cursor-pointer bg-blue-100 hover:bg-[#314D9D] text-[#314D9D] hover:text-white"
+                            >
+                              <CreditCard size={20} />
+                            </button>
+                          )}
+
                         {s.status === "pending" && (
                           <>
                             <button

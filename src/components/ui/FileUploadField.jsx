@@ -14,12 +14,7 @@ export const FileUploadField = ({
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setImage(file); // no base64 needed now
   };
 
   return (
@@ -49,10 +44,14 @@ export const FileUploadField = ({
         />
         <div className="flex flex-col items-center justify-center text-center ">
           {image ? (
-            image.includes("/uploads") ? (
-              <img src={`${baseUrl}${image}`} alt="image" />
+            typeof image === "string" ? (
+              image.includes("/uploads") ? (
+                <img src={`${baseUrl}${image}`} alt="image" />
+              ) : (
+                <img src={image} alt="image" />
+              )
             ) : (
-              <img src={image} alt="image" />
+              <img src={URL.createObjectURL(image)} alt="image" />
             )
           ) : (
             <>
@@ -60,12 +59,7 @@ export const FileUploadField = ({
                 className="w-8 h-8 mb-1"
                 style={{ color: PRIMARY_COLOR }}
               />
-              <p
-                onClick={() => {
-                  document.getElementById("image-upload").click();
-                }}
-                className="text-sm text-gray-600"
-              >
+              <p className="text-sm text-gray-600">
                 <span
                   className="font-semibold"
                   style={{ color: PRIMARY_COLOR }}

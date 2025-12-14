@@ -6,7 +6,7 @@ export default function DeleteAllBtn({ selected, bulkDelete }) {
       {!selected.length ? (
         <button
           className="bg-gray-300 text-gray-500
-          px-3 py-2 inline-flex items-center gap-2   border-none  rounded shadow sm:text-base text-[14px]
+          px-3 py-2 inline-flex items-center gap-2   border-none  rounded shadow sm:text-base text-[12px]
           "
           disabled="disabled"
         >

@@ -9,7 +9,7 @@ export default function SearchField({
     <div className="relative w-full xl:w-80 ">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
       <input
-        type="text"
+        type="search"
         value={searchValue}
         onChange={searchValueChange}
         placeholder={placeholder || "Search..."}

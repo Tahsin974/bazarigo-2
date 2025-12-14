@@ -85,7 +85,7 @@ export default function BusinessDetails({
           <InputField
             {...register("tradeLicenseNumber", { require: true })}
             className={`w-full px-4 py-3 rounded-lg border  focus:outline-none focus:ring-2 focus:ring-[${PRIMARY_COLOR}]`}
-            label={"Trade License Number"}
+            label={"Trade License Number (Optional)"}
             onKeyDown={(e) => {
               if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                 e.preventDefault(); // keyboard up/down disable
@@ -95,7 +95,7 @@ export default function BusinessDetails({
             errors={errors.tradeLicenseNumber}
             errorsMessage={errors.tradeLicenseNumber?.message}
             type="text"
-            placeholder="Enter Trade License Number (Optional)"
+            placeholder="Enter Trade License Number"
           />
         </div>
 
