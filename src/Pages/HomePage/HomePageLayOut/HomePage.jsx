@@ -9,6 +9,8 @@ import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
 import useAuth from "../../../Utils/Hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../../../components/Loading/Loading";
+import useJustArrivedProducts from "../../../Utils/Hooks/useJustArrivedProducts";
+import useTrendingProducts from "../../../Utils/Hooks/useTrendingProducts";
 
 export default function HomePage() {
   const { user, isLoading } = useAuth();
@@ -22,10 +24,16 @@ export default function HomePage() {
       return res.data;
     },
   });
-
+  const { data: justArrived = [], isPending: justArrivedLoading } =
+    useJustArrivedProducts();
+  const { data: trendingProducts = [], isPending: trendingLoading } =
+    useTrendingProducts();
   return (
     <div className="w-full bg-white font-sans text-gray-800 space-y-10">
-      {isLoading || isFlashSaleLoading ? (
+      {isLoading ||
+      isFlashSaleLoading ||
+      justArrivedLoading ||
+      trendingLoading ? (
         <Loading />
       ) : (
         <>
@@ -36,9 +44,8 @@ export default function HomePage() {
           ) : (
             <FlashSaleCountdown isButtonVisible={true} />
           )}
-
-          <JustArrivedSection />
-          <TrendingNowSection />
+          {justArrived.length && <JustArrivedSection />}
+          {trendingProducts.length && <TrendingNowSection />}
         </>
       )}
     </div>

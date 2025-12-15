@@ -348,7 +348,9 @@ function DashboardView({
                 <h3 className="font-semibold mb-6">Recent Orders</h3>
                 {dashboard.recentOrders.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                    No Recent Orders Found
+                    <span className="font-semibold">
+                      No Recent Orders Found
+                    </span>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -382,7 +384,9 @@ function DashboardView({
                 <h3 className="font-semibold mb-6">Return Requests</h3>
                 {returnRequests.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                    No Return Requests Found
+                    <span className="font-semibold">
+                      No Return Requests Found
+                    </span>
                   </div>
                 ) : (
                   <>
@@ -446,12 +450,14 @@ function DashboardView({
                     </div>
 
                     <div className="flex items-center justify-center mt-2">
-                      <Pagination
-                        currentPage={returnRequestsPage}
-                        totalPages={totalPages}
-                        setCurrentPage={setReturnRequestsPage}
-                        renderPageNumbers={renderPageNumbers}
-                      />
+                      {totalPages > 1 && (
+                        <Pagination
+                          currentPage={returnRequestsPage}
+                          totalPages={totalPages}
+                          setCurrentPage={setReturnRequestsPage}
+                          renderPageNumbers={renderPageNumbers}
+                        />
+                      )}
                     </div>
                   </>
                 )}

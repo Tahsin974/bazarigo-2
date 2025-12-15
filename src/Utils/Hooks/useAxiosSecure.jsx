@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosSecure = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://api.bazarigo.com",
   withCredentials: true,
 });
 
@@ -30,7 +30,7 @@ export default function useAxiosSecure() {
         try {
           // Try to refresh access token
           await axios.post(
-            "http://localhost:3000/token/refresh",
+            "https://api.bazarigo.com/token/refresh",
             {},
             { withCredentials: true }
           );
@@ -43,7 +43,7 @@ export default function useAxiosSecure() {
           // Refresh token invalid → logout
           if (refreshStatus === 401 || refreshStatus === 403) {
             await axios.post(
-              "http://localhost:3000/logout",
+              "https://api.bazarigo.com/logout",
               {},
               { withCredentials: true }
             );
@@ -61,7 +61,7 @@ export default function useAxiosSecure() {
   //   async function (error) {
   //     const status = error.response?.status;
   //     if (status === 401 || status === 403) {
-  //       await axios.post("http://localhost:3000/logout");
+  //       await axios.post("https://api.bazarigo.com/logout");
   //     }
   //     return Promise.reject(error);
   //   }

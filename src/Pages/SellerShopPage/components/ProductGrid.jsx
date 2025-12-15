@@ -10,6 +10,11 @@ export default function ProductGrid({
   totalPages,
   setCurrentPage,
 }) {
+  const renderPageNumbers = useRenderPageNumbers(
+    currentPage,
+    totalPages,
+    setCurrentPage
+  );
   return (
     <div>
       <section className="py-12 px-6 md:px-12">
@@ -26,16 +31,14 @@ export default function ProductGrid({
             ))}
           </div>
         )}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          renderPageNumbers={useRenderPageNumbers(
-            currentPage,
-            totalPages,
-            setCurrentPage
-          )}
-        />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            renderPageNumbers={renderPageNumbers}
+          />
+        )}
       </section>
     </div>
   );

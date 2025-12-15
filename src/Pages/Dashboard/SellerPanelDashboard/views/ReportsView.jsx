@@ -254,13 +254,13 @@ export default function ReportsView({ active }) {
                 </button>
               </div>
 
-              <div>
+              <div className="space-y-6">
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Revenue Chart */}
                   <div
                     id="revenue-chart"
-                    className="bg-white p-6 rounded-xl shadow-lg"
+                    className="bg-white p-6 rounded-xl shadow-sm"
                   >
                     <h4 className="text-lg font-semibold mb-4 text-gray-800">
                       Revenue
@@ -311,7 +311,7 @@ export default function ReportsView({ active }) {
                   {/* Category Sales Pie */}
                   <div
                     id="sales-by-category"
-                    className="bg-white p-6 rounded-xl shadow-lg"
+                    className="bg-white p-6 rounded-xl shadow-sm"
                   >
                     <h4 className="text-lg font-semibold mb-4 text-gray-800">
                       Sales by Category
@@ -359,7 +359,7 @@ export default function ReportsView({ active }) {
                 {/* Top Products Table */}
                 <div
                   id="top-products"
-                  className="bg-white p-6 rounded-xl shadow-lg"
+                  className="bg-white p-6 rounded-xl shadow-sm"
                 >
                   <h4 className="text-lg font-semibold mb-4 text-gray-800">
                     Top 5 Products
@@ -421,7 +421,7 @@ export default function ReportsView({ active }) {
                 {/* Seller Commission Table */}
                 <div
                   id="seller-commissions-products"
-                  className="bg-white p-6 rounded-xl shadow-lg"
+                  className="bg-white p-6 rounded-xl shadow-sm"
                 >
                   <h4 className="text-lg font-semibold mb-4 text-gray-800">
                     Seller Commissions
@@ -506,7 +506,7 @@ export default function ReportsView({ active }) {
                 {/* Seller Commission Summary */}
                 <div
                   id="seller-commissions-summary"
-                  className="bg-white p-6 rounded-xl shadow-lg"
+                  className="bg-white p-6 rounded-xl shadow-sm"
                 >
                   <h4 className="text-lg font-semibold mb-4 text-gray-800">
                     Seller Commission Summary

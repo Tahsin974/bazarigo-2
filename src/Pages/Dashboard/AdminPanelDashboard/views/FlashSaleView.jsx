@@ -300,6 +300,12 @@ export default function FlashSaleView({
   };
 
   const renderPageNumbers = useRenderPageNumbers(
+    productPage,
+    totalPages,
+    setProductPage
+  );
+
+  const renderPageNumbersForFlashSale = useRenderPageNumbers(
     flashSaleProductPage,
     flashSaleTotalPages,
     setFlashSaleProductPage
@@ -458,139 +464,149 @@ export default function FlashSaleView({
             )}
           </div>
         </div>
+        {paginatedProducts.length === 0 ? (
+          <div>
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+              <span className="font-semibold">products not found</span>
+            </div>
+          </div>
+        ) : paginatedProducts.length === null ? (
+          <Loading />
+        ) : (
+          <>
+            <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
+              <table className="table  text-center">
+                {/* head */}
+                <thead className="text-black">
+                  <tr>
+                    <th>
+                      <SelectAllCheckbox
+                        selected={selected}
+                        allSelected={allSelected}
+                        toggleSelectAll={toggleSelectAll}
+                        isShowCounter={false}
+                      />
+                    </th>
+                    <th>Name</th>
+                    <th>Store Name </th>
 
-        <div className="overflow-x-auto bg-white rounded-box shadow-sm ">
-          <table className="table  text-center">
-            {/* head */}
-            <thead className="text-black">
-              <tr>
-                <th>
-                  <SelectAllCheckbox
-                    selected={selected}
-                    allSelected={allSelected}
-                    toggleSelectAll={toggleSelectAll}
-                    isShowCounter={false}
-                  />
-                </th>
-                <th>Name</th>
-                <th>Store Name </th>
-
-                <th>Category</th>
-                <th>Regular Price</th>
-                <th>Sale Price</th>
-                <th>Stock</th>
-                <th>Sale Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody className="">
-              {paginatedProducts.map((p) => (
-                <tr key={p.id} className="border-t">
-                  <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                      checked={selected.includes(p.id)}
-                      onChange={() => toggleSelect(p.id)}
-                    />
-                  </td>
-                  <td>
-                    <div className="flex items-center gap-3 text-start">
-                      <div className="avatar">
-                        <div className="mask mask-squircle h-12 w-12">
-                          <img
-                            src={`${baseUrl}${getImages(p.images)[0]}`}
-                            alt={p.name}
-                          />
+                    <th>Category</th>
+                    <th>Regular Price</th>
+                    <th>Sale Price</th>
+                    <th>Stock</th>
+                    <th>Sale Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody className="">
+                  {paginatedProducts.map((p) => (
+                    <tr key={p.id} className="border-t">
+                      <td className="px-4 py-3">
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                          checked={selected.includes(p.id)}
+                          onChange={() => toggleSelect(p.id)}
+                        />
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-3 text-start">
+                          <div className="avatar">
+                            <div className="mask mask-squircle h-12 w-12">
+                              <img
+                                src={`${baseUrl}${getImages(p.images)[0]}`}
+                                alt={p.name}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              {p.product_name}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <span className="font-semibold">{p.product_name}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    {" "}
-                    <span className="font-semibold">{p.seller_name}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="font-semibold">{p.category}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="font-semibold">
-                      ৳{p.regular_price.toLocaleString("en-IN")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="font-semibold">
-                      ৳{p.sale_price.toLocaleString("en-IN")}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="font-semibold">{p.stock}</span>
-                  </td>
-                  <td>
-                    {p.isflashsale ? (
-                      <p className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-200 text-green-800">
-                        Active
-                      </p>
-                    ) : (
-                      <p className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-red-200 text-red-800">
-                        Inactive
-                      </p>
-                    )}
-                  </td>
-                  <td>
-                    <>
-                      {selected.includes(p.id) ? (
-                        manualDiscount.id === p.id &&
-                        manualDiscount.discount > 0 ? (
-                          <>
-                            <p
-                              onClick={() => openDiscountModal(p)}
-                              className="inline-flex items-center px-3 py-0.5 rounded-full text-base font-medium bg-gray-100 text-gray-600"
-                            >
-                              <ZapIcon className="w-3 h-3 mr-1 fill-gray-600" />{" "}
-                              {manualDiscount.discount}% off
-                            </p>
-                          </>
+                      </td>
+                      <td>
+                        {" "}
+                        <span className="font-semibold">{p.seller_name}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-semibold">{p.category}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-semibold">
+                          ৳{p.regular_price.toLocaleString("en-IN")}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-semibold">
+                          ৳{p.sale_price.toLocaleString("en-IN")}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="font-semibold">{p.stock}</span>
+                      </td>
+                      <td>
+                        {p.isflashsale ? (
+                          <p className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-200 text-green-800">
+                            Active
+                          </p>
                         ) : (
-                          <button
-                            onClick={() => openDiscountModal(p)}
-                            className="px-3 py-2 bg-orange-100 text-[#E6612A] hover:bg-orange-400 hover:text-white rounded cursor-pointer"
-                          >
-                            <SquarePen size={20} />
-                          </button>
-                        )
-                      ) : (
-                        <button
-                          disabled={"disabled"}
-                          onClick={() => openDiscountModal(p)}
-                          className="px-3 py-2 bg-gray-100 text-gray-600 "
-                        >
-                          <SquarePen size={20} />
-                        </button>
-                      )}
-                    </>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className=" flex items-center justify-center">
-          <Pagination
-            currentPage={productPage}
-            totalPages={totalPages}
-            setCurrentPage={setProductPage}
-            renderPageNumbers={useRenderPageNumbers(
-              productPage,
-              totalPages,
-              setProductPage
-            )}
-          />
-        </div>
+                          <p className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-red-200 text-red-800">
+                            Inactive
+                          </p>
+                        )}
+                      </td>
+                      <td>
+                        <>
+                          {selected.includes(p.id) ? (
+                            manualDiscount.id === p.id &&
+                            manualDiscount.discount > 0 ? (
+                              <>
+                                <p
+                                  onClick={() => openDiscountModal(p)}
+                                  className="inline-flex items-center px-3 py-0.5 rounded-full text-base font-medium bg-gray-100 text-gray-600"
+                                >
+                                  <ZapIcon className="w-3 h-3 mr-1 fill-gray-600" />{" "}
+                                  {manualDiscount.discount}% off
+                                </p>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => openDiscountModal(p)}
+                                className="px-3 py-2 bg-orange-100 text-[#E6612A] hover:bg-orange-400 hover:text-white rounded cursor-pointer"
+                              >
+                                <SquarePen size={20} />
+                              </button>
+                            )
+                          ) : (
+                            <button
+                              disabled={"disabled"}
+                              onClick={() => openDiscountModal(p)}
+                              className="px-3 py-2 bg-gray-100 text-gray-600 "
+                            >
+                              <SquarePen size={20} />
+                            </button>
+                          )}
+                        </>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className=" flex items-center justify-center">
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={productPage}
+                  totalPages={totalPages}
+                  setCurrentPage={setProductPage}
+                  renderPageNumbers={renderPageNumbers}
+                />
+              )}
+            </div>
+          </>
+        )}
       </div>
       <h1 className="text-lg">
         FlashSale Products{" "}
@@ -602,8 +618,10 @@ export default function FlashSaleView({
       </h1>
 
       {!flashSaleProducts?.sale_products?.length ? (
-        <div className="col-span-full text-center text-gray-500 py-8">
-          No products found
+        <div>
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+            <span className="font-semibold">products not found</span>
+          </div>
         </div>
       ) : (
         <div>
@@ -688,12 +706,14 @@ export default function FlashSaleView({
             </table>
           </div>
           <div className="flex items-center justify-center">
-            <Pagination
-              currentPage={flashSaleProductPage}
-              totalPages={flashSaleTotalPages}
-              setCurrentPage={setFlashSaleProductPage}
-              renderPageNumbers={renderPageNumbers}
-            />
+            {flashSaleTotalPages > 1 && (
+              <Pagination
+                currentPage={flashSaleProductPage}
+                totalPages={flashSaleTotalPages}
+                setCurrentPage={setFlashSaleProductPage}
+                renderPageNumbers={renderPageNumbersForFlashSale}
+              />
+            )}
           </div>
         </div>
       )}

@@ -5,16 +5,18 @@ import { Link } from "react-router";
 import SelectAllCheckbox from "../../../../../components/ui/SelectAllCheckbox";
 import useCart from "../../../../../Utils/Hooks/useCart";
 import Swal from "sweetalert2";
-import useAxiosSecure from "../../../../../Utils/Hooks/useAxiosSecure";
+
 import { useState } from "react";
 import DeleteAllBtn from "../../../../../components/ui/DeleteAllBtn";
 import { HashLink } from "react-router-hash-link";
+import useAxiosPublic from "../../../../../Utils/Hooks/useAxiosPublic";
 
 export default function Cart({ activeTab }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
-  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
   const { carts, refetch } = useCart();
   const [selectedItems, setSelectedItems] = useState([]);
+
   // ✅ handle single checkbox select/unselect
   const handleSelectItem = (productId) => {
     setSelectedItems((prev) =>
@@ -72,7 +74,7 @@ export default function Cart({ activeTab }) {
 
     if (result.isConfirmed) {
       try {
-        const res = await axiosSecure.delete("/carts", {
+        const res = await axiosPublic.delete("/carts", {
           data: { ids: selectedItems },
         });
 
@@ -113,7 +115,6 @@ export default function Cart({ activeTab }) {
       }
     }
   };
-  console.log(carts);
 
   {
     /* filteredSelectedItems তৈরি করা হলো */
@@ -132,7 +133,7 @@ export default function Cart({ activeTab }) {
 
   const updateQty = async (cartId, productId, newQty) => {
     try {
-      const res = await axiosSecure.patch("/carts/update-qty", {
+      const res = await axiosPublic.patch("/carts/update-qty", {
         cartId,
         productId,
         newQty,
@@ -162,13 +163,14 @@ export default function Cart({ activeTab }) {
 
       // 🔹 ইউজার কনফার্ম করলে ডিলিট রিকোয়েস্ট পাঠাও
       if (result.isConfirmed) {
-        const { data } = await axiosSecure.patch("/carts/remove-product", {
+        const { data } = await axiosPublic.patch("/carts/remove-product", {
           cartId,
           productId,
         });
 
         if (data.deletedCount) {
-          await Swal.fire({
+          refetch();
+          return await Swal.fire({
             title: "Removed!",
             text: "Product has been removed successfully.",
             icon: "success",
@@ -177,7 +179,6 @@ export default function Cart({ activeTab }) {
             toast: true,
             position: "top",
           });
-          refetch();
         }
       }
     } catch (error) {
@@ -186,10 +187,9 @@ export default function Cart({ activeTab }) {
         title: "Error!",
         text: "Something went wrong while removing the product.",
         icon: "error",
+        showConfirmButton: false,
         toast: true,
         position: "top",
-        showConfirmButton: false,
-        timer: 1500,
       });
     }
   };

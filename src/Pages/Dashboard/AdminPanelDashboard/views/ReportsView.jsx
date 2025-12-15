@@ -663,12 +663,14 @@ function ReportsView({ payments, customers }) {
                       </table>
                     </div>
                   )}
-                  <Pagination
-                    currentPage={productsCommissionDataPage}
-                    totalPages={totalPagesForProductsCommission}
-                    setCurrentPage={setProductsCommissionDataPage}
-                    renderPageNumbers={renderPageNumbersForProductsCommission}
-                  />
+                  {totalPagesForProductsCommission > 1 && (
+                    <Pagination
+                      currentPage={productsCommissionDataPage}
+                      totalPages={totalPagesForProductsCommission}
+                      setCurrentPage={setProductsCommissionDataPage}
+                      renderPageNumbers={renderPageNumbersForProductsCommission}
+                    />
+                  )}
                 </div>
 
                 <div className="bg-white p-4 rounded shadow-sm">
@@ -724,12 +726,14 @@ function ReportsView({ payments, customers }) {
                     </div>
                   )}
                   <div className="flex items-center justify-center mt-2">
-                    <Pagination
-                      currentPage={sellerCommissionDataPage}
-                      totalPages={totalPages}
-                      setCurrentPage={setSellerCommissionDataPage}
-                      renderPageNumbers={renderPageNumbers}
-                    />
+                    {totalPages > 1 && (
+                      <Pagination
+                        currentPage={sellerCommissionDataPage}
+                        totalPages={totalPages}
+                        setCurrentPage={setSellerCommissionDataPage}
+                        renderPageNumbers={renderPageNumbers}
+                      />
+                    )}
                   </div>
                 </div>
               </div>

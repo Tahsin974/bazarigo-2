@@ -120,6 +120,12 @@ function SellersView({
     }
   };
 
+  const renderPageNumbers = useRenderPageNumbers(
+    sellerPage,
+    totalPages,
+    setSellerPage
+  );
+
   return (
     <div>
       <div className="flex flex-col  lg:flex-row lg:items-center lg:justify-between gap-4 mb-3">
@@ -166,13 +172,13 @@ function SellersView({
         )}
       </div>
       <div className="mt-3 bg-white p-3 rounded shadow-sm">
-        {sellers.length === 0 ? (
+        {filteredSellers.length === 0 ? (
           <div>
-            <div className="flex flex-col items-center justify-center py-20">
-              sellers not found
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+              <span className="font-semibold">sellers not found</span>
             </div>
           </div>
-        ) : sellers.length === null ? (
+        ) : filteredSellers.length === null ? (
           <Loading />
         ) : (
           <div className="overflow-x-auto bg-white rounded-box">
@@ -273,17 +279,14 @@ function SellersView({
           </div>
         )}
       </div>
-
-      <Pagination
-        currentPage={sellerPage}
-        totalPages={totalPages}
-        setCurrentPage={setSellerPage}
-        renderPageNumbers={useRenderPageNumbers(
-          sellerPage,
-          totalPages,
-          setSellerPage
-        )}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={sellerPage}
+          totalPages={totalPages}
+          setCurrentPage={setSellerPage}
+          renderPageNumbers={renderPageNumbers}
+        />
+      )}
     </div>
   );
 }

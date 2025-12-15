@@ -15,7 +15,7 @@ export default function Navbar() {
   }, [location.pathname]);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white shadow-md font-sans">
+    <nav className="sticky top-0 z-50 bg-white shadow-md font-sans w-full">
       <div className="container mx-auto px-6 py-5 flex items-center justify-between">
         {/* Logo */}
         <Logo />

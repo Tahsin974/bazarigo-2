@@ -1,10 +1,12 @@
 import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa6";
+
 import img from "../../../assets/Bazarigo-White.svg";
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 py-8">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4  sm:gap-12 md:grid-cols-3 sm:grid-cols-2  lg:justify-items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-4  sm:gap-12 md:grid-cols-3 sm:grid-cols-2  lg:justify-items-center gap-6">
           <div className="space-y-4">
             <img src={img} className="h-10 w-auto" alt="logo" />
             <p className="text-gray-400 text-sm">
@@ -20,16 +22,23 @@ export default function Footer() {
                 <Facebook size={24} />
               </a>
               <a
-                href="https://www.instagram.com/bazarigo.online.shop?igsh=bzJxaXZvN3JyaDI1"
+                href="https://www.instagram.com/bazarigo.store/?utm_source=ig_web_button_share_sheet"
                 aria-label="Follow us on Instagram"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <Instagram size={24} />
               </a>
+              <a
+                href="https://api.whatsapp.com/send/?phone=%2B8801797454118"
+                aria-label="Follow us on Instagram"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <FaWhatsapp size={24} />
+              </a>
             </div>
           </div>
           <div>
-            <h3 className="font-bold text-white text-lg mb-4">Quick Links</h3>
+            <h3 className="font-bold text-white text-lg mb-2">Quick Links</h3>
             <ul className="space-y-2">
               <li>
                 <a
@@ -66,7 +75,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-white text-lg mb-4">Legal</h3>
+            <h3 className="font-bold text-white text-lg mb-2">Legal</h3>
             <ul className="space-y-2">
               <li>
                 <a
@@ -100,28 +109,19 @@ export default function Footer() {
                   Return & Refund
                 </a>
               </li>
-              <li>
-                <a
-                  href="/data-deletion#"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  Data Deletion Request
-                </a>
-              </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-bold text-white text-lg mb-4">Contact</h3>
+            <h3 className="font-bold text-white text-lg mb-2">Contact</h3>
             <ul className="space-y-2 text-gray-400">
               <li>
                 <a
-                  href="mailto:bazarigo.official@gmail.com"
-                  className="hover:text-white transition-colors flex items-center gap-2"
+                  href="mailto:info@bazarigo.com?subject=Contact%20Bazarigo"
+                  aria-label="Send email to info@bazarigo.com"
+                  className="flex items-center gap-2 transition-colors hover:text-white "
                 >
-                  <span>
-                    <Mail size={18} />
-                  </span>
-                  <span>bazarigo.official@gmail.com</span>
+                  <Mail size={18} />
+                  <span>info@bazarigo.com</span>
                 </a>
               </li>
               <li>

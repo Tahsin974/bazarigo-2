@@ -2,19 +2,12 @@ import { motion } from "framer-motion";
 
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import ProductCard from "../../../components/ProductCard/ProductCard";
-import { useQuery } from "@tanstack/react-query";
-import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+
 import Loading from "../../../components/Loading/Loading";
+import useTrendingProducts from "../../../Utils/Hooks/useTrendingProducts";
 
 export default function TrendingNowSection() {
-  const axiosPublic = useAxiosPublic();
-  const { data: AllProducts = [], isPending } = useQuery({
-    queryKey: ["trending-products"],
-    queryFn: async () => {
-      const res = await axiosPublic.get("/trending-products");
-      return res.data.products;
-    },
-  });
+  const { data: AllProducts = [], isPending } = useTrendingProducts();
   if (isPending) {
     return <Loading />;
   }

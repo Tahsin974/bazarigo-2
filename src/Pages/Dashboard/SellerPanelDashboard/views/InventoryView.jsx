@@ -23,7 +23,6 @@ export default function InventoryView({
   inventoryPageSize,
   filteredInventory,
   paginatedInventory,
-  inventory,
 }) {
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
@@ -134,7 +133,7 @@ export default function InventoryView({
               </div>
             </div>
 
-            {inventory?.length ? (
+            {paginatedInventory?.length ? (
               <div className="grid gap-5">
                 {paginatedInventory.map((p) => (
                   <div key={p.id} className="bg-white rounded-lg shadow p-5">
@@ -258,18 +257,22 @@ export default function InventoryView({
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center bg-white py-20 text-gray-400">
-                No Products Found
+              <div>
+                <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+                  <span className="font-semibold">No Products Found</span>
+                </div>
               </div>
             )}
           </div>
           <div className="flex items-center justify-center gap-2">
-            <Pagination
-              currentPage={inventoryPage}
-              totalPages={totalPages}
-              setCurrentPage={setInventoryPage}
-              renderPageNumbers={renderPageNumbers}
-            />
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={inventoryPage}
+                totalPages={totalPages}
+                setCurrentPage={setInventoryPage}
+                renderPageNumbers={renderPageNumbers}
+              />
+            )}
           </div>
         </motion.div>
       )}

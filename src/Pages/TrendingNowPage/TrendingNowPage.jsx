@@ -5,24 +5,17 @@ import ProductsGrid from "./components/ProductsGrid";
 import Pagination from "../../components/ui/Pagination";
 
 import { useRenderPageNumbers } from "../../Utils/Helpers/useRenderPageNumbers";
-import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
-import { useQuery } from "@tanstack/react-query";
+
 import Loading from "../../components/Loading/Loading";
+import useTrendingProducts from "../../Utils/Hooks/useTrendingProducts";
 
 export default function TrendingNowPage() {
-  const axiosPublic = useAxiosPublic();
   const itemsPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
   const [filterTag, setFilterTag] = useState("All");
   const [sortOption, setSortOption] = useState("default");
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: AllProducts = [], isPending } = useQuery({
-    queryKey: ["trending-products"],
-    queryFn: async () => {
-      const res = await axiosPublic.get("/trending-products");
-      return res.data.products;
-    },
-  });
+  const { data: AllProducts = [], isPending } = useTrendingProducts();
 
   const filteredProducts = AllProducts.filter((product) => {
     const matchesTag =

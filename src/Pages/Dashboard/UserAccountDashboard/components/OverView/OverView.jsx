@@ -168,12 +168,14 @@ export default function Overview({
               </div>
 
               <div className=" flex items-center justify-center">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  setCurrentPage={setCurrentPage}
-                  renderPageNumbers={renderPageNumbers}
-                />
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    setCurrentPage={setCurrentPage}
+                    renderPageNumbers={renderPageNumbers}
+                  />
+                )}
               </div>
             </>
           )}

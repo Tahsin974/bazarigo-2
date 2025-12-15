@@ -213,9 +213,11 @@ export default function ZoneView({
             </div>
           )}
         </div>
-        {!coverageAreas.length ? (
-          <div className="col-span-full text-center text-gray-500 py-8">
-            No Areas found
+        {!paginatedPostalZones.length ? (
+          <div>
+            <div className="mt-3 flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+              <span className="font-semibold"> No Areas found</span>
+            </div>
           </div>
         ) : (
           <>
@@ -330,12 +332,14 @@ export default function ZoneView({
               </table>
             </div>
             <div className=" flex items-center justify-center">
-              <Pagination
-                currentPage={postalZonePage}
-                totalPages={totalPages}
-                setCurrentPage={setPostalZonePage}
-                renderPageNumbers={renderPageNumbers}
-              />
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={postalZonePage}
+                  totalPages={totalPages}
+                  setCurrentPage={setPostalZonePage}
+                  renderPageNumbers={renderPageNumbers}
+                />
+              )}
             </div>
           </>
         )}

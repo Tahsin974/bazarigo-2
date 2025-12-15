@@ -152,13 +152,13 @@ function CustomersView({
         )}
       </div>
 
-      {customers.length === 0 ? (
+      {paginatedCustomers.length === 0 ? (
         <div>
-          <div className="flex flex-col items-center justify-center py-20">
-            customers not found
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+            <span className="font-semibold">customers not found</span>
           </div>
         </div>
-      ) : customers.length === null ? (
+      ) : paginatedCustomers.length === null ? (
         <Loading />
       ) : (
         <>
@@ -232,13 +232,14 @@ function CustomersView({
               </tbody>
             </table>
           </div>
-
-          <Pagination
-            currentPage={customerPage}
-            totalPages={totalPages}
-            setCurrentPage={setCustomerPage}
-            renderPageNumbers={renderPageNumbers}
-          />
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={customerPage}
+              totalPages={totalPages}
+              setCurrentPage={setCustomerPage}
+              renderPageNumbers={renderPageNumbers}
+            />
+          )}
         </>
       )}
     </div>

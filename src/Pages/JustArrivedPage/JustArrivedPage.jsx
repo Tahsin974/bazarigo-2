@@ -1,22 +1,13 @@
 import NewArrivalsGrid from "./components/NewArrivalsGrid";
 import { useState } from "react";
-import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
-import { useQuery } from "@tanstack/react-query";
 import Loading from "../../components/Loading/Loading";
 import { motion } from "framer-motion";
 import { Filter, Search } from "lucide-react";
 import SelectField from "../../components/ui/SelectField";
+import useJustArrivedProducts from "../../Utils/Hooks/useJustArrivedProducts";
 
 export default function JustArrivedPage() {
-  const axiosPublic = useAxiosPublic();
-
-  const { data: allProducts = [], isPending } = useQuery({
-    queryKey: ["just-arrived"],
-    queryFn: async () => {
-      const res = await axiosPublic.get("/just-arrived");
-      return res.data.products;
-    },
-  });
+  const { data: allProducts = [], isPending } = useJustArrivedProducts();
 
   const categories = [
     "All",

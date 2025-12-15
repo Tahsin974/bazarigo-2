@@ -252,13 +252,13 @@ function ProductsView({
           <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
         </div>
       </div>
-      {products.length === 0 ? (
+      {paginatedProducts.length === 0 ? (
         <div>
-          <div className="flex flex-col items-center justify-center py-20">
-            products not found
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+            <span className="font-semibold">products not found</span>
           </div>
         </div>
-      ) : products.length === null ? (
+      ) : paginatedProducts.length === null ? (
         <Loading />
       ) : (
         <>
@@ -382,12 +382,14 @@ function ProductsView({
             </table>
           </div>
           <div className=" flex items-center justify-center">
-            <Pagination
-              currentPage={productPage}
-              totalPages={totalPages}
-              setCurrentPage={setProductPage}
-              renderPageNumbers={renderPageNumbers}
-            />
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={productPage}
+                totalPages={totalPages}
+                setCurrentPage={setProductPage}
+                renderPageNumbers={renderPageNumbers}
+              />
+            )}
           </div>
         </>
       )}

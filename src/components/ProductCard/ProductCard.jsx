@@ -104,40 +104,41 @@ export default function ProductCard({ item, fromFlashSale = false }) {
               </span>
             )}
           </div>
-          <CardContent className="px-5 py-3 flex flex-col gap-2 flex-1 justify-between">
-            <h2 className="mt-4 font-bold text-gray-800">
+          <CardContent className="px-5 py-3 flex flex-col flex-1">
+            {/* Image → Title : 8px */}
+            <h2 className="mt-2  text-gray-800 leading-snug truncate">
               {item.product_name}
             </h2>
-            <div className="flex items-center justify-between gap-2 ">
+
+            {/* Title → Price : 6px */}
+            <div className="flex items-center justify-between mt-1.5">
               <div className="flex items-center gap-2">
-                <span className="text-[#FF0055] font-bold">
-                  {item.sale_price > 1 ? (
-                    <>৳{item.sale_price.toLocaleString("en-IN")}</>
-                  ) : (
-                    <>৳{item.regular_price.toLocaleString("en-IN")}</>
-                  )}
+                <span className="text-[#FF0055] font-bold ">
+                  {item.sale_price > 1
+                    ? `৳${item.sale_price.toLocaleString("en-IN")}`
+                    : `৳${item.regular_price.toLocaleString("en-IN")}`}
                 </span>
+
                 {item.sale_price > 1 && (
-                  <span className="text-gray-400 line-through ">
+                  <span className="text-gray-400 line-through text-xs">
                     ৳{item.regular_price.toLocaleString("en-IN")}
                   </span>
                 )}
               </div>
+
               {item.discount > 0 && (
-                <motion.span
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                  className={`   bg-[#FF0055] text-white text-xs font-semibold px-3 py-1 rounded-full`}
-                >
+                <span className="bg-[#FF0055] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
                   {item.discount}% OFF
-                </motion.span>
+                </span>
               )}
             </div>
-            <div className="flex items-center gap-1 mb-1">
+
+            {/* Price → Reviews : 8px */}
+            <div className="flex items-center gap-1 mt-2">
               <Rating
-                emptySymbol={<Star size={20} className=" text-gray-300" />}
+                emptySymbol={<Star size={18} className=" text-gray-300" />}
                 fullSymbol={
-                  <Star size={20} className="text-[#FFD700] fill-[#FFD700]" />
+                  <Star size={18} className="text-[#FFD700] fill-[#FFD700]" />
                 }
                 initialRating={
                   Number(item.rating) > 0

@@ -3,21 +3,13 @@ import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import ProductCard from "../../../components/ProductCard/ProductCard";
 
 import { HashLink } from "react-router-hash-link";
-import { useQuery } from "@tanstack/react-query";
-import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+
 import Loading from "../../../components/Loading/Loading";
+import useJustArrivedProducts from "../../../Utils/Hooks/useJustArrivedProducts";
 
 export default function JustArrivedSection() {
   // Filter logic
-  const axiosPublic = useAxiosPublic();
-
-  const { data: allProducts = [], isPending } = useQuery({
-    queryKey: ["just-arrived"],
-    queryFn: async () => {
-      const res = await axiosPublic.get("/just-arrived");
-      return res.data.products;
-    },
-  });
+  const { data: allProducts = [], isPending } = useJustArrivedProducts();
 
   const shuffledProducts = allProducts.sort(() => 0.5 - Math.random());
   const products = shuffledProducts.slice(0, 8);

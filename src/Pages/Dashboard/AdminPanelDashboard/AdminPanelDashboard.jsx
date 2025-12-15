@@ -100,39 +100,6 @@ export default function AdminPanelDashboard() {
           (item) => item.label !== "Payments" // moderator থেকে Payments বাদ
         );
 
-  // const navOptions =
-  //   user.role !== "moderator"
-  //     ? [
-  //         "Dashboard",
-  //         "Products",
-  //         "Inventory",
-  //         "FlashSale",
-  //         "Orders",
-  //         "Customers",
-  //         "Sellers",
-  //         "Payments",
-  //         "Promotions",
-  //         "Reports",
-  //         "Coverage Areas",
-
-  //         "Settings",
-  //       ]
-  //     : [
-  //         "Dashboard",
-  //         "Products",
-  //         "Inventory",
-  //         "FlashSale",
-  //         "Orders",
-  //         "Customers",
-  //         "Sellers",
-
-  //         "Promotions",
-  //         "Reports",
-  //         "Coverage Areas",
-
-  //         "Settings",
-  //       ];
-  // , refetch: refetchMessages
   const { myMessages } = useMessages();
 
   const { data: admins = [], refetch: refetchAdmins } = useQuery({
@@ -705,7 +672,7 @@ export default function AdminPanelDashboard() {
       const q = sellerPaymentsSearch.toLowerCase();
       data = data.filter(
         (p) =>
-          (p.id || "").toLowerCase().includes(q) ||
+          (p.seller_name || "").toLowerCase().includes(q) ||
           (p.method || "").toLowerCase().includes(q) ||
           (p.status || "").toLowerCase().includes(q)
       );
@@ -734,11 +701,8 @@ export default function AdminPanelDashboard() {
     let data = [...promotions];
     if (promoSearch) {
       const q = promoSearch.toLowerCase();
-      data = data.filter(
-        (p) =>
-          (p.code || "").toLowerCase().includes(q) ||
-          (p.discount || "").toLowerCase().includes(q)
-      );
+
+      data = data.filter((p) => (p.code || "").toLowerCase().includes(q));
     }
     data.sort((a, b) => (a.code || "").localeCompare(b.code || ""));
     return data;
@@ -780,6 +744,7 @@ export default function AdminPanelDashboard() {
     (promoPage - 1) * 6,
     promoPage * 6
   );
+  console.log(paginatedPromotions);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">

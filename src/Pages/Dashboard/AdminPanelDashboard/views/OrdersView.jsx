@@ -187,13 +187,13 @@ function OrdersView({
         </div>
 
         <div className="mt-3 bg-white p-3 rounded shadow-sm">
-          {orders.length === 0 ? (
+          {activeOrders.length === 0 ? (
             <div>
-              <div className="flex flex-col items-center justify-center py-20">
-                orders not found
+              <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+                <span className="font-semibold">orders not found</span>
               </div>
             </div>
-          ) : orders.length === null ? (
+          ) : activeOrders.length === null ? (
             <Loading />
           ) : (
             <>
@@ -269,12 +269,14 @@ function OrdersView({
                   </tbody>
                 </table>
               </div>
-              <Pagination
-                currentPage={orderPage}
-                totalPages={totalPages}
-                setCurrentPage={setOrderPage}
-                renderPageNumbers={renderPageNumbers}
-              />
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={orderPage}
+                  totalPages={totalPages}
+                  setCurrentPage={setOrderPage}
+                  renderPageNumbers={renderPageNumbers}
+                />
+              )}
             </>
           )}
         </div>
@@ -296,9 +298,11 @@ function OrdersView({
             />
           </div>
         </div>
-        {returns.length === 0 ? (
-          <div className=" mt-3 flex flex-col items-center justify-center py-20 bg-white text-gray-400">
-            No return orders
+        {paginatedReturnOrders.length === 0 ? (
+          <div>
+            <div className="mt-3 flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+              <span className="font-semibold">return orders not found</span>
+            </div>
           </div>
         ) : (
           <>
@@ -345,12 +349,14 @@ function OrdersView({
                 </table>
               </div>
             </div>
-            <Pagination
-              currentPage={returnOrderPage}
-              totalPages={returnOrdersTotalPages}
-              setCurrentPage={setReturnOrderPage}
-              renderPageNumbers={renderReturnPageNumbers}
-            />
+            {returnOrdersTotalPages > 1 && (
+              <Pagination
+                currentPage={returnOrderPage}
+                totalPages={returnOrdersTotalPages}
+                setCurrentPage={setReturnOrderPage}
+                renderPageNumbers={renderReturnPageNumbers}
+              />
+            )}
           </>
         )}
       </div>

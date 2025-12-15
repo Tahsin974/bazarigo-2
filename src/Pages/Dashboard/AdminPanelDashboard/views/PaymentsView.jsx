@@ -75,7 +75,7 @@ function PaymentsView({
           />
         </div>
       </section>
-      {payments.length ? (
+      {paginatedPayments.length ? (
         <>
           <div className="overflow-x-auto bg-white rounded-box">
             <table className="table text-center">
@@ -134,16 +134,20 @@ function PaymentsView({
               </tbody>
             </table>
           </div>
-          <Pagination
-            currentPage={paymentPage}
-            totalPages={totalPages}
-            setCurrentPage={setPaymentPage}
-            renderPageNumbers={renderPageNumbers}
-          />
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={paymentPage}
+              totalPages={totalPages}
+              setCurrentPage={setPaymentPage}
+              renderPageNumbers={renderPageNumbers}
+            />
+          )}
         </>
       ) : (
-        <div className=" mt-3 flex flex-col items-center justify-center py-20 bg-white text-gray-400">
-          No payment records found
+        <div>
+          <div className="mt-3 flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+            <span className="font-semibold"> No payment records found</span>
+          </div>
         </div>
       )}
       <section className="flex flex-col sm:flex-row   sm:items-center sm:justify-between gap-4 mb-3">
@@ -167,7 +171,7 @@ function PaymentsView({
         </div>
       </section>
 
-      {sellerPayments.length ? (
+      {paginatedSellerPayments.length ? (
         <>
           <div className="overflow-x-auto rounded-box bg-white">
             <table className="table table-sm w-full text-center">
@@ -265,16 +269,20 @@ function PaymentsView({
               </div>
             )}
           </div>
-          <Pagination
-            currentPage={sellerPaymentsPage}
-            totalPages={sellerPaymentsTotalPages}
-            setCurrentPage={setSellerPaymentsPage}
-            renderPageNumbers={renderPageNumbersForSellerPayments}
-          />
+          {sellerPaymentsTotalPages > 1 && (
+            <Pagination
+              currentPage={sellerPaymentsPage}
+              totalPages={sellerPaymentsTotalPages}
+              setCurrentPage={setSellerPaymentsPage}
+              renderPageNumbers={renderPageNumbersForSellerPayments}
+            />
+          )}
         </>
       ) : (
-        <div className=" mt-3 flex flex-col items-center justify-center py-20 bg-white text-gray-400">
-          No payment records found
+        <div>
+          <div className="mt-3 flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+            <span className="font-semibold"> No payment records found</span>
+          </div>
         </div>
       )}
     </div>

@@ -100,6 +100,96 @@ export default function ProductCard({ product: item, viewMode }) {
         >
           <div
             className={
+              viewMode === "grid" ? "mt-2 space-y-1.5" : "flex-1 space-y-1.5"
+            }
+          >
+            {/* Image → Title : 8px */}
+            <h2 className="mt-2  text-gray-800  leading-snug truncate">
+              {item.product_name}
+            </h2>
+
+            {/* Title → Price : 6px */}
+            <div
+              className={`flex ${
+                viewMode === "list" ? "flex-col items-start" : "items-center"
+              } justify-between gap-1.5 mt-1`}
+            >
+              <div className="flex items-center gap-2 font-bold">
+                <span className="text-[#FF0055] font-bold">
+                  ৳
+                  {item.sale_price > 1
+                    ? item.sale_price.toLocaleString("en-IN")
+                    : item.regular_price.toLocaleString("en-IN")}
+                </span>
+
+                {item.sale_price > 1 && (
+                  <span className="text-gray-400 line-through  font-bold">
+                    ৳{item.regular_price.toLocaleString("en-IN")}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                {/* list badges only */}
+                <div
+                  className={`${viewMode === "list" ? "flex gap-2" : "hidden"}`}
+                >
+                  {item.islimitedstock && (
+                    <span className="bg-[#FF0055] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      Limited
+                    </span>
+                  )}
+                  {item.isnew && (
+                    <span className="bg-[#FF0055] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      New
+                    </span>
+                  )}
+                  {item.isbestseller && (
+                    <span
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full animate-gradient"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, #FFD700 0%, #FFFACD 100%)",
+                        color: "#8B8000",
+                      }}
+                    >
+                      Best
+                    </span>
+                  )}
+                </div>
+
+                {item.discount > 0 && (
+                  <motion.span
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="bg-[#FF0055] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  >
+                    {item.discount}% OFF
+                  </motion.span>
+                )}
+              </div>
+            </div>
+
+            {/* Price → Reviews : 8px */}
+            <div className="flex items-center gap-1 mt-2">
+              <Rating
+                emptySymbol={<Star size={18} className="text-gray-300" />}
+                fullSymbol={
+                  <Star size={18} className="text-[#FFD700] fill-[#FFD700]" />
+                }
+                readonly
+              />
+            </div>
+          </div>
+        </CardContent>
+
+        {/* <CardContent
+          className={`p-4 ${
+            viewMode === "list" ? "flex gap-4 items-center" : ""
+          }`}
+        >
+          <div
+            className={
               viewMode === "grid" ? "mt-4 space-y-3" : "flex-1 space-y-3"
             }
           >
@@ -185,7 +275,7 @@ export default function ProductCard({ product: item, viewMode }) {
               />
             </div>
           </div>
-        </CardContent>
+        </CardContent> */}
       </Card>
     </HashLink>
   );

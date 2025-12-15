@@ -13,7 +13,7 @@ export default function HeroSection() {
     <>
       {!banners.length ? (
         <>
-          <section className="relative w-full min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] xl:px-6 lg:px-6  px-4 py-8 overflow-hidden">
+          <section className="relative w-full  min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] xl:px-6 lg:px-6  px-4 py-8 overflow-hidden">
             <div className="relative z-10 text-center w-full max-w-4xl px-4">
               <motion.h1
                 initial={{ opacity: 0, y: -30 }}
@@ -61,10 +61,11 @@ export default function HeroSection() {
           >
             {banners.map((banner) => (
               <a key={banner.id} target="_blank" href={banner.link}>
-                <div className="xl:h-[650px] lg:h-[550px] md:h-[500px] sm:h-[450px] h-[300px]">
+                <div className="w-full aspect-[16/9] sm:aspect-[16/9] md:aspect-[21/9]">
                   <img
                     src={`${baseUrl}${banner.image}`}
-                    className="object-fill h-full w-full"
+                    alt="Banner"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </a>

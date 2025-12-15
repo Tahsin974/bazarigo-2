@@ -18,6 +18,7 @@ function PromotionsView({
   setPromoSearch,
   promoPageSize = 10,
   filteredPromotions,
+  paginatedPromotions,
 }) {
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
@@ -122,7 +123,7 @@ function PromotionsView({
         {/* Middle (Search field, center on large screens) */}
         <div className="order-2 md:order-2 w-full md:flex-1 md:flex md:justify-center">
           <SearchField
-            placeholder="Search customers..."
+            placeholder="Search promotions..."
             searchValue={promoSearch}
             searchValueChange={(e) => {
               setPromoSearch(e.target.value);
@@ -139,14 +140,16 @@ function PromotionsView({
         )}
       </div>
 
-      {!promotions.length ? (
-        <div className="col-span-full text-center text-gray-500 py-8">
-          No products found
+      {!paginatedPromotions.length ? (
+        <div>
+          <div className="mt-3 flex flex-col items-center justify-center py-20 text-gray-400 bg-white">
+            <span className="font-semibold"> No promotions found</span>
+          </div>
         </div>
       ) : (
         <>
           <div className="bg-white rounded shadow-sm p-3">
-            {promotions.map((p) => (
+            {paginatedPromotions.map((p) => (
               <div
                 key={p.id}
                 className="flex flex-col xl:flex-row lg:flex-row md:flex-row items-center justify-between border-b py-2 gap-4"
@@ -184,12 +187,14 @@ function PromotionsView({
               </div>
             ))}
           </div>
-          <Pagination
-            currentPage={promoPage}
-            totalPages={totalPages}
-            setCurrentPage={setPromoPage}
-            renderPageNumbers={renderPageNumbers}
-          />
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={promoPage}
+              totalPages={totalPages}
+              setCurrentPage={setPromoPage}
+              renderPageNumbers={renderPageNumbers}
+            />
+          )}
         </>
       )}
     </div>
