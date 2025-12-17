@@ -164,25 +164,22 @@ export default function DesktopIcons() {
             <div
               tabIndex={0}
               role="button"
-              className="btn btn-ghost btn-circle avatar border-gray-300 active:border-[#FF0055] hover:border-[#FF0055] shadow-none hover:shadow-none"
+              className="btn bg-white btn-circle avatar border-gray-300 active:border-[#FF0055] hover:border-[#FF0055] shadow-none hover:shadow-none"
             >
-              <div className="w-10 rounded-full">
-                <img
-                  alt={
-                    user?.name
-                      ? user.name
-                      : user?.full_name
-                      ? user.full_name
-                      : "logo"
-                  }
-                  src={
-                    user?.img
-                      ? `${baseUrl}${user.img}`
-                      : user?.profile_img
-                      ? `${baseUrl}${user.profile_img}`
-                      : "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  }
-                />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                {user?.img || user?.profile_img ? (
+                  <img
+                    alt={user?.name || user?.full_name || "logo"}
+                    src={
+                      user?.img
+                        ? `${baseUrl}${user.img}`
+                        : `${baseUrl}${user.profile_img}`
+                    }
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User size={24} />
+                )}
               </div>
             </div>
             <ul

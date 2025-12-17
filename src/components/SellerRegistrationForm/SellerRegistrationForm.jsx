@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
 import { useNavigate } from "react-router";
 
-export default function SellerRegistrationForm({ PRIMARY_COLOR, refetch }) {
+export default function SellerRegistrationForm({
+  PRIMARY_COLOR,
+  refetch,
+  creator = "user",
+}) {
   const axiosPublic = useAxiosPublic();
   const {
     register,
@@ -46,35 +50,63 @@ export default function SellerRegistrationForm({ PRIMARY_COLOR, refetch }) {
         formData.append("product_category", mainProductCategory);
       if (mobileBankName) formData.append("mobile_bank_name", mobileBankName);
 
-      const res = await axiosPublic.post("/sellers", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      if (creator === "admin") {
+        const res = await axiosPublic.post("/create-sellers", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
-      console.log(res.data);
-      if (res.data?.otp_required) {
-        Swal.fire({
-          icon: "info",
-          title: "OTP sent to your email!",
-          toast: true,
-          position: "top",
-          timer: 1500,
-          showConfirmButton: false,
+        if (res.data?.createdCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Seller Created Successful!",
+            toast: true,
+            position: "top",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          reset();
+          setNidBackImg(null);
+          setNidFrontImg(null);
+          setGender("");
+          setMobileBankName("");
+          setIsAcceptTerms(false);
+          setDate(null);
+          refetch();
+          return;
+        }
+      } else {
+        const res = await axiosPublic.post("/sellers", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        navigate("/verify-otp", {
-          replace: true,
-          state: {
-            email: data.email,
-            from: "seller-register",
-            pathName: location?.state?.pathName,
-          },
-        });
-        reset();
-        setNidBackImg(null);
-        setNidFrontImg(null);
-        setGender("");
-        setDate(null);
-        refetch();
-        return;
+
+        if (res.data?.otp_required) {
+          Swal.fire({
+            icon: "info",
+            title: "OTP sent to your email!",
+            toast: true,
+            position: "top",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          navigate("/verify-otp", {
+            replace: true,
+            state: {
+              email: data.email,
+              from: "seller-register",
+              pathName: location?.state?.pathName,
+            },
+          });
+          reset();
+          setNidBackImg(null);
+          setNidFrontImg(null);
+          setGender("");
+          setMobileBankName("");
+          setIsAcceptTerms(false);
+          setDate(null);
+          refetch();
+          return;
+        }
       }
     } catch (error) {
       console.log(error);
@@ -166,14 +198,14 @@ export default function SellerRegistrationForm({ PRIMARY_COLOR, refetch }) {
               type="submit"
               className="w-full bg-gray-300 text-gray-500 flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold  "
             >
-              Complete Registration
+              {creator === "admin" ? "Submit" : "Complete Registration"}
             </Button>
           ) : (
             <Button
               type="submit"
-              className={`w-full bg-[${PRIMARY_COLOR}] text-white flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold  cursor-pointer`}
+              className={`w-full bg-[#00C853] hover:bg-[#00B34A] text-white flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg text-lg font-bold  cursor-pointer`}
             >
-              Complete Registration
+              {creator === "admin" ? "Submit" : "Complete Registration"}
             </Button>
           )}
         </div>

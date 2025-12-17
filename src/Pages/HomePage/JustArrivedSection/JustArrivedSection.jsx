@@ -14,7 +14,7 @@ export default function JustArrivedSection() {
   const shuffledProducts = allProducts.sort(() => 0.5 - Math.random());
   const products = shuffledProducts.slice(0, 8);
   return (
-    <section className="py-10 bg-gray-50">
+    <section className="md:py-10 py-6 bg-gray-50">
       {isPending ? (
         <Loading />
       ) : (

@@ -47,7 +47,7 @@ export default function CategoriesSection() {
   ];
 
   return (
-    <section className="py-10 bg-gray-50">
+    <section className="md:py-10 py-6 bg-gray-50">
       <div className="container mx-auto xl:px-6 lg:px-6  px-4">
         <SectionTitle title={"Categories"} link="/categories/All Products#" />
         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">

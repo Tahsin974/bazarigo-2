@@ -80,15 +80,6 @@ function CustomersView({
             toast: true,
             position: "top",
           });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops! Try again",
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true,
-            position: "top",
-          });
         }
 
         refetch();
@@ -109,27 +100,7 @@ function CustomersView({
   return (
     <div>
       <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
-        {/* Left: Title + small screen button */}
-        <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1 md:order-1 gap-2">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold sm:text-md text-[15px]">
-              Customers ({customers.length})
-            </h3>
-          </div>
-
-          {/* Add button only on small screens */}
-          {user.role !== "moderator" && (
-            <div className="ml-2 md:hidden flex items-center gap-2 ">
-              <AddBtn btnHandler={onAdd}>
-                <PlusCircle /> Add Customer
-              </AddBtn>
-              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-            </div>
-          )}
-        </div>
-
-        {/* Middle: Search field */}
-        <div className="order-2  w-full md:flex-1 md:flex md:justify-center">
+        <div className=" w-full ">
           <SearchField
             placeholder="Search customers..."
             searchValue={customerSearch}
@@ -139,17 +110,23 @@ function CustomersView({
             }}
           />
         </div>
-        {console.log(selected)}
-
-        {/* Right: Buttons visible on large screens */}
-        {user.role !== "moderator" && (
-          <div className="hidden md:flex items-center gap-2 order-3 lg:order-2">
-            <AddBtn btnHandler={onAdd}>
-              <PlusCircle /> Add Customer
-            </AddBtn>
-            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+        {/* Left: Title + small screen button */}
+        <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
+          <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
+            <h3 className="font-medium sm:text-base text-[14px]">
+              Customers ({customers.length})
+            </h3>
           </div>
-        )}
+          {/* Small screen buttons */}
+          {user.role !== "moderator" && (
+            <div className="ml-2  flex gap-2 justify-end w-full md:order-2 order-1  ">
+              <AddBtn btnHandler={onAdd}>
+                <PlusCircle /> Customer
+              </AddBtn>
+              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+            </div>
+          )}
+        </div>
       </div>
 
       {paginatedCustomers.length === 0 ? (

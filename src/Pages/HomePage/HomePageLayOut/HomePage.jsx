@@ -44,8 +44,8 @@ export default function HomePage() {
           ) : (
             <FlashSaleCountdown isButtonVisible={true} />
           )}
-          {justArrived.length && <JustArrivedSection />}
-          {trendingProducts.length && <TrendingNowSection />}
+          {justArrived.length > 0 && <JustArrivedSection />}
+          {trendingProducts.length > 0 && <TrendingNowSection />}
         </>
       )}
     </div>

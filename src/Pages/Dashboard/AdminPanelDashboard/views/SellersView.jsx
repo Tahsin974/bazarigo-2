@@ -128,29 +128,8 @@ function SellersView({
 
   return (
     <div>
-      <div className="flex flex-col  lg:flex-row lg:items-center lg:justify-between gap-4 mb-3">
-        {/* Left: Title + Select All */}
-        <div className="flex flex-wrap items-center gap-2 justify-between w-full md:w-auto order-1">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold sm:text-md text-[15px]">
-              Sellers ({sellers.length})
-            </h3>
-          </div>
-
-          {/* Add/Delete buttons visible only on small screens */}
-
-          {user.role !== "moderator" && (
-            <div className="flex items-center gap-2 lg:hidden">
-              <AddBtn btnHandler={onAdd}>
-                <PlusCircle /> Add Seller
-              </AddBtn>
-              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-            </div>
-          )}
-        </div>
-
-        {/* Middle: Search field (centered on large screens) */}
-        <div className="order-2 w-full md:flex-1 md:flex md:justify-center">
+      <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
+        <div className=" w-full ">
           <SearchField
             placeholder="Search sellers..."
             searchValue={sellerSearch}
@@ -160,16 +139,21 @@ function SellersView({
             }}
           />
         </div>
-
-        {/* Right: Add/Delete buttons (visible on large screens) */}
-        {user.role !== "moderator" && (
-          <div className="hidden lg:flex items-center gap-2 order-3">
-            <AddBtn btnHandler={onAdd}>
-              <PlusCircle /> Add Seller
-            </AddBtn>
-            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+        <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
+          <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
+            <h3 className="font-medium sm:text-base text-[14px]">
+              Sellers ({sellers.length})
+            </h3>
           </div>
-        )}
+          {user.role !== "moderator" && (
+            <div className="ml-2  flex gap-2 justify-end w-full md:order-2 order-1  ">
+              <AddBtn btnHandler={onAdd}>
+                <PlusCircle /> Seller
+              </AddBtn>
+              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+            </div>
+          )}
+        </div>
       </div>
       <div className="mt-3 bg-white p-3 rounded shadow-sm">
         {filteredSellers.length === 0 ? (
@@ -258,13 +242,13 @@ function SellersView({
                           <>
                             <button
                               onClick={() => handleAccept(s.id)}
-                              className="px-3 py-2  rounded bg-green-100 hover:bg-green-600 text-green-600 hover:text-white cursor-pointer"
+                              className="px-3 py-2  rounded bg-green-100 hover:bg-[#00B34A] text-green-600 hover:text-white cursor-pointer"
                             >
                               <CircleCheckBig size={20} />
                             </button>
                             <button
                               onClick={() => handleReject(s.id)}
-                              className="px-3 py-2  rounded bg-red-100 hover:bg-red-600 text-red-600 hover:text-white cursor-pointer"
+                              className="px-3 py-2  rounded bg-red-100 hover:bg-[#e92323] text-red-600 hover:text-white cursor-pointer"
                             >
                               <CircleX size={20} />
                             </button>

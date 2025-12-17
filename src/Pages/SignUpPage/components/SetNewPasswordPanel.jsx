@@ -127,7 +127,7 @@ export default function SetNewPasswordPanel({ onNavigate = () => {} }) {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-[#FF0055] text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-[#e6004d] transition-colors flex justify-center"
+                    className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  transition-colors flex justify-center"
                   >
                     {loading ? "Processing..." : "Reset Password"}
                   </Button>

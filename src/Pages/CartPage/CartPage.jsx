@@ -197,7 +197,7 @@ export default function CartPage() {
 
   return (
     <div className=" bg-[#f7f7f8]">
-      <div className="container mx-auto xl:px-6 lg:px-6  px-4 py-10 space-y-5">
+      <div className="container mx-auto xl:px-6 lg:px-6  px-4 md:py-10 py-6 space-y-5">
         <h1 className="text-3xl font-bold text-gray-600 mb-8">Shopping Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">

@@ -55,16 +55,8 @@ function PaymentsView({
 
   return (
     <div className="space-y-10">
-      <section className="flex flex-col sm:flex-row   sm:items-center sm:justify-between gap-4 mb-3">
-        {/* Left: Title (and mobile button if needed) */}
-        <div className="flex items-center justify-center w-full md:w-auto order-1">
-          <h3 className="font-semibold sm:text-md text-[15px]">
-            Payments ({payments.length})
-          </h3>
-        </div>
-
-        {/* Middle: Search field */}
-        <div className="order-2 w-full md:flex-1 md:flex md:justify-end">
+      <section className="flex flex-wrap   sm:items-center sm:justify-between gap-4 mb-3">
+        <div className=" w-full ">
           <SearchField
             placeholder="Search payments..."
             searchValue={paymentSearch}
@@ -74,6 +66,14 @@ function PaymentsView({
             }}
           />
         </div>
+        {/* Left: Title (and mobile button if needed) */}
+        <div className="flex items-center justify-center w-full md:w-auto order-1">
+          <h3 className="font-semibold sm:text-md text-[15px]">
+            Payments ({payments.length})
+          </h3>
+        </div>
+
+        {/* Middle: Search field */}
       </section>
       {paginatedPayments.length ? (
         <>
@@ -152,22 +152,24 @@ function PaymentsView({
       )}
       <section className="flex flex-col sm:flex-row   sm:items-center sm:justify-between gap-4 mb-3">
         {/* Left: Title (and mobile button if needed) */}
-        <div className="flex items-center justify-center w-full md:w-auto order-1">
+        <div className="flex items-center justify-center w-full md:w-auto ">
           <h3 className="font-semibold sm:text-md text-[15px]">
             Seller Payments ({sellerPayments.length})
           </h3>
         </div>
 
         {/* Middle: Search field */}
-        <div className="order-2 w-full md:flex-1 md:flex md:justify-end">
-          <SearchField
-            placeholder="Search payments..."
-            searchValue={sellerPaymentsSearch}
-            searchValueChange={(e) => {
-              setSellerPaymentsSearch(e.target.value);
-              setSellerPaymentsPage(1);
-            }}
-          />
+        <div>
+          <div className=" w-full md:flex-1 md:flex md:justify-end">
+            <SearchField
+              placeholder="Search payments..."
+              searchValue={sellerPaymentsSearch}
+              searchValueChange={(e) => {
+                setSellerPaymentsSearch(e.target.value);
+                setSellerPaymentsPage(1);
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -189,35 +191,45 @@ function PaymentsView({
               <tbody>
                 {paginatedSellerPayments.map((payment) => (
                   <tr key={payment.id}>
-                    <td>{payment.id}</td>
                     <td>
-                      {new Date(payment.payment_date).toLocaleDateString(
-                        "en-GB"
-                      )}
+                      <span className="font-semibold">{payment.id}</span>
                     </td>
                     <td>
-                      <div className="font-medium">{payment.seller_name}</div>
-                      <div className="text-sm text-gray-500">
+                      <span className="font-semibold">
+                        {new Date(payment.payment_date).toLocaleDateString(
+                          "en-GB"
+                        )}
+                      </span>
+                    </td>
+                    <td className="flex flex-col">
+                      <span className="font-semibold ">
+                        {payment.seller_name}
+                      </span>
+                      <span className="text-sm font-semibold ">
                         ({payment.seller_store_name})
-                      </div>
+                      </span>
                     </td>
-                    <td className="text-indigo-600 font-semibold">
-                      ৳{payment.amount.toLocaleString("en-IN")}
+                    <td>
+                      <span className=" font-semibold">
+                        ৳{Number(payment.amount).toLocaleString("en-IN")}
+                      </span>
                     </td>
                     <td>
                       <div className="flex justify-center">
                         <div>
                           <div className="flex items-center gap-1 font-semibold">
-                            <span>
+                            <span className="font-semibold">
                               {payment.payment_method === "Mobile Banking" ? (
                                 <CreditCard className="w-4 h-4 text-teal-500" />
                               ) : (
                                 <Banknote className="w-4 h-4 text-amber-500" />
                               )}
                             </span>
-                            <span>{payment.payment_method}</span>
+                            <span className="font-semibold">
+                              {payment.payment_method}
+                            </span>
                           </div>
-                          <div className="text-xs text-gray-400 mt-1 text-left">
+                          <div className="text-xs text-gray-600 mt-1 text-left">
                             TXN: {payment.transaction_id}
                           </div>
                         </div>
@@ -226,18 +238,18 @@ function PaymentsView({
                     <td>
                       {payment.payment_method === "Mobile Banking" ? (
                         <div className="bg-teal-50 p-2 rounded-lg border border-teal-200">
-                          <p className="font-semibold text-teal-800">
+                          <span className="font-semibold text-teal-800">
                             Mobile Number:
-                          </p>
+                          </span>
                           <p className="text-teal-700">
                             {payment.mobile_bank_account_number}
                           </p>
                         </div>
                       ) : (
                         <div className="bg-amber-50 p-2 rounded-lg border border-amber-200">
-                          <p className="font-semibold text-amber-800">
+                          <span className="font-semibold text-amber-800">
                             Bank Name: {payment.bank_name}
-                          </p>
+                          </span>
                           <p className="text-amber-700 text-xs">
                             A/C Holder: {payment.bank_account_holder_name}
                           </p>

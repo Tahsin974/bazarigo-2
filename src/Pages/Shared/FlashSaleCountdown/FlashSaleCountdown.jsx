@@ -8,7 +8,7 @@ export default function FlashSaleCountdown({ isButtonVisible = false }) {
   const { h, m, s, progress, getProgressColor } = useFlashSaleCountdown();
 
   return (
-    <section className="relative w-full  flex flex-col items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white text-center xl:px-6 lg:px-6  px-4 py-10 overflow-hidden">
+    <section className="relative w-full  flex flex-col items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white text-center xl:px-6 lg:px-6  px-4 md:py-10 py-6 overflow-hidden">
       <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}

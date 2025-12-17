@@ -144,25 +144,8 @@ function OrdersView({
       {active === "Orders" && (
         <div className="space-y-6">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
-              {/* Left: SelectAll + Title + small screen DeleteAll */}
-              <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold sm:text-base text-sm">
-                    Active Orders ({orders.length})
-                  </h3>
-                </div>
-                {/* DeleteAllBtn only on small screens */}
-                <div className="ml-2 md:hidden">
-                  <DeleteAllBtn
-                    selected={selected}
-                    bulkDelete={handleBulkDelete}
-                  />
-                </div>
-              </div>
-
-              {/* Middle: Search field */}
-              <div className="order-2 md:order-2 w-full md:flex-1 md:flex md:justify-center">
+            <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
+              <div className=" w-full ">
                 <SearchField
                   placeholder="Search orders..."
                   searchValue={orderSearch}
@@ -172,13 +155,20 @@ function OrdersView({
                   }}
                 />
               </div>
+              {/* Left: Title + small screen button */}
+              <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
+                <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
+                  <h3 className="font-medium sm:text-base text-[14px]">
+                    Active Orders ({orders.length})
+                  </h3>
+                </div>
 
-              {/* Right: DeleteAllBtn on large screens */}
-              <div className="hidden md:flex order-3">
-                <DeleteAllBtn
-                  selected={selected}
-                  bulkDelete={handleBulkDelete}
-                />
+                <div className="ml-2  flex gap-2 justify-end w-full md:order-2 order-1  ">
+                  <DeleteAllBtn
+                    selected={selected}
+                    bulkDelete={handleBulkDelete}
+                  />
+                </div>
               </div>
             </div>
 

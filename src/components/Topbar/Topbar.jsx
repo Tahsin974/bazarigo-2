@@ -144,23 +144,19 @@ export default function Topbar({ setActiveTab, messages }) {
                   role="button"
                   className="btn btn-ghost btn-circle avatar border-gray-300 active:border-[#FF0055] hover:border-[#FF0055] shadow-none hover:shadow-none"
                 >
-                  <div className="w-10 rounded-full">
-                    {user?.img ?? user?.profile_img ? (
+                  <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
+                    {user?.img || user?.profile_img ? (
                       <img
-                        alt="Tailwind CSS Navbar component"
+                        alt={user?.name || user?.full_name || "logo"}
                         src={
-                          user.img
+                          user?.img
                             ? `${baseUrl}${user.img}`
-                            : user.profile_img
-                            ? `${baseUrl}${user.profile_img}`
-                            : "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                            : `${baseUrl}${user.profile_img}`
                         }
+                        className="w-full h-full object-cover"
                       />
                     ) : (
-                      <img
-                        alt="Tailwind CSS Navbar component"
-                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                      />
+                      <User size={24} className="text-gray-500" />
                     )}
                   </div>
                 </div>

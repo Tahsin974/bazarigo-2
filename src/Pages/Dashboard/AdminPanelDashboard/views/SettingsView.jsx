@@ -241,6 +241,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
         return window.location.reload();
       }
     } catch (err) {
+      console.log(err);
       Swal.fire({
         icon: "error",
         title: err.response?.data?.message || "Something went wrong!",
@@ -541,7 +542,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                               onClick={() => {
                                 handleRemoveAdmins(admin.id);
                               }}
-                              className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
+                              className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white 
                           cursor-pointer"
                             >
                               <Trash2 size={20} />
@@ -558,7 +559,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
           {/* Moderator Users */}
           <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
             <h4 className="text-md font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
+              <span className="w-2 h-2 rounded-full bg-[#00C853]"></span>
               Moderators
             </h4>
 
@@ -624,7 +625,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                           onClick={() => {
                             handleRemoveAdmins(moderator.id);
                           }}
-                          className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white 
+                          className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white 
                           cursor-pointer"
                         >
                           <Trash2 size={20} />
@@ -897,7 +898,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
           <div className="flex justify-end">
             <AddBtn
               type="submit"
-              className="bg-[#FF0055] hover:bg-[#e6004e] text-white px-6 py-2 rounded-lg  transition"
+              className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-2 rounded-lg  transition"
             >
               Upload
             </AddBtn>
@@ -917,7 +918,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
 
               <button
                 onClick={() => handleDelete(banner.id)}
-                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition"
+                className="absolute top-2 right-2 bg-[#f72c2c] text-white p-1 rounded-full hover:bg-[#e92323] transition"
               >
                 <X size={16} />
               </button>

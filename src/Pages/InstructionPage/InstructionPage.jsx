@@ -248,10 +248,10 @@ export default function InstructionPage() {
               সব তথ্য সঠিকভাবে পূরণ করার পর:
             </p>
             <div className="space-x-4">
-              <button className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg  transition duration-150">
+              <button className="px-6 py-3 bg-[#e92323] text-white font-semibold rounded-lg  transition duration-150">
                 বন্ধ করুন (Close)
               </button>
-              <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg  transition duration-150">
+              <button className="px-6 py-3 bg-[#00B34A] text-white font-semibold rounded-lg  transition duration-150">
                 তৈরি করুন (Create)
               </button>
             </div>

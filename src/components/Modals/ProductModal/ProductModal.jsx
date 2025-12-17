@@ -983,7 +983,7 @@ export default function ProductModal({ onClose, refetch }) {
                           <td>
                             <button
                               onClick={() => handleRemoveVariant(index)}
-                              className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white cursor-pointer"
+                              className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white cursor-pointer"
                             >
                               <Trash2 size={20} />
                             </button>

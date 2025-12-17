@@ -213,42 +213,56 @@ export default function ReportsView({ active }) {
           ) : (
             <section id="report-content" className="space-y-6">
               {/* Header & Filters */}
-              <div className="flex justify-center items-center gap-5">
-                <DatePicker
-                  selected={startDate}
-                  onChange={setStartDate}
-                  placeholderText={"Select Start Date"}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
-                />
-                <DatePicker
-                  selected={endDate}
-                  onChange={setEndDate}
-                  placeholderText={"Select End Date"}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
-                />
-                <SelectField
-                  selectValue={reportFilter}
-                  selectValueChange={(e) => setReportFilter(e.target.value)}
-                >
-                  <option value="all">All</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Out for Delivery">Out for Delivery</option>
-                  <option value="Delivered">Delivered</option>
-                </SelectField>
-                <SelectField
-                  selectValue={interval}
-                  selectValueChange={(e) => setInterval(e.target.value)}
-                >
-                  <option value="monthly">Monthly</option>
-                  <option value="weekly">Weekly</option>
-                </SelectField>
+              <div className="flex md:flex-row flex-col  items-center gap-5 justify-center">
+                <div className="flex gap-5">
+                  <div className="w-full relative">
+                    <div className="relative  ">
+                      <DatePicker
+                        selected={startDate}
+                        onChange={setStartDate}
+                        placeholderText="Start: DD-MM-YYYY"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                        popperPlacement="bottom-start"
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full relative">
+                    <div className="relative  ">
+                      <DatePicker
+                        selected={endDate}
+                        onChange={setEndDate}
+                        placeholderText="End: DD-MM-YYYY"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white m-0"
+                        popperPlacement="bottom-start"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-5">
+                  <SelectField
+                    selectValue={reportFilter}
+                    selectValueChange={(e) => setReportFilter(e.target.value)}
+                  >
+                    <option value="all">All</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Out for Delivery">Out for Delivery</option>
+                    <option value="Delivered">Delivered</option>
+                  </SelectField>
+                  <SelectField
+                    selectValue={interval}
+                    selectValueChange={(e) => setInterval(e.target.value)}
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                  </SelectField>
+                </div>
               </div>
               <div className="flex justify-end">
                 <button
                   onClick={handlePrint}
                   title="Print Reports"
-                  className="px-3 py-3 font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
+                  className="px-3  font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
                 >
                   <Printer size={25} />
                 </button>

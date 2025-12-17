@@ -186,13 +186,7 @@ export default function ZoneView({
     <>
       <div className="space-y-10">
         <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
-          {/* Left: SelectAll + Title + small screen Add/Delete buttons */}
-          <h1 className="text-lg">
-            Zones {coverageAreas?.length ? <>({coverageAreas.length})</> : ""}
-          </h1>
-          {/* Middle: Search + Sort */}
-
-          <div className="w-full order-1 xl:w-auto lg:w-auto md:w-auto  ">
+          <div className="w-full  ">
             <SearchField
               placeholder="Search zones..."
               searchValue={postalZoneSearch}
@@ -203,15 +197,26 @@ export default function ZoneView({
             />
           </div>
 
-          {/* Right: Buttons on large screens */}
-          {user.role !== "moderator" && (
-            <div className="flex gap-2 order-2 ">
-              <AddBtn btnHandler={handleAdd}>
-                <PlusCircle /> Add Coverage Area
-              </AddBtn>
-              <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+          <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
+            <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
+              <h3 className="font-medium sm:text-base text-[14px]">
+                Zones{" "}
+                {coverageAreas?.length ? <>({coverageAreas.length})</> : ""}
+              </h3>
             </div>
-          )}
+            {/* Small screen buttons */}
+            {user.role !== "moderator" && (
+              <div className="ml-2  flex gap-2 justify-end w-full md:order-2 order-1  ">
+                <AddBtn btnHandler={handleAdd}>
+                  <PlusCircle /> Area
+                </AddBtn>
+                <DeleteAllBtn
+                  selected={selected}
+                  bulkDelete={handleBulkDelete}
+                />
+              </div>
+            )}
+          </div>
         </div>
         {!paginatedPostalZones.length ? (
           <div>
@@ -319,7 +324,7 @@ export default function ZoneView({
 
                             <button
                               onClick={() => HandleDeleteArea(postalZone.id)}
-                              className="bg-red-100 hover:bg-red-600 text-red-600 rounded px-3 py-2 hover:text-white"
+                              className="bg-red-100 hover:bg-[#e92323] text-red-600 rounded px-3 py-2 hover:text-white"
                             >
                               <Trash2 size={20} />
                             </button>

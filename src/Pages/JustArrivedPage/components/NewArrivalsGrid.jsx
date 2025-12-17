@@ -15,10 +15,10 @@ export default function NewArrivalsGrid({
     setCurrentPage
   );
   return (
-    <section className="py-10 bg-gradient-to-br from-gray-50 to-white">
+    <section className="md:py-10 py-6 bg-gradient-to-br from-gray-50 to-white">
       <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 space-y-10">
         {!filtered.length ? (
-          <div className=" text-center py-10 text-gray-500 ">
+          <div className=" text-center md:py-10 py-6 text-gray-500 ">
             <h2>No products found</h2>
           </div>
         ) : (

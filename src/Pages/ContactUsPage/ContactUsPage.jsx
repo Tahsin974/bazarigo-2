@@ -89,7 +89,7 @@ export default function ContactUsPage() {
         </div>
       </header>
       <main className="bg-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-10  container  mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:py-10 py-6  container  mx-auto">
           {/* Contact Form */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">

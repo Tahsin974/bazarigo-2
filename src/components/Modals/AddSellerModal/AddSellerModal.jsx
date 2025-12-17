@@ -30,6 +30,7 @@ export default function AddSellerModal({ onClose, refetch }) {
           <SellerRegistrationForm
             PRIMARY_COLOR={PRIMARY_COLOR}
             refetch={refetch}
+            creator="admin"
           />
         </div>
       </motion.div>

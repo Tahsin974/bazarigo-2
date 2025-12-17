@@ -37,7 +37,7 @@ export default function SelectField({
         value={selectValue}
         onChange={selectValueChange}
         {...props}
-        className={`appearance-none focus:outline-none rounded-lg py-3 pl-4 pr-10 text-base font-medium  shadow-sm  transition duration-150 cursor-pointer  ${
+        className={`appearance-none focus:outline-none rounded-lg py-3  pl-4 pr-10 sm:text-base text-[14px] font-medium  shadow-sm  transition duration-150 cursor-pointer  ${
           isWide && "w-full"
         } ${colorClass}`}
         style={{ fontFamily: "Poppins", fontWeight: 700 }}

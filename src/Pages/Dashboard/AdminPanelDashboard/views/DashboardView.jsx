@@ -239,7 +239,7 @@ function DashboardView({
                 <button
                   onClick={handlePrint}
                   title="Print Charts"
-                  className="px-3 py-3 font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
+                  className="px-3  font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
                 >
                   <Printer size={25} />
                 </button>
@@ -427,7 +427,7 @@ function DashboardView({
                                         onClick={() =>
                                           handleReturnRequest(r.id, "approved")
                                         }
-                                        className="px-3 py-2 rounded bg-green-100 hover:bg-green-600 text-green-600 hover:text-white"
+                                        className="px-3 py-2 rounded bg-green-100 hover:bg-[#00B34A] text-green-600 hover:text-white"
                                       >
                                         <CircleCheckBig size={20} />
                                       </button>
@@ -435,7 +435,7 @@ function DashboardView({
                                         onClick={() =>
                                           handleReturnRequest(r.id, "rejected")
                                         }
-                                        className="px-3 py-2 rounded bg-red-100 hover:bg-red-600 text-red-600 hover:text-white"
+                                        className="px-3 py-2 rounded bg-red-100 hover:bg-[#e92323] text-red-600 hover:text-white"
                                       >
                                         <CircleX size={20} />
                                       </button>

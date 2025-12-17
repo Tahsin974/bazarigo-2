@@ -33,6 +33,7 @@ import {
   Boxes,
   CreditCard,
   Home,
+  Layers,
   Package,
   Settings,
   ShoppingCart,
@@ -480,15 +481,28 @@ export default function SellerPanelDashboard() {
             items={navItems}
           >
             <main className=" xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 ">
                 {/* Left: Page Title */}
-                <h1 className="xl:text-2xl lg:text-2xl md:text-2xl sm:text-xl text-lg font-bold order-1 lg:order-1">
-                  {active}
+                <h1 className="xl:text-xl lg:text-xl md:text-xl sm:text-lg font-bold order-1 lg:order-1 flex items-center gap-2">
+                  {active === "Inventory" ? (
+                    <>
+                      <Layers className="text-[#FF0055]" />
+                      <span className="relative inline-block">
+                        <span className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient">
+                          Inventory Management
+                        </span>
+                      </span>
+                    </>
+                  ) : (
+                    <span className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient">
+                      {active}
+                    </span>
+                  )}
                 </h1>
 
                 {/* Right: Buttons + Admin */}
 
-                <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
+                <div className="items-center  order-2 lg:order-2 flex gap-2 justify-end w-full">
                   {![
                     "Dashboard",
                     "My Account",
@@ -530,97 +544,102 @@ export default function SellerPanelDashboard() {
                   )}
                 </div>
               </div>
-              <DashboardView active={active} />
-              <ProductsView
-                active={active}
-                products={products}
-                selected={selected}
-                toggleSelect={toggleSelect}
-                openNewProductModal={openNewProductModal}
-                openEditProductModal={openEditProductModal}
-                openPreviewModal={openPreviewModal}
-                allSelected={
-                  selected.length === products.length && products.length > 0
-                }
-                toggleSelectAll={selectAll}
-                productPage={productPage}
-                productPageSize={currentPageSize}
-                setProductPage={setProductPage}
-                filteredProducts={filteredProducts}
-                paginatedProducts={paginatedProducts}
-                productSearch={productSearch}
-                setProductSearch={setProductSearch}
-                productSort={productSort}
-                setProductSort={setProductSort}
-                refetch={refetchProducts}
-              />
-              <OrdersView
-                active={active}
-                orders={orders}
-                returns={returns}
-                openOrderModal={openOrderModal}
-                selected={selected}
-                toggleSelect={toggleSelect}
-                refetch={refetchOrders}
-                refetchReturnsOrders={refetchReturnsOrders}
-                allSelected={
-                  selected.length === orders.length && orders.length > 0
-                }
-                toggleSelectAll={selectAll}
-                orderPage={orderPage}
-                setOrderPage={setOrderPage}
-                orderPageSize={currentPageSize}
-                paginatedOrders={paginatedOrders}
-                orderSearch={orderSearch}
-                setOrderSearch={setOrderSearch}
-                filteredOrders={filteredOrders}
-                returnOrderSearch={returnOrderSearch}
-                setReturnOrderSearch={setReturnOrderSearch}
-                filteredReturnOrders={filteredReturnOrders}
-                paginatedReturnOrders={paginatedReturnOrders}
-                returnOrderPage={returnOrderPage}
-                setReturnOrderPage={setReturnOrderPage}
-                returnOrderPageSize={currentPageSize}
-              />
-              <InventoryView
-                active={active}
-                inventory={inventory}
-                refetch={refetchInventory}
-                refetchProducts={refetchProducts}
-                inventorySearch={inventorySearch}
-                setInventorySearch={setInventorySearch}
-                inventorySort={inventorySort}
-                setInventorySort={setInventorySort}
-                inventoryPage={inventoryPage}
-                setInventoryPage={setInventoryPage}
-                inventoryPageSize={currentPageSize}
-                filteredInventory={filteredInventory}
-                paginatedInventory={paginatedInventory}
-              />
-              <NotificationsView activeTab={active} setActiveTab={setActive} />
-              <PaymentsView
-                active={active}
-                payments={payments}
-                filteredPayments={filteredPayments}
-                paginatedPayments={paginatedPayments}
-                paymentSearch={paymentSearch}
-                setPaymentSearch={setPaymentSearch}
-                paymentSort={paymentSort}
-                setPaymentSort={setPaymentSort}
-                paymentPage={paymentPage}
-                setPaymentPage={setPaymentPage}
-                paymentPageSize={currentPageSize}
-                refetch={refetchPayments}
-              />
-              {active === "Messages" && (
-                <MessagesView
-                  messages={myMessages}
-                  openMessageModal={openMessageModal}
+              <div className="py-3">
+                <DashboardView active={active} />
+                <ProductsView
+                  active={active}
+                  products={products}
+                  selected={selected}
+                  toggleSelect={toggleSelect}
+                  openNewProductModal={openNewProductModal}
+                  openEditProductModal={openEditProductModal}
+                  openPreviewModal={openPreviewModal}
+                  allSelected={
+                    selected.length === products.length && products.length > 0
+                  }
+                  toggleSelectAll={selectAll}
+                  productPage={productPage}
+                  productPageSize={currentPageSize}
+                  setProductPage={setProductPage}
+                  filteredProducts={filteredProducts}
+                  paginatedProducts={paginatedProducts}
+                  productSearch={productSearch}
+                  setProductSearch={setProductSearch}
+                  productSort={productSort}
+                  setProductSort={setProductSort}
+                  refetch={refetchProducts}
                 />
-              )}
-              <ReportsView active={active} />
-              <MyProfileView user={user} activeTab={active} />
-              <SettingsView active={active} />
+                <OrdersView
+                  active={active}
+                  orders={orders}
+                  returns={returns}
+                  openOrderModal={openOrderModal}
+                  selected={selected}
+                  toggleSelect={toggleSelect}
+                  refetch={refetchOrders}
+                  refetchReturnsOrders={refetchReturnsOrders}
+                  allSelected={
+                    selected.length === orders.length && orders.length > 0
+                  }
+                  toggleSelectAll={selectAll}
+                  orderPage={orderPage}
+                  setOrderPage={setOrderPage}
+                  orderPageSize={currentPageSize}
+                  paginatedOrders={paginatedOrders}
+                  orderSearch={orderSearch}
+                  setOrderSearch={setOrderSearch}
+                  filteredOrders={filteredOrders}
+                  returnOrderSearch={returnOrderSearch}
+                  setReturnOrderSearch={setReturnOrderSearch}
+                  filteredReturnOrders={filteredReturnOrders}
+                  paginatedReturnOrders={paginatedReturnOrders}
+                  returnOrderPage={returnOrderPage}
+                  setReturnOrderPage={setReturnOrderPage}
+                  returnOrderPageSize={currentPageSize}
+                />
+                <InventoryView
+                  active={active}
+                  inventory={inventory}
+                  refetch={refetchInventory}
+                  refetchProducts={refetchProducts}
+                  inventorySearch={inventorySearch}
+                  setInventorySearch={setInventorySearch}
+                  inventorySort={inventorySort}
+                  setInventorySort={setInventorySort}
+                  inventoryPage={inventoryPage}
+                  setInventoryPage={setInventoryPage}
+                  inventoryPageSize={currentPageSize}
+                  filteredInventory={filteredInventory}
+                  paginatedInventory={paginatedInventory}
+                />
+                <NotificationsView
+                  activeTab={active}
+                  setActiveTab={setActive}
+                />
+                <PaymentsView
+                  active={active}
+                  payments={payments}
+                  filteredPayments={filteredPayments}
+                  paginatedPayments={paginatedPayments}
+                  paymentSearch={paymentSearch}
+                  setPaymentSearch={setPaymentSearch}
+                  paymentSort={paymentSort}
+                  setPaymentSort={setPaymentSort}
+                  paymentPage={paymentPage}
+                  setPaymentPage={setPaymentPage}
+                  paymentPageSize={currentPageSize}
+                  refetch={refetchPayments}
+                />
+                {active === "Messages" && (
+                  <MessagesView
+                    messages={myMessages}
+                    openMessageModal={openMessageModal}
+                  />
+                )}
+                <ReportsView active={active} />
+                <MyProfileView user={user} activeTab={active} />
+                <SettingsView active={active} />
+              </div>
             </main>
           </Drawer>
         </div>

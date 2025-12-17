@@ -210,7 +210,7 @@ text-align: center;}
                   <button
                     onClick={handlePrint}
                     title="Print Charts"
-                    className="px-3 py-3 font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
+                    className="px-3  font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
                   >
                     <Printer size={25} />
                   </button>

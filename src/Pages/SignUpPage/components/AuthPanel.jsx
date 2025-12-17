@@ -378,8 +378,8 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
                       <option value="Others">Others</option>
                     </SelectField>
                   </div>
-                  <div className="flex flex-wrap gap-3">
-                    <div className="w-full">
+                  <div className="grid md:grid-cols-3 gap-3">
+                    <div className="md:col-span-3">
                       <InputField
                         required
                         {...register("address", {
@@ -467,8 +467,8 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
 
               <Button
                 type="submit"
+                className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  disabled:bg-gray-300 disabled:text-gray-500 transition-colors flex justify-center cursor-pointer gap-2"
                 disabled={loading || !isValid}
-                className="w-full bg-[#FF0055] text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-[#e6004d] disabled:bg-gray-300 disabled:text-gray-500 transition-colors flex justify-center cursor-pointer gap-2"
               >
                 {loading && (
                   <span className="loading loading-spinner loading-xs"></span>

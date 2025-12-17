@@ -57,7 +57,7 @@ export default function NotificationsView({ activeTab }) {
                 </div>
               ))
             ) : (
-              <div className="bg-white p-4 text-center py-10 text-gray-500 italic">
+              <div className="bg-white p-4 text-center md:py-10 py-6 text-gray-500 italic">
                 No notifications
               </div>
             )}

@@ -199,37 +199,34 @@ function ProductsView({
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
+        <div className="w-full  ">
+          <SearchField
+            placeholder="Search products..."
+            searchValue={productSearch}
+            searchValueChange={(e) => {
+              setProductSearch(e.target.value);
+              setProductPage(1);
+            }}
+          />
+        </div>
+        <div className="flex justify-end w-full gap-2">
+          <AddBtn btnHandler={openNewProductModal}>
+            <PlusCircle />
+            Product
+          </AddBtn>
+
+          <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
+        </div>
         {/* Left: SelectAll + Title + small screen Add/Delete buttons */}
-        <div className="flex flex-wrap items-center justify-between w-full md:w-auto order-1  gap-4">
-          <div className="flex items-center gap-4">
-            <h3 className="font-medium sm:text-md text-[15px]">
+
+        <div className="flex   items-center justify-between w-full   gap-4">
+          <div className="flex  gap-4 justify-start w-full ">
+            <h3 className="font-medium sm:text-base text-[14px]">
               Products {!products?.length ? "" : <>({products.length})</>}
             </h3>
           </div>
           {/* Small screen buttons */}
-          <div className="ml-2 lg:hidden flex gap-2">
-            <AddBtn btnHandler={openNewProductModal}>
-              <PlusCircle />
-              Add Product
-            </AddBtn>
-
-            <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
-          </div>
-        </div>
-
-        {/* Middle: Search + Sort */}
-        <div className="order-2    flex flex-wrap   gap-3 items-center ">
-          <div className="w-full order-2 xl:w-auto lg:w-auto md:w-auto xl:order-1 lg:order-1 md:order-1 ">
-            <SearchField
-              placeholder="Search products..."
-              searchValue={productSearch}
-              searchValueChange={(e) => {
-                setProductSearch(e.target.value);
-                setProductPage(1);
-              }}
-            />
-          </div>
-          <div className="xl:order-2 lg:order-2 md:order-2 order-1 ">
+          <div className="ml-2  flex gap-2 justify-end w-full ">
             <SelectField
               selectValue={productSort}
               selectValueChange={(e) => setProductSort(e.target.value)}
@@ -241,15 +238,6 @@ function ProductsView({
               <option value="rating">Sort by Rating</option>
             </SelectField>
           </div>
-        </div>
-
-        {/* Right: Buttons on large screens */}
-        <div className="hidden lg:flex gap-2 order-3 ">
-          <AddBtn btnHandler={openNewProductModal}>
-            <PlusCircle /> Add Product
-          </AddBtn>
-
-          <DeleteAllBtn selected={selected} bulkDelete={handleBulkDelete} />
         </div>
       </div>
       {paginatedProducts.length === 0 ? (
@@ -370,7 +358,7 @@ function ProductsView({
                           disabled={
                             user.role === "moderator" && !p.canDeleteByModerator
                           }
-                          className={`bg-red-100 hover:bg-red-600 text-red-600 rounded px-3 py-2 hover:text-white cursor-pointer disabled:bg-gray-300 disabled:text-gray-500`}
+                          className={`bg-red-100 hover:bg-[#e92323] text-red-600 rounded px-3 py-2 hover:text-white cursor-pointer disabled:bg-gray-300 disabled:text-gray-500`}
                         >
                           <Trash2 size={20} />
                         </button>

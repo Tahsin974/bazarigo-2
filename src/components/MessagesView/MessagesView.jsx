@@ -101,7 +101,7 @@ export default function MessagesView({ messages, openMessageModal }) {
                           <span>{truncateMessage(message.last_message)}</span>
                         </p>
                         {message.unread_count > 0 && (
-                          <span className="inline-block w-2.5 h-2.5 bg-green-500 rounded-full mr-2"></span>
+                          <span className="inline-block w-2.5 h-2.5 bg-[#00C853] rounded-full mr-2"></span>
                         )}
                       </div>
                     </div>

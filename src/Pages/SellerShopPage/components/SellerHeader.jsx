@@ -136,7 +136,7 @@ export default function SellerHeader({
   }, [sellerDetails, user?.id]);
   return (
     <div>
-      <section className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white py-10 px-6 md:px-12">
+      <section className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white md:py-10 py-6 px-6 md:px-12">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-8">
           <img
             src={

@@ -106,7 +106,7 @@ export default function TrendingNowPage() {
         sortOption={sortOption}
         setSortOption={setSortOption}
       />
-      <section className="py-10">
+      <section className="md:py-10 py-6">
         {isPending ? (
           <Loading />
         ) : (

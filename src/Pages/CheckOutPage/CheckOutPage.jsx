@@ -209,7 +209,7 @@ export default function CheckOutPage() {
       {!checkoutItems.length && !isLoading && !user ? (
         <Loading />
       ) : (
-        <div className="container mx-auto xl:px-6 lg:px-6  px-2 py-10 ">
+        <div className="container mx-auto xl:px-6 lg:px-6  px-2 md:py-10 py-6 ">
           <h1 className="text-3xl font-bold text-gray-600 mb-8">Checkout</h1>
           <div className="flex  lg:flex-row flex-col gap-10">
             <div className="flex-1 space-y-6">

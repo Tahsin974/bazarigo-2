@@ -181,7 +181,7 @@ export default function VerifyOtp() {
                 type="button"
                 onClick={handleVerifyOtp}
                 disabled={loading || timeLeft <= 0}
-                className="w-full bg-[#FF0055] text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-[#e6004d] disabled:bg-gray-300 disabled:text-gray-500 transition-colors flex justify-center cursor-pointer gap-2"
+                className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  disabled:bg-gray-300 disabled:text-gray-500 transition-colors flex justify-center cursor-pointer gap-2"
               >
                 {loading && (
                   <span className="loading loading-spinner loading-xs"></span>

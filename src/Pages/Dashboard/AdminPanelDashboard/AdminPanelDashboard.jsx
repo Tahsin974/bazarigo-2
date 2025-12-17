@@ -55,6 +55,7 @@ import {
   CreditCard,
   Gift,
   Home,
+  Layers,
   Map,
   Package,
   Settings,
@@ -414,6 +415,7 @@ export default function AdminPanelDashboard() {
 
       // Reset file input
     } catch (err) {
+      console.log(err);
       Swal.fire({
         icon: "error",
         title: `${err.message}`,
@@ -475,6 +477,7 @@ export default function AdminPanelDashboard() {
         });
       }
     } catch (err) {
+      console.log(err);
       Swal.fire({
         icon: "error",
         title: `${err.message}`,
@@ -776,14 +779,27 @@ export default function AdminPanelDashboard() {
               items={navOptions}
             >
               <main className="xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
                   {/* Left: Page Title */}
-                  <h1 className="xl:text-2xl lg:text-2xl md:text-2xl sm:text-xl text-lg font-bold order-1 lg:order-1">
-                    {active}
+                  <h1 className="xl:text-xl lg:text-xl md:text-xl sm:text-lg font-bold order-1 lg:order-1 flex items-center gap-2">
+                    {active === "Inventory" ? (
+                      <>
+                        <Layers className="text-[#FF0055]" />
+                        <span className="relative inline-block">
+                          <span className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient">
+                            Inventory Management
+                          </span>
+                        </span>
+                      </>
+                    ) : (
+                      <span className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient">
+                        {active}
+                      </span>
+                    )}
                   </h1>
 
                   {/* Right: Buttons + Admin */}
-                  <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
+                  <div className=" items-center  order-2 lg:order-2 flex gap-2 justify-end md:w-auto w-full">
                     {active !== "My Account" &&
                       active !== "Dashboard" &&
                       active !== "Reports" &&
@@ -849,7 +865,7 @@ export default function AdminPanelDashboard() {
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div className="py-3">
                   {active === "Dashboard" && (
                     <DashboardView
                       products={products}

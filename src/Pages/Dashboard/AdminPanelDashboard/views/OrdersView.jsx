@@ -147,10 +147,20 @@ function OrdersView({
     <div className="space-y-6">
       <div>
         <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+          <div className="w-full">
+            <SearchField
+              placeholder="Search orders..."
+              searchValue={orderSearch}
+              searchValueChange={(e) => {
+                setOrderSearch(e.target.value);
+                setOrderPage(1);
+              }}
+            />
+          </div>
           {/* Left: SelectAll + Title + small screen DeleteAll */}
           <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold sm:text-base text-sm">
+              <h3 className="font-semibold sm:text-base text-[14px]">
                 Active Orders ({orders.length})
               </h3>
             </div>
@@ -167,16 +177,6 @@ function OrdersView({
           </div>
 
           {/* Middle: Search field */}
-          <div className="order-2 md:order-2 w-full md:flex-1 md:flex md:justify-center">
-            <SearchField
-              placeholder="Search orders..."
-              searchValue={orderSearch}
-              searchValueChange={(e) => {
-                setOrderSearch(e.target.value);
-                setOrderPage(1);
-              }}
-            />
-          </div>
 
           {/* Right: DeleteAllBtn on large screens */}
           {user.role !== "moderator" && (

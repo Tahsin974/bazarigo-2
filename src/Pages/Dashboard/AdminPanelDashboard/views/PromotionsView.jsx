@@ -106,22 +106,8 @@ function PromotionsView({
   );
   return (
     <div>
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-3">
-        {/* Left (Title + Button on small screens) */}
-        <div className="flex items-center justify-between w-full md:w-auto order-1 md:order-1">
-          <h3 className="font-semibold sm:text-md text-[15px]">
-            Promotions ({promotions.length})
-          </h3>
-          {/* Hide this button on md+, show only on sm */}
-          {user.role !== "moderator" && (
-            <div className="ml-2 lg:hidden">
-              <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
-            </div>
-          )}
-        </div>
-
-        {/* Middle (Search field, center on large screens) */}
-        <div className="order-2 md:order-2 w-full md:flex-1 md:flex md:justify-center">
+      <div className="flex flex-wrap lg:items-center lg:justify-between gap-4 mb-3">
+        <div className=" w-full ">
           <SearchField
             placeholder="Search promotions..."
             searchValue={promoSearch}
@@ -131,13 +117,19 @@ function PromotionsView({
             }}
           />
         </div>
-
-        {/* Right (Button on md+ only) */}
-        {user.role !== "moderator" && (
-          <div className="hidden lg:block order-3">
-            <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
+        <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
+          <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
+            <h3 className="font-medium sm:text-base text-[14px]">
+              Promotions ({promotions.length})
+            </h3>
           </div>
-        )}
+          {/* Small screen buttons */}
+          {user.role !== "moderator" && (
+            <div className="ml-2  flex gap-2 justify-end w-full md:order-2 order-1  ">
+              <AddBtn btnHandler={onAdd}>New Promotion</AddBtn>
+            </div>
+          )}
+        </div>
       </div>
 
       {!paginatedPromotions.length ? (
@@ -178,7 +170,7 @@ function PromotionsView({
                   {user.role !== "moderator" && (
                     <button
                       onClick={() => removePromo(p.id)}
-                      className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white "
+                      className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white "
                     >
                       <Trash2 size={20} />
                     </button>

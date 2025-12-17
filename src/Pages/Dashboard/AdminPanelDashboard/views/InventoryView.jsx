@@ -105,64 +105,73 @@ export default function InventoryView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="p-6 bg-gray-50 min-h-screen">
-            <div className="flex flex-wrap items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                <Layers className="text-indigo-600" /> Inventory Management
-              </h1>
-              <div className="flex gap-3 items-center mt-3 md:mt-0">
-                <SearchField
-                  placeholder="Search products..."
-                  searchValue={inventorySearch}
-                  searchValueChange={(e) => {
-                    setInventorySearch(e.target.value);
-                    setInventoryPage(1);
-                  }}
-                />
-
-                <div className="relative">
-                  <SelectField
-                    selectValue={inventorySort}
-                    selectValueChange={(e) => setInventorySort(e.target.value)}
-                  >
-                    <option value="name">Sort by Name</option>
-                    <option value="stock">Sort by Stock</option>
-                  </SelectField>
-                </div>
+          <div className=" bg-gray-50 min-h-screen">
+            <div className="flex flex-wrap items-center gap-3 mb-3 w-full justify-center">
+              <SearchField
+                placeholder="Search products..."
+                searchValue={inventorySearch}
+                searchValueChange={(e) => {
+                  setInventorySearch(e.target.value);
+                  setInventoryPage(1);
+                }}
+              />
+            </div>
+            <div className="flex justify-between items-center my-4">
+              <h3 className="font-medium sm:text-base text-[14px]  ">
+                Total Products ({inventory.length})
+              </h3>
+              <div className="relative">
+                <SelectField
+                  selectValue={inventorySort}
+                  selectValueChange={(e) => setInventorySort(e.target.value)}
+                >
+                  <option value="name">Sort by Name</option>
+                  <option value="stock">Sort by Stock</option>
+                </SelectField>
               </div>
             </div>
 
             {paginatedInventory?.length ? (
-              <div className="grid gap-5">
+              <div className="grid grid-cols-1 gap-5">
                 {paginatedInventory.map((p) => (
                   <div key={p.id} className="bg-white rounded-lg shadow p-5">
-                    <div className="flex items-center justify-between border-b pb-3 mb-3">
+                    <div
+                      className="border-b pb-3 mb-3 flex flex-col gap-3 
+                sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      {/* Product info */}
                       <div>
-                        <h2 className="text-lg font-semibold">
+                        <h2 className="text-base sm:text-lg font-semibold">
                           {p.product_name}
                         </h2>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs sm:text-sm text-gray-600">
                           {p.category} → {p.subcategory}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <h3 className="text-sm font-medium text-gray-700">
+
+                      {/* Stock info */}
+                      <div className="sm:text-right">
+                        <h3 className="text-xs sm:text-sm font-medium text-gray-700">
                           Total Stock: {calculateTotalStock(p)}
                         </h3>
                       </div>
 
-                      <div className="flex gap-2">
+                      {/* Action buttons */}
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={() => updateAllStocks(p.id, -10)}
-                          className="px-2 py-1 text-sm rounded bg-red-100 hover:bg-red-200 text-red-600"
+                          className="px-3 py-1 text-xs sm:text-sm rounded 
+                 bg-red-100 hover:bg-red-200 text-red-600"
                         >
-                          Decrease by 10
+                          −10 Stock
                         </button>
+
                         <button
                           onClick={() => updateAllStocks(p.id, +10)}
-                          className="px-2 py-1 text-sm rounded bg-green-100 hover:bg-green-200 text-green-600"
+                          className="px-3 py-1 text-xs sm:text-sm rounded 
+                 bg-green-100 hover:bg-green-200 text-green-600"
                         >
-                          Increase by 10
+                          +10 Stock
                         </button>
                       </div>
                     </div>

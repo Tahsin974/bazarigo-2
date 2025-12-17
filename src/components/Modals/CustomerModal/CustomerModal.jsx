@@ -64,7 +64,7 @@ export default function CustomerModal({ customer, onClose }) {
               </figure>
             ) : (
               <div className="w-24 h-24 rounded-full bg-[#FFE5E5] flex items-center justify-center text-[#FF0055] text-3xl font-bold">
-                JD
+                <User size={32} />
               </div>
             )}
 

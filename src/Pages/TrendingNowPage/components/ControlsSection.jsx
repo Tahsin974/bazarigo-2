@@ -21,10 +21,20 @@ export default function ControlsSection({
     "Trending",
   ];
   return (
-    <section className="py-6 border-b bg-white shadow-sm">
-      <div className="xl:container mx-auto px-6 flex flex-col xl:flex-row justify-between items-center gap-6">
+    <section className="py-6 border-b bg-white shadow-sm px-6 space-y-6">
+      <div className="w-full">
+        <SearchField
+          placeholder="Search products..."
+          searchValue={searchTerm}
+          searchValueChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
+      <div className="xl:container mx-auto  flex flex-col xl:flex-row justify-between items-center gap-6">
         {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 xl:order-1 order-2">
           {tags.map((tag) => (
             <motion.button
               key={tag}
@@ -45,15 +55,7 @@ export default function ControlsSection({
         </div>
 
         {/* Search & Sort */}
-        <div className="flex flex-wrap gap-4 items-center">
-          <SearchField
-            placeholder="Search products..."
-            searchValue={searchTerm}
-            searchValueChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+        <div className=" xl:order-2 order-1">
           <SelectField
             selectValue={sortOption}
             selectValueChange={(e) => setSortOption(e.target.value)}

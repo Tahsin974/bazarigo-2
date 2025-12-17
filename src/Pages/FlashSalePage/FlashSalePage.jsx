@@ -73,11 +73,11 @@ export default function FlashSalePage() {
         sort={sort}
         setSort={setSort}
       />
-      <section className="py-10 bg-gray-50">
+      <section className="md:py-10 py-6 bg-gray-50">
         <div className="container mx-auto xl:px-6 lg:px-6  px-4">
           {paginated.length === 0 ? (
             <>
-              <div className=" text-center py-10 text-gray-500 ">
+              <div className=" text-center md:py-10 py-6 text-gray-500 ">
                 <h2>No products found</h2>
               </div>
             </>

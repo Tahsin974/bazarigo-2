@@ -33,19 +33,6 @@ export default function AddCustomerModal({ onClose }) {
   };
 
   const onSubmit = async (data) => {
-    if (!image) {
-      Swal.fire({
-        icon: "error",
-        title: "Please select an image",
-        timer: 1500,
-        showConfirmButton: false,
-        toast: true,
-        position: "top",
-      });
-      refetch();
-      return;
-    }
-
     try {
       const formData = new FormData();
       formData.append("profileImg", image); // ফাইল ফিল্ড
@@ -59,7 +46,7 @@ export default function AddCustomerModal({ onClose }) {
       formData.append("thana", data.thana);
       formData.append("postal_code", data.postal_code);
 
-      const res = await axiosPublic.post("/register", formData, {
+      const res = await axiosPublic.post("/create-user", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -75,20 +62,14 @@ export default function AddCustomerModal({ onClose }) {
         reset();
         setImage(null);
         onClose();
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Oops! Try Again",
-          showConfirmButton: false,
-          toast: true,
-          position: "top",
-          timer: 1500,
-        });
+        refetch();
       }
     } catch (error) {
+      console.log(error);
+
       Swal.fire({
         icon: "error",
-        title: error.message,
+        title: error?.response.data.message,
         showConfirmButton: false,
         toast: true,
         position: "top",
@@ -422,9 +403,9 @@ export default function AddCustomerModal({ onClose }) {
                 <Button
                   disabled={!isValid}
                   type="submit"
-                  className="w-full bg-[#FF0055] text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-[#e6004d] transition-colors flex justify-center cursor-pointer disabled:bg-gray-300 disabled:text-gray-500"
+                  className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  transition-colors flex justify-center cursor-pointer disabled:bg-gray-300 disabled:text-gray-500"
                 >
-                  Add Customer
+                  Submit
                 </Button>
               </form>
             </CardContent>

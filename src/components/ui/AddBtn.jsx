@@ -10,7 +10,7 @@ export default function AddBtn({
       <button
         disabled={disabled}
         onClick={btnHandler}
-        className={`px-3 py-2 inline-flex items-center gap-2 bg-[${bgColor}] hover:bg-[${bgColorHover}] disabled:bg-gray-300 disabled:text-gray-500 text-white  border-none  rounded shadow sm:text-base text-[12px] cursor-pointer`}
+        className={`px-3 py-2 inline-flex items-center gap-2 bg-[${bgColor}] hover:bg-[${bgColorHover}] disabled:bg-gray-300 disabled:text-gray-500 text-white  border-none  rounded shadow sm:text-base text-[14px] cursor-pointer`}
       >
         {children}
       </button>

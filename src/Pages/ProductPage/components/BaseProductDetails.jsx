@@ -357,7 +357,14 @@ export default function BaseProductDetails({
     } else {
       // Fallback: copy link
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      Swal.fire({
+        icon: "success",
+        title: "Link copied to clipboard!",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
     }
   };
   const handleWishlistBtn = async () => {
@@ -439,7 +446,7 @@ export default function BaseProductDetails({
         <Loading />
       ) : (
         <>
-          <section className="container mx-auto xl:px-6 lg:px-6  px-4 py-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <section className="container mx-auto xl:px-6 lg:px-6  px-4 md:py-10 py-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -730,7 +737,7 @@ export default function BaseProductDetails({
           />
 
           {relatedProducts.length > 0 && (
-            <section className="bg-gray-50 py-10">
+            <section className="bg-gray-50 md:py-10 py-6">
               <div className="container mx-auto xl:px-6 lg:px-6  px-4">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-800 text-center">
                   Related Products

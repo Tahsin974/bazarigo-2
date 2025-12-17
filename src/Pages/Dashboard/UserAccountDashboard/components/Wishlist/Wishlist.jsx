@@ -3,9 +3,11 @@ import { Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../../../../Utils/Hooks/useAxiosPublic";
 import useAuth from "../../../../../Utils/Hooks/useAuth";
+import useCart from "../../../../../Utils/Hooks/useCart";
 
 export default function Wishlist({ activeTab, wishlist, refetch }) {
   const { user } = useAuth();
+  const { refetch: refetchCart } = useCart();
   const baseUrl = import.meta.env.VITE_BASEURL;
   const axiosPublic = useAxiosPublic();
   const removeItem = async (id) => {
@@ -81,16 +83,22 @@ export default function Wishlist({ activeTab, wishlist, refetch }) {
       );
 
       if (res.data.createdCount > 0 || res.data.updatedCount > 0) {
-        await axiosPublic.delete(`/wishlist/${item.wishlist_id}`);
-        refetch();
-        return Swal.fire({
-          icon: "success",
-          title: "Product Added To Cart Successfully",
-          showConfirmButton: false,
-          timer: 1500,
-          toast: true,
-          position: "top",
-        });
+        const deleteRes = await axiosPublic.delete(
+          `/wishlist/${item.wishlist_id}`
+        );
+        if (deleteRes.data.deletedCount > 0) {
+          Swal.fire({
+            icon: "success",
+            title: "Product Added To Cart Successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+          refetch();
+          refetchCart();
+          return;
+        }
       }
     } catch (err) {
       return Swal.fire({
@@ -108,7 +116,7 @@ export default function Wishlist({ activeTab, wishlist, refetch }) {
   return (
     <div>
       {activeTab === "Wishlist" && (
-        <div className="min-h-screen bg-white py-10 xl:px-6 lg:px-6 md:px-6 sm:px-6 px-4 flex justify-center">
+        <div className="min-h-screen bg-white md:py-10 py-6 xl:px-6 lg:px-6 md:px-6 sm:px-6 px-4 flex justify-center">
           <div className="w-full max-w-5xl">
             <Card className="xl:px-6 lg:px-6 md:px-6 sm:px-6 px-4 py-6 bg-white  shadow">
               {wishlist.length === 0 ? (

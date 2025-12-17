@@ -119,7 +119,7 @@ export default function JustArrivedPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search products..."
-                  className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm"
+                  className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm"
                 />
               </div>
 

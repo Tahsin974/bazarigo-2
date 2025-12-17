@@ -293,7 +293,7 @@ function ReportsView({ payments, customers }) {
             <button
               onClick={handlePrint}
               title="Print Reports"
-              className="px-3 py-3 font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
+              className="px-3  font-semibold rounded  transition-all transform hover:scale-[1.03] text-gray-700 hover:text-[#FF0055] flex items-center gap-2  "
             >
               <Printer size={25} />
             </button>
@@ -303,20 +303,22 @@ function ReportsView({ payments, customers }) {
               <h3 className="font-semibold text-xl">Reports & Analytics</h3>
 
               <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-                <DatePicker
-                  selected={startDate}
-                  onChange={setStartDate}
-                  placeholderText={"Select Start Date"}
-                  className="w-full md:w-auto  px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
-                  portalId="root"
-                />
-                <DatePicker
-                  selected={endDate}
-                  onChange={setEndDate}
-                  placeholderText={"Select End Date"}
-                  className="w-full md:w-auto  px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
-                  portalId="root"
-                />
+                <div className="flex gap-5">
+                  <DatePicker
+                    selected={startDate}
+                    onChange={setStartDate}
+                    placeholderText="Start: DD-MM-YYYY"
+                    className="w-full md:w-auto  px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
+                    portalId="root"
+                  />
+                  <DatePicker
+                    selected={endDate}
+                    onChange={setEndDate}
+                    placeholderText="End: DD-MM-YYYY"
+                    className="w-full md:w-auto  px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
+                    portalId="root"
+                  />
+                </div>
                 <SelectField
                   selectValue={reportType}
                   selectValueChange={(e) => setReportType(e.target.value)}

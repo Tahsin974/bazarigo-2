@@ -136,7 +136,7 @@ export default function Overview({
                                 onClick={() =>
                                   handleUnFollow(f.user_id, f.seller_id)
                                 }
-                                className="btn btn-xs bg-red-500 border-none shadow-none text-white flex items-center gap-1"
+                                className="btn btn-xs bg-[#f72c2c] border-none shadow-none text-white flex items-center gap-1"
                               >
                                 <UserMinus size={14} />
                                 Unfollow

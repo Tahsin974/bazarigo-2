@@ -64,7 +64,7 @@ export default function useFlashSaleCountdown() {
   const getProgressColor = () => {
     if (progress < 50) return "bg-green-400";
     if (progress < 80) return "bg-yellow-400";
-    return "bg-red-500";
+    return "bg-[#f72c2c]";
   };
 
   return { h, m, s, timeLeft, progress, getProgressColor };

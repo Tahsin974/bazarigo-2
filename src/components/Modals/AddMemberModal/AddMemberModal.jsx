@@ -387,9 +387,9 @@ export default function AddMemberModal({ onClose, refetch }) {
 
                 <AddBtn
                   type="submit"
-                  className="bg-[#FF0055] hover:bg-[#e6004e] text-white px-6 py-2 rounded-lg"
+                  className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-2 rounded-lg"
                 >
-                  Create User
+                  Submit
                 </AddBtn>
               </form>
             </CardContent>

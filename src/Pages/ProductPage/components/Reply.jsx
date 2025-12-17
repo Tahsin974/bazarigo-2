@@ -26,7 +26,7 @@ export default function Reply({ questionId, onAnswer }) {
       />
       <button
         onClick={submitAnswer}
-        className="bg-green-500 text-white px-5 py-3 rounded-lg shadow-md hover:bg-green-600 transition-all font-semibold"
+        className="bg-[#00C853] hover:bg-[#00B34A] text-white px-5 py-3 rounded-lg shadow-md  transition-all font-semibold"
       >
         Reply
       </button>

@@ -130,8 +130,10 @@ export default function UserAccountDashboard() {
           <main className="xl:p-6 lg:p-6 md:p-6 sm:p-4 p-3 overflow-auto">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
               {/* Left: Page Title */}
-              <h1 className="xl:text-2xl lg:text-2xl md:text-2xl sm:text-xl text-lg font-bold order-1 lg:order-1">
-                {activeTab}
+              <h1 className="xl:text-xl lg:text-xl md:text-xl sm:text-lg font-bold order-1 lg:order-1 flex items-center gap-2">
+                <span className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient">
+                  {activeTab}
+                </span>
               </h1>
 
               {/* Right: Buttons + Admin */}

@@ -346,59 +346,21 @@ export default function FlashSaleView({
     <div className="space-y-6">
       <div>
         <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
-          {/* Left: Total + Selected + Small screen buttons */}
-          <div className="flex flex-wrap items-center gap-4 w-full md:w-auto order-1">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-              <h3 className="font-medium text-[15px] sm:text-md">
-                Total Products ({products.length})
-              </h3>
-              <h3 className="font-medium text-[15px] sm:text-md">
-                Selected Products ({selected.length})
-              </h3>
-            </div>
-
-            {/* Small screen buttons */}
-            <div className="flex lg:hidden gap-2 mt-2 sm:mt-0">
-              <AddBtn btnHandler={autoSelect}>Auto Select</AddBtn>
-              <AddBtn disabled={!selected.length} btnHandler={handleApplySale}>
-                Apply Sale
-              </AddBtn>
-
-              {user.role !== "moderator" && (
-                <button
-                  onClick={toggleAutoFlashSale}
-                  className={`flex items-center justify-center px-3 py-2 rounded font-medium shadow-md transition-all duration-300 sm:text-base text-[12px]
-    ${
-      autoFlashSaleOn
-        ? "bg-red-500 hover:bg-red-600 text-white"
-        : "bg-green-500 hover:bg-green-600 text-white"
-    }`}
-                >
-                  {autoFlashSaleOn ? (
-                    <PowerOff size={18} className="mr-1 " />
-                  ) : (
-                    <Power size={18} className="mr-1" />
-                  )}
-                  {autoFlashSaleOn ? "Stop " : "Start "}
-                </button>
-              )}
-            </div>
+          <div className="w-full ">
+            <SearchField
+              placeholder="Search products..."
+              searchValue={productSearch}
+              searchValueChange={(e) => {
+                setProductSearch(e.target.value);
+                setProductPage(1);
+              }}
+            />
           </div>
+          {/* Left: Total + Selected + Small screen buttons */}
 
           {/* Middle: Search + Sort + DatePickers */}
-          <div className="flex flex-wrap items-center gap-3 order-2 w-full md:w-auto">
-            <div className="w-full md:w-auto">
-              <SearchField
-                placeholder="Search products..."
-                searchValue={productSearch}
-                searchValueChange={(e) => {
-                  setProductSearch(e.target.value);
-                  setProductPage(1);
-                }}
-              />
-            </div>
-
-            <div className="w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-3  w-full md:w-auto ms-auto">
+            <div className="ms-auto sm:order-3 ">
               <SelectField
                 selectValue={productSort}
                 selectValueChange={(e) => setProductSort(e.target.value)}
@@ -409,15 +371,16 @@ export default function FlashSaleView({
               </SelectField>
             </div>
 
-            <div className="w-full md:w-auto flex flex-col md:flex-row gap-2">
+            <div className="w-full md:w-auto flex  gap-2">
               <DatePicker
                 selected={startTime}
                 onChange={setStartTime}
                 showTimeSelect
                 timeIntervals={1}
                 dateFormat="dd/MM/yyyy HH:mm"
-                placeholderText="Select Start Date & Time"
+                placeholderText="Start: DD-MM-YYYY HH:MM"
                 className="w-full md:w-auto border border-gray-300 rounded-lg  px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                popperPlacement="bottom-start"
               />
               <DatePicker
                 selected={endTime}
@@ -425,43 +388,48 @@ export default function FlashSaleView({
                 showTimeSelect
                 timeIntervals={1}
                 dateFormat="dd/MM/yyyy HH:mm"
-                placeholderText="Select End Date & Time"
+                placeholderText="End: DD-MM-YYYY HH:MM"
                 className="w-full md:w-auto border border-gray-300 rounded-lg px-4 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                popperPlacement="bottom-start"
               />
             </div>
           </div>
 
           {/* Right: Large screen buttons */}
-          <div className="hidden lg:flex gap-2 order-3">
-            <AddBtn
-              btnHandler={autoSelect}
-              bgColor="#FF0055"
-              bgColorHover="#e6004e"
-            >
-              Auto Select
-            </AddBtn>
-            <AddBtn disabled={!selected.length} btnHandler={handleApplySale}>
-              Apply Sale
-            </AddBtn>
+          <div className="flex md:flex-row flex-col gap-4 items-center justify-between w-full mb-4 ">
+            <div className="flex  items-start sm:items-center gap-2 sm:gap-4 sm:order-1 order-2  sm:justify-start justify-between  w-full">
+              <h3 className="font-medium sm:text-base text-[14px]">
+                Total Products ({products.length})
+              </h3>
+              <h3 className="font-medium sm:text-base text-[14px]">
+                Selected Products ({selected.length})
+              </h3>
+            </div>
+            <div className="flex gap-2 md:order-2 order-1  ms-auto">
+              <AddBtn disabled={!selected.length} btnHandler={handleApplySale}>
+                Apply
+              </AddBtn>
+              <AddBtn btnHandler={autoSelect}>Random</AddBtn>
 
-            {user.role !== "moderator" && (
-              <button
-                onClick={toggleAutoFlashSale}
-                className={`flex items-center justify-center px-3 py-2 rounded font-medium shadow-md transition-all duration-300 sm:text-base text-[12px]
+              {user.role !== "moderator" && (
+                <button
+                  onClick={toggleAutoFlashSale}
+                  className={`flex items-center justify-center px-3 py-2 rounded font-medium shadow-md transition-all duration-300 sm:text-base text-[14px]
     ${
       autoFlashSaleOn
-        ? "bg-red-500 hover:bg-red-600 text-white"
-        : "bg-green-500 hover:bg-green-600 text-white"
+        ? "bg-[#f72c2c] hover:bg-[#e92323] text-white"
+        : "bg-[#00C853] hover:bg-[#00B34A] text-white"
     }`}
-              >
-                {autoFlashSaleOn ? (
-                  <PowerOff size={18} className="mr-1" />
-                ) : (
-                  <Power size={18} className="mr-1" />
-                )}
-                {autoFlashSaleOn ? "Stop " : "Start "}
-              </button>
-            )}
+                >
+                  {autoFlashSaleOn ? (
+                    <PowerOff size={18} className="mr-1" />
+                  ) : (
+                    <Power size={18} className="mr-1" />
+                  )}
+                  {autoFlashSaleOn ? "Stop " : "Start "}
+                </button>
+              )}
+            </div>
           </div>
         </div>
         {paginatedProducts.length === 0 ? (
@@ -695,7 +663,7 @@ export default function FlashSaleView({
                       <td>
                         <button
                           onClick={() => deleteFlashSale(flashSaleProducts.id)}
-                          className="bg-red-100 hover:bg-red-600 text-red-600 rounded px-3 py-2 hover:text-white"
+                          className="bg-red-100 hover:bg-[#e92323] text-red-600 rounded px-3 py-2 hover:text-white"
                         >
                           <Trash2 size={20} />
                         </button>

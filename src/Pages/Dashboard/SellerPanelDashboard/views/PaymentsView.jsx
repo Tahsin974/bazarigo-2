@@ -36,29 +36,41 @@ export default function PaymentsView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold sm:text-base text-sm">
-                Payments ({payments.length})
-              </h3>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+            <div className="w-full ">
+              <SearchField
+                searchValue={paymentSearch}
+                searchValueChange={(e) => {
+                  setPaymentSearch(e.target.value);
+                  setPaymentPage(1);
+                }}
+                placeholder="Search by method or status..."
+              />
             </div>
-            <SearchField
-              searchValue={paymentSearch}
-              searchValueChange={(e) => {
-                setPaymentSearch(e.target.value);
-                setPaymentPage(1);
-              }}
-              placeholder="Search by method or status..."
-            />
-            <SelectField
-              selectValue={paymentSort}
-              selectValueChange={(e) => setPaymentSort(e.target.value)}
-            >
-              <option value="date">Sort by Date</option>
-              <option value="amount">Sort by Amount</option>
-              <option value="status">Sort by Status</option>
-            </SelectField>
+            {/* Left: Total + Selected + Small screen buttons */}
+
+            {/* Middle: Search + Sort + DatePickers */}
+
+            {/* Right: Large screen buttons */}
+            <div className="flex md:flex-row flex-col gap-4 items-center justify-between w-full mb-4 ">
+              <div className="flex  items-start sm:items-center gap-2 sm:gap-4 sm:order-1 order-2  sm:justify-start justify-between  w-full">
+                <h3 className="font-medium sm:text-base text-[14px]">
+                  Payments ({payments.length})
+                </h3>
+              </div>
+              <div className="ms-auto sm:order-3 ">
+                <SelectField
+                  selectValue={paymentSort}
+                  selectValueChange={(e) => setPaymentSort(e.target.value)}
+                >
+                  <option value="date">Sort by Date</option>
+                  <option value="amount">Sort by Amount</option>
+                  <option value="status">Sort by Status</option>
+                </SelectField>
+              </div>
+            </div>
           </div>
+
           {paginatedPayments.length === 0 ? (
             <div>
               <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-white">

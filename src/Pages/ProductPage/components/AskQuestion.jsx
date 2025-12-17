@@ -157,7 +157,7 @@ export default function AskQuestion({
   console.log(questions);
 
   return (
-    <div className="container mx-auto xl:px-6 lg:px-6  px-4 py-10 border-t border-gray-300">
+    <div className="container mx-auto xl:px-6 lg:px-6  px-4 md:py-10 py-6 border-t border-gray-300">
       <h3 className="text-xl font-bold mb-6">Ask a Question</h3>
 
       {/* Question Form */}
@@ -184,7 +184,7 @@ export default function AskQuestion({
             <div className="flex">
               <button
                 type="submit"
-                className="bg-[#FF0055] text-white px-6 py-3 rounded-lg shadow hover:bg-[#e6004e]"
+                className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-3 rounded-lg shadow "
               >
                 Submit Question
               </button>
@@ -213,7 +213,7 @@ export default function AskQuestion({
           <div className="flex">
             <button
               type="submit"
-              className="bg-[#FF0055] text-white px-6 py-3 rounded-lg shadow hover:bg-[#e6004e]"
+              className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-3 rounded-lg shadow "
             >
               Submit Question
             </button>

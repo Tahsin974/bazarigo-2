@@ -895,7 +895,7 @@ export default function EditProductModal({
                           <td>
                             <button
                               onClick={() => removeVariant(index)}
-                              className=" bg-red-100 hover:bg-red-600 text-red-600 rounded  px-3 py-2  hover:text-white cursor-pointer"
+                              className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white cursor-pointer"
                             >
                               <Trash2 size={20} />
                             </button>
@@ -914,13 +914,13 @@ export default function EditProductModal({
         <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={onClose}
-            className="px-3 py-1 bg-red-500 text-white rounded cursor-pointer"
+            className="px-3 py-1 bg-[#f72c2c] text-white rounded cursor-pointer"
           >
             Close
           </button>
           <button
             onClick={handleSave}
-            className="px-3 py-1 bg-green-500 text-white rounded cursor-pointer"
+            className="px-3 py-1 bg-[#00C853] text-white rounded cursor-pointer"
           >
             Save
           </button>
