@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import Rating from "react-rating";
-import { motion } from "framer-motion";
 import { HashLink } from "react-router-hash-link";
 
 export default function ProductCard({ item, fromFlashSale = false }) {
@@ -26,13 +25,15 @@ export default function ProductCard({ item, fromFlashSale = false }) {
         <Card className="rounded-2xl shadow-lg bg-white overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full ">
           <div className="relative">
             {item.images && item.images[0] ? (
-              <img
-                src={`${baseUrl}${getImages(item.images)[0]}`}
-                alt=""
-                className="w-full h-48 sm:h-56 object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
-              />
+              <figure className=" aspect-[1/1] ">
+                <img
+                  src={`${baseUrl}${getImages(item.images)[0]}`}
+                  alt=""
+                  className="w-full h-full object-fill rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
+                />
+              </figure>
             ) : (
-              <div className="w-full  flex items-center justify-center text-gray-400 h-48 sm:h-56 object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105">
+              <div className="w-full  flex items-center justify-center text-gray-400 h-65 sm:h-56 object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105">
                 No Image
               </div>
             )}

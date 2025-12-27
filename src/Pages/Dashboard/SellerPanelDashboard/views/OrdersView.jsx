@@ -38,7 +38,6 @@ function OrdersView({
     1,
     Math.ceil(filteredOrders.length / orderPageSize)
   );
-  console.log(paginatedReturnOrders);
 
   const returnOrdersTotalPages = Math.max(
     1,
@@ -121,7 +120,6 @@ function OrdersView({
         refetch();
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.message,
@@ -159,7 +157,7 @@ function OrdersView({
               <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
                 <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
                   <h3 className="font-medium sm:text-base text-[14px]">
-                    Active Orders ({orders.length})
+                    Active Orders ({orders.length.toLocaleString("en-IN")})
                   </h3>
                 </div>
 
@@ -267,7 +265,7 @@ function OrdersView({
           <div>
             <div className="flex flex-wrap gap-3 items-center justify-between">
               <h3 className="font-semibold sm:text-base text-sm">
-                Return Orders {!returns?.length ? "" : <>({returns?.length})</>}
+                Return Orders ({returns?.length.toLocaleString("en-IN")})
               </h3>
               <div>
                 <SearchField

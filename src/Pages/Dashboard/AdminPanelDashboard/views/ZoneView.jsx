@@ -139,7 +139,6 @@ export default function ZoneView({
         refetch();
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.message,
@@ -179,8 +178,6 @@ export default function ZoneView({
     totalPages,
     setPostalZonePage
   );
-
-  console.log(selected);
 
   return (
     <>

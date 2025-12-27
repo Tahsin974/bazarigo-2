@@ -173,7 +173,6 @@ function ProductsView({
         refetch();
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.message,
@@ -222,7 +221,12 @@ function ProductsView({
         <div className="flex   items-center justify-between w-full   gap-4">
           <div className="flex  gap-4 justify-start w-full ">
             <h3 className="font-medium sm:text-base text-[14px]">
-              Products {!products?.length ? "" : <>({products.length})</>}
+              Products{" "}
+              {!products?.length ? (
+                ""
+              ) : (
+                <>({products.length.toLocaleString("en-IN")})</>
+              )}
             </h3>
           </div>
           {/* Small screen buttons */}
@@ -312,7 +316,9 @@ function ProductsView({
                       </span>
                     </td>
                     <td>
-                      <span className="font-semibold">{p.stock}</span>
+                      <span className="font-semibold">
+                        {p.stock.toLocaleString("en-IN")}
+                      </span>
                     </td>
                     <td className="px-4 py-3 ">
                       <span className="font-semibold">{p.category}</span>
@@ -323,7 +329,6 @@ function ProductsView({
                           size={15}
                           className="fill-amber-400 text-amber-400"
                         />
-                        {console.log(p.rating)}
                         <span className="font-semibold">
                           {Number(p.rating) > 0
                             ? p.rating

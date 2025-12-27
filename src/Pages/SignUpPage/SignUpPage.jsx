@@ -1,7 +1,6 @@
 import { useState } from "react";
 import AuthPanel from "./components/AuthPanel";
-import PasswordResetPanel from "./components/PasswordResetPanel";
-import SetNewPasswordPanel from "./components/SetNewPasswordPanel";
+
 import ErrorPanel from "./components/ErrorPanel";
 
 export default function SignUpPage() {
@@ -13,10 +12,7 @@ export default function SignUpPage() {
         return <AuthPanel type="login" onNavigate={setScreen} />;
       case "signup":
         return <AuthPanel type="signup" onNavigate={setScreen} />;
-      case "reset":
-        return <PasswordResetPanel onNavigate={setScreen} />;
-      case "new-password":
-        return <SetNewPasswordPanel onNavigate={setScreen} />;
+
       case "error":
         return (
           <ErrorPanel

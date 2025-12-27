@@ -2,17 +2,16 @@ import { Bell, House, LogOut, ShoppingCart, User } from "lucide-react";
 import SearchBar from "./SearchBar";
 import { HashLink } from "react-router-hash-link";
 import useAuth from "../../../../Utils/Hooks/useAuth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router";
-import useAxiosSecure from "../../../../Utils/Hooks/useAxiosSecure";
+
 import useNotifications from "../../../../Utils/Hooks/useNotifications";
 import useCart from "../../../../Utils/Hooks/useCart";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MobileMenu({ isMenuOpen }) {
   const queryClient = useQueryClient();
-  const axiosSecure = useAxiosSecure();
-  const { notifications, refetchNotifications } = useNotifications();
+  const { notifications } = useNotifications();
   const { carts } = useCart();
   const navigate = useNavigate();
   const { user, userLogOut } = useAuth();
@@ -23,16 +22,6 @@ export default function MobileMenu({ isMenuOpen }) {
 
     navigate("/");
   };
-  const markAsReadMutation = useMutation({
-    mutationFn: (id) =>
-      axiosSecure.patch(
-        `/notifications/${id}/read`,
-        {},
-        { withCredentials: true }
-      ),
-
-    onSuccess: () => refetchNotifications(),
-  });
 
   const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
@@ -55,7 +44,7 @@ export default function MobileMenu({ isMenuOpen }) {
                   title="Home"
                   to="/#"
                   aria-label="Shopping Cart"
-                  className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
+                  className="text-gray-800 cursor-pointer hover:text-[#FF0055] transition-colors"
                 >
                   <House size={22} />
                 </HashLink>
@@ -86,7 +75,16 @@ export default function MobileMenu({ isMenuOpen }) {
                     </>
                   )}
                 {user && user.email && (
-                  <div className="dropdown dropdown-end">
+                  <Link
+                    to={
+                      user?.role === "admin" || user?.role === "super admin"
+                        ? "/dashboard/admin"
+                        : user?.role === "seller"
+                        ? "/dashboard/seller"
+                        : "/dashboard"
+                    }
+                    state={"Notifications"}
+                  >
                     <button
                       tabIndex={0}
                       role="button"
@@ -101,59 +99,7 @@ export default function MobileMenu({ isMenuOpen }) {
                         )}
                       </div>
                     </button>
-                    <ul
-                      tabIndex="-1"
-                      className="dropdown-content bg-white text-gray-800 rounded-lg shadow-lg w-80 max-h-96 overflow-y-auto mt-3 p-1 border border-gray-200 flex flex-col"
-                    >
-                      {/* Header with title and See All link */}
-                      <li className="flex justify-between items-center px-4 py-2 border-b border-gray-200">
-                        <span className="font-semibold text-gray-900">
-                          Notifications
-                        </span>
-                        <Link
-                          to={
-                            user?.role === "admin" ||
-                            user?.role === "super admin"
-                              ? "/dashboard/admin"
-                              : user?.role === "seller"
-                              ? "/dashboard/seller"
-                              : "/dashboard"
-                          }
-                          state={"Notifications"}
-                          className="text-sm text-blue-600 hover:underline"
-                        >
-                          See All
-                        </Link>
-                      </li>
-
-                      {/* Notifications list */}
-                      {notifications?.length ? (
-                        notifications.map((n) => (
-                          <li
-                            key={n.id}
-                            onClick={() => markAsReadMutation.mutate(n.id)}
-                            className={`flex flex-col px-4 py-3 cursor-pointer transition duration-200 ease-in-out rounded-md mb-1 hover:bg-gray-100 ${
-                              !n.is_read ? "bg-blue-50" : ""
-                            }`}
-                          >
-                            <span className="font-semibold text-gray-900 truncate">
-                              {n.title}
-                            </span>
-                            <span className="text-sm text-gray-600 truncate">
-                              {n.message}
-                            </span>
-                            <span className="text-xs text-gray-400 mt-1">
-                              {new Date(n.created_at).toLocaleString()}
-                            </span>
-                          </li>
-                        ))
-                      ) : (
-                        <li className="px-4 py-4 text-center text-gray-500">
-                          No notifications
-                        </li>
-                      )}
-                    </ul>
-                  </div>
+                  </Link>
                 )}
 
                 <HashLink
@@ -170,7 +116,7 @@ export default function MobileMenu({ isMenuOpen }) {
                       : "/dashboard"
                   }
                   aria-label="User Account"
-                  className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
+                  className="text-gray-800 cursor-pointer hover:text-[#FF0055] transition-colors"
                 >
                   <User size={22} />
                 </HashLink>
@@ -180,7 +126,7 @@ export default function MobileMenu({ isMenuOpen }) {
                       onClick={logOut}
                       title="User"
                       aria-label="User Account"
-                      className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
+                      className="text-gray-800 cursor-pointer hover:text-[#FF0055] transition-colors"
                     >
                       <LogOut size={22} />
                     </a>

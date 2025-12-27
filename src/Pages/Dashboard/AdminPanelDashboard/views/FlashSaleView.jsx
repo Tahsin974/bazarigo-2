@@ -57,10 +57,9 @@ export default function FlashSaleView({
       const res = await axiosPublic.put("/flash-sale/toggle-auto", {
         enable: !autoFlashSaleOn,
       });
-      console.log(res.data.enable);
       setAutoFlashSaleOn(res.data.enable);
     } catch (err) {
-      console.error("Failed to toggle auto flash sale:", err);
+      console.error(err);
     }
   };
   const getImages = (images) => {
@@ -85,7 +84,6 @@ export default function FlashSaleView({
           });
           setAutoFlashSaleOn(createRes.data.setting.is_auto_enabled);
         } else {
-          console.log(res.data.is_auto_enabled);
           setAutoFlashSaleOn(res.data.is_auto_enabled);
         }
       } catch (err) {
@@ -239,7 +237,6 @@ export default function FlashSaleView({
     }
 
     for (const prod of productPayload) {
-      console.log(prod.isflashsale);
       try {
         formData.append("productName", prod.product_name);
         formData.append("regular_price", prod.regular_price);
@@ -330,6 +327,25 @@ export default function FlashSaleView({
       }
     });
   };
+  const deleteFlashSaleProducts = async (id) => {
+    Swal.fire({
+      icon: "warning",
+      title: "Are You Sure?",
+      showCancelButton: true, // confirm + cancel button
+      confirmButtonColor: "#00C853",
+      cancelButtonColor: "#f72c2c",
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await axiosPublic.delete(`/flash-sale/products/${id}`);
+        refetchProducts();
+        refetch();
+      } else {
+        return;
+      }
+    });
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -339,8 +355,6 @@ export default function FlashSaleView({
 
     return () => clearInterval(interval);
   }, []);
-
-  console.log(user);
 
   return (
     <div className="space-y-6">
@@ -399,10 +413,10 @@ export default function FlashSaleView({
           <div className="flex md:flex-row flex-col gap-4 items-center justify-between w-full mb-4 ">
             <div className="flex  items-start sm:items-center gap-2 sm:gap-4 sm:order-1 order-2  sm:justify-start justify-between  w-full">
               <h3 className="font-medium sm:text-base text-[14px]">
-                Total Products ({products.length})
+                Total Products ({products.length.toLocaleString("en-IN")})
               </h3>
               <h3 className="font-medium sm:text-base text-[14px]">
-                Selected Products ({selected.length})
+                Selected Products ({selected.length.toLocaleString("en-IN")})
               </h3>
             </div>
             <div className="flex gap-2 md:order-2 order-1  ms-auto">
@@ -512,7 +526,9 @@ export default function FlashSaleView({
                         </span>
                       </td>
                       <td>
-                        <span className="font-semibold">{p.stock}</span>
+                        <span className="font-semibold">
+                          {p.stock.toLocaleString("en-IN")}
+                        </span>
                       </td>
                       <td>
                         {p.isflashsale ? (
@@ -576,14 +592,32 @@ export default function FlashSaleView({
           </>
         )}
       </div>
-      <h1 className="text-lg">
-        FlashSale Products{" "}
+      <div className="flex justify-between">
+        <h1 className="text-lg">
+          FlashSale Products{" "}
+          {flashSaleProducts?.sale_products?.length ? (
+            <>
+              ({flashSaleProducts.sale_products.length.toLocaleString("en-IN")})
+            </>
+          ) : (
+            ""
+          )}
+        </h1>
+
         {flashSaleProducts?.sale_products?.length ? (
-          <>({flashSaleProducts.sale_products.length})</>
+          <>
+            {" "}
+            <button
+              onClick={() => deleteFlashSale(flashSaleProducts.id)}
+              className="bg-red-100 hover:bg-[#e92323] text-red-600 rounded px-3 py-2 hover:text-white "
+            >
+              <Trash2 size={20} />
+            </button>
+          </>
         ) : (
           ""
         )}
-      </h1>
+      </div>
 
       {!flashSaleProducts?.sale_products?.length ? (
         <div>
@@ -646,11 +680,13 @@ export default function FlashSaleView({
                         </span>
                       </td>
                       <td>
-                        <span className="font-semibold">{p.stock}</span>
+                        <span className="font-semibold">
+                          {p.stock.toLocaleString("en-IN")}
+                        </span>
                       </td>
                       <td>
                         {p.isflashsale ? (
-                          <p className="inline-flex items-center px-3 py-0.5 rounded-full text-base font-medium bg-red-100 text-red-800">
+                          <p className="inline-flex items-center px-3 py-0.5 rounded-full text-base font-medium bg-red-100 text-red-800 w-max">
                             <ZapIcon className="w-3 h-3 mr-1 fill-red-800" />{" "}
                             {p.discount}% off
                           </p>
@@ -662,7 +698,7 @@ export default function FlashSaleView({
                       </td>
                       <td>
                         <button
-                          onClick={() => deleteFlashSale(flashSaleProducts.id)}
+                          onClick={() => deleteFlashSaleProducts(p.id)}
                           className="bg-red-100 hover:bg-[#e92323] text-red-600 rounded px-3 py-2 hover:text-white"
                         >
                           <Trash2 size={20} />

@@ -6,8 +6,6 @@ import { useLocation } from "react-router";
 export default function ProtectedRoute({ children, allowRoles }) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
-  const isAuth = Boolean(document.cookie.includes("Token"));
-  console.log(isAuth);
 
   if (!isLoading) {
     if (!user)

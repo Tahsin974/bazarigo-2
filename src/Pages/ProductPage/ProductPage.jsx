@@ -3,7 +3,7 @@ import ProductDetails from "./components/ProductDetails";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router";
 import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
-import useAuth from "../../Utils/Hooks/useAuth";
+
 import Loading from "../../components/Loading/Loading";
 
 export default function ProductPage() {
@@ -13,7 +13,6 @@ export default function ProductPage() {
   const axiosPublic = useAxiosPublic();
   const location = useLocation();
   const fromFlashSale = location.state?.fromFlashSale;
-  const { isLoading } = useAuth();
   const {
     data: productDetails = {},
     isPending,
@@ -42,10 +41,10 @@ export default function ProductPage() {
       </div>
     );
   }
-  console.log(productDetails);
+
   return (
     <>
-      {!isPending && !isLoading ? (
+      {!isPending ? (
         <div className="space-y-10 xl:px-6 lg:px-6  px-4 bg-gray-100">
           <ProductDetails
             product={productDetails}

@@ -162,22 +162,22 @@ function ReportsView({ payments, customers }) {
       <h2>Reports Summary</h2>
       <div class="card-container">
         <div class="card"><div class="card-title">Revenue</div><div class="card-value">৳${(
-          reports.revenue || 0
+          reports.revenue.toLocaleString("en-IN") || 0
         ).toLocaleString("en-IN")}</div></div>
-        <div class="card"><div class="card-title">Orders</div><div class="card-value">${
-          reports.totalOrders
-        }</div></div>
-        <div class="card"><div class="card-title">Customers</div><div class="card-value">${
-          customers?.length
-        }</div></div>
-        <div class="card"><div class="card-title">Sellers</div><div class="card-value">${
-          reports.totalSellers
-        }</div></div>
+        <div class="card"><div class="card-title">Orders</div><div class="card-value">${reports.totalOrders.toLocaleString(
+          "en-IN"
+        )}</div></div>
+        <div class="card"><div class="card-title">Customers</div><div class="card-value">${customers?.length.toLocaleString(
+          "en-IN"
+        )}</div></div>
+        <div class="card"><div class="card-title">Sellers</div><div class="card-value">${reports.totalSellers.toLocaleString(
+          "en-IN"
+        )}</div></div>
         <div class="card"><div class="card-title">Average Order Value</div><div class="card-value">৳${
           reports.averageOrderValue?.toFixed(2) || 0
         }</div></div>
         <div class="card"><div class="card-title">Total Payments</div><div class="card-value">${
-          payments?.length || 0
+          payments?.length.toLocaleString("en-IN") || 0
         }</div></div>
       </div>
     </section>
@@ -343,19 +343,19 @@ function ReportsView({ payments, customers }) {
                 <div className="bg-white p-4 rounded shadow-sm text-center">
                   Orders
                   <div className="text-2xl font-bold mt-2">
-                    {reports.totalOrders}
+                    {reports.totalOrders.toLocaleString("en-IN")}
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded shadow-sm text-center">
                   Customers
                   <div className="text-2xl font-bold mt-2">
-                    {customers?.length}
+                    {customers?.length.toLocaleString("en-IN")}
                   </div>
                 </div>
                 <div className="bg-white p-4 rounded shadow-sm text-center">
                   Sellers
                   <div className="text-2xl font-bold mt-2">
-                    {reports.totalSellers}
+                    {reports.totalSellers.toLocaleString("en-IN")}
                   </div>
                 </div>
               </div>

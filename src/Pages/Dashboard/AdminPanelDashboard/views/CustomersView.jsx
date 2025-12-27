@@ -1,10 +1,8 @@
-import React from "react";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import AddBtn from "../../../../components/ui/AddBtn";
 import SearchField from "../../../../components/ui/SearchField";
 import Pagination from "../../../../components/ui/Pagination";
-import { motion } from "framer-motion";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import { Eye, PlusCircle } from "lucide-react";
 import Swal from "sweetalert2";
@@ -114,7 +112,7 @@ function CustomersView({
         <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
           <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
             <h3 className="font-medium sm:text-base text-[14px]">
-              Customers ({customers.length})
+              Customers ({customers.length.toLocaleString("en-IN")})
             </h3>
           </div>
           {/* Small screen buttons */}
@@ -192,7 +190,9 @@ function CustomersView({
                       </span>
                     </td>
                     <td>
-                      <span className="font-semibold">{c.orders_count}</span>
+                      <span className="font-semibold">
+                        {c.orders_count.toLocaleString("en-IN")}
+                      </span>
                     </td>
                     <td>
                       <div className="flex items-center gap-2 justify-center">

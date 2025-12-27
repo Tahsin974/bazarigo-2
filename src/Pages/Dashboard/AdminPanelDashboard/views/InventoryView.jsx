@@ -118,7 +118,7 @@ export default function InventoryView({
             </div>
             <div className="flex justify-between items-center my-4">
               <h3 className="font-medium sm:text-base text-[14px]  ">
-                Total Products ({inventory.length})
+                Total Products ({inventory.length.toLocaleString("en-IN")})
               </h3>
               <div className="relative">
                 <SelectField
@@ -145,14 +145,15 @@ export default function InventoryView({
                           {p.product_name}
                         </h2>
                         <p className="text-xs sm:text-sm text-gray-600">
-                          {p.category} → {p.subcategory}
+                          {p.category} → {p.subcategory}→ {p.subcategory_item}
                         </p>
                       </div>
 
                       {/* Stock info */}
                       <div className="sm:text-right">
                         <h3 className="text-xs sm:text-sm font-medium text-gray-700">
-                          Total Stock: {calculateTotalStock(p)}
+                          Total Stock:{" "}
+                          {calculateTotalStock(p).toLocaleString("en-IN")}
                         </h3>
                       </div>
 
@@ -184,6 +185,7 @@ export default function InventoryView({
                               {Object.keys(p.extras.variants[0])
                                 .filter(
                                   (k) =>
+                                    k !== "id" &&
                                     k !== "stock" &&
                                     k !== "sale_price" &&
                                     k !== "regular_price"
@@ -205,6 +207,7 @@ export default function InventoryView({
                                 {Object.keys(v)
                                   .filter(
                                     (k) =>
+                                      k !== "id" &&
                                       k !== "stock" &&
                                       k !== "sale_price" &&
                                       k !== "regular_price"
@@ -228,30 +231,35 @@ export default function InventoryView({
                                 </td>
                                 <td>
                                   <span className="font-semibold">
-                                    {v.stock}
+                                    {v.stock.toLocaleString("en-IN")}
                                   </span>
                                 </td>
 
-                                <td className="flex justify-center items-center gap-2">
-                                  <button
-                                    onClick={() =>
-                                      updateVariantStock(p.id, i, -1)
-                                    }
-                                    className="p-1 rounded bg-red-100 hover:bg-red-200"
-                                  >
-                                    <Minus size={14} className="text-red-600" />
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      updateVariantStock(p.id, i, +1)
-                                    }
-                                    className="p-1 rounded bg-green-100 hover:bg-green-200"
-                                  >
-                                    <Plus
-                                      size={14}
-                                      className="text-green-600"
-                                    />
-                                  </button>
+                                <td>
+                                  <div className="flex justify-center items-center gap-2">
+                                    <button
+                                      onClick={() =>
+                                        updateVariantStock(p.id, i, -1)
+                                      }
+                                      className="p-1 rounded bg-red-100 hover:bg-red-200"
+                                    >
+                                      <Minus
+                                        size={14}
+                                        className="text-red-600"
+                                      />
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        updateVariantStock(p.id, i, +1)
+                                      }
+                                      className="p-1 rounded bg-green-100 hover:bg-green-200"
+                                    >
+                                      <Plus
+                                        size={14}
+                                        className="text-green-600"
+                                      />
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             ))}

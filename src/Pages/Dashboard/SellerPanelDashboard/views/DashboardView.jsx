@@ -140,12 +140,12 @@ text-align: center;}
         <section >
           <h2>Dashboard Summary</h2>
           <div class="card-container">
-            <div class="card"><div class="card-title">Total Products</div><div class="card-value">${
-              dashboard.totalProducts
-            }</div></div>
-            <div class="card"><div class="card-title">Total Orders</div><div class="card-value">${
-              dashboard.totalOrders
-            }</div></div>
+            <div class="card"><div class="card-title">Total Products</div><div class="card-value">${dashboard.totalProducts.toLocaleString(
+              "en-IN"
+            )}</div></div>
+            <div class="card"><div class="card-title">Total Orders</div><div class="card-value">${dashboard.totalOrders.toLocaleString(
+              "en-IN"
+            )}</div></div>
             <div class="card"><div class="card-title">Revenue
     </div><div class="card-value">৳${dashboard.revenue.toLocaleString(
       "en-IN"
@@ -219,13 +219,13 @@ text-align: center;}
                   <div className="bg-white sm:p-6 p-3 rounded-lg shadow-md">
                     <div className="text-sm text-gray-500">Products</div>
                     <div className="text-2xl font-bold">
-                      {dashboard?.totalProducts}
+                      {dashboard?.totalProducts.toLocaleString("en-IN")}
                     </div>
                   </div>
                   <div className="bg-white sm:p-6 p-3 rounded-lg shadow-md">
                     <div className="text-sm text-gray-500">Orders</div>
                     <div className="text-2xl font-bold">
-                      {dashboard?.totalOrders}
+                      {dashboard?.totalOrders.toLocaleString("en-IN")}
                     </div>
                   </div>
                   <div className="bg-white sm:p-6 p-3 rounded-lg shadow-md">

@@ -11,7 +11,7 @@ import Sidebar from "../../../components/Sidebar/Sidebar";
 import MyProfileView from "../../../components/MyProfileView/MyProfileView";
 import Wishlist from "./components/Wishlist/Wishlist";
 import { useQuery } from "@tanstack/react-query";
-import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+
 import MessagesView from "../../../components/MessagesView/MessagesView";
 
 import useAuth from "../../../Utils/Hooks/useAuth";
@@ -31,10 +31,12 @@ import {
   ShoppingCart,
   Undo2,
 } from "lucide-react";
+import useAxiosSecure from "../../../Utils/Hooks/useAxiosSecure";
+import useNotifications from "../../../Utils/Hooks/useNotifications";
 
 export default function UserAccountDashboard() {
   const location = useLocation();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   // Open/Close Menu
   // User
 
@@ -52,23 +54,29 @@ export default function UserAccountDashboard() {
 
   const { data: followingLists = [], refetch: refetchFollowingList } = useQuery(
     {
-      queryKey: ["followingList"],
+      queryKey: ["followingLists", user?.id],
       queryFn: async () => {
-        const res = await axiosPublic(`/following/${user.id}`);
+        const res = await axiosSecure.get(`/following/${user.id}`);
+
         return res.data.sellers;
       },
+      enabled: !!user?.id,
     }
   );
+
+  const { notifications } = useNotifications();
+
   const { myMessages } = useMessages();
 
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [activeMessage, setActiveMessage] = useState(null);
   const { bazarigo } = useSuperAdmin();
+
   // Orders
   const { data: orders = [], refetch: refetchOrders } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      const res = await axiosPublic.get(`/orders/${user.email}`);
+      const res = await axiosSecure.get(`/orders/${user.email}`);
       return res.data.orders;
     },
   });
@@ -76,16 +84,19 @@ export default function UserAccountDashboard() {
   const { data: wishlists = [], refetch: refetchWishLists } = useQuery({
     queryKey: ["wishlists"],
     queryFn: async () => {
-      const res = await axiosPublic.get(`/wishlist?email=${user.email}`);
+      const res = await axiosSecure.get(`/wishlist?email=${user.email}`);
       return res.data.wishlists;
     },
   });
+
   const { carts } = useCart();
   const { data: returnRequests = [], refetch: refetchReturnRequests } =
     useQuery({
-      queryKey: ["returnRequests"],
+      queryKey: ["return-requests-user"],
       queryFn: async () => {
-        const res = await axiosPublic.get(`/return-requests/${user.email}`);
+        const res = await axiosSecure.get(
+          `/return-requests-user/${user?.email}`
+        );
         return res.data.returnRequests;
       },
     });
@@ -96,21 +107,15 @@ export default function UserAccountDashboard() {
     setActiveMessage(user);
     setMessageModalOpen(true);
   };
-  console.log(bazarigo);
+
+  const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Side Bar */}
 
       <div className="hidden lg:flex">
-        <Sidebar
-          active={activeTab}
-          setActive={setActiveTab}
-          orders={orders}
-          cart={carts}
-          wishlist={wishlists}
-          items={navItems}
-        />
+        <Sidebar active={activeTab} setActive={setActiveTab} items={navItems} />
       </div>
 
       {/* Main Column */}
@@ -121,9 +126,7 @@ export default function UserAccountDashboard() {
           user={user}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          orders={orders}
           cart={carts}
-          wishlist={wishlists}
           messages={myMessages}
           items={navItems}
         >
@@ -153,6 +156,7 @@ export default function UserAccountDashboard() {
               orders={orders}
               cart={carts}
               activeTab={activeTab}
+              unreadCount={unreadCount}
               followingLists={followingLists}
               refetch={refetchFollowingList}
             />

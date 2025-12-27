@@ -39,6 +39,7 @@ function PaymentsView({
       orderId,
     });
     if (res.data.updatedCount > 0) {
+      alert("Payment approved successfully");
       return refetch();
     }
   };
@@ -81,7 +82,7 @@ function PaymentsView({
             <table className="table text-center">
               <thead className="bg-gray-50">
                 <tr className="text-black">
-                  <th>Payment ID</th>
+                  <th>SL No. </th>
                   <th>Date</th>
                   <th>Amount</th>
                   <th>Method</th>
@@ -90,10 +91,12 @@ function PaymentsView({
                 </tr>
               </thead>
               <tbody>
-                {paginatedPayments.map((p) => (
+                {paginatedPayments.map((p, index) => (
                   <tr key={p.id} className="border-b">
                     <td>
-                      <span className="font-semibold">{p.id}</span>
+                      <span className="font-semibold">
+                        {(paymentPage - 1) * paymentPageSize + index + 1}
+                      </span>
                     </td>
                     <td>
                       <span className="font-semibold">
@@ -179,7 +182,7 @@ function PaymentsView({
             <table className="table table-sm w-full text-center">
               <thead className=" ">
                 <tr className="text-black">
-                  <th>Payment ID</th>
+                  <th>SL No.</th>
                   <th>Payment Date</th>
                   <th>Seller Name</th>
                   <th>Amount</th>
@@ -189,10 +192,12 @@ function PaymentsView({
                 </tr>
               </thead>
               <tbody>
-                {paginatedSellerPayments.map((payment) => (
+                {paginatedSellerPayments.map((payment, index) => (
                   <tr key={payment.id}>
                     <td>
-                      <span className="font-semibold">{payment.id}</span>
+                      <span className="font-semibold">
+                        {(sellerPaymentsPage - 1) * paymentPageSize + index + 1}
+                      </span>
                     </td>
                     <td>
                       <span className="font-semibold">

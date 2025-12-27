@@ -7,13 +7,9 @@ export default function Drawer({
   user,
   activeTab,
   setActiveTab,
-  products = [],
-  orders = [],
-  customers = [],
-  sellers = [],
-  payments = [],
-  promotions = [],
+
   cart = [],
+
   messages = [],
   items,
   children,
@@ -62,13 +58,6 @@ export default function Drawer({
         <Sidebar
           active={activeTab}
           setActive={setActiveTab}
-          orders={orders}
-          cart={cart}
-          products={products}
-          customers={customers}
-          sellers={sellers}
-          payments={payments}
-          promotions={promotions}
           items={items}
           handleMenu={handleMenu}
         />

@@ -13,27 +13,21 @@ import useJustArrivedProducts from "../../../Utils/Hooks/useJustArrivedProducts"
 import useTrendingProducts from "../../../Utils/Hooks/useTrendingProducts";
 
 export default function HomePage() {
-  const { user, isLoading } = useAuth();
-  console.log("user", user);
+  const { isLoading } = useAuth();
 
   const axiosPublic = useAxiosPublic();
-  const { data: flashSale, isLoading: isFlashSaleLoading } = useQuery({
+  const { data: flashSale } = useQuery({
     queryKey: ["flash-sale"],
     queryFn: async () => {
       const res = await axiosPublic.get("/flash-sale/active");
       return res.data;
     },
   });
-  const { data: justArrived = [], isPending: justArrivedLoading } =
-    useJustArrivedProducts();
-  const { data: trendingProducts = [], isPending: trendingLoading } =
-    useTrendingProducts();
+  const { data: justArrived = [] } = useJustArrivedProducts();
+  const { data: trendingProducts = [] } = useTrendingProducts();
   return (
     <div className="w-full bg-white font-sans text-gray-800 space-y-10">
-      {isLoading ||
-      isFlashSaleLoading ||
-      justArrivedLoading ||
-      trendingLoading ? (
+      {isLoading ? (
         <Loading />
       ) : (
         <>

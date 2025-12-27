@@ -49,7 +49,6 @@ export default function SellerHeader({
       queryClient.invalidateQueries(["sellerDetails"]);
     },
     onError: (error) => {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.response?.data?.message || "Something went wrong",
@@ -62,11 +61,9 @@ export default function SellerHeader({
   });
 
   const onSubmit = (data) => {
-    console.log(sellerId);
     mutation.mutate(data);
     // রেটিং দেওয়া হয়েছে চিহ্নিত
   };
-  console.log(sellerDetails.role);
   const handleFollow = async (userId, sellerId) => {
     try {
       const res = await axiosPublic.post("/following", {
@@ -124,7 +121,6 @@ export default function SellerHeader({
       ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
       : 0
   ).toFixed(1);
-  console.log("reviews", reviews);
   useEffect(() => {
     if (!sellerDetails?.reviews) return;
 
@@ -206,7 +202,7 @@ export default function SellerHeader({
                         className="text-[#FFD700] fill-[#FFD700]"
                       />
                     }
-                    initialRating={4}
+                    initialRating={ratings}
                     readonly
                   />
                   <span className="text-sm text-white font-bold">

@@ -46,8 +46,6 @@ export default function MessagesView({ messages, openMessageModal }) {
     return words.slice(0, limit).join(" ") + "...";
   };
 
-  console.log(messages);
-
   return (
     <div>
       {" "}

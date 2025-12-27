@@ -1,19 +1,30 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import UploadImages from "../../../../../components/ui/UploadImages";
-import { X } from "lucide-react";
+import { Pause, Play, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { InputField } from "../../../../../components/ui/InputField";
 import useAuth from "../../../../../Utils/Hooks/useAuth";
 import useAxiosPublic from "../../../../../Utils/Hooks/useAxiosPublic";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../../../../Utils/Hooks/useAxiosSecure";
 
 export default function ReturnForm({ refetch }) {
   const { user } = useAuth();
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+  const { data: orders = [] } = useQuery({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/orders/${user.email}`);
+      return res.data.orders;
+    },
+  });
 
   const [images, setImages] = useState([]);
+  const videoRef = useRef();
+  const [isPaused, setIsPaused] = useState(true);
   const {
     register,
     handleSubmit,
@@ -23,7 +34,32 @@ export default function ReturnForm({ refetch }) {
   } = useForm();
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
+    const maxSizeImage = 2 * 1024 * 1024; // 1MB
+    const validFiles = [];
+    let hasInvalid = false;
+
+    files.forEach((file) => {
+      if (file.type.startsWith("image") && file.size > maxSizeImage) {
+        hasInvalid = true;
+      } else if (
+        file.type.startsWith("image") ||
+        file.type.startsWith("video")
+      ) {
+        validFiles.push(file);
+      }
+    });
+
+    if (hasInvalid) {
+      Swal.fire({
+        icon: "error",
+        title: "File too large!",
+        text: "Each image must be less than 1MB.",
+        confirmButtonColor: "#FF0055",
+      });
+    }
+
+    if (validFiles.length === 0) return;
     setImages((prev) => [...prev, ...files]); // সরাসরি File object রাখুন
   };
 
@@ -51,7 +87,6 @@ export default function ReturnForm({ refetch }) {
       queryClient.invalidateQueries(["returnRequests"]);
     },
     onError: (error) => {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.response?.data?.message || "Something went wrong",
@@ -156,27 +191,60 @@ export default function ReturnForm({ refetch }) {
       />
 
       <div>
-        <UploadImages handleImageUpload={handleImageUpload}>
+        <UploadImages video={true} handleImageUpload={handleImageUpload}>
           <div className="mt-3 grid grid-cols-4 gap-2">
-            {(images || []).map((src, i) => (
-              <div
-                key={i}
-                className="w-full h-24 rounded overflow-hidden relative"
-              >
-                <img
-                  src={URL.createObjectURL(src)}
-                  alt={`product-${i}`}
-                  className="w-full h-full object-cover"
-                />
-                {/* ❌ X Button */}
-                <button
-                  onClick={() => removeImage(i)}
-                  className="absolute top-1 right-1 w-6 h-6  text-gray-500 rounded-full flex items-center justify-center text-sm  transition"
+            {(images || []).map((file, i) => {
+              const isVideo = file.type.startsWith("video");
+              const mediaURL = URL.createObjectURL(file); // File থেকে preview
+
+              return (
+                <div
+                  key={i}
+                  className="w-full h-24 rounded overflow-hidden relative flex justify-center items-center bg-gray-100"
                 >
-                  <X size={18} />
-                </button>
-              </div>
-            ))}
+                  {!isVideo && (
+                    <img
+                      src={mediaURL}
+                      alt={`media-${i}`}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+
+                  {isVideo && (
+                    <>
+                      <video
+                        ref={videoRef}
+                        src={mediaURL}
+                        className="w-full h-full object-cover"
+                        onEnded={() => setIsPaused(true)}
+                      />
+
+                      <button
+                        onClick={() => {
+                          if (videoRef.current.paused) {
+                            videoRef.current.play();
+                            setIsPaused(false);
+                          } else {
+                            videoRef.current.pause();
+                            setIsPaused(true);
+                          }
+                        }}
+                        className="absolute bottom-2 left-2 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-md transition duration-200 ease-in-out "
+                      >
+                        {isPaused ? <Play size={16} /> : <Pause size={16} />}
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => removeImage(i)}
+                    className="absolute top-1 right-1 w-6 h-6 text-white rounded-full flex items-center justify-center text-sm transition"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </UploadImages>
       </div>
@@ -184,9 +252,10 @@ export default function ReturnForm({ refetch }) {
       <div className="flex gap-3">
         <button
           type="submit"
-          className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md"
+          disabled={mutation.isLoading || !orders.length}
+          className="px-4 py-2 bg-[#00C853] hover:bg-[#00B34A] text-white rounded-md disabled:bg-gray-300 disabled:text-gray-500 transition-colors "
         >
-          Submit Request
+          {mutation.isLoading ? "Submitting..." : "Submit Return Request"}
         </button>
       </div>
     </form>

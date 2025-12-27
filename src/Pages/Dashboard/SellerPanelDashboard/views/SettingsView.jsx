@@ -80,8 +80,6 @@ export default function SettingsView({ active }) {
         date ? new Date(date).toISOString() : user.date_of_birth
       );
 
-      console.log("FormData entries:", [...formData.entries()]);
-
       const res = await axiosPublic.put(
         `/sellers/update/${user.id}`,
         formData,
@@ -103,7 +101,6 @@ export default function SettingsView({ active }) {
         window.location.reload();
       }
     } catch (err) {
-      console.log(err);
       Swal.fire({
         icon: "error",
         title: err.response?.data?.message || "Something went wrong!",

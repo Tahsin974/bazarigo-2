@@ -27,6 +27,7 @@ import { useLocation } from "react-router";
 import useCart from "../../../Utils/Hooks/useCart";
 import AskQuestion from "./AskQuestion";
 import Loading from "../../../components/Loading/Loading";
+import ReactImageMagnify from "react-image-magnify";
 
 export default function BaseProductDetails({
   product = {},
@@ -46,7 +47,7 @@ export default function BaseProductDetails({
   const [selectedVariant, setSelectedVariant] = useState(null);
   const navigate = useNavigate();
   const encodedId = btoa(product.seller_id);
-
+  const imgUrl = `${baseUrl}${mainImage}`;
   useEffect(() => {
     if (product.extras?.variants && product.extras.variants.length > 0) {
       // sell_price > 0 অনুযায়ী filter & sort করা
@@ -77,18 +78,8 @@ export default function BaseProductDetails({
       Object.keys(selectedVariant).length > 0 &&
       product.extras?.variants
     ) {
-      // const matchedVariant = product.extras.variants.find((variant) =>
-      //   Object.entries(selectedVariant).every(([key, value]) => {
-      //     // normalize keys: trim and lowercase
-      //     const variantKey = Object.keys(variant).find(
-      //       (k) => k.toLowerCase() === key.toLowerCase()
-      //     );
-
-      //     return variantKey && variant[variantKey] === value;
-      //   })
-      // );
       const optionKeys = Object.keys(product.extras.variants[0]).filter(
-        (k) => !["sale_price", "regular_price", "stock"].includes(k)
+        (k) => !["sale_price", "regular_price", "stock", "id"].includes(k)
       );
 
       const matchedVariant = product.extras.variants.find((variant) =>
@@ -100,6 +91,13 @@ export default function BaseProductDetails({
           sale_price: matchedVariant.sale_price,
           regular_price: matchedVariant.regular_price,
           stock: matchedVariant.stock,
+        };
+      } else {
+        // যদি কোন match না পাওয়া যায়
+        return {
+          sale_price: 0,
+          regular_price: 0,
+          stock: "Not Available",
         };
       }
     }
@@ -154,6 +152,16 @@ export default function BaseProductDetails({
   // Usage
 
   const relatedProducts = getRelatedProducts(products, product);
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
+  };
 
   const handleBuyNowBtn = async (product) => {
     try {
@@ -162,7 +170,7 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: product.images[0],
+          product_img: getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -181,17 +189,25 @@ export default function BaseProductDetails({
             position: "top",
           });
         }
+        if (stock === "Not Available") {
+          return Swal.fire({
+            icon: "error",
+            title: `sorry this product is not available`,
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
 
         const deliveryPayload = {
-          sellerId: product.seller_id || "SELA4976743F7B6",
-          sellerName: product.seller_name,
-          sellerStoreName: product.seller_store_name,
+          sellerId: product.seller_id,
+
           userId: user.id,
           weight: parseInt(product.weight || 0), // ensure number
           orderAmount: sale_price === 0 ? regular_price : sale_price, // single item price
           isCod: false, // বা তোমার state অনুযায়ী
         };
-        console.log(deliveryPayload);
 
         // === Step 1: Delivery fetch ===
         const deliveryRes = await axiosPublic.get("/deliveries", {
@@ -202,9 +218,10 @@ export default function BaseProductDetails({
 
         // === Step 2: Prepare cart payload with delivery info ===
         const payLoad = {
-          sellerid: product.seller_id || "SELA4976743F7B6",
+          sellerid: product.seller_id,
           seller_name: product.seller_name,
           seller_store_name: product.seller_store_name,
+          seller_role: product.seller_role,
           productinfo: [checkOutItem],
           deliveries, // attach delivery info
         };
@@ -243,7 +260,7 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: product.images[0],
+          product_img: getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -263,14 +280,23 @@ export default function BaseProductDetails({
             position: "top",
           });
         }
+        if (stock === "Not Available") {
+          return Swal.fire({
+            icon: "error",
+            title: `sorry this product is not available`,
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
 
         const deliveryPayload = {
-          sellerId: product.seller_id || "SELA4976743F7B6",
+          sellerId: product.seller_id,
 
           userId: user.id,
           weight: parseInt(product.weight || 0), // ensure number
           orderAmount: sale_price === 0 ? regular_price : sale_price, // single item price
-          isCod: false, // বা তোমার state অনুযায়ী
         };
 
         // === Step 1: Delivery fetch ===
@@ -282,8 +308,10 @@ export default function BaseProductDetails({
 
         // === Step 2: Prepare cart payload with delivery info ===
         const payLoad = {
-          sellerId: product.seller_id || "SELA4976743F7B6",
-
+          sellerId: product.seller_id,
+          seller_name: product.seller_name,
+          seller_store_name: product.seller_store_name,
+          seller_role: product.seller_role,
           productInfo: [cartItem],
           deliveries, // attach delivery info
         };
@@ -341,6 +369,7 @@ export default function BaseProductDetails({
       });
     }
   };
+
   const handleShare = async (product) => {
     const shareData = {
       title: product.name || "Check this product",
@@ -373,12 +402,22 @@ export default function BaseProductDetails({
 
     try {
       if (user && user.email) {
+        if (stock === "Not Available") {
+          return Swal.fire({
+            icon: "error",
+            title: `sorry this product is not available`,
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            position: "top",
+          });
+        }
         const res = await axiosPublic.post("/wishlist", {
           email: user?.email,
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: product.images[0],
+          product_img: getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -431,7 +470,7 @@ export default function BaseProductDetails({
         });
       }
     } catch (err) {
-      console.log("Wishlist toggle error:", err);
+      console.error(err);
       setIsSelect(!newToggle); // UI revert if error
     }
   };
@@ -456,10 +495,28 @@ export default function BaseProductDetails({
               {product.images && product.images[0] ? (
                 <>
                   {!video && (
-                    <img
-                      src={`${baseUrl}${mainImage}`}
-                      alt=""
-                      className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                    // <img
+                    //   src={`${baseUrl}${mainImage}`}
+                    //   alt=""
+                    //   className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                    // />
+                    <ReactImageMagnify
+                      {...{
+                        smallImage: {
+                          alt: "Wristwatch by Ted Baker London",
+                          isFluidWidth: true,
+                          src: imgUrl,
+                        },
+                        largeImage: {
+                          src: imgUrl,
+                          width: 1080,
+                          height: 720,
+                        },
+                        enlargedImageContainerDimensions: {
+                          width: "135%",
+                          height: "135%",
+                        },
+                      }}
                     />
                   )}
                   {video && (
@@ -515,7 +572,7 @@ export default function BaseProductDetails({
                   >
                     {product.images.map((thumb, i) => {
                       const isVideo = thumb.endsWith(".mp4");
-                      console.log(isVideo);
+
                       return (
                         <>
                           {!isVideo && (
@@ -529,7 +586,7 @@ export default function BaseProductDetails({
                           )}
                           {isVideo && (
                             <div
-                              className="relative"
+                              className="relative w-20 h-20 flex-shrink-0"
                               onClick={() => setMainImage(thumb)}
                             >
                               <video
@@ -538,7 +595,7 @@ export default function BaseProductDetails({
                                     ? `${baseUrl}${thumb}`
                                     : thumb
                                 }
-                                className="w-20 h-20 object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer"
+                                className="w-full h-full object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer"
                               />
                               <button className="absolute inset-0 m-auto flex items-center justify-center   text-white p-3 rounded shadow-md transition duration-200 ease-in-out w-12 border border-white h-10">
                                 <Play size={20} />
@@ -570,9 +627,10 @@ export default function BaseProductDetails({
               transition={{ duration: 0.6 }}
               className="flex flex-col justify-center gap-1.5"
             >
-              <h1 className="text-3xl md:text-4xl font-bold">
+              <h1 className="text-lg sm:text-2xl md:text-3xl  font-bold">
                 {product.product_name || "Unnamed Product"}
               </h1>
+
               {/* id: product.seller_id  */}
               {user && user.email && (
                 <HashLink
@@ -580,7 +638,7 @@ export default function BaseProductDetails({
                   className="flex gap-x-1.5 items-center my-1 text-gray-500 hover:text-orange-400 "
                 >
                   <Store size={20} />
-                  <span>{product.seller_store_name || "Rohim Ghosh"}</span>
+                  <span>{product.seller_store_name}</span>
                 </HashLink>
               )}
 
@@ -622,23 +680,43 @@ export default function BaseProductDetails({
                   </button>
                 </div>
               ) : (
-                <RatingStars
-                  rating={
-                    Number(product.rating) > 0
-                      ? product.rating
-                      : product.reviews && product.reviews.length > 0
-                      ? product.reviews.reduce((a, r) => a + r.rating, 0) /
-                        product.reviews.length
-                      : 0
-                  }
-                  reviews={product.reviews}
-                />
+                <div className="flex items-center justify-between">
+                  <RatingStars
+                    rating={
+                      Number(product.rating) > 0
+                        ? product.rating
+                        : product.reviews && product.reviews.length > 0
+                        ? product.reviews.reduce((a, r) => a + r.rating, 0) /
+                          product.reviews.length
+                        : 0
+                    }
+                    reviews={product.reviews}
+                  />
+                  <div className="sm:hidden flex items-center gap-4 ">
+                    <button
+                      onClick={handleWishlistBtn}
+                      className="text-gray-600"
+                    >
+                      <Heart
+                        size={25}
+                        className={` ${isSelect && "fill-red-600"} `}
+                      />
+                    </button>
+                    <button onClick={handleShare} className="text-gray-600">
+                      <Share2 size={25} />
+                    </button>
+                  </div>
+                </div>
               )}
 
               {product.stock !== undefined && (
                 <p className="mt-2 text-sm">
                   {stock > 0 ? (
                     <span className="text-green-600 font-medium">In Stock</span>
+                  ) : stock === "Not Available" ? (
+                    <span className="text-red-600 font-medium">
+                      Not Available
+                    </span>
                   ) : (
                     <span className="text-red-600 font-medium">
                       Out of Stock
@@ -646,7 +724,7 @@ export default function BaseProductDetails({
                   )}
                 </p>
               )}
-              <p className="text-lg">
+              <p className="text-sm sm:text-base md:text-lg">
                 <strong>Brand:</strong> {product?.brand || "No Brand"}
               </p>
 
@@ -675,20 +753,22 @@ export default function BaseProductDetails({
                         Buy Now
                       </button>
 
-                      <button
-                        onClick={handleWishlistBtn}
-                        className="bg-gray-100 text-gray-600  sm:px-8 sm:py-4 px-4 py-3 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
-                      >
-                        <Heart
-                          className={`w-5 h-5 ${isSelect && "fill-red-600"} `}
-                        />
-                      </button>
-                      <button
-                        onClick={handleShare}
-                        className="bg-gray-100 text-gray-600 px-4 py-3 sm:px-8  sm:py-4 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
-                      >
-                        <Share2 className="w-5 h-5" />
-                      </button>
+                      <div className="sm:flex sm:items-center gap-4 hidden">
+                        <button
+                          onClick={handleWishlistBtn}
+                          className="bg-gray-100 text-gray-600  sm:px-8 sm:py-4 px-4 py-3 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
+                        >
+                          <Heart
+                            className={`w-5 h-5 ${isSelect && "fill-red-600"} `}
+                          />
+                        </button>
+                        <button
+                          onClick={handleShare}
+                          className="bg-gray-100 text-gray-600 px-4 py-3 sm:px-8  sm:py-4 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
+                        >
+                          <Share2 className="w-5 h-5" />
+                        </button>
+                      </div>
                       <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-6 sm:text-base text-sm text-gray-700 border border-dashed p-4 rounded-lg border-gray-300">
                         <div className="flex flex-col sm:flex-row items-center gap-2 sm:text-left text-center">
                           <Truck size={25} className=" text-[#FF0055]" />
@@ -713,6 +793,7 @@ export default function BaseProductDetails({
               <div className="mt-6 text-gray-600 leading-relaxed">
                 {product.description ? (
                   <div
+                    className="ql-editor"
                     dangerouslySetInnerHTML={{ __html: product.description }}
                   ></div>
                 ) : (

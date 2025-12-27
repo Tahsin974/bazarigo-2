@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -14,17 +14,23 @@ import { useNavigate } from "react-router";
 
 import { InputField } from "../../../components/ui/InputField";
 import { useLocation } from "react-router";
+import Cookies from "js-cookie";
 
 export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
   const axiosPublic = useAxiosPublic();
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
 
     formState: { errors, isValid },
-  } = useForm({ mode: "onChange" });
+  } = useForm({
+    mode: "onChange",
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -94,9 +100,27 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
         }
       } else {
         // Login Step
-        const payload = { email: data.email, password: data.password };
+        const payload = {
+          email: data.email,
+          password: data.password,
+          rememberMe,
+        };
         const res = await axiosPublic.post("/login", payload);
-        console.log(res.data);
+        if (res.data?.token) {
+          Cookies.set("token", res.data.token, {
+            expires: rememberMe ? 30 : null,
+            secure: true,
+            sameSite: "Strict",
+          });
+
+          // Save email for pre-fill
+          if (rememberMe) {
+            Cookies.set("rememberedEmail", data.email, { expires: 30 });
+            Cookies.set("rememberedPass", data.password, { expires: 30 });
+          } else {
+            Cookies.remove("rememberedEmail");
+          }
+        }
 
         if (res.data?.otp_required) {
           Swal.fire({
@@ -119,7 +143,6 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
         }
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: `${error.response?.data?.message}`,
@@ -132,6 +155,21 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
       setLoading(false); // stop loading
     }
   };
+  useEffect(() => {
+    const email = Cookies.get("rememberedEmail");
+    const password = Cookies.get("rememberedPass");
+
+    if (email && password) {
+      setRememberMe(true);
+
+      // Pre-fill React Hook Form fields AND trigger validation
+      setValue("email", email, { shouldValidate: true, shouldDirty: true });
+      setValue("password", password, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [setValue]);
 
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] p-6">
@@ -453,11 +491,27 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
                   </div>
                 </>
               )}
+
               {!isSignUp && (
-                <div className="flex justify-end">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <input
+                      id="rememberMe"
+                      type="checkbox"
+                      className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    <label
+                      htmlFor="rememberMe"
+                      className="ml-2 text-sm text-gray-700"
+                    >
+                      Remember Me
+                    </label>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => onNavigate("reset")}
+                    onClick={() => navigate("/reset")}
                     className="text-sm text-[#FF0055] hover:underline disabled:opacity-50"
                   >
                     Forgot Password?
@@ -494,17 +548,6 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
                   Continue with Google
                 </span>
               </a>
-
-              {/* <a
-                role="button"
-                onClick={() => console.log("Facebook login")}
-                className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-3 hover:bg-gray-50 transition disabled:opacity-50"
-              >
-                <FaFacebook size={20} className="text-[#1877F2]" />
-                <span className="text-gray-700 font-medium">
-                  Continue with Facebook
-                </span>
-              </a> */}
             </div>
             <p className="mt-6 text-sm text-center text-gray-500">
               {isSignUp ? (

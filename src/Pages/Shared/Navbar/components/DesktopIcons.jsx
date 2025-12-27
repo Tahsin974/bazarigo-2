@@ -32,6 +32,16 @@ export default function DesktopIcons() {
 
     onSuccess: () => refetchNotifications(),
   });
+  const markAsReadAllMutation = useMutation({
+    mutationFn: () =>
+      axiosSecure.patch(
+        `/notifications/read-all`,
+        {},
+        { withCredentials: true }
+      ),
+
+    onSuccess: () => refetchNotifications(),
+  });
 
   const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
@@ -43,7 +53,7 @@ export default function DesktopIcons() {
             title="Home"
             to="/#"
             aria-label="Shopping Cart"
-            className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
+            className="text-gray-800 cursor-pointer hover:text-[#FF0055] transition-colors"
           >
             <House size={20} />
           </HashLink>
@@ -94,7 +104,7 @@ export default function DesktopIcons() {
           >
             {/* Header with title and See All link */}
             <li className="flex justify-between items-center px-4 py-2 border-b border-gray-200">
-              <span className="font-semibold text-gray-900">Notifications</span>
+              <span className="font-semibold text-gray-800">Notifications</span>
               <Link
                 to={
                   user?.role === "admin" || user?.role === "super admin"
@@ -104,38 +114,57 @@ export default function DesktopIcons() {
                     : "/dashboard"
                 }
                 state={"Notifications"}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-[#FF0055] hover:underline"
               >
                 See All
               </Link>
             </li>
 
             {/* Notifications list */}
-            {notifications?.length ? (
-              notifications.map((n) => (
-                <li
-                  key={n.id}
-                  onClick={() => markAsReadMutation.mutate(n.id)}
-                  className={`flex flex-col px-4 py-3 cursor-pointer transition duration-200 ease-in-out rounded-md mb-1 hover:bg-gray-100 ${
-                    !n.is_read ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <span className="font-semibold text-gray-900 truncate">
-                    {n.title}
-                  </span>
-                  <span className="text-sm text-gray-600 truncate">
-                    {n.message}
-                  </span>
-                  <span className="text-xs text-gray-400 mt-1">
-                    {new Date(n.created_at).toLocaleString()}
-                  </span>
+            <>
+              <button
+                onClick={() => markAsReadAllMutation.mutate()}
+                className="bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white px-3 py-1 rounded-full text-xs  transition-shadow my-2  self-end"
+              >
+                Mark as read
+              </button>
+              {notifications?.length ? (
+                notifications.map((n) => (
+                  <Link
+                    to={
+                      user?.role === "admin" || user?.role === "super admin"
+                        ? "/dashboard/admin"
+                        : user?.role === "seller"
+                        ? "/dashboard/seller"
+                        : "/dashboard"
+                    }
+                    state={"Notifications"}
+                  >
+                    <li
+                      key={n.id}
+                      onClick={() => markAsReadMutation.mutate(n.id)}
+                      className={`flex flex-col px-4 py-3 cursor-pointer transition duration-200 ease-in-out rounded-md mb-1 hover:bg-gray-100 ${
+                        !n.is_read ? "bg-blue-50" : ""
+                      }`}
+                    >
+                      <span className="font-semibold text-gray-900 truncate">
+                        {n.title}
+                      </span>
+                      <span className="text-sm text-gray-600 truncate">
+                        {n.message}
+                      </span>
+                      <span className="text-xs text-gray-400 mt-1">
+                        {new Date(n.created_at).toLocaleString()}
+                      </span>
+                    </li>
+                  </Link>
+                ))
+              ) : (
+                <li className="px-4 py-4 text-center text-gray-500">
+                  No notifications
                 </li>
-              ))
-            ) : (
-              <li className="px-4 py-4 text-center text-gray-500">
-                No notifications
-              </li>
-            )}
+              )}
+            </>
           </ul>
         </div>
       )}
@@ -146,7 +175,7 @@ export default function DesktopIcons() {
             title="User"
             to="/sign-up"
             aria-label="User Account"
-            className="text-gray-600 cursor-pointer hover:text-[#FF0055] transition-colors"
+            className="text-gray-800 cursor-pointer hover:text-[#FF0055] transition-colors"
           >
             <User size={20} />
           </HashLink>
@@ -164,9 +193,9 @@ export default function DesktopIcons() {
             <div
               tabIndex={0}
               role="button"
-              className="btn bg-white btn-circle avatar border-gray-300 active:border-[#FF0055] hover:border-[#FF0055] shadow-none hover:shadow-none"
+              className="bg-white  border-gray-300 active:border-[#FF0055] hover:border-[#FF0055] shadow-none hover:shadow-none"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+              <div className=" w-10 h-10 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
                 {user?.img || user?.profile_img ? (
                   <img
                     alt={user?.name || user?.full_name || "logo"}

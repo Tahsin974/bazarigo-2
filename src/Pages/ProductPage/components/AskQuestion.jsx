@@ -154,8 +154,6 @@ export default function AskQuestion({
     answerMutation.mutate({ q_id: id, answer, replyDate });
   };
 
-  console.log(questions);
-
   return (
     <div className="container mx-auto xl:px-6 lg:px-6  px-4 md:py-10 py-6 border-t border-gray-300">
       <h3 className="text-xl font-bold mb-6">Ask a Question</h3>
@@ -213,9 +211,10 @@ export default function AskQuestion({
           <div className="flex">
             <button
               type="submit"
-              className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-3 rounded-lg shadow "
+              disabled={mutation.isLoading}
+              className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-3 rounded-lg shadow disabled:bg-gray-300 disabled:text-gray-500 transition-colors"
             >
-              Submit Question
+              {mutation.isLoading ? "Submitting..." : "Submit Question"}
             </button>
           </div>
         </form>
@@ -238,7 +237,6 @@ export default function AskQuestion({
             >
               <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold text-lg text-gray-800">
-                  {console.log(q)}
                   {q.name}
                 </span>
 

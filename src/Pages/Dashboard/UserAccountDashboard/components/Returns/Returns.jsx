@@ -6,7 +6,6 @@ import Swal from "sweetalert2";
 export default function Returns({ returnRequests, activeTab, refetch }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
   const axiosPublic = useAxiosPublic();
-  console.log(returnRequests);
   const getStatusClass = (status) => {
     switch (status) {
       case "approved":
@@ -96,14 +95,27 @@ export default function Returns({ returnRequests, activeTab, refetch }) {
 
                       {req.images && req.images.length > 0 && (
                         <div className="flex gap-3 mt-4 pt-4 border-t border-gray-200 flex-wrap">
-                          {req.images.map((img, idx) => (
-                            <img
-                              key={idx}
-                              src={`${baseUrl}${img}`}
-                              alt={`upload-${idx}`}
-                              className="w-20 h-20 object-cover rounded-lg shadow-sm"
-                            />
-                          ))}
+                          {req.images.map((img, idx) => {
+                            const isVideo = img.endsWith(".mp4");
+
+                            if (isVideo) {
+                              return (
+                                <video
+                                  key={idx}
+                                  src={baseUrl + img}
+                                  className="w-20 h-20 object-cover rounded-lg shadow-sm"
+                                />
+                              );
+                            }
+                            return (
+                              <img
+                                key={idx}
+                                src={`${baseUrl}${img}`}
+                                alt={`upload-${idx}`}
+                                className="w-20 h-20 object-cover rounded-lg shadow-sm"
+                              />
+                            );
+                          })}
                         </div>
                       )}
                     </div>

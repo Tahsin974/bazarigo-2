@@ -21,7 +21,6 @@ export default function AccountSettings({ activeTab }) {
   const [newPassword, setNewPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState(null);
 
-  console.log(user);
   const [payments, setPayments] = useState(() => {
     const userPayment = user.payment_methods;
 
@@ -42,7 +41,6 @@ export default function AccountSettings({ activeTab }) {
     // Default fallback
     return [{ provider: "", account: "", is_primary: false }];
   });
-  console.log(payments);
 
   // Add Payment Field
   const addPaymentField = () => {
@@ -114,8 +112,6 @@ export default function AccountSettings({ activeTab }) {
       const res = await axiosPublic.put(`/users/update/${user.id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      console.log(res.data);
 
       if (res.data.updatedCount > 0) {
         Swal.fire({

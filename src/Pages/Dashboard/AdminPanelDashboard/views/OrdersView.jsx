@@ -2,7 +2,7 @@ import React from "react";
 import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
 import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
 import Pagination from "../../../../components/ui/Pagination";
-import { Eye, MoreHorizontal } from "lucide-react";
+import { Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import SearchField from "../../../../components/ui/SearchField";
 import SelectField from "../../../../components/ui/SelectField";
 import { motion } from "framer-motion";
@@ -35,6 +35,8 @@ function OrdersView({
   setReturnOrderSearch,
   openOrderModal,
   refetch,
+  refetchReturnOrders,
+  openReturnOrderModal,
 }) {
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
@@ -42,20 +44,11 @@ function OrdersView({
     1,
     Math.ceil(filteredOrders.length / orderPageSize)
   );
-  console.log(paginatedReturnOrders);
 
   const returnOrdersTotalPages = Math.max(
     1,
     Math.ceil(filteredReturnOrders.length / returnOrderPageSize)
   );
-
-  // const updateStatus = (orderId, newStatus) => {
-  //   setOrders((prev) =>
-  //     prev.map((order) =>
-  //       order.orderId === orderId ? { ...order, status: newStatus } : order
-  //     )
-  //   );
-  // };
 
   const activeOrders = paginatedOrders.filter(
     (order) => order.order_status !== "Cancelled"
@@ -125,7 +118,6 @@ function OrdersView({
         refetch();
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.message,
@@ -142,6 +134,55 @@ function OrdersView({
       return item.productinfo;
     });
     return products.length;
+  };
+
+  const HandleDelete = async (id) => {
+    try {
+      Swal.fire({
+        icon: "warning",
+        title: "Are You Sure?",
+        showCancelButton: true, // confirm + cancel button
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const res = await axiosPublic.delete(`/return-orders/delete/${id}`);
+          if (res.data.deletedCount > 0) {
+            Swal.fire({
+              icon: "success",
+              title: "Return Order Deleted Successfully",
+              showConfirmButton: false,
+              timer: 1500,
+              toast: true,
+              position: "top",
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Opps! Try Again",
+              showConfirmButton: false,
+              timer: 1500,
+              toast: true,
+              position: "top",
+            });
+          }
+          refetchReturnOrders();
+        } else {
+          return;
+        }
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: `${error.message}`,
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+    }
   };
   return (
     <div className="space-y-6">
@@ -285,7 +326,12 @@ function OrdersView({
       <div>
         <div className="flex flex-wrap gap-3 items-center justify-between">
           <h3 className="font-semibold sm:text-base text-sm">
-            Return Orders {!returns?.length ? "" : <>({returns?.length})</>}
+            Return Orders{" "}
+            {!returns?.length ? (
+              ""
+            ) : (
+              <>({returns?.length.toLocaleString("en-IN")})</>
+            )}
           </h3>
           <div>
             <SearchField
@@ -317,6 +363,7 @@ function OrdersView({
                       <th className="px-4 py-3">Customer</th>
                       <th className="px-4 py-3">Reason</th>
                       <th className="px-4 py-3">Products</th>
+                      <th className="px-4 py-3">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -340,8 +387,29 @@ function OrdersView({
                         </td>
                         <td className="px-4 py-3">
                           <span className="font-semibold">
-                            {r.products.length}
+                            {r.products.length.toLocaleString("en-IN")}
                           </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2 justify-center">
+                            <button
+                              onClick={() => openReturnOrderModal(r.products)}
+                              className=" px-3 py-2 rounded cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-900 "
+                            >
+                              <Eye size={20} />
+                            </button>
+
+                            {/* Single Delete */}
+                            {user?.role === "admin" ||
+                              (user?.role === "super admin" && (
+                                <button
+                                  onClick={() => HandleDelete(r.id)}
+                                  className={`bg-red-100 hover:bg-[#e92323] text-red-600 rounded px-3 py-2 hover:text-white cursor-pointer disabled:bg-gray-300 disabled:text-gray-500`}
+                                >
+                                  <Trash2 size={20} />
+                                </button>
+                              ))}
+                          </div>
                         </td>
                       </tr>
                     ))}

@@ -13,7 +13,7 @@ export const InputField = ({
   const [showPassword, setShowPassword] = useState(false);
   return (
     <div className="w-full mb-4 relative">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>

@@ -31,8 +31,6 @@ export default function Overview({
     currentPage * 6
   );
 
-  console.log(followingLists);
-
   const handleUnFollow = async (userId, sellerId) => {
     try {
       const res = await axiosPublic.post("/following", {
@@ -145,12 +143,9 @@ export default function Overview({
                               <button
                                 onClick={() =>
                                   navigate(
-                                    `/seller-page/${f.seller_store_name}/store#`,
-                                    {
-                                      state: {
-                                        id: "b8398da5-338a-4f88-b06d-9fdbb1962eaa",
-                                      },
-                                    }
+                                    `/seller-page/${
+                                      f.seller_store_name
+                                    }/store?id=${btoa(f.seller_id)}#`
                                   )
                                 }
                                 className="btn btn-xs btn-error text-white flex items-center gap-1"

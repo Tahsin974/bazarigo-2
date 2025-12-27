@@ -1,53 +1,6 @@
 import logo from "@/assets/Bazarigo.svg";
-import { LogOut, X } from "lucide-react";
-export default function Sidebar({
-  active,
-  setActive,
-  products = [],
-  orders = [],
-  customers = [],
-  sellers = [],
-  payments = [],
-  promotions = [],
-  notifications = [],
-  wishlist = [],
-  cart = [],
-  items = [],
-  handleMenu,
-}) {
-  const getCount = (item, stores) => {
-    switch (item) {
-      case "Products":
-        return stores.products.length === 0 ? "" : stores.products.length;
-      case "Orders":
-        return stores.orders.length === 0 ? "" : stores.orders.length;
-      case "Customers":
-        return stores.customers.length === 0 ? "" : stores.customers.length;
-      case "Sellers":
-        return stores.sellers.length === 0 ? "" : stores.sellers.length;
-      case "Payments":
-        return stores.payments.length === 0 ? "" : stores.payments.length;
-      case "Promotions":
-        return stores.promotions.length === 0 ? "" : stores.promotions.length;
-      case "Notifications":
-        return stores.notifications.length === 0
-          ? ""
-          : stores.notifications.length;
-      case "Cart":
-        return stores.cart.length === 0
-          ? ""
-          : stores.cart.reduce(
-              (total, cartItem) => total + (cartItem.product_count || 0),
-              0
-            );
-      case "Wishlist":
-        return stores.wishlist.length === 0 ? "" : stores.wishlist.length;
-
-      default:
-        return "";
-    }
-  };
-
+import { X } from "lucide-react";
+export default function Sidebar({ active, setActive, items = [], handleMenu }) {
   return (
     <div>
       <aside className="w-80 md:w-64 bg-white border-r shadow-sm min-h-screen">
@@ -110,24 +63,6 @@ export default function Sidebar({
               <span className="flex items-center gap-2 font-medium">
                 {icon}
                 {label}
-              </span>
-
-              <span
-                className={`text-xs ${
-                  active === label ? "text-white" : "text-gray-400"
-                }`}
-              >
-                {getCount(label, {
-                  products,
-                  orders,
-                  customers,
-                  sellers,
-                  payments,
-                  promotions,
-                  notifications,
-                  cart,
-                  wishlist,
-                })}
               </span>
             </button>
           ))}

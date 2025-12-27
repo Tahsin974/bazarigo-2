@@ -120,7 +120,7 @@ function PromotionsView({
         <div className="flex md:flex-row flex-col  items-center justify-between w-full   gap-4">
           <div className="flex  gap-4 justify-start w-full sm:order-1 order-2 ">
             <h3 className="font-medium sm:text-base text-[14px]">
-              Promotions ({promotions.length})
+              Promotions ({promotions.length.toLocaleString("en-IN")})
             </h3>
           </div>
           {/* Small screen buttons */}

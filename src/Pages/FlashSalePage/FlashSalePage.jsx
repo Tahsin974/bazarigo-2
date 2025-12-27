@@ -18,7 +18,6 @@ export default function FlashSalePage() {
   // const [displayedProducts, setDisplayedProducts] = useState([]);
 
   const { flashSaleProducts: flashProducts } = useFlashSaleProducts();
-  console.log(flashProducts);
 
   const categories = [
     "All",
@@ -59,7 +58,6 @@ export default function FlashSalePage() {
     totalPages,
     setCurrentPage
   );
-  console.log("paginated", paginated);
 
   return (
     <div className="w-full bg-white font-sans text-gray-800">

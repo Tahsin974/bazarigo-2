@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function PreviewModal({ product, onClose }) {
+  const variants = product.extras?.variants.map(({ id, ...rest }) => rest);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <motion.div
@@ -30,7 +31,9 @@ export default function PreviewModal({ product, onClose }) {
                 </span>
               </p>
               <p className="text-sm text-gray-600">
-                <span className="font-bold">Store Name: Tawhid Store</span>
+                <span className="font-bold">
+                  Store Name: {product.seller_store_name}
+                </span>
               </p>
             </div>
             <div className="text-right">
@@ -40,24 +43,24 @@ export default function PreviewModal({ product, onClose }) {
             </div>
           </div>
 
-          {product.extras?.variants && product.extras.variants.length > 0 ? (
+          {variants && variants.length > 0 ? (
             <div className="overflow-x-auto bg-white rounded-box shadow-sm">
               <table className="table text-center w-full">
                 <thead className="text-black">
                   <tr>
                     {/* Dynamic columns: get all keys except stock and price */}
-                    {Object.keys(product.extras.variants[0]).map((key) => (
+                    {Object.keys(variants[0]).map((key) => (
                       <th key={key} className="capitalize">
-                        {key}
+                        {key.replace("_", " ")}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {product.extras.variants.map((v, i) => (
+                  {variants.map((v, i) => (
                     <tr key={i}>
                       {Object.keys(v).map((key) => (
-                        <td key={key}>{v[key]}</td>
+                        <td key={key}>{v[key].toLocaleString("en-IN")}</td>
                       ))}
                     </tr>
                   ))}

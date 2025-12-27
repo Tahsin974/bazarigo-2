@@ -75,7 +75,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-xl font-semibold mb-2">7. Contact Us</h2>
           <p className="  ">
             For any privacy-related queries, please contact us at:
-            <span className="block mt-2">📧 bazarigo.official@gmail.com</span>
+            <span className="block mt-2">📧 info@bazarigo.com</span>
             <span>📞 +880 1797-454-118</span>
           </p>
         </section>

@@ -31,20 +31,22 @@ export default function ProductCard({ product: item, viewMode }) {
           }`}
         >
           {item.images && item.images[0] ? (
-            <img
-              src={`${baseUrl}${getImages(item.images)[0]}`}
-              alt=""
+            <figure
               className={`  ${
-                viewMode === "list"
-                  ? "h-full w-48 object-fill"
-                  : "h-48 sm:h-56 w-full object-cover"
-              }  rounded-t-2xl transition-transform duration-300 group-hover:scale-105`}
-            />
+                viewMode === "list" ? "h-full w-48 " : "aspect-[1/1] "
+              }`}
+            >
+              <img
+                src={`${baseUrl}${getImages(item.images)[0]}`}
+                alt=""
+                className={`  h-full w-full object-fill rounded-t-2xl transition-transform duration-300 group-hover:scale-105`}
+              />
+            </figure>
           ) : (
             <div
               className={`${
-                viewMode === "list" ? "h-full w-48" : "h-48 sm:h-56 w-full"
-              }  flex items-center justify-center text-gray-400  object-cover rounded-t-2xl transition-transform duration-300 group-hover:scale-105`}
+                viewMode === "list" ? "h-full w-48" : "w-full h-55 sm:h-60 "
+              }  flex items-center justify-center text-gray-400  object-fill rounded-t-2xl transition-transform duration-300 group-hover:scale-105`}
             >
               No Image
             </div>
@@ -104,7 +106,11 @@ export default function ProductCard({ product: item, viewMode }) {
             }
           >
             {/* Image → Title : 8px */}
-            <h2 className="mt-2  text-gray-800  leading-snug truncate">
+            <h2
+              className={`mt-2  text-gray-800   ${
+                viewMode === "grid" ? "leading-snug truncate" : ""
+              }`}
+            >
               {item.product_name}
             </h2>
 
@@ -177,92 +183,6 @@ export default function ProductCard({ product: item, viewMode }) {
                 fullSymbol={
                   <Star size={18} className="text-[#FFD700] fill-[#FFD700]" />
                 }
-                readonly
-              />
-            </div>
-          </div>
-        </CardContent>
-
-        {/* <CardContent
-          className={`p-4 ${
-            viewMode === "list" ? "flex gap-4 items-center" : ""
-          }`}
-        >
-          <div
-            className={
-              viewMode === "grid" ? "mt-4 space-y-3" : "flex-1 space-y-3"
-            }
-          >
-            <h2 className="mt-4 font-bold text-gray-800">
-              {item.product_name}
-            </h2>
-            <div
-              className={`flex ${
-                viewMode === "list" && "flex-col items-start"
-              } items-center justify-between gap-2 mt-2`}
-            >
-              <div className="flex items-center gap-2 font-bold">
-                <p className="text-[#FF0055] ">
-                  ৳
-                  {item.sale_price > 1
-                    ? item.sale_price.toLocaleString("en-IN")
-                    : item.regular_price.toLocaleString("en-IN")}
-                </p>
-                {item.sale_price > 1 && (
-                  <p className="text-gray-400 line-through text-sm">
-                    ৳{item.regular_price.toLocaleString("en-IN")}
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-4 justify-between">
-                <div
-                  className={` ${
-                    viewMode === "list" ? "flex gap-4" : "hidden"
-                  }`}
-                >
-                  {item.islimitedstock && (
-                    <span
-                      className={`  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-white `}
-                    >
-                      Limited Stock
-                    </span>
-                  )}
-                  {item.isnew && (
-                    <span className=" bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full  border border-white ">
-                      New
-                    </span>
-                  )}
-                  {item.isbestseller && (
-                    <span
-                      className=" text-white text-xs font-bold px-3 py-1 rounded-full  border border-white animate-gradient"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, #FFD700 0%, #FFFACD 100%)",
-                        color: "#8B8000",
-                        boxShadow: "0 2px 8px rgba(255, 215, 0, 0.3)",
-                      }}
-                    >
-                      Best Seller
-                    </span>
-                  )}
-                </div>
-                {item.discount > 0 && (
-                  <motion.span
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                    className={`   bg-[#FF0055] text-white text-xs font-semibold px-3 py-1 rounded-full`}
-                  >
-                    {item.discount}% OFF
-                  </motion.span>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-1 mb-2">
-              <Rating
-                emptySymbol={<Star size={20} className=" text-gray-300" />}
-                fullSymbol={
-                  <Star size={20} className="text-[#FFD700] fill-[#FFD700]" />
-                }
                 initialRating={
                   Number(item.rating) > 0
                     ? item.rating
@@ -275,7 +195,7 @@ export default function ProductCard({ product: item, viewMode }) {
               />
             </div>
           </div>
-        </CardContent> */}
+        </CardContent>
       </Card>
     </HashLink>
   );

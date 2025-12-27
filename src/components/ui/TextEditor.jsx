@@ -1,63 +1,57 @@
-import JoditEditor from "jodit-react";
-import "jodit/es2021/jodit.min.css";
-import { useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
+import Quill from "quill";
+import "quill/dist/quill.snow.css";
 
 export default function TextEditor({ value, onChange }) {
-  const editor = useRef(null);
-  const config = useMemo(
-    () => ({
-      readonly: false,
+  const editorRef = useRef(null);
+  const quillInstance = useRef(null);
+
+  useEffect(() => {
+    if (!editorRef.current || quillInstance.current) return;
+
+    quillInstance.current = new Quill(editorRef.current, {
+      theme: "snow",
       placeholder: "Start typing...",
-      height: 300,
-      toolbarSticky: false,
-      toolbarAdaptive: false,
-      hidePoweredByJodit: true,
+      modules: {
+        toolbar: [
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          [{ font: [] }, { size: [] }],
+          [{ color: [] }, { background: [] }],
+          [{ align: [] }],
+          ["clean"],
+        ],
+      },
+    });
 
-      statusbar: false,
-      editorCssClass:
-        "w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white",
-      buttons: [
-        "bold",
-        "italic",
-        "underline",
-        "|",
-        "ul",
-        "ol",
-        "|",
-        "font",
-        "fontsize",
-        "brush",
-        "|",
+    quillInstance.current.on("text-change", () => {
+      onChange(quillInstance.current.root.innerHTML);
+    });
+  }, [onChange]);
 
-        "|",
-        "align",
-        "undo",
-        "redo",
-      ],
+  // set initial value
+  useEffect(() => {
+    if (!quillInstance.current) return;
 
-      disablePlugins: [
-        "video",
-        "image",
-        "file",
-        "Speech Recognize",
-        "print",
-        "table",
-        "link",
-      ],
-      // 👇 Change "lists" (plural) to "list" (singular)
-      extraPlugins: ["list"],
-    }),
-    []
-  );
+    const editor = quillInstance.current;
+    if (value !== editor.root.innerHTML) {
+      // Save current selection
+      const range = editor.getSelection();
+
+      // Only update innerHTML if value really changed externally
+      editor.root.innerHTML = value || "";
+
+      // Restore cursor
+      if (range) editor.setSelection(range);
+    }
+  }, [value]);
+
   return (
-    <div>
-      <JoditEditor
-        ref={editor}
-        value={value}
-        config={config}
-        tabIndeX={1}
-        onChange={onChange}
-      />
+    <div
+      className="border border-gray-300 rounded-lg shadow-sm
+      focus-within:border-[#FF0055] focus-within:ring-2 focus-within:ring-[#FF0055]"
+    >
+      <div ref={editorRef} style={{ height: 300, background: "white" }} />
     </div>
   );
 }

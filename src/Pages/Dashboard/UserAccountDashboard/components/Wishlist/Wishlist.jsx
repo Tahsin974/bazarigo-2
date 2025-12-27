@@ -71,7 +71,9 @@ export default function Wishlist({ activeTab, wishlist, refetch }) {
       // === Step 2: Prepare cart payload with delivery info ===
       const payLoad = {
         sellerId: product.seller_id,
-
+        seller_name: product.seller_name,
+        seller_store_name: product.seller_store_name,
+        seller_role: product.seller_role,
         productInfo: [cartItem],
         deliveries, // attach delivery info
       };
@@ -112,63 +114,72 @@ export default function Wishlist({ activeTab, wishlist, refetch }) {
     }
   };
 
-  console.log(wishlist);
   return (
     <div>
       {activeTab === "Wishlist" && (
-        <div className="min-h-screen bg-white md:py-10 py-6 xl:px-6 lg:px-6 md:px-6 sm:px-6 px-4 flex justify-center">
-          <div className="w-full max-w-5xl">
-            <Card className="xl:px-6 lg:px-6 md:px-6 sm:px-6 px-4 py-6 bg-white  shadow">
-              {wishlist.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-gray-400 capitalize">
-                  Your wishlist is empty.
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {wishlist.map((item) => (
-                    <div
-                      key={item.wishlistid}
-                      className="flex flex-col sm:flex-row sm:items-center gap-4 border p-3 rounded-lg"
-                    >
-                      <img
-                        src={`${baseUrl}${item.img}`}
-                        alt={item.product_name}
-                        className="w-full sm:w-24 h-40 sm:h-24 object-cover rounded"
-                      />
+        <div className="min-h-screen ">
+          <h3 className="font-medium sm:text-base text-[14px] mb-3">
+            Items{" "}
+            {!wishlist?.length ? (
+              ""
+            ) : (
+              <>({wishlist.length.toLocaleString("en-IN")})</>
+            )}
+          </h3>
+          <div className="bg-white md:py-10 py-6 xl:px-6 lg:px-6 md:px-6 sm:px-6 px-4 flex justify-center">
+            <div className="w-full max-w-5xl">
+              <Card>
+                {wishlist.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-gray-400 capitalize">
+                    Your wishlist is empty.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {wishlist.map((item) => (
+                      <div
+                        key={item.wishlistid}
+                        className="flex flex-col sm:flex-row sm:items-center gap-4 border p-3 rounded-lg   shadow"
+                      >
+                        <img
+                          src={`${baseUrl}${item.img}`}
+                          alt={item.product_name}
+                          className="w-full sm:w-24 h-40 sm:h-24 object-cover rounded"
+                        />
 
-                      <div className="flex-1">
-                        <span className="font-semibold text-base sm:text-lg">
-                          {item.product_name}
-                        </span>
-                        <div className="text-sm text-[#FF0055]">
-                          ৳
-                          {item.sale_price > 0 ? (
-                            <>৳{item.sale_price.toLocaleString("en-IN")}</>
-                          ) : (
-                            <>{item.regular_price.toLocaleString("en-IN")}</>
-                          )}
+                        <div className="flex-1">
+                          <span className="font-semibold text-base sm:text-lg">
+                            {item.product_name}
+                          </span>
+                          <div className="text-sm text-[#FF0055]">
+                            ৳
+                            {item.sale_price > 0 ? (
+                              <>৳{item.sale_price.toLocaleString("en-IN")}</>
+                            ) : (
+                              <>{item.regular_price.toLocaleString("en-IN")}</>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex sm:flex-col flex-row gap-2 items-center sm:justify-center justify-between">
+                          <button
+                            onClick={() => moveToCart(item)}
+                            className="bg-gray-200  hover:bg-gray-300 text-gray-600  px-4 py-2 rounded-full shadow-md   flex items-center justify-center sm:text-sm text-xs"
+                          >
+                            Move to Cart
+                          </button>
+                          <button
+                            onClick={() => removeItem(item.wishlist_id)}
+                            className="text-sm text-red-600 mt-2 flex items-center gap-1 hover:text-red-800 "
+                          >
+                            <Trash2 size={14} /> Remove
+                          </button>
                         </div>
                       </div>
-
-                      <div className="flex sm:flex-col flex-row gap-2 items-center sm:justify-center justify-between">
-                        <button
-                          onClick={() => moveToCart(item)}
-                          className="bg-gray-200  hover:bg-gray-300 text-gray-600  px-4 py-2 rounded-full shadow-md   flex items-center justify-center sm:text-sm text-xs"
-                        >
-                          Move to Cart
-                        </button>
-                        <button
-                          onClick={() => removeItem(item.wishlist_id)}
-                          className="text-sm text-red-600 mt-2 flex items-center gap-1 hover:text-red-800 "
-                        >
-                          <Trash2 size={14} /> Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            </div>
           </div>
         </div>
       )}

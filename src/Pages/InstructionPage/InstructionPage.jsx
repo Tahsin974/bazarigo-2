@@ -92,9 +92,10 @@ export default function InstructionPage() {
                   </li>
                   <li>
                     <span className="font-bold">
-                      *বিভাগ ও উপবিভাগ (Category & Subcategory):*
+                      *বিভাগ, উপবিভাগ ও উপবিভাগের আইটেম (Category, Subcategory &
+                      Subcategory Item):*
                     </span>{" "}
-                    সঠিক বিভাগ এবং উপবিভাগ নির্বাচন করুন।
+                    সঠিক বিভাগ, উপবিভাগ এবং উপবিভাগের আইটেম নির্বাচন করুন।
                   </li>
                 </ul>
               </div>
@@ -174,42 +175,42 @@ export default function InstructionPage() {
           </section>
           <section>
             <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-l-4 border-[#FF0055] pl-4">
-              ধাপ ৪ ও ৫: ছবি আপলোড ও ভেরিয়েন্ট অ্যাড করা
+              ধাপ ৪ ও ৫: ছবি/ভিডিও আপলোড ও ভেরিয়েন্ট যোগ
             </h2>
             <div className="md:flex md:space-x-6">
               <div className="md:w-1/2 mb-4 md:mb-0">
                 <img
                   src={img3}
-                  alt="ছবি আপলোড এবং ব্যাজ বিভাগ"
+                  alt="ছবি/ভিডিও আপলোড এবং ব্যাজ বিভাগ"
                   className="rounded-lg w-full h-auto object-cover border border-gray-200"
                 />
                 <img
                   src={img4}
-                  alt="ছবি আপলোড এবং ব্যাজ বিভাগ"
+                  alt="ছবি/ভিডিও আপলোড এবং ব্যাজ বিভাগ"
                   className="rounded-lg w-full h-auto object-cover border border-gray-200"
                 />
               </div>
               <div className="md:w-1/2 space-y-16">
                 <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
                   <h3 className="text-xl font-medium mb-2 text-[#FF0055]">
-                    ৪. ছবি আপলোড (Upload Image)
+                    ৪. ছবি/ভিডিও আপলোড (Upload Image/Video)
                   </h3>
                   <p className="text-gray-700">
-                    পণ্যের জন্য একটি আকর্ষণীয় ছবি আপলোড করুন।
+                    পণ্যের জন্য একটি আকর্ষণীয় ছবি/ভিডিও আপলোড করুন।
                   </p>
                   <ul className="text-sm text-gray-600 list-disc pl-5 mt-2">
                     <li>
-                      *পদ্ধতি:* আপলোড এরিয়াতে ক্লিক করুন অথবা টেনে এনে ছবি
+                      *পদ্ধতি:* আপলোড এরিয়াতে ক্লিক করুন অথবা টেনে এনে ছবি/ভিডিও
                       ছাড়ুন।
                     </li>
-                    <li>*ফরম্যাট:* PNG বা JPG ফরম্যাটের ছবি ব্যবহার করুন।</li>
+                    <li>*ফরম্যাট:* PNG বা JPG ফরম্যাটের ছবি/MP4 ফরম্যাটের ভিডিও ব্যবহার করুন।</li>
                     <li>*সীমা:* প্রতি ছবির জন্য সর্বোচ্চ ১ মেগাবাইট।</li>
                   </ul>
                 </div>
 
                 <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
                   <h3 className="text-xl font-medium mb-2 text-[#FF0055]">
-                    ৫. ভেরিয়েন্ট অ্যাড করা (Add Variants)
+                    ৫. ভেরিয়েন্ট যোগ করা (Add Variants)
                   </h3>
                   <p className="text-gray-700">
                     পণ্যের বিভিন্ন প্রকারভেদ (যেমন: আকার, রং, উপাদান) যোগ করুন।

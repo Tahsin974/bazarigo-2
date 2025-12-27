@@ -87,51 +87,6 @@ export default function SellerTermsConditionsPage() {
               order confirmation, deduction of fees, and verification.
             </p>
           </section>
-
-          {/* Commission Structure */}
-          {/* <section>
-            <h2 className="text-xl font-semibold mb-2">
-              6. Commission Structure
-            </h2>
-            <p>
-              Bazarigo charges a commission on every product sold through the
-              platform. Commission rates vary by product category and may be
-              updated periodically. The current standard commission rates are as
-              follows:
-            </p>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li>
-                <span className="font-semibold">Electronics:</span> 5% per sale
-              </li>
-              <li>
-                <span className="font-semibold">Fashion & Apparel:</span> 10%
-                per sale
-              </li>
-              <li>
-                <span className="font-semibold">Home & Kitchen:</span> 8% per
-                sale
-              </li>
-              <li>
-                <span className="font-semibold">Beauty & Health:</span> 12% per
-                sale
-              </li>
-              <li>
-                <span className="font-semibold">Groceries:</span> 6% per sale
-              </li>
-              <li>
-                <span className="font-semibold">Accessories & Jewelry:</span>{" "}
-                15% per sale
-              </li>
-              <li>
-                <span className="font-semibold">Sports & Outdoor:</span> 7% per
-                sale
-              </li>
-            </ul>
-            <p className="mt-2">
-              Bazarigo reserves the right to modify commission rates with prior
-              notice. Any new commission rates will apply to all future sales.
-            </p>
-          </section> */}
           <section>
             <h2 className="text-xl font-semibold mb-2">
               6. Commission Structure
@@ -300,7 +255,7 @@ export default function SellerTermsConditionsPage() {
             <h2 className="text-xl font-semibold mb-2">12. Contact Us</h2>
             <p>
               For questions regarding these Seller Terms & Conditions:
-              <span className="block mt-2">📧 bazarigo.official@gmail.com</span>
+              <span className="block mt-2">📧 info@bazarigo.com</span>
               <span className="block">📞 +880 1797-454-118</span>
             </p>
           </section>

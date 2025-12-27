@@ -6,7 +6,7 @@ export default function useNotifications() {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const { data: notifications = [], refetch: refetchNotifications } = useQuery({
-    queryKey: ["seller-notifications"],
+    queryKey: ["notifications"],
     queryFn: async () => {
       const res = await axiosSecure.get(`/notifications`);
       return res.data.notifications;

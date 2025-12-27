@@ -129,8 +129,6 @@ export default function Cart({ activeTab }) {
     // যেসব cart এ কিছুই select হয়নি, সেগুলো বাদ
     .filter((cart) => cart.productinfo.length > 0);
 
-  console.log(filteredSelectedItems);
-
   const updateQty = async (cartId, productId, newQty) => {
     try {
       const res = await axiosPublic.patch("/carts/update-qty", {
@@ -182,7 +180,7 @@ export default function Cart({ activeTab }) {
         }
       }
     } catch (error) {
-      console.error("Remove failed:", error);
+      console.error(error);
       Swal.fire({
         title: "Error!",
         text: "Something went wrong while removing the product.",
@@ -206,6 +204,14 @@ export default function Cart({ activeTab }) {
               </div>
             ) : (
               <>
+                <h3 className="font-medium sm:text-base text-[14px] mb-3">
+                  Items{" "}
+                  {!carts?.length ? (
+                    ""
+                  ) : (
+                    <>({carts.length.toLocaleString("en-IN")})</>
+                  )}
+                </h3>
                 <div className="grid grid-cols-1 gap-2 lg:col-span-2">
                   <div className="flex justify-between items-center gap-3  bg-white py-4 px-3 rounded">
                     <div className="flex gap-2 items-center">
@@ -228,9 +234,10 @@ export default function Cart({ activeTab }) {
                       bulkDelete={handleBulkDelete}
                     />
                   </div>
+
                   {carts.map((cart) => (
                     <div
-                      key={cart.cartid}
+                      key={cart.cart_id}
                       className="py-5  bg-white rounded-2xl space-y-4 border border-gray-200"
                     >
                       <h3 className=" ms-8  flex items-center gap-4">
@@ -353,7 +360,7 @@ export default function Cart({ activeTab }) {
                                       <button
                                         onClick={() =>
                                           updateQty(
-                                            cart.cartid,
+                                            cart.cart_id,
                                             item.product_Id,
                                             Math.max(1, item.qty - 1)
                                           )
@@ -369,7 +376,7 @@ export default function Cart({ activeTab }) {
                                         value={item.qty}
                                         onChange={(e) =>
                                           updateQty(
-                                            cart.cartid,
+                                            cart.cart_id,
                                             item.product_Id,
                                             Math.max(1, Number(e.target.value))
                                           )
@@ -380,7 +387,7 @@ export default function Cart({ activeTab }) {
                                       <button
                                         onClick={() =>
                                           updateQty(
-                                            cart.cartid,
+                                            cart.cart_id,
                                             item.product_Id,
                                             Math.max(1, item.qty + 1)
                                           )
@@ -395,7 +402,7 @@ export default function Cart({ activeTab }) {
                               </div>
                               <button
                                 onClick={() =>
-                                  removeItem(cart.cartid, item.product_Id)
+                                  removeItem(cart.cart_id, item.product_Id)
                                 }
                                 className="text-gray-500 hover:text-red-600 cursor-pointer"
                               >

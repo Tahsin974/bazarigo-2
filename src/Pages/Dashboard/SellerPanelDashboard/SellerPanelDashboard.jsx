@@ -38,6 +38,7 @@ import {
   Settings,
   ShoppingCart,
 } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 export default function SellerPanelDashboard() {
   const [selected, setSelected] = useState([]);
@@ -76,7 +77,6 @@ export default function SellerPanelDashboard() {
     },
   });
 
-  console.log(inventory);
   const {
     data: orders = [],
 
@@ -113,7 +113,6 @@ export default function SellerPanelDashboard() {
       return res.data.payments;
     },
   });
-  console.log(payments);
   const fileRef = useRef(null);
 
   // Product UI state
@@ -300,7 +299,6 @@ export default function SellerPanelDashboard() {
   }, [active, products, orders]);
 
   const toggleSelect = (id) => {
-    console.log(id);
     setSelected((s) =>
       s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
     );
@@ -316,31 +314,15 @@ export default function SellerPanelDashboard() {
         regular_price: product.regular_price ?? 0,
         sale_price: product.sale_price ?? 0,
         discount: product.discount ?? 0,
-        // rating: Number(product.rating),
-        // isBestSeller: product.isbestseller ? "Yes" : "No",
-        // isHot: product.ishot ? "Yes" : "No",
-        // isNew: product.isnew ? "Yes" : "No",
-        // isTrending: product.istrending ? "Yes" : "No",
-        // isLimitedStock: product.islimitedstock ? "Yes" : "No",
-        // isExclusive: product.isexclusive ? "Yes" : "No",
-        // isFlashSale: product.isflashsale ? "Yes" : "No",
         category: product.category ?? "",
         subcategory: product.subcategory ?? "",
+        subcategory_item: product.subcategory_item ?? "",
         description: product.description ?? "",
         stock: product.stock ?? 0,
         brand: product.brand ?? "No Brand",
         weight: product.weight ?? 1,
         images: (product.images || []).join(";"), // multiple images separated by ;
         extras: JSON.stringify(product.extras || {}, null, 2),
-        // createdAt: product.createdat
-        //   ? new Date(product.createdat).toISOString()
-        //   : new Date\(\)\.toISOString\(\),
-        // updatedAt: product.updatedat
-        //   ? new Date(product.updatedat).toISOString()
-        //   : "",
-        // sellerId: product.sellerid ?? "",
-        // sellerName: product.sellername ?? "",
-        // sellerStoreName: product.sellerstorename ?? "",
       }));
     }
 
@@ -390,34 +372,52 @@ export default function SellerPanelDashboard() {
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
       // Convert boolean/number fields
-      const products = jsonData.map((item) => ({
-        ...item,
-        isBestSeller: false,
-        isHot: false,
-        isNew: true,
-        isTrending: false,
-        isLimitedStock: false,
-        isExclusive: false,
-        isFlashSale: false,
-        regular_price: Number(item.regular_price || 0),
-        sale_price: Number(item.sale_price || 0),
-        discount: Number(item.discount || 0),
-        rating: Number(item.rating || 0),
-        stock: Number(item.stock || 0),
-        weight: 1,
-        productName: item.productName,
-        images: item.images ? item.images.split(";") : [],
-        extras: item.extras ? JSON.parse(item.extras) : {},
-        createdAt: new Date().toLocaleString("en-CA", {
-          timeZone: "Asia/Dhaka",
-          hour12: false,
-        }),
-        updatedAt: item.updatedAt || null,
-        seller_id: user.id,
-        seller_name: user.full_name,
-        seller_store_name: user.store_name,
-      }));
 
+      const products = jsonData.map((item) => {
+        let extras = {};
+
+        if (item.extras) {
+          try {
+            extras = JSON.parse(item.extras);
+
+            // ✅ variants inside extras
+            if (Array.isArray(extras.variants)) {
+              extras.variants = extras.variants.map((v) => ({
+                id: uuidv4(), // 🔥 REQUIRED
+                ...v,
+                stock: Number(v.stock || 0),
+                regular_price: Number(v.regular_price || 0),
+                sale_price: Number(v.sale_price || 0),
+              }));
+            }
+          } catch (e) {
+            console.error(e);
+            extras = {};
+          }
+        }
+
+        return {
+          ...item,
+          isBestSeller: false,
+          isHot: false,
+          isNew: true,
+          isTrending: false,
+          isLimitedStock: false,
+          isExclusive: false,
+          isFlashSale: false,
+
+          regular_price: Number(item.regular_price || 0),
+          sale_price: Number(item.sale_price || 0),
+          discount: Number(item.discount || 0),
+          rating: Number(item.rating || 0),
+          stock: Number(item.stock || 0),
+
+          weight: 1,
+          productName: item.productName,
+          images: item.images ? item.images.split(";") : [],
+          extras, // ✅ variants with id already inside
+        };
+      });
       const res = await axiosPublic.post("/products/bulk", products);
 
       if (res.data.insertedCount > 0) {
@@ -459,24 +459,13 @@ export default function SellerPanelDashboard() {
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
       <div className="flex ">
         <div className="hidden lg:flex">
-          <Sidebar
-            user={user}
-            active={active}
-            setActive={setActive}
-            products={products}
-            orders={orders}
-            payments={payments}
-            items={navItems}
-          />
+          <Sidebar active={active} setActive={setActive} items={navItems} />
         </div>
         <div className=" flex-1">
           <Drawer
             user={user}
             activeTab={active}
             setActiveTab={setActive}
-            products={products}
-            orders={orders}
-            payments={payments}
             messages={myMessages}
             items={navItems}
           >
@@ -502,7 +491,7 @@ export default function SellerPanelDashboard() {
 
                 {/* Right: Buttons + Admin */}
 
-                <div className="items-center  order-2 lg:order-2 flex gap-2 justify-end w-full">
+                <div className="items-center  order-2 lg:order-2 flex gap-2 justify-end w-full md:w-auto">
                   {![
                     "Dashboard",
                     "My Account",

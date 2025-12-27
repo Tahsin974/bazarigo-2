@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosSecure = axios.create({
-  baseURL: "https://api.bazarigo.com",
+  // baseURL: "https://api.bazarigo.com",
+  baseURL: import.meta.env.VITE_BASEURL,
 
   withCredentials: true,
 });
@@ -15,7 +16,7 @@ export default function useAxiosSecure() {
     },
     function (error) {
       // Do something with request error
-      return console.log(error);
+      return console.error(error);
     }
   );
   // Response interceptor
@@ -24,7 +25,6 @@ export default function useAxiosSecure() {
       return response;
     },
     async function (error) {
-      console.log(error);
       const status = error.response?.status;
 
       // Only for 401 or 403

@@ -109,7 +109,6 @@ export default function SellerRegistrationForm({
         }
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.response?.data?.message || "Something went wrong!",

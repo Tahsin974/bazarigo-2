@@ -17,8 +17,6 @@ export default function useEstimatedDelivery(orderDateStr, timeStr) {
     }
   }
 
-  console.log(minDays, maxDays);
-
   const minDate = new Date(orderDate);
   minDate.setDate(minDate.getDate() + minDays);
 

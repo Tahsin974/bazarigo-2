@@ -69,7 +69,9 @@ export default function SearchBar({
       navigate(
         `/categories/${item?.category || "All Products"}?product=${
           item.title
-        }&subcategory=${item?.subcategory}`
+        }&subcategory=${item?.subcategory}&subcategory=${
+          item?.subcategory_item
+        }`
       );
     }
     if (item.type === "shop")

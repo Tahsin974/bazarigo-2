@@ -15,7 +15,6 @@ export default function CartPage() {
   const baseUrl = import.meta.env.VITE_BASEURL;
   const axiosPublic = useAxiosPublic();
   const { carts, refetch } = useCart();
-  console.log(carts);
   const [selectedItems, setSelectedItems] = useState([]);
 
   // ✅ handle single checkbox select/unselect
@@ -130,8 +129,6 @@ export default function CartPage() {
     // যেসব cart এ কিছুই select হয়নি, সেগুলো বাদ
     .filter((cart) => cart.productinfo.length > 0);
 
-  console.log(filteredSelectedItems);
-
   const updateQty = async (cartId, productId, newQty) => {
     try {
       const res = await axiosPublic.patch("/carts/update-qty", {
@@ -183,7 +180,7 @@ export default function CartPage() {
         }
       }
     } catch (error) {
-      console.error("Remove failed:", error);
+      console.error(error);
       Swal.fire({
         title: "Error!",
         text: "Something went wrong while removing the product.",
@@ -228,7 +225,7 @@ export default function CartPage() {
               </div>
               {carts.map((cart) => (
                 <div
-                  key={cart.cartid}
+                  key={cart.cart_id}
                   className="py-5 relative bg-white rounded-2xl space-y-4"
                 >
                   <h3 className=" ms-8  flex items-center gap-4">
@@ -243,8 +240,9 @@ export default function CartPage() {
                     </div>
 
                     <HashLink
-                      to={`/seller-page/${cart.seller_store_name}/store#`}
-                      state={{ id: cart.sellerid }}
+                      to={`/seller-page/${
+                        cart.seller_store_name
+                      }/store?id=${btoa(cart.sellerid)}#`}
                       className="flex gap-x-1.5 items-center my-1 text-gray-500 hover:text-orange-400 "
                     >
                       <Store size={20} />
@@ -340,7 +338,7 @@ export default function CartPage() {
                                   <button
                                     onClick={() =>
                                       updateQty(
-                                        cart.cartid,
+                                        cart.cart_id,
                                         item.product_Id,
                                         Math.max(1, item.qty - 1)
                                       )
@@ -356,7 +354,7 @@ export default function CartPage() {
                                     value={item.qty}
                                     onChange={(e) =>
                                       updateQty(
-                                        cart.cartid,
+                                        cart.cart_id,
                                         item.product_Id,
                                         Math.max(1, Number(e.target.value))
                                       )
@@ -367,7 +365,7 @@ export default function CartPage() {
                                   <button
                                     onClick={() =>
                                       updateQty(
-                                        cart.cartid,
+                                        cart.cart_id,
                                         item.product_Id,
                                         Math.max(1, item.qty + 1)
                                       )
@@ -382,7 +380,7 @@ export default function CartPage() {
                           </div>
                           <button
                             onClick={() =>
-                              removeItem(cart.cartid, item.product_Id)
+                              removeItem(cart.cart_id, item.product_Id)
                             }
                             className="text-gray-500 hover:text-red-600 cursor-pointer"
                           >

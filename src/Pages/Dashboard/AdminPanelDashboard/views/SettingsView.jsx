@@ -85,14 +85,9 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
   } = useForm({ mode: "onChange" });
   const onSubmit = async (data) => {
     try {
-      const payload = {
-        ...data,
-        image,
-      };
       const formData = new FormData();
       formData.append("link", data.link);
       formData.append("image", image);
-      console.log(payload);
 
       const res = await axiosPublic.post("/banner", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -220,8 +215,6 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
         date ? new Date(date).toISOString() : user.date_of_birth
       );
 
-      console.log("Sending:", [...formData.entries()]); // debugging
-
       const res = await axiosPublic.put(`/admins/update/${user.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -241,7 +234,6 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
         return window.location.reload();
       }
     } catch (err) {
-      console.log(err);
       Swal.fire({
         icon: "error",
         title: err.response?.data?.message || "Something went wrong!",
@@ -438,7 +430,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
       {user.role !== "moderator" && (
         <section className="bg-white rounded-xl shadow-md p-6 border border-gray-100 space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex  items-center justify-between">
             <h3 className="text-xl font-semibold text-gray-800 tracking-wide">
               Team Management
             </h3>
@@ -465,7 +457,6 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
               ) : (
                 admins.admins
                   ?.sort((a, b) => {
-                    // ধরছি role ফিল্ডে super admin লেখা আছে
                     if (a.role === "super admin") return -1;
                     if (b.role === "super admin") return 1;
                     return 0;
@@ -473,10 +464,12 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                   .map((admin) => (
                     <li
                       key={admin.id}
-                      className="flex items-center justify-between bg-white p-3 rounded-md shadow-sm border border-gray-100"
+                      className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between 
+                     bg-white p-3 rounded-md shadow-sm border border-gray-100"
                     >
-                      <div cla>
-                        <p className="font-medium text-gray-800">
+                      {/* Left info */}
+                      <div className="flex flex-col gap-1">
+                        <p className="font-medium text-gray-800 break-all">
                           {admin.email}
                         </p>
                         <span className="text-xs text-gray-500 capitalize">
@@ -484,10 +477,12 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md font-medium capitalize">
+                      {/* Right actions */}
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                        <span className="w-fit px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md font-medium capitalize">
                           {admin.role}
                         </span>
+
                         {!(
                           user.role !== "super admin" &&
                           admin.role === "super admin"
@@ -495,7 +490,9 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                           <select
                             value={admin.role}
                             onChange={(e) => handleUpdateStatus(e, admin.id)}
-                            className="bg-white border border-gray-300 text-gray-900 hover:border-gray-400  rounded px-2 py-1 text-sm focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
+                            className="w-full sm:w-auto bg-white border border-gray-300 text-gray-900 
+                           hover:border-gray-400 rounded px-2 py-1 text-sm
+                           focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
                             disabled={
                               admin.role === "super admin" &&
                               user.role !== "super admin"
@@ -507,7 +504,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                           </select>
                         )}
 
-                        {/* Delete Button Logic */}
+                        {/* Delete / Action buttons */}
                         {admin.role === "super admin" &&
                         user.role !== "super admin" ? (
                           <div className="relative inline-block group">
@@ -517,33 +514,30 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                             >
                               <Trash2 size={20} />
                             </button>
-
                             <span
                               className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 
-    text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 
-    transition whitespace-nowrap"
+                             text-xs bg-black text-white rounded opacity-0 
+                             group-hover:opacity-100 transition whitespace-nowrap"
                             >
                               Not allowed
                             </span>
                           </div>
                         ) : (
-                          <div className="flex gap-2 items-center">
+                          <div className="flex gap-2">
                             <button
                               onClick={() => toggleActive(admin)}
-                              className={`px-3 py-2 rounded ${
+                              className={`px-3 py-2 rounded text-sm ${
                                 !admin.is_active
                                   ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
-                                  : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
+                                  : "bg-[#f72c2c] hover:bg-[#e92323] text-white"
                               }`}
                             >
                               {!admin.is_active ? "Active" : "Inactive"}
                             </button>
                             <button
-                              onClick={() => {
-                                handleRemoveAdmins(admin.id);
-                              }}
-                              className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white 
-                          cursor-pointer"
+                              onClick={() => handleRemoveAdmins(admin.id)}
+                              className="px-3 py-2 rounded bg-red-100 text-red-600 
+                             hover:bg-[#e92323] hover:text-white"
                             >
                               <Trash2 size={20} />
                             </button>
@@ -574,10 +568,12 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                 {admins.moderators.map((moderator) => (
                   <li
                     key={moderator.id}
-                    className="flex items-center justify-between bg-white p-3 rounded-md shadow-sm border border-gray-100"
+                    className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between
+                 bg-white p-3 rounded-md shadow-sm border border-gray-100"
                   >
-                    <div>
-                      <p className="font-medium text-gray-800">
+                    {/* Left info */}
+                    <div className="flex flex-col gap-1">
+                      <p className="font-medium text-gray-800 break-all">
                         {moderator.email}
                       </p>
                       <span className="text-xs text-gray-500 capitalize">
@@ -585,48 +581,42 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-600 rounded-md font-medium capitalize">
+                    {/* Right actions */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                      <span className="w-fit px-2 py-1 text-xs bg-green-100 text-green-600 rounded-md font-medium capitalize">
                         {moderator.role}
                       </span>
 
-                      {/* Updated Delete Button */}
-                      <div className="flex gap-2 items-center">
-                        {user.role === "admin" ||
-                          (user.role === "super admin" && (
-                            <>
-                              <select
-                                value={moderator.role}
-                                onChange={(e) =>
-                                  handleUpdateStatus(e, moderator.id)
-                                }
-                                className="bg-white border border-gray-300 text-gray-900 hover:border-gray-400  rounded px-2 py-1 text-sm focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
-                                disabled={
-                                  moderator.role === "super admin" &&
-                                  user.role !== "super admin"
-                                }
-                              >
-                                <option value="admin">Admin</option>
-                                <option value="moderator">Moderator</option>
-                              </select>
-                            </>
-                          ))}
+                      {(user.role === "admin" ||
+                        user.role === "super admin") && (
+                        <select
+                          value={moderator.role}
+                          onChange={(e) => handleUpdateStatus(e, moderator.id)}
+                          className="w-full sm:w-auto bg-white border border-gray-300 text-gray-900
+                       hover:border-gray-400 rounded px-2 py-1 text-sm
+                       focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055]"
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="moderator">Moderator</option>
+                        </select>
+                      )}
+
+                      <div className="flex gap-2">
                         <button
                           onClick={() => toggleActive(moderator)}
-                          className={`px-3 py-2 rounded ${
+                          className={`px-3 py-2 rounded text-sm ${
                             !moderator.is_active
                               ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
-                              : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
+                              : "bg-[#f72c2c] hover:bg-[#e92323] text-white"
                           }`}
                         >
                           {!moderator.is_active ? "Active" : "Inactive"}
                         </button>
+
                         <button
-                          onClick={() => {
-                            handleRemoveAdmins(moderator.id);
-                          }}
-                          className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white 
-                          cursor-pointer"
+                          onClick={() => handleRemoveAdmins(moderator.id)}
+                          className="px-3 py-2 rounded bg-red-100 text-red-600
+                       hover:bg-[#e92323] hover:text-white"
                         >
                           <Trash2 size={20} />
                         </button>

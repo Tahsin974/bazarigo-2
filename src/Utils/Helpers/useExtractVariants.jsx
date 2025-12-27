@@ -4,6 +4,7 @@ export default function useExtractVariants(product) {
 
   // Collect all unique keys except stock, sale price, regular price
   const excludedKeys = [
+    "id",
     "stock",
     "sale_price",
     "regular_price",

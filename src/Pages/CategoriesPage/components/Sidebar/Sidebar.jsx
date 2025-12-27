@@ -7,12 +7,13 @@ export default function Sidebar({
   openDropdown,
   setOpenDropdown,
   subcategory,
+  item,
 }) {
   return (
-    <aside className="w-full lg:w-72">
+    <aside className="w-full md:w-auto">
       {/* Desktop Sidebar */}
       <div className=" sticky top-24">
-        <div className="bg-white rounded-2xl shadow p-6">
+        <div className="bg-white rounded-2xl shadow md:p-6 p-4">
           <h3 className="font-semibold text-lg mb-4">Categories</h3>
           <CategoryList
             categories={categories}
@@ -21,6 +22,7 @@ export default function Sidebar({
             openDropdown={openDropdown}
             setOpenDropdown={setOpenDropdown}
             subcategory={subcategory}
+            item={item}
           />
         </div>
       </div>

@@ -55,7 +55,7 @@ export default function PaymentsView({
             <div className="flex md:flex-row flex-col gap-4 items-center justify-between w-full mb-4 ">
               <div className="flex  items-start sm:items-center gap-2 sm:gap-4 sm:order-1 order-2  sm:justify-start justify-between  w-full">
                 <h3 className="font-medium sm:text-base text-[14px]">
-                  Payments ({payments.length})
+                  Payments ({payments.length.toLocaleString("en-IN")})
                 </h3>
               </div>
               <div className="ms-auto sm:order-3 ">
@@ -92,10 +92,12 @@ export default function PaymentsView({
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedPayments.map((payment) => (
+                    {paginatedPayments.map((payment, index) => (
                       <tr key={payment.id}>
                         <td>
-                          <span className="font-semibold">{payment.id}</span>
+                          <span className="font-semibold">
+                            {(paymentPage - 1) * paymentPageSize + index + 1}
+                          </span>
                         </td>
                         <td>
                           <span className="font-semibold">

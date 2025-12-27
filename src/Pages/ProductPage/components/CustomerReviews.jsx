@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { InputField } from "../../../components/ui/InputField";
-import { Plus, Star, X } from "lucide-react";
+import { Plus, Star, Trash2, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
@@ -44,10 +44,10 @@ export default function CustomerReviews({
   const [selectedImages, setSelectedImages] = useState({});
 
   // Click handler
-  const handleClick = (reviewIndex, img) => {
+  const handleClick = (reviewId, img) => {
     setSelectedImages((prev) => ({
       ...prev,
-      [reviewIndex]: prev[reviewIndex] === img ? null : img,
+      [reviewId]: prev[reviewId] === img ? null : img,
     }));
   };
 
@@ -102,6 +102,8 @@ export default function CustomerReviews({
     if (user && user.email) {
       const formData = new FormData();
       formData.append("name", data.name);
+      formData.append("email", user.email);
+
       formData.append("comment", data.comment);
       formData.append("rating", data.rating);
       formData.append("date", new Date().toString());
@@ -140,6 +142,62 @@ export default function CustomerReviews({
     setDisplayCount((prev) => prev + 5); // প্রতি বার ৫টি review আরও দেখাবে
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: (reviewId) =>
+      axiosPublic.delete(`/products/${productId}/reviews/${reviewId}`),
+    onSuccess: () => {
+      Swal.fire({
+        icon: "success",
+        title: "Review deleted successfully",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      queryClient.invalidateQueries(["reviews"]);
+      refetch();
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: "error",
+        title: error.response?.data?.message || "Failed to delete review",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    },
+  });
+
+  const handleDelete = (reviewId) => {
+    if (reviewId) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This review will be permanently deleted.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#00C853",
+        cancelButtonColor: "#f72c2c",
+        confirmButtonText: "Yes",
+        cancelButtonText: "No",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          deleteMutation.mutate(reviewId);
+        }
+      });
+    }
+  };
+
+  const canDeleteReview = (review) => {
+    if (!user) return false;
+
+    // Admin / Super Admin → সব পারবে
+    if (user.role === "admin" || user.role === "super admin") return true;
+
+    // Customer → শুধু নিজেরটা
+    return review.email === user.email;
+  };
+
   return (
     <section className="container mx-auto xl:px-6 lg:px-6  px-4 md:py-10 py-6 border-t border-gray-300">
       <h3 className="text-xl font-bold mb-6">Customer Reviews</h3>
@@ -164,14 +222,14 @@ export default function CustomerReviews({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Comment
               </label>
-              <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20">
+              <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20 sm:h-16">
                 <button
                   type="button"
-                  className="flex items-center justify-center w-10 h-10 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150"
+                  className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150 flex-shrink-0"
                   aria-label="Add or New"
                   onClick={() => fileInputRef.current.click()}
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-5 h-5 sm:w-4 sm:h-4" />
                 </button>
 
                 <input
@@ -187,7 +245,7 @@ export default function CustomerReviews({
                   type="text"
                   placeholder="Write your review..."
                   {...register("comment")}
-                  className="search-input flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full"
+                  className="flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full min-w-0"
                 />
               </div>
 
@@ -255,14 +313,14 @@ export default function CustomerReviews({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Comment
             </label>
-            <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20">
+            <div className="w-full p-2 flex items-center rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#FF0055] focus-within:shadow-lg transition duration-300 h-20 sm:h-16">
               <button
                 type="button"
-                className="flex items-center justify-center w-10 h-10 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150"
+                className="flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 ml-1 rounded-full text-gray-500 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 transition duration-150 flex-shrink-0"
                 aria-label="Add or New"
                 onClick={() => fileInputRef.current.click()}
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-5 h-5 sm:w-4 sm:h-4" />
               </button>
 
               <input
@@ -278,7 +336,7 @@ export default function CustomerReviews({
                 type="text"
                 placeholder="Write your review..."
                 {...register("comment")}
-                className="search-input flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full"
+                className="flex-1 px-4 text-gray-800 bg-transparent border-none focus:ring-0 focus:outline-none h-full min-w-0"
               />
             </div>
 
@@ -320,9 +378,10 @@ export default function CustomerReviews({
 
           <button
             type="submit"
-            className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-3 rounded-lg shadow "
+            disabled={mutation.isLoading}
+            className="bg-[#00C853] hover:bg-[#00B34A] text-white px-6 py-3 rounded-lg shadow disabled:bg-gray-300 disabled:text-gray-500 transition-colors"
           >
-            Submit Review
+            {mutation.isLoading ? "Submitting..." : "Submit Review"}
           </button>
         </form>
       )}
@@ -330,7 +389,7 @@ export default function CustomerReviews({
       {reviews.length > 0 ? (
         <div className="space-y-6">
           {reviews.slice(0, displayCount).map((review, i) => (
-            <div key={i} className="p-4 bg-white rounded-lg shadow-md">
+            <div key={review.id} className="p-4 bg-white rounded-lg shadow-md">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex flex-col-reverse">
                   <span className="font-semibold text-lg">{review.name}</span>
@@ -353,7 +412,17 @@ export default function CustomerReviews({
                   </span>
                 )}
               </div>
-              <p className="text-gray-700 text-sm mb-1">{review.comment}</p>
+              <div className="flex items-center justify-between w-full">
+                <p className="text-gray-700 text-sm mb-1">{review.comment}</p>
+                {canDeleteReview(review) && (
+                  <button
+                    onClick={() => handleDelete(review.id)}
+                    className="flex items-center gap-2 px-4 py-2  text-red-600 font-medium transition-colors duration-200  text-left"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                )}
+              </div>
 
               {review.images && review.images.length > 0 && (
                 <div className="flex gap-2 mt-2 overflow-x-auto">
@@ -361,7 +430,7 @@ export default function CustomerReviews({
                     <div
                       key={j}
                       className="w-24 h-24 rounded overflow-hidden flex-shrink-0 cursor-pointer"
-                      onClick={() => handleClick(i, `${baseUrl}${img}`)}
+                      onClick={() => handleClick(review.id, `${baseUrl}${img}`)}
                     >
                       <img
                         src={`${baseUrl}${img}`}
@@ -373,12 +442,11 @@ export default function CustomerReviews({
                 </div>
               )}
               {/* Bigger Image Below */}
-              {selectedImages[i] && (
-                <div className="mt-2 flex justify-start items-center gap-4 transition-all duration-300">
+              {selectedImages[review.id] && (
+                <div className="mt-2">
                   <img
-                    src={selectedImages[i]}
-                    alt="Selected review"
-                    className="w-64 h-64 object-contain rounded-lg border border-gray-300"
+                    src={selectedImages[review.id]}
+                    className="w-64 h-64 object-contain rounded-lg border"
                   />
                 </div>
               )}

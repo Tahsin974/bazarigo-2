@@ -11,6 +11,7 @@ export default function useBanners() {
     queryKey: ["banner"],
     queryFn: async () => {
       const res = await axiosPublic.get("/banner");
+
       return res.data.banners;
     },
   });

@@ -73,7 +73,7 @@ export default function TermsConditionsPage() {
           <p className="   ">
             If you have any questions regarding these Terms & Conditions, please
             contact us at:
-            <span className="block mt-2">📧 bazarigo.official@gmail.com</span>
+            <span className="block mt-2">📧 info@bazarigo.com</span>
             <span>📞 +880 1797-454-118</span>
           </p>
         </section>

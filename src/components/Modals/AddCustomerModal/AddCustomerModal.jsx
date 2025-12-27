@@ -65,8 +65,6 @@ export default function AddCustomerModal({ onClose }) {
         refetch();
       }
     } catch (error) {
-      console.log(error);
-
       Swal.fire({
         icon: "error",
         title: error?.response.data.message,

@@ -14,7 +14,7 @@ export default function ProductItemsSection({
 }) {
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
-  const productsWithDelivery = items.flatMap((item) => {
+  const productsWithDelivery = items?.flatMap((item) => {
     return item.productinfo.map((prod) => ({
       ...prod,
       cart_id: item.cartid,
@@ -59,7 +59,8 @@ export default function ProductItemsSection({
       order_status: status,
       prodId,
     });
-    if (res.data.updatedCount > 0 || res.data.deletedCount > 0) {
+    console.log("Order Status", res.data);
+    if (res.data.updatedCount > 0) {
       Swal.fire({
         icon: "success",
         title: res.data.message,

@@ -14,11 +14,12 @@ export default function OrderModal({
   refetch,
   refetchReturnOrders,
 }) {
+  console.log("Orderrrrrrr", order);
   const printRef = useRef(null);
 
   const PRIMARY_COLOR = "#FF0055";
 
-  const productsWithDelivery = order.order_items.flatMap((item) => {
+  const productsWithDelivery = order?.order_items?.flatMap((item) => {
     return item.productinfo.map((prod) => ({
       ...prod,
       cart_id: item.cartid,
@@ -265,6 +266,7 @@ export default function OrderModal({
       timer: 3000,
     });
   };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <motion.div

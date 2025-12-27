@@ -4,23 +4,20 @@ import ProductGrid from "./components/ProductGrid/ProductGrid";
 import { ChevronDown } from "lucide-react";
 import InfiniteControls from "./components/Controls/InfiniteControls";
 import Pagination from "../../components/ui/Pagination";
-import { useParams } from "react-router";
+import { useParams, useLocation } from "react-router";
 
 import useProducts from "../../Utils/Hooks/useProducts";
 import { useRenderPageNumbers } from "../../Utils/Helpers/useRenderPageNumbers";
-import { useLocation } from "react-router";
 import { motion } from "framer-motion";
 
 export default function CategoriesPage() {
   // State & logic ...existing code...
   const { categoryName } = useParams();
 
-  // const [activeCategory, setActiveCategory] = useState(
-  //   categoryName || "All Products"
-  // );
   const [activeCategory, setActiveCategory] = useState({
     main: categoryName || "All Products",
     sub: null,
+    item: null,
   });
 
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -33,95 +30,494 @@ export default function CategoriesPage() {
   const [visibleCount, setVisibleCount] = useState(itemsPerPage);
 
   const [loading, setLoading] = useState(false);
+
   const categories = [
     {
       name: "Electronics",
-
       sub: [
-        "Accessories",
-        "Audio & Headphones",
-        "Cameras & Photography",
-        "Gaming Consoles",
-        "Laptops & Computers",
-        "Mobile Phones",
-        "TV & Home Theater",
-        "Wearables",
+        {
+          name: "Mobile Phones & Accessories",
+          items: [
+            "Smartphones",
+            "Feature Phones",
+            "Phone Cases & Covers",
+            "Chargers & Cables",
+            "Power Banks",
+            "Screen Protectors",
+            "Mobile Gadgets & Wearables",
+          ],
+          attributes: [
+            "color",
+            "model",
+            "ram",
+            "storage",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Computers & Accessories",
+          items: [
+            "Laptops",
+            "Desktops",
+            "Monitors",
+            "Keyboards & Mouse",
+            "Storage Devices",
+            "Networking Equipment",
+            "Printers & Scanners",
+            "Laptop Bags & Sleeves",
+            "Computer Gadgets & Accessories",
+          ],
+          attributes: [
+            "processor",
+            "ram",
+            "storage",
+            "graphics",
+            "color",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Gaming",
+          items: ["Gaming Consoles", "Game Controllers", "Gaming Accessories"],
+          attributes: [
+            "color",
+            "compatibility",
+            "platform",
+            "size",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Audio & Video",
+          items: [
+            "Headphones & Earphones",
+            "Speakers",
+            "Home Audio Systems",
+            "Televisions & Accessories",
+            "Projectors & Screens",
+            "Audio Cables & Adapters",
+            "Streaming Devices & Media Players",
+          ],
+          attributes: [
+            "color",
+            "connectivity",
+            "power",
+            "type",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Cameras & Photography",
+          items: [
+            "Digital Cameras",
+            "DSLR & Mirrorless Cameras",
+            "Camera Lenses",
+            "Tripods & Stabilizers",
+            "Memory Cards",
+            "Camera Bags & Accessories",
+            "Photography Gadgets & Accessories",
+          ],
+          attributes: ["lens", "resolution", "type", "warranty", "weight"],
+        },
+        {
+          name: "Home Appliances",
+          items: [
+            "Refrigerators",
+            "Washing Machines",
+            "Microwaves",
+            "Air Conditioners",
+            "Heaters",
+            "Fans",
+            "Vacuum Cleaners",
+            "Kitchen Appliances",
+            "Small Home Appliances & Gadgets",
+          ],
+          attributes: [
+            "capacity",
+            "color",
+            "energy rating",
+            "power",
+            "type",
+            "warranty",
+            "weight",
+          ],
+        },
       ],
     },
     {
       name: "Fashion",
-
       sub: [
-        "Accessories",
-        "Bags & Backpacks",
-        "Ethnic & Traditional Wear",
-        "Footwear",
-        "Kid’s Clothing",
-        "Men’s Clothing",
-        "Watches",
-        "Women’s Clothing",
-      ],
-    },
-    {
-      name: "Groceries",
-
-      sub: [
-        "Accessories",
-        "Beverages",
-        "Cooking Essentials",
-        "Dairy & Eggs",
-        "Frozen Foods",
-        "Packaged & Snacks",
+        {
+          name: "Clothing",
+          items: [
+            "T-Shirts",
+            "Shirts",
+            "Jeans",
+            "Jackets & Coats",
+            "Dresses",
+            "Skirts",
+            "Traditional Wear",
+          ],
+          attributes: ["color", "material", "size"],
+        },
+        {
+          name: "Footwear",
+          items: ["Sneakers", "Formal Shoes", "Sandals", "Boots", "Flip-Flops"],
+          attributes: ["color", "material", "size"],
+        },
+        {
+          name: "Bags",
+          items: ["Backpacks", "Handbags", "Wallets", "Travel Bags"],
+          attributes: ["color", "material", "size", "type"],
+        },
+        {
+          name: "Watches & Timepieces",
+          items: ["Analog Watches", "Digital Watches", "Smartwatches"],
+          attributes: ["color", "material", "size", "type", "water resistance"],
+        },
+        {
+          name: "Jewelry & Accessories",
+          items: [
+            "Rings",
+            "Necklaces",
+            "Bracelets",
+            "Earrings",
+            "Sunglasses / Eyewear",
+          ],
+          attributes: ["color", "size", "material"],
+        },
+        {
+          name: "Kids Accessories",
+          items: [
+            "Kids Backpack",
+            "Kids Watch",
+            "Hair Accessories",
+            "Hats & Caps",
+          ],
+          attributes: ["age group", "color", "material", "size", "type"],
+        },
       ],
     },
     {
       name: "Health & Beauty",
-
       sub: [
-        "Accessories",
-        "Fragrances",
-        "Haircare",
-        "Makeup & Cosmetics",
-        "Skincare",
-        "Vitamins & Supplements",
+        {
+          name: "Skincare",
+          items: [
+            "Face Cream",
+            "Sunscreen",
+            "Face Wash",
+            "Serums",
+            "Face Masks",
+          ],
+          attributes: ["size", "skin type", "type"],
+        },
+        {
+          name: "Haircare",
+          items: [
+            "Shampoo",
+            "Conditioner",
+            "Hair Oil",
+            "Hair Serums",
+            "Hair Styling Products",
+          ],
+          attributes: ["hair type", "size", "type"],
+        },
+        {
+          name: "Makeup & Cosmetics",
+          items: ["Lipstick", "Foundation", "Eyeliner", "Eyeshadow", "Blush"],
+          attributes: ["shade", "size", "type"],
+        },
+        {
+          name: "Personal Care",
+          items: [
+            "Toothpaste",
+            "Body Wash",
+            "Deodorant",
+            "Shaving Products",
+            "Hand Sanitizer",
+          ],
+          attributes: ["quantity", "type"],
+        },
+        {
+          name: "Fragrances",
+          items: ["Perfume", "Body Spray", "Cologne"],
+          attributes: ["type", "volumn"],
+        },
+        {
+          name: "Health Supplements",
+          items: ["Vitamins", "Protein Powder", "Herbal Supplements"],
+          attributes: ["quantity", "size", "type"],
+        },
+        {
+          name: "Beauty Gadgets & Accessories",
+          items: [
+            "Hair Straightener",
+            "Hair Dryer",
+            "Facial Massager",
+            "Manicure Set",
+          ],
+          attributes: ["type", "power", "color", "weight", "size"],
+        },
       ],
     },
     {
-      name: "Home & Living",
-
+      name: "Furniture & Home Decor",
       sub: [
-        "Accessories",
-        "Bedding & Bath",
-        "Cleaning Supplies",
-        "Furniture",
-        "Home Decor",
-        "Kitchen Appliances",
-        "Lighting",
-        "Storage & Organization",
+        {
+          name: "Furniture",
+          items: ["Sofa", "Bed", "Dining Table", "Chair", "Wardrobe"],
+          attributes: ["color", "dimension", "material", "type", "weight"],
+        },
+        {
+          name: "Home Decor",
+          items: ["Wall Art", "Lamps", "Rugs", "Clocks", "Decorative Items"],
+          attributes: ["color", "material", "size", "type"],
+        },
+        {
+          name: "Kitchen & Dining",
+          items: ["Cookware", "Dinnerware", "Cutlery", "Kitchen Storage"],
+          attributes: [
+            "capacity",
+            "color",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Bedding & Bath",
+          items: ["Bedsheets", "Pillows", "Towels", "Blankets"],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
+        {
+          name: "Home Gadgets & Accessories",
+          items: [
+            "Air Purifier",
+            "Smart Plugs",
+            "Humidifier",
+            "Electric Kettle",
+            "Smart Lighting",
+          ],
+          attributes: ["color", "power", "size", "type", "weight"],
+        },
       ],
     },
     {
-      name: "Sports",
-
+      name: "Sports & Outdoors",
       sub: [
-        "Accessories",
-        "Cycling & Scooters",
-        "Gym & Fitness Equipment",
-        "Outdoor Sports",
-        "Sportswear & Footwear",
-        "Water Sports",
+        {
+          name: "Exercise & Fitness",
+          items: ["Treadmill", "Dumbbells", "Yoga Mat", "Resistance Bands"],
+          attributes: ["material", "resistance", "type", "weight"],
+        },
+        {
+          name: "Outdoor & Adventure",
+          items: [
+            "Tents",
+            "Sleeping Bags",
+            "Camping Lantern",
+            "Hiking Backpack",
+          ],
+          attributes: [
+            "capacity",
+            "color",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Sports Equipment",
+          items: [
+            "Football",
+            "Cricket Bat & Ball",
+            "Badminton Set",
+            "Basketball",
+          ],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
+        {
+          name: "Sports Gadgets & Accessories",
+          items: [
+            "Water Bottle",
+            "Fitness Tracker",
+            "Sports Gloves",
+            "Gym Bag",
+          ],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
       ],
     },
     {
-      name: "Pet Supplies",
-
+      name: "Toys & Baby Products",
       sub: [
-        "Accessories",
-        "Pet Food",
-        "Pet Grooming",
-        "Pet Health",
-        "Pet Clothing",
-        "Pet Training & Safety",
+        {
+          name: "Baby Care",
+          items: ["Diapers", "Baby Wipes", "Baby Lotion", "Feeding Bottles"],
+          attributes: ["age group", "quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Toys",
+          items: [
+            "Stuffed Animals",
+            "Educational Toys",
+            "Action Figures",
+            "Puzzles",
+          ],
+          attributes: [
+            "age group",
+            "color",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Kids Gadgets & Accessories",
+          items: [
+            "Baby Monitor",
+            "Baby Carrier",
+            "Kids Watch",
+            "Kids Backpack",
+          ],
+          attributes: ["age group", "power", "type", "weight"],
+        },
+      ],
+    },
+    {
+      name: "Automotive & Industrial",
+      sub: [
+        {
+          name: "Car Accessories",
+          items: [
+            "Car Cover",
+            "Seat Covers",
+            "Car Vacuum Cleaner",
+            "Dashboard Camera",
+          ],
+          attributes: ["compatibility", "size", "type", "quantity", "weight"],
+        },
+        {
+          name: "Motorbike Accessories",
+          items: [
+            "Helmets",
+            "Gloves",
+            "Motorbike Cover",
+            "Handlebar Accessories",
+          ],
+          attributes: [
+            "color",
+            "compatibility",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Tools & Equipment",
+          items: ["Wrench Set", "Screwdrivers", "Power Drill", "Tool Box"],
+          attributes: ["material", "size", "type", "weight"],
+        },
+        {
+          name: "Safety & Security",
+          items: [
+            "CCTV Camera",
+            "Car Alarm",
+            "Fire Extinguisher",
+            "First Aid Kit",
+            "Security Sensors & Gadgets",
+          ],
+          attributes: ["power", "size", "type", "weight"],
+        },
+        {
+          name: "Automotive Gadgets & Accessories",
+          items: [
+            "GPS Navigator",
+            "Car Charger",
+            "Jump Starter",
+            "Tire Inflator",
+          ],
+          attributes: ["color", "compatibility", "material", "type"],
+        },
+      ],
+    },
+    {
+      name: "Grocery & Food Items",
+      sub: [
+        {
+          name: "Beverages",
+          items: ["Tea", "Coffee", "Soft Drinks", "Juices"],
+          attributes: ["flavor", "type", "volume", "weight"],
+        },
+        {
+          name: "Snacks & Confectionery",
+          items: ["Chips", "Biscuits", "Chocolates", "Nuts"],
+          attributes: ["size", "type", "weight"],
+        },
+        {
+          name: "Cooking Essentials",
+          items: ["Cooking Oil", "Spices", "Flour", "Sugar"],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Dairy & Eggs",
+          items: ["Milk", "Cheese", "Yogurt", "Eggs"],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Organic & Imported Items",
+          items: [
+            "Organic Honey",
+            "Imported Chocolate",
+            "Gluten-Free Products",
+            "Organic Cereals",
+          ],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Specialty Foods & Gourmet Items",
+          items: [
+            "Sauces & Condiments",
+            "Gourmet Snacks",
+            "Premium Coffee/Tea",
+            "Exotic Spices",
+          ],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+      ],
+    },
+    {
+      name: "Pets & Pet Care",
+      sub: [
+        {
+          name: "Pet Food",
+          items: ["Dog Food", "Cat Food", "Bird Feed", "Fish Food"],
+          attributes: ["flavor", "quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Pet Accessories",
+          items: ["Pet Collar & Leash", "Pet Bed", "Pet Toys", "Pet Bowls"],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
+        {
+          name: "Pet Care Products",
+          items: ["Pet Shampoo", "Pet Grooming Tools", "Flea & Tick Treatment"],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Pet Gadgets & Accessories",
+          items: ["Automatic Feeder", "Pet Camera", "Pet Tracker"],
+          attributes: ["power", "quantity", "type", "weight"],
+        },
       ],
     },
   ];
@@ -132,6 +528,7 @@ export default function CategoriesPage() {
   const params = new URLSearchParams(location.search);
   const queryProduct = params.get("product"); // encoded product ID
   const subcategory = params.get("subcategory");
+  const item = params.get("item");
 
   const [highlightedProduct, setHighlightedProduct] = useState(
     queryProduct ? queryProduct : null
@@ -142,7 +539,8 @@ export default function CategoriesPage() {
     const matchesTag =
       activeCategory.main === "All Products" ||
       (product.category === activeCategory.main &&
-        product.subcategory === activeCategory.sub);
+        product.subcategory === activeCategory.sub &&
+        product.subcategory_item === activeCategory.item);
 
     // Check product highlight / search safely
     const matchesSearch =
@@ -154,11 +552,6 @@ export default function CategoriesPage() {
 
     return matchesTag && matchesSearch;
   });
-
-  // const filteredProducts =
-  //   activeCategory === "All Products"
-  //     ? products
-  //     : products.filter((p) => p.subcategory === activeCategory);
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "Newest")
@@ -203,7 +596,6 @@ export default function CategoriesPage() {
     startIndex + itemsPerPage
   );
   const visibleProducts = sortedProducts.slice(0, visibleCount);
-  console.log(totalPages);
 
   const loadMore = async () => {
     if (loading) return;
@@ -231,13 +623,21 @@ export default function CategoriesPage() {
   useEffect(() => {
     if (categoryName) {
       const findCategory = categories.find((cat) => cat.name === categoryName);
-      if (subcategory) {
-        setActiveCategory({ main: categoryName, sub: subcategory });
+      if (subcategory && item) {
+        setActiveCategory({ main: categoryName, sub: subcategory, item: item });
       } else {
-        setActiveCategory({ main: categoryName, sub: findCategory?.sub[0] });
+        const firstSub = findCategory?.sub?.[0];
+        const firstItem = firstSub?.items?.[0] || null;
+
+        setActiveCategory({
+          main: categoryName,
+          sub: firstSub?.name,
+          item: firstItem,
+        });
       }
     }
   }, [categoryName]);
+
   const productsToRender =
     mode === "pagination" ? pageProducts : visibleProducts;
   // Main layout
@@ -286,92 +686,12 @@ export default function CategoriesPage() {
               setActiveCategory={setActiveCategory}
               openDropdown={openDropdown}
               subcategory={subcategory}
+              item={item}
               setOpenDropdown={setOpenDropdown}
             />
             {/* Products + controls */}
             <section className="flex-1">
-              {/* <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="text-sm text-gray-600">Showing</div>
-                  <div className="font-medium text-gray-800">
-                    {mode === "pagination"
-                      ? `${startIndex + 1} - ${Math.min(
-                          startIndex + itemsPerPage,
-                          sortedProducts.length
-                        )}`
-                      : `1 - ${Math.min(visibleCount, sortedProducts.length)}`}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    of {sortedProducts.length}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="relative inline-block text-left z-10">
-                    <div className="relative inline-flex items-center">
-                      <select
-                        value={sortOption}
-                        onChange={(e) => setSortOption(e.target.value)}
-                        className="appearance-none bg-white border border-gray-300 rounded-lg py-2 pl-4 pr-10 text-base  text-gray-900 shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FF0055] focus:border-[#FF0055] transition duration-150 cursor-pointer category-select"
-                        style={{ fontFamily: "Poppins", fontWeight: 700 }}
-                      >
-                        <option>Newest</option>
-                        <option>Price: Low to High</option>
-                        <option>Price: High to Low</option>
-                        <option>Rating</option>
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 h-5 w-5 text-gray-500" />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded ${
-                        viewMode === "grid"
-                          ? "bg-[#FF0055] text-white"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      Grid
-                    </button>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className={`p-2 rounded ${
-                        viewMode === "list"
-                          ? "bg-[#FF0055] text-white"
-                          : "bg-gray-100"
-                      }`}
-                    >
-                      List
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="text-gray-600">Mode:</span>
-                  <button
-                    onClick={() => setMode("pagination")}
-                    className={`px-3 py-2 rounded-lg ${
-                      mode === "pagination"
-                        ? "bg-[#FF0055] text-white"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    Pagination
-                  </button>
-                  <button
-                    onClick={() => setMode("infinite")}
-                    className={`px-3 py-2 rounded-lg ${
-                      mode === "infinite"
-                        ? "bg-[#FF0055] text-white"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    Infinite
-                  </button>
-                </div>
-              </div> */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
                 {/* Showing Count */}
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <span>Showing</span>
@@ -387,7 +707,7 @@ export default function CategoriesPage() {
                 </div>
 
                 {/* Sorting & View Mode */}
-                <div className="flex items-center gap-4">
+                <div className="flex  items-center gap-4">
                   {/* Sort */}
                   <div className="relative">
                     <select
@@ -405,7 +725,8 @@ export default function CategoriesPage() {
                   </div>
 
                   {/* View Mode Buttons */}
-                  <div className="flex items-center gap-2 text-sm">
+
+                  <div className="hidden md:flex items-center gap-2 text-sm ">
                     <button
                       onClick={() => setViewMode("grid")}
                       className={`px-3 py-2 rounded-lg ${
@@ -430,7 +751,7 @@ export default function CategoriesPage() {
                 </div>
 
                 {/* Display Mode */}
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex  items-center gap-2 text-sm text-gray-600">
                   <span>Mode:</span>
                   <button
                     onClick={() => setMode("pagination")}

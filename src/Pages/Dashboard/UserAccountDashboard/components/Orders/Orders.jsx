@@ -46,12 +46,18 @@ export default function Orders({ orders, activeTab, refetch }) {
   };
   const baseUrl = import.meta.env.VITE_BASEURL;
 
-  console.log(orders);
-
   return (
     <div>
       {activeTab === "Orders" && (
         <div className="space-y-6">
+          <h3 className="font-medium sm:text-base text-[14px] mb-3">
+            Total Orders{" "}
+            {!orders?.length ? (
+              ""
+            ) : (
+              <>({orders.length.toLocaleString("en-IN")})</>
+            )}
+          </h3>
           {!orders.length ? (
             <div className="bg-white p-4 rounded-box shadow-sm my-4">
               <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -85,11 +91,10 @@ export default function Orders({ orders, activeTab, refetch }) {
                           className="  bg-white rounded-2xl space-y-4"
                         >
                           <h3>
-                            {console.log(item.sellerid)}
                             <HashLink
                               to={`/seller-page/${
                                 item.seller_store_name
-                              }/storeid=${btoa(item.sellerid)}#`}
+                              }/store?id=${btoa(item.sellerid)}#`}
                               className="flex gap-x-1.5 items-center my-1 text-gray-500 hover:text-orange-400 "
                             >
                               <Store size={20} />
@@ -136,7 +141,7 @@ export default function Orders({ orders, activeTab, refetch }) {
                                       className="w-20 h-20 rounded-xl object-cover"
                                     />
                                     <div>
-                                      <h3 className="font-semibold text-gray-800">
+                                      <h3 className="font-semibold text-gray-800 max-w-96">
                                         {item.product_name}
                                       </h3>
                                       <div className="flex items-center gap-2">

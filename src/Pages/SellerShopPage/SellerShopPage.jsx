@@ -22,7 +22,7 @@ export default function SellerShopPage() {
   const [isMessageOpen, setIsMessageOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 12;
   const location = useLocation();
 
   const { user, isLoading } = useAuth();
@@ -43,7 +43,6 @@ export default function SellerShopPage() {
       return res.data.seller;
     },
   });
-  console.log("seller", sellerDetails);
   const filteredProducts =
     filter === "all"
       ? sellerProducts

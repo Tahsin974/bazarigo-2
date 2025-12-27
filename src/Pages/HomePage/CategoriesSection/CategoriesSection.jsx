@@ -8,40 +8,88 @@ import {
   Gem,
   Volleyball,
   PawPrint,
+  Activity,
+  Heart,
+  ShoppingCart,
 } from "lucide-react";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import { HashLink } from "react-router-hash-link";
 
 export default function CategoriesSection() {
+  // const categories = [
+  //   {
+  //     name: "Electronics",
+  //     link: "Electronics",
+  //     icon: <Laptop size={32} className="text-[#007BFF]" />,
+  //     bg: "#E5F5FF",
+  //   },
+  //   {
+  //     name: "Fashions",
+  //     link: "Fashion",
+  //     icon: <Shirt size={32} className="text-[#FF0055]" />,
+  //     bg: "#FFE5E5",
+  //   },
+  //   {
+  //     name: "Groceries",
+  //     link: "Grocery & Food Items",
+  //     icon: <ShoppingBag size={32} className="text-[#F39C12]" />,
+  //     bg: "#FFFBE5",
+  //   },
+  //   {
+  //     name: "Health & Beauty",
+  //     link: "Health & Beauty",
+  //     icon: <Gem size={32} className="text-[#00C48C]" />,
+  //     bg: "#E5FFF2",
+  //   },
+  //   {
+  //     name: "Home & Living",
+  //     link: "Furniture & Home Decor",
+  //     icon: <Home size={32} className="text-[#00C4B8]" />,
+  //     bg: "#E5FFFF",
+  //   },
+  //   {
+  //     name: "Sports",
+  //     link: "Sports & Outdoors",
+  //     icon: <Volleyball size={32} className="text-[#9B59B6]" />,
+  //     bg: "#F5E5FF",
+  //   },
+  // ];
+
   const categories = [
     {
       name: "Electronics",
+      link: "Electronics",
       icon: <Laptop size={32} className="text-[#007BFF]" />,
       bg: "#E5F5FF",
     },
     {
-      name: "Fashion",
+      name: "Fashions",
+      link: "Fashion",
       icon: <Shirt size={32} className="text-[#FF0055]" />,
       bg: "#FFE5E5",
     },
     {
       name: "Groceries",
-      icon: <ShoppingBag size={32} className="text-[#F39C12]" />,
+      link: "Grocery & Food Items",
+      icon: <ShoppingCart size={32} className="text-[#F39C12]" />,
       bg: "#FFFBE5",
     },
     {
       name: "Health & Beauty",
-      icon: <Gem size={32} className="text-[#00C48C]" />,
+      link: "Health & Beauty",
+      icon: <Heart size={32} className="text-[#00C48C]" />,
       bg: "#E5FFF2",
     },
     {
       name: "Home & Living",
+      link: "Furniture & Home Decor",
       icon: <Home size={32} className="text-[#00C4B8]" />,
       bg: "#E5FFFF",
     },
     {
       name: "Sports",
-      icon: <Volleyball size={32} className="text-[#9B59B6]" />,
+      link: "Sports & Outdoors",
+      icon: <Activity size={32} className="text-[#9B59B6]" />,
       bg: "#F5E5FF",
     },
   ];
@@ -57,7 +105,7 @@ export default function CategoriesSection() {
               whileHover={{ scale: 1.05, y: -5 }}
               className="group cursor-pointer transform transition-transform"
             >
-              <HashLink to={`/categories/${cat.name}#`}>
+              <HashLink to={`/categories/${cat.link}#`}>
                 <Card className="rounded-2xl shadow-lg bg-white p-6 text-center group-hover:shadow-xl transition-shadow duration-300">
                   <div className="flex justify-center mb-4">
                     <div
@@ -67,7 +115,7 @@ export default function CategoriesSection() {
                       {cat.icon}
                     </div>
                   </div>
-                  <h3 className="font-semibold text-gray-800 text-[clamp(10px,2vw,16px)]">
+                  <h3 className="font-semibold text-gray-800 text-[clamp(12px,2vw,16px)]">
                     {cat.name}
                   </h3>
                 </Card>

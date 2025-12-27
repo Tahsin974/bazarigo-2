@@ -25,16 +25,17 @@ export default function CheckOutPage() {
   const [customerThana, setCustomerThana] = useState(null);
   const [customerPostalCode, setCustomerPostalCode] = useState(null);
   const [customerPhone, setCustomerPhone] = useState("");
+
   const location = useLocation();
   const items =
     location.state && location.state.items ? location.state.items : [];
 
   const [checkoutItems, setCheckoutItems] = useState(items);
-  console.log(checkoutItems);
 
   const baseUrl = import.meta.env.VITE_BASEURL;
 
   const [provider, setProvider] = useState("");
+  const [mobileBankNumber, setMobileBankNumber] = useState("");
 
   const [isCashOnDelivery, setIsCashOnDelivery] = useState(false);
 
@@ -73,7 +74,7 @@ export default function CheckOutPage() {
         }
       }
     } catch (error) {
-      console.error("Remove failed:", error);
+      console.error(error);
       Swal.fire({
         title: "Error!",
         text: "Something went wrong while removing the product.",
@@ -103,8 +104,6 @@ export default function CheckOutPage() {
       }
     }
 
-    console.log(minDays, maxDays);
-
     const minDate = new Date(orderDate);
     minDate.setDate(minDate.getDate() + minDays);
 
@@ -117,7 +116,6 @@ export default function CheckOutPage() {
       options
     )} – ${maxDate.toLocaleDateString("en-US", options)}`;
   }
-  console.log(checkoutItems);
 
   const handleSave = async () => {
     try {
@@ -128,10 +126,10 @@ export default function CheckOutPage() {
         district: customerDistrict || user.district,
         thana: customerThana || user.thana,
         postal_code: customerPostalCode || user.postal_code,
+        phone: customerPhone || user.phone,
       };
 
       const res = await axiosPublic.put(`/users/update/${user.id}`, payload);
-      console.log(checkoutItems);
 
       if (res.data.updatedCount > 0) {
         await refreshUser();
@@ -149,15 +147,11 @@ export default function CheckOutPage() {
                 product.sale_price > 1
                   ? product.sale_price
                   : product.regular_price,
-              isCod: false,
             };
 
             const deliveryRes = await axiosPublic.get("/deliveries", {
               params: deliveryPayload,
             });
-
-            console.log("deli", deliveryPayload);
-            console.log("deli", deliveryRes);
 
             return {
               ...item,
@@ -179,7 +173,6 @@ export default function CheckOutPage() {
         });
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: `${error.response?.data?.message}`,
@@ -200,10 +193,6 @@ export default function CheckOutPage() {
     }
   }, [user]);
 
-  useEffect(() => {
-    console.log("Provider set to:", provider);
-  }, [provider]);
-
   return (
     <div className="bg-[#f7f7f8] ">
       {!checkoutItems.length && !isLoading && !user ? (
@@ -222,6 +211,19 @@ export default function CheckOutPage() {
                     name="name"
                     defaultValue={user?.name || customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
+                  />
+                  <input
+                    placeholder="Phone Number"
+                    name="number"
+                    defaultValue={user?.phone || customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                        e.preventDefault(); // keyboard up/down disable
+                      }
+                    }}
+                    onWheel={(e) => e.target.blur()}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055]"
                   />
 
@@ -285,18 +287,16 @@ export default function CheckOutPage() {
                       selectValueChange={(e) => setProvider(e.target.value)}
                       isWide={true}
                     >
-                      <option value="" disabled>
-                        Select Provider
-                      </option>
+                      <option value="">Select Provider</option>
                       <option value="bKash">bKash</option>
                       <option value="Nagad">Nagad</option>
                       <option value="Rocket">Rocket</option>
                     </SelectField>
                     <input
-                      placeholder="Phone Number"
+                      placeholder="Account Number (e.g., 017XXXXXXXX)"
                       name="number"
-                      defaultValue={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      defaultValue={mobileBankNumber}
+                      onChange={(e) => setMobileBankNumber(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                           e.preventDefault(); // keyboard up/down disable
@@ -426,13 +426,56 @@ export default function CheckOutPage() {
                       </Card>
                     )}
                   </div>
-                  <label className="flex items-center gap-2 text-sm">
+                  {/* <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
                       className="checkbox checkbox-secondary checkbox-xs rounded-sm"
                       onChange={(e) => {
                         setIsCashOnDelivery(e.target.checked);
-                        refetch();
+                      }}
+                      disabled={provider !== ""}
+                    />
+                    Cash On Delivery
+                  </label> */}
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                      onChange={async (e) => {
+                        const codChecked = e.target.checked;
+                        setIsCashOnDelivery(codChecked);
+
+                        // 🔹 Delivery recalculation যেকোনো COD পরিবর্তনের জন্য
+                        const updatedItems = await Promise.all(
+                          checkoutItems.map(async (item) => {
+                            const product = item.productinfo[0];
+
+                            const deliveryPayload = {
+                              sellerId: item.sellerid,
+                              userId: user.id,
+                              weight: product.weight,
+                              orderAmount:
+                                product.sale_price > 1
+                                  ? product.sale_price
+                                  : product.regular_price,
+                              isCod: codChecked, // ✅ true বা false উভয়েই পাঠানো হচ্ছে
+                            };
+
+                            const deliveryRes = await axiosPublic.get(
+                              "/deliveries",
+                              {
+                                params: deliveryPayload,
+                              }
+                            );
+
+                            return {
+                              ...item,
+                              deliveries: deliveryRes.data.result[0],
+                            };
+                          })
+                        );
+
+                        setCheckoutItems(updatedItems);
                       }}
                       disabled={provider !== ""}
                     />
@@ -519,7 +562,7 @@ export default function CheckOutPage() {
                                 className="w-20 h-20 rounded-xl object-cover"
                               />
                               <div>
-                                <h3 className="font-semibold text-gray-800">
+                                <h3 className="font-semibold text-gray-800 ">
                                   {item.product_name}
                                 </h3>
                                 <div className="flex items-center gap-2">
@@ -599,7 +642,7 @@ export default function CheckOutPage() {
               <OrderSummary
                 isCashOnDelivery={isCashOnDelivery}
                 items={checkoutItems}
-                customerPhone={customerPhone}
+                mobileBankNumber={mobileBankNumber}
                 allowPromo={true}
                 refetch={refetch}
                 paymentMethod={provider}

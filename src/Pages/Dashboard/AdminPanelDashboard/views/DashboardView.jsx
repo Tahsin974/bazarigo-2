@@ -59,6 +59,18 @@ function DashboardView({
 
   /** Handle Return Request */
   const handleReturnRequest = async (id, status) => {
+    if (!id) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Return Request ID",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      return;
+    }
+
     try {
       const res = await axiosSecure.patch(`/return-requests/status/${id}`, {
         status,
@@ -88,6 +100,7 @@ function DashboardView({
       console.error(err);
     }
   };
+
   const handlePrint = () => {
     const dashboardContent = document.getElementById("dashboard-content");
 
@@ -224,15 +237,21 @@ function DashboardView({
             <div id="dashboard-content" className="space-y-6">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <StatCard title="Total Products" value={products.length} />
-                <StatCard title="Total Orders" value={orders.length} />
+                <StatCard
+                  title="Total Products"
+                  value={products.length.toLocaleString("en-IN")}
+                />
+                <StatCard
+                  title="Total Orders"
+                  value={orders.length.toLocaleString("en-IN")}
+                />
                 <StatCard
                   title="Total Sales"
                   value={`৳${dashboard.totalSales.toLocaleString("en-IN")}`}
                 />
                 <StatCard
                   title="Return Requests"
-                  value={returnRequests.length}
+                  value={returnRequests.length.toLocaleString("en-IN")}
                 />
               </div>
               <div className="flex justify-end">

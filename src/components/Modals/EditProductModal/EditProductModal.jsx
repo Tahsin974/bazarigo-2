@@ -6,6 +6,7 @@ import { Pause, Play, Trash2, X } from "lucide-react";
 import Swal from "sweetalert2";
 import { InputField } from "../../ui/InputField";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
+import { v4 as uuidv4 } from "uuid";
 
 export default function EditProductModal({
   product = {},
@@ -13,7 +14,6 @@ export default function EditProductModal({
   refetch,
   user,
 }) {
-  console.log(product);
   const baseUrl = import.meta.env.VITE_BASEURL;
   const axiosPublic = useAxiosPublic();
   const [form, setForm] = useState({
@@ -25,6 +25,7 @@ export default function EditProductModal({
     rating: product.rating || 0,
     category: product.category || "",
     subcategory: product.subcategory || "",
+    subcategory_item: product.subcategory_item || "",
     description: product.description || "",
     stock: product.stock || 0,
     images: product.images || [],
@@ -95,6 +96,7 @@ export default function EditProductModal({
 
     const newVariant = {
       ...allAttributes,
+      id: uuidv4(),
       regular_price:
         parseInt(attributes.regular_price) || parseInt(form.regular_price) || 0,
       sale_price:
@@ -129,23 +131,26 @@ export default function EditProductModal({
     setAttributes(cleared);
   };
 
-  const removeVariant = (index) => {
-    const updated = variants.filter((_, i) => i !== index);
+  const removeVariant = (id) => {
+    console.log("Removing variant at index:", id);
+    const updated = variants.filter((v) => v.id !== id);
+    console.log("Removing variant at index:", updated);
     // 🟢 UPDATED: variant বাদ দিলে total stock পুনরায় হিসাব
     const totalStock = updated.reduce((sum, v) => sum + (v.stock || 0), 0);
     setVariants(updated);
+    console.log("Removing variant at index:", updated);
+
     setForm((prev) => ({
       ...prev,
       stock: totalStock,
       extras: { ...prev.extras, variants: updated },
     }));
   };
-
+  console.log("Variants", variants);
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files || []);
     const maxSizeImage = 2 * 1024 * 1024; // 1MB for images
 
-    console.log(files);
     const validFiles = [];
     let hasInvalid = false;
 
@@ -186,151 +191,548 @@ export default function EditProductModal({
     }));
   };
 
-  const subcategoryOptions = {
-    Electronics: [
-      "Mobile Phones",
-      "Laptops & Computers",
-      "Audio & Headphones",
-      "Cameras & Photography",
-      "Wearables",
-      "TV & Home Theater",
-      "Gaming Consoles",
-      "Accessories",
-    ],
-    Fashion: [
-      "Men’s Clothing",
-      "Women’s Clothing",
-      "Kid’s Clothing",
-      "Footwear",
-      "Bags & Backpacks",
-      "Accessories",
-      "Watches",
-      "Ethnic & Traditional Wear",
-    ],
-    Groceries: [
-      "Dairy & Eggs",
+  // 🔽 Define subcategories for each category
 
-      "Packaged & Snacks",
-      "Beverages",
-      "Cooking Essentials",
-      "Frozen Foods",
-      "Accessories",
-    ],
-    "Health & Beauty": [
-      "Skincare",
-      "Haircare",
-      "Makeup & Cosmetics",
-      "Vitamins & Supplements",
-      "Fragrances",
-      "Accessories",
-    ],
-    "Home & Living": [
-      "Furniture",
-      "Home Decor",
-      "Kitchen Appliances",
-      "Bedding & Bath",
-      "Lighting",
-      "Storage & Organization",
-      "Cleaning Supplies",
-      "Accessories",
-    ],
-    Sports: [
-      "Outdoor Sports",
-      "Gym & Fitness Equipment",
-      "Cycling & Scooters",
-      "Water Sports",
-      "Sportswear & Footwear",
-      "Accessories",
-    ],
-    "Pet Supplies": [
-      "Accessories",
-      "Pet Food",
-      "Pet Grooming",
-      "Pet Health",
-      "Pet Clothing",
-      "Pet Training & Safety",
-    ],
-  };
+  const categories = [
+    {
+      name: "Electronics",
+      sub: [
+        {
+          name: "Mobile Phones & Accessories",
+          items: [
+            "Smartphones",
+            "Feature Phones",
+            "Phone Cases & Covers",
+            "Chargers & Cables",
+            "Power Banks",
+            "Screen Protectors",
+            "Mobile Gadgets & Wearables",
+          ],
+          attributes: [
+            "color",
+            "model",
+            "ram",
+            "storage",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Computers & Accessories",
+          items: [
+            "Laptops",
+            "Desktops",
+            "Monitors",
+            "Keyboards & Mouse",
+            "Storage Devices",
+            "Networking Equipment",
+            "Printers & Scanners",
+            "Laptop Bags & Sleeves",
+            "Computer Gadgets & Accessories",
+          ],
+          attributes: [
+            "processor",
+            "ram",
+            "storage",
+            "graphics",
+            "color",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Gaming",
+          items: ["Gaming Consoles", "Game Controllers", "Gaming Accessories"],
+          attributes: [
+            "color",
+            "compatibility",
+            "platform",
+            "size",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Audio & Video",
+          items: [
+            "Headphones & Earphones",
+            "Speakers",
+            "Home Audio Systems",
+            "Televisions & Accessories",
+            "Projectors & Screens",
+            "Audio Cables & Adapters",
+            "Streaming Devices & Media Players",
+          ],
+          attributes: [
+            "color",
+            "connectivity",
+            "power",
+            "type",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Cameras & Photography",
+          items: [
+            "Digital Cameras",
+            "DSLR & Mirrorless Cameras",
+            "Camera Lenses",
+            "Tripods & Stabilizers",
+            "Memory Cards",
+            "Camera Bags & Accessories",
+            "Photography Gadgets & Accessories",
+          ],
+          attributes: ["lens", "resolution", "type", "warranty", "weight"],
+        },
+        {
+          name: "Home Appliances",
+          items: [
+            "Refrigerators",
+            "Washing Machines",
+            "Microwaves",
+            "Air Conditioners",
+            "Heaters",
+            "Fans",
+            "Vacuum Cleaners",
+            "Kitchen Appliances",
+            "Small Home Appliances & Gadgets",
+          ],
+          attributes: [
+            "capacity",
+            "color",
+            "energy rating",
+            "power",
+            "type",
+            "warranty",
+            "weight",
+          ],
+        },
+      ],
+    },
+    {
+      name: "Fashion",
+      sub: [
+        {
+          name: "Clothing",
+          items: [
+            "T-Shirts",
+            "Shirts",
+            "Jeans",
+            "Jackets & Coats",
+            "Dresses",
+            "Skirts",
+            "Traditional Wear",
+          ],
+          attributes: ["color", "material", "size"],
+        },
+        {
+          name: "Footwear",
+          items: ["Sneakers", "Formal Shoes", "Sandals", "Boots", "Flip-Flops"],
+          attributes: ["color", "material", "size"],
+        },
+        {
+          name: "Bags",
+          items: ["Backpacks", "Handbags", "Wallets", "Travel Bags"],
+          attributes: ["color", "material", "size", "type"],
+        },
+        {
+          name: "Watches & Timepieces",
+          items: ["Analog Watches", "Digital Watches", "Smartwatches"],
+          attributes: ["color", "material", "size", "type", "water resistance"],
+        },
+        {
+          name: "Jewelry & Accessories",
+          items: [
+            "Rings",
+            "Necklaces",
+            "Bracelets",
+            "Earrings",
+            "Sunglasses / Eyewear",
+          ],
+          attributes: ["color", "size", "material"],
+        },
+        {
+          name: "Kids Accessories",
+          items: [
+            "Kids Backpack",
+            "Kids Watch",
+            "Hair Accessories",
+            "Hats & Caps",
+          ],
+          attributes: ["age group", "color", "material", "size", "type"],
+        },
+      ],
+    },
+    {
+      name: "Health & Beauty",
+      sub: [
+        {
+          name: "Skincare",
+          items: [
+            "Face Cream",
+            "Sunscreen",
+            "Face Wash",
+            "Serums",
+            "Face Masks",
+          ],
+          attributes: ["size", "skin type", "type"],
+        },
+        {
+          name: "Haircare",
+          items: [
+            "Shampoo",
+            "Conditioner",
+            "Hair Oil",
+            "Hair Serums",
+            "Hair Styling Products",
+          ],
+          attributes: ["hair type", "size", "type"],
+        },
+        {
+          name: "Makeup & Cosmetics",
+          items: ["Lipstick", "Foundation", "Eyeliner", "Eyeshadow", "Blush"],
+          attributes: ["shade", "size", "type"],
+        },
+        {
+          name: "Personal Care",
+          items: [
+            "Toothpaste",
+            "Body Wash",
+            "Deodorant",
+            "Shaving Products",
+            "Hand Sanitizer",
+          ],
+          attributes: ["quantity", "type"],
+        },
+        {
+          name: "Fragrances",
+          items: ["Perfume", "Body Spray", "Cologne"],
+          attributes: ["type", "volumn"],
+        },
+        {
+          name: "Health Supplements",
+          items: ["Vitamins", "Protein Powder", "Herbal Supplements"],
+          attributes: ["quantity", "size", "type"],
+        },
+        {
+          name: "Beauty Gadgets & Accessories",
+          items: [
+            "Hair Straightener",
+            "Hair Dryer",
+            "Facial Massager",
+            "Manicure Set",
+          ],
+          attributes: ["type", "power", "color", "weight", "size"],
+        },
+      ],
+    },
+    {
+      name: "Furniture & Home Decor",
+      sub: [
+        {
+          name: "Furniture",
+          items: ["Sofa", "Bed", "Dining Table", "Chair", "Wardrobe"],
+          attributes: ["color", "dimension", "material", "type", "weight"],
+        },
+        {
+          name: "Home Decor",
+          items: ["Wall Art", "Lamps", "Rugs", "Clocks", "Decorative Items"],
+          attributes: ["color", "material", "size", "type"],
+        },
+        {
+          name: "Kitchen & Dining",
+          items: ["Cookware", "Dinnerware", "Cutlery", "Kitchen Storage"],
+          attributes: [
+            "capacity",
+            "color",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Bedding & Bath",
+          items: ["Bedsheets", "Pillows", "Towels", "Blankets"],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
+        {
+          name: "Home Gadgets & Accessories",
+          items: [
+            "Air Purifier",
+            "Smart Plugs",
+            "Humidifier",
+            "Electric Kettle",
+            "Smart Lighting",
+          ],
+          attributes: ["color", "power", "size", "type", "weight"],
+        },
+      ],
+    },
+    {
+      name: "Sports & Outdoors",
+      sub: [
+        {
+          name: "Exercise & Fitness",
+          items: ["Treadmill", "Dumbbells", "Yoga Mat", "Resistance Bands"],
+          attributes: ["material", "resistance", "type", "weight"],
+        },
+        {
+          name: "Outdoor & Adventure",
+          items: [
+            "Tents",
+            "Sleeping Bags",
+            "Camping Lantern",
+            "Hiking Backpack",
+          ],
+          attributes: [
+            "capacity",
+            "color",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Sports Equipment",
+          items: [
+            "Football",
+            "Cricket Bat & Ball",
+            "Badminton Set",
+            "Basketball",
+          ],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
+        {
+          name: "Sports Gadgets & Accessories",
+          items: [
+            "Water Bottle",
+            "Fitness Tracker",
+            "Sports Gloves",
+            "Gym Bag",
+          ],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
+      ],
+    },
+    {
+      name: "Toys & Baby Products",
+      sub: [
+        {
+          name: "Baby Care",
+          items: ["Diapers", "Baby Wipes", "Baby Lotion", "Feeding Bottles"],
+          attributes: ["age group", "quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Toys",
+          items: [
+            "Stuffed Animals",
+            "Educational Toys",
+            "Action Figures",
+            "Puzzles",
+          ],
+          attributes: [
+            "age group",
+            "color",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Kids Gadgets & Accessories",
+          items: [
+            "Baby Monitor",
+            "Baby Carrier",
+            "Kids Watch",
+            "Kids Backpack",
+          ],
+          attributes: ["age group", "power", "type", "weight"],
+        },
+      ],
+    },
+    {
+      name: "Automotive & Industrial",
+      sub: [
+        {
+          name: "Car Accessories",
+          items: [
+            "Car Cover",
+            "Seat Covers",
+            "Car Vacuum Cleaner",
+            "Dashboard Camera",
+          ],
+          attributes: ["compatibility", "size", "type", "quantity", "weight"],
+        },
+        {
+          name: "Motorbike Accessories",
+          items: [
+            "Helmets",
+            "Gloves",
+            "Motorbike Cover",
+            "Handlebar Accessories",
+          ],
+          attributes: [
+            "color",
+            "compatibility",
+            "material",
+            "size",
+            "type",
+            "weight",
+          ],
+        },
+        {
+          name: "Tools & Equipment",
+          items: ["Wrench Set", "Screwdrivers", "Power Drill", "Tool Box"],
+          attributes: ["material", "size", "type", "weight"],
+        },
+        {
+          name: "Safety & Security",
+          items: [
+            "CCTV Camera",
+            "Car Alarm",
+            "Fire Extinguisher",
+            "First Aid Kit",
+            "Security Sensors & Gadgets",
+          ],
+          attributes: ["power", "size", "type", "weight"],
+        },
+        {
+          name: "Automotive Gadgets & Accessories",
+          items: [
+            "GPS Navigator",
+            "Car Charger",
+            "Jump Starter",
+            "Tire Inflator",
+          ],
+          attributes: ["color", "compatibility", "material", "type"],
+        },
+      ],
+    },
+    {
+      name: "Grocery & Food Items",
+      sub: [
+        {
+          name: "Beverages",
+          items: ["Tea", "Coffee", "Soft Drinks", "Juices"],
+          attributes: ["flavor", "type", "volume", "weight"],
+        },
+        {
+          name: "Snacks & Confectionery",
+          items: ["Chips", "Biscuits", "Chocolates", "Nuts"],
+          attributes: ["size", "type", "weight"],
+        },
+        {
+          name: "Cooking Essentials",
+          items: ["Cooking Oil", "Spices", "Flour", "Sugar"],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Dairy & Eggs",
+          items: ["Milk", "Cheese", "Yogurt", "Eggs"],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Organic & Imported Items",
+          items: [
+            "Organic Honey",
+            "Imported Chocolate",
+            "Gluten-Free Products",
+            "Organic Cereals",
+          ],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Specialty Foods & Gourmet Items",
+          items: [
+            "Sauces & Condiments",
+            "Gourmet Snacks",
+            "Premium Coffee/Tea",
+            "Exotic Spices",
+          ],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+      ],
+    },
+    {
+      name: "Pets & Pet Care",
+      sub: [
+        {
+          name: "Pet Food",
+          items: ["Dog Food", "Cat Food", "Bird Feed", "Fish Food"],
+          attributes: ["flavor", "quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Pet Accessories",
+          items: ["Pet Collar & Leash", "Pet Bed", "Pet Toys", "Pet Bowls"],
+          attributes: ["color", "material", "size", "type", "weight"],
+        },
+        {
+          name: "Pet Care Products",
+          items: ["Pet Shampoo", "Pet Grooming Tools", "Flea & Tick Treatment"],
+          attributes: ["quantity", "size", "type", "weight"],
+        },
+        {
+          name: "Pet Gadgets & Accessories",
+          items: ["Automatic Feeder", "Pet Camera", "Pet Tracker"],
+          attributes: ["power", "quantity", "type", "weight"],
+        },
+      ],
+    },
+  ];
 
-  const subcategoryVariants = {
-    Electronics: {
-      "Mobile Phones": ["Color", "Storage", "RAM"],
-      "Laptops & Computers": ["Processor", "RAM", "Storage", "Weight"],
-      "Audio & Headphones": ["Color", "Connectivity"],
-      "Cameras & Photography": ["Megapixels", "Lens Type", "Weight"],
-      Wearables: ["Color"],
-      "TV & Home Theater": ["Screen Size", "Resolution", "Weight"],
-      "Gaming Consoles": ["Storage", "Color", "Weight"],
-      Accessories: ["Type", "Color"],
-    },
-    Fashion: {
-      "Men’s Clothing": ["Size", "Color", "Material"],
-      "Women’s Clothing": ["Size", "Color", "Material"],
-      "Kid’s Clothing": ["Size", "Color", "Material"],
-      Footwear: ["Size", "Color", "Material"],
-      "Bags & Backpacks": ["Color", "Material"],
-      Accessories: ["Type", "Color", "Material"],
-      Watches: ["Strap Material", "Color"],
-      "Ethnic & Traditional Wear": ["Size", "Color", "Material"],
-    },
-    Groceries: {
-      "Dairy & Eggs": ["Pack Size"],
-      "Packaged & Snacks": ["Pack Size", "Flavor"],
-      Beverages: ["Volume", "Flavor"],
-      "Cooking Essentials": ["Weight/Volume"],
-      "Frozen Foods": ["Weight"],
-      Accessories: ["Type"],
-    },
-    "Health & Beauty": {
-      Skincare: ["Size", "Type"],
-      Haircare: ["Size", "Type"],
-      "Makeup & Cosmetics": ["Shade", "Size"],
-      "Vitamins & Supplements": ["Quantity"],
-      Fragrances: ["Size"],
-      Accessories: ["Type"],
-    },
-    "Home & Living": {
-      Furniture: ["Material", "Color", "Size/Dimensions"],
-      "Home Decor": ["Material", "Color", "Type"],
-      "Kitchen Appliances": ["Material", "Color", "Size", "Weight"],
-      "Bedding & Bath": ["Size", "Material", "Color", "Weight"],
-      Lighting: ["Type", "Size", "Color"],
-      "Storage & Organization": ["Size", "Material", "Color", "Weight"],
-      "Cleaning Supplies": ["Type", "Quantity", "Weight"],
-      Accessories: ["Type", "Weight"],
-    },
-    Sports: {
-      "Outdoor Sports": ["Type", "Size", "Weight"],
-      "Gym & Fitness Equipment": ["Type", "Weight"],
-      "Cycling & Scooters": ["Type", "Color", "Weight"],
-      "Water Sports": ["Type", "Size", "Weight"],
-      "Sportswear & Footwear": ["Size", "Color"],
-      Accessories: ["Type", "Weight"],
-    },
-    "Pet Supplies": {
-      "Pet Food": ["Type", "Flavor", "Pack Size", "Weight"],
-      "Pet Accessories": ["Type", "Size", "Color", "Weight"],
-      "Pet Grooming": ["Type", "Size", "Weight"],
-      "Pet Health": ["Type", "Quantity", "Weight"],
-      "Pet Clothing": ["Size", "Color", "Material", "Weight"],
-      "Pet Training & Safety": ["Type", "Size", "Weight"],
-    },
+  // Get subcategories based on selected category
+
+  const subcategories = categories.find((cat) => cat.name === form.category);
+  const availableSubcategories = subcategories?.sub || [];
+
+  const subcategoryItem = availableSubcategories.find(
+    (sub) => sub.name === form.subcategory
+  );
+  const availableSubcategoryItems = subcategoryItem
+    ? subcategoryItem?.items
+    : [];
+
+  const LAST_KEYS = ["regular_price", "sale_price", "stock"];
+  const getVariantsFor = (subcategoryItem) => {
+    return subcategoryItem?.attributes || [];
   };
 
   const variablesType =
-    subcategoryVariants[form.category]?.[form.subcategory] || [];
-
+    variants.length > 0
+      ? [
+          ...new Set(variants.flatMap((v) => Object.keys(v).toLowerCase())),
+        ].filter(
+          (k) =>
+            k !== "regular_price" &&
+            k !== "sale_price" &&
+            k !== "stock" &&
+            k !== "id"
+        )
+      : getVariantsFor(subcategoryItem).map((v) => String(v).toLowerCase());
   const tableHeaders =
     variants.length > 0
-      ? [...new Set(variants.flatMap((v) => Object.keys(v)))]
+      ? (() => {
+          const keys = [
+            ...new Set(variants.flatMap((v) => Object.keys(v).toLowerCase())),
+          ].filter((k) => k !== "id");
+
+          const normalKeys = keys.filter((k) => !LAST_KEYS.includes(k));
+          const lastKeys = LAST_KEYS.filter((k) => keys.includes(k));
+
+          return [...normalKeys, ...lastKeys];
+        })()
       : [];
 
   const getGridCols = (len) => {
     if (len <= 1) return "grid-cols-1";
-    if (len === 2) return "grid-cols-2";
-    if (len === 3) return "grid-cols-3";
-    if (len === 4) return "grid-cols-4";
-    return "grid-cols-3";
+    if (len === 2) return "sm:grid-cols-2 grid-cols-1";
+    if (len === 3) return "sm:grid-cols-3 grid-cols-1";
+    if (len === 4) return "sm:grid-cols-4 grid-cols-1";
+    return "sm:grid-cols-3 grid-cols-1";
   };
 
   const handleSave = async () => {
@@ -350,11 +752,12 @@ export default function EditProductModal({
       formData.append("isFlashSale", form.isFlashSale);
       formData.append("category", form.category);
       formData.append("subcategory", form.subcategory);
+      formData.append("subcategory_item", form.subcategory_item);
       formData.append("description", form.description);
       formData.append("stock", form.stock);
       formData.append("brand", form.brand);
       formData.append("weight", form.weight);
-      formData.append("extras", JSON.stringify(form.extras || {}));
+      formData.append("extras", JSON.stringify(form.extras));
 
       // Multer-এর জন্য প্রতিটি ফাইল আলাদা append করুন
 
@@ -393,11 +796,10 @@ export default function EditProductModal({
       console.error(err.response?.data || err.message);
     }
   };
-  console.log(form.images);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-3xl bg-white rounded shadow overflow-auto max-h-[90vh] relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 ">
+      <div className="w-full max-w-3xl bg-white rounded shadow overflow-auto max-h-[90vh] relative ">
         <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white">
           <h2 className="text-xl font-semibold">Edit Product </h2>
           <button
@@ -533,7 +935,7 @@ export default function EditProductModal({
           {/* Category & Subcategory */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Category</label>
+              <label className="block text-sm font-medium mb-1">Category</label>
               <SelectField
                 selectValue={form.category}
                 selectValueChange={(e) =>
@@ -541,18 +943,19 @@ export default function EditProductModal({
                     ...s,
                     category: e.target.value,
                     subcategory: "",
+                    subcategory_item: "",
                     extras: {},
                   }))
                 }
                 isWide={true}
               >
-                {Object.keys(subcategoryOptions).map((cat) => (
-                  <option key={cat}>{cat}</option>
+                {categories.map((cat) => (
+                  <option key={cat.name}>{cat.name}</option>
                 ))}
               </SelectField>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-sm font-medium mb-1">
                 Subcategory
               </label>
               <SelectField
@@ -565,8 +968,27 @@ export default function EditProductModal({
                 <option value="" disabled>
                   Select Subcategory
                 </option>
-                {(subcategoryOptions[form.category] || []).map((sub) => (
-                  <option key={sub}>{sub}</option>
+                {availableSubcategories.map((sub) => (
+                  <option key={sub.name}>{sub.name}</option>
+                ))}
+              </SelectField>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Subcategory Item
+              </label>
+              <SelectField
+                selectValue={form.subcategory_item}
+                selectValueChange={(e) =>
+                  setForm((s) => ({ ...s, subcategory_item: e.target.value }))
+                }
+                isWide={true}
+              >
+                <option value="" disabled>
+                  Select Subcategory Item
+                </option>
+                {availableSubcategoryItems.map((subItem) => (
+                  <option key={subItem}>{subItem}</option>
                 ))}
               </SelectField>
             </div>
@@ -707,11 +1129,10 @@ export default function EditProductModal({
                           </button>
                         </>
                       )}
-                      {console.log(!pausedVideos[i])}
 
                       <button
                         onClick={() => removeImage(i)}
-                        className="absolute top-1 right-1 w-6 h-6 text-gray-500 rounded-full flex items-center justify-center text-sm transition"
+                        className="absolute top-1 right-1 w-6 h-6 text-white rounded-full flex items-center justify-center text-sm transition"
                       >
                         <X size={18} />
                       </button>
@@ -742,13 +1163,13 @@ export default function EditProductModal({
                   {variablesType.map((v, i) => (
                     <div key={i}>
                       <InputField
-                        label={v}
+                        label={v.replace("_", " ")}
                         className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                         defaultValue={attributes[v] || ""}
                         onChange={(e) =>
                           handleAttributeChange(v, e.target.value)
                         }
-                        placeholder={v}
+                        placeholder={v.replace("_", " ")}
                       />
                     </div>
                   ))}
@@ -830,8 +1251,8 @@ export default function EditProductModal({
                   <table className="table text-center w-full">
                     <thead className="text-black">
                       <tr>
-                        {tableHeaders.map((h) => (
-                          <th key={h} className="capitalize">
+                        {tableHeaders.map((h, idx) => (
+                          <th key={idx} className="capitalize">
                             {h.replace("_", " ")}
                           </th>
                         ))}
@@ -839,66 +1260,143 @@ export default function EditProductModal({
                       </tr>
                     </thead>
                     <tbody>
-                      {variants.map((variant, index) => (
-                        <tr key={index}>
-                          {tableHeaders.map((key) => (
-                            <td key={key}>
-                              <input
-                                type={
-                                  [
-                                    "stock",
-                                    "regular_price",
-                                    "sale_price",
-                                  ].includes(key)
-                                    ? "number"
-                                    : "text"
-                                }
-                                defaultValue={variant[key] || 0}
-                                className="w-full border bg-white border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-[#FF0055] focus:ring-1 focus:ring-[#FF0055] focus:outline-none shadow"
-                                onChange={(e) => {
-                                  const value = [
-                                    "stock",
-                                    "regular_price",
-                                    "sale_price",
-                                  ].includes(key)
-                                    ? parseInt(e.target.value) || 0
-                                    : e.target.value;
-                                  const updatedVariants = [...variants];
-                                  updatedVariants[index][key] = value;
-                                  // 🟢 UPDATED: stock পরিবর্তন হলে total পুনরায় হিসাব
-                                  const totalStock = updatedVariants.reduce(
-                                    (sum, v) => sum + (v.stock || 0),
-                                    0
-                                  );
-                                  setVariants(updatedVariants);
-                                  setForm((prev) => ({
-                                    ...prev,
-                                    stock: totalStock,
-                                    extras: {
-                                      ...prev.extras,
-                                      variants: updatedVariants,
-                                    },
-                                  }));
-                                }}
-                                onKeyDown={(e) => {
-                                  if (
-                                    e.key === "ArrowUp" ||
-                                    e.key === "ArrowDown"
-                                  ) {
-                                    e.preventDefault(); // keyboard up/down disable
+                      {/* {variants.map((variant, index) => (
+                        <tr key={variant.id}>
+                          {tableHeaders
+                            .filter((key) => key !== "id")
+                            .map((key) => (
+                              <td key={key}>
+                                <input
+                                  type={
+                                    [
+                                      "stock",
+                                      "regular_price",
+                                      "sale_price",
+                                    ].includes(key)
+                                      ? "number"
+                                      : "text"
                                   }
-                                }}
-                                onWheel={(e) => e.target.blur()}
-                              />
-                            </td>
-                          ))}
+                                  defaultValue={variant[key] || 0}
+                                  className="w-full border bg-white border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-[#FF0055] focus:ring-1 focus:ring-[#FF0055] focus:outline-none shadow min-w-[90px]"
+                                  onChange={(e) => {
+                                    const value = [
+                                      "stock",
+                                      "regular_price",
+                                      "sale_price",
+                                    ].includes(key)
+                                      ? parseInt(e.target.value) || 0
+                                      : e.target.value;
+                                    const updatedVariants = [...variants];
+                                    updatedVariants[index][key] = value;
+                                    // 🟢 UPDATED: stock পরিবর্তন হলে total পুনরায় হিসাব
+                                    const totalStock = updatedVariants.reduce(
+                                      (sum, v) => sum + (v.stock || 0),
+                                      0
+                                    );
+                                    setVariants(updatedVariants);
+                                    setForm((prev) => ({
+                                      ...prev,
+                                      stock: totalStock,
+                                      extras: {
+                                        ...prev.extras,
+                                        variants: updatedVariants,
+                                      },
+                                    }));
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (
+                                      e.key === "ArrowUp" ||
+                                      e.key === "ArrowDown"
+                                    ) {
+                                      e.preventDefault(); // keyboard up/down disable
+                                    }
+                                  }}
+                                  onWheel={(e) => e.target.blur()}
+                                />
+                              </td>
+                            ))}
                           <td>
-                            <button
-                              onClick={() => removeVariant(index)}
-                              className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white cursor-pointer"
-                            >
-                              <Trash2 size={20} />
-                            </button>
+                            <div className="flex items-center justify-center">
+                              <button
+                                onClick={() => removeVariant(variant.id)}
+                                className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white cursor-pointer"
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))} */}
+                      {variants.map((variant) => (
+                        <tr key={variant.id}>
+                          {tableHeaders
+                            .filter((key) => key !== "id")
+                            .map((key) => (
+                              <td key={key}>
+                                <input
+                                  type={
+                                    [
+                                      "stock",
+                                      "regular_price",
+                                      "sale_price",
+                                    ].includes(key)
+                                      ? "number"
+                                      : "text"
+                                  }
+                                  value={variant[key] || 0}
+                                  className="w-full border bg-white border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-[#FF0055] focus:ring-1 focus:ring-[#FF0055] focus:outline-none shadow min-w-[90px]"
+                                  onChange={(e) => {
+                                    const value = [
+                                      "stock",
+                                      "regular_price",
+                                      "sale_price",
+                                    ].includes(key)
+                                      ? parseInt(e.target.value) || 0
+                                      : e.target.value;
+
+                                    const updatedVariants = variants.map((v) =>
+                                      v.id === variant.id
+                                        ? { ...v, [key]: value }
+                                        : v
+                                    );
+
+                                    const totalStock = updatedVariants.reduce(
+                                      (sum, v) => sum + (v.stock || 0),
+                                      0
+                                    );
+
+                                    setVariants(updatedVariants);
+                                    setForm((prev) => ({
+                                      ...prev,
+                                      stock: totalStock,
+                                      extras: {
+                                        ...prev.extras,
+                                        variants: updatedVariants,
+                                      },
+                                    }));
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (
+                                      e.key === "ArrowUp" ||
+                                      e.key === "ArrowDown"
+                                    ) {
+                                      e.preventDefault();
+                                    }
+                                  }}
+                                  onWheel={(e) => e.target.blur()}
+                                />
+                              </td>
+                            ))}
+
+                          <td>
+                            <div className="flex items-center justify-center">
+                              <button
+                                onClick={() => removeVariant(variant.id)}
+                                className="bg-red-100 hover:bg-[#e92323] text-red-600 rounded px-3 py-2 hover:text-white cursor-pointer"
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -908,22 +1406,21 @@ export default function EditProductModal({
               )}
             </div>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-2 mt-4">
-          <button
-            onClick={onClose}
-            className="px-3 py-1 bg-[#f72c2c] text-white rounded cursor-pointer"
-          >
-            Close
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-3 py-1 bg-[#00C853] text-white rounded cursor-pointer"
-          >
-            Save
-          </button>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={handleSave}
+              className="px-3 py-1 bg-[#00C853] text-white rounded cursor-pointer"
+            >
+              Save
+            </button>
+            <button
+              onClick={onClose}
+              className="px-3 py-1 bg-[#f72c2c] text-white rounded cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

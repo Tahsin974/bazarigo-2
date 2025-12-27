@@ -7,6 +7,7 @@ import { HashLink } from "react-router-hash-link";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
 import useAuth from "../../Utils/Hooks/useAuth";
+import useCart from "../../Utils/Hooks/useCart";
 
 export default function OrderSummary({
   items,
@@ -14,7 +15,7 @@ export default function OrderSummary({
   allowPromo,
   refetch,
   paymentMethod,
-  customerPhone,
+  mobileBankNumber,
 }) {
   const axiosPublic = useAxiosPublic();
   const [promoCode, setPromoCode] = useState(null);
@@ -23,6 +24,7 @@ export default function OrderSummary({
   const navigate = useNavigate();
 
   const { user } = useAuth();
+  const { refetch: refetchCarts } = useCart();
 
   const applyPromo = async () => {
     if (!promoCode) return;
@@ -104,20 +106,20 @@ export default function OrderSummary({
           hour12: false,
         }),
         amount: total,
-        payment_method: paymentMethod,
+        payment_method: isCashOnDelivery ? "Cash on Delivery" : paymentMethod,
         payment_status: "pending",
-        phoneNumber: customerPhone,
+        phoneNumber: isCashOnDelivery ? user?.phone : mobileBankNumber,
       };
       const payload = {
         orderDate: new Date().toLocaleString("en-CA", {
           timeZone: "Asia/Dhaka",
           hour12: false,
         }),
-        paymentMethod,
+        paymentMethod: isCashOnDelivery ? "Cash on Delivery" : paymentMethod,
         paymentStatus: "pending",
         customerId: user.id,
         customerEmail: user.email,
-        customerPhone,
+        customerPhone: mobileBankNumber || user?.phone,
         customerName: user?.name,
         customerAddress:
           user?.address +
@@ -151,6 +153,7 @@ export default function OrderSummary({
           timer: 1500,
         });
       }
+      refetchCarts();
       return navigate("/");
     } catch (err) {
       if (err.response) {
@@ -184,10 +187,14 @@ export default function OrderSummary({
               (sum, prod) => sum + (parseFloat(prod.weight) || 0),
               0
             );
-            const newSubtotal = item.productinfo.reduce(
-              (sum, prod) => sum + prod.qty * prod.sale_price,
-              0
-            );
+            const newSubtotal = item.productinfo.reduce((sum, prod) => {
+              const price =
+                prod.sale_price && Number(prod.sale_price) > 0
+                  ? Number(prod.sale_price)
+                  : Number(prod.regular_price);
+
+              return sum + prod.qty * price;
+            }, 0);
 
             // Delivery API call
             const res = await axiosPublic.get("/deliveries", {
@@ -221,7 +228,7 @@ export default function OrderSummary({
 
     fetchAndUpdateDelivery();
     refetch();
-  }, []);
+  }, [isCashOnDelivery]);
 
   // Fetch active promo on load
   useEffect(() => {
@@ -256,7 +263,7 @@ export default function OrderSummary({
                       key={prod.product_Id}
                       className="flex justify-between py-3 text-gray-700"
                     >
-                      <h2>
+                      <h2 className="leading-snug truncate max-w-60">
                         {prod.product_name || "Empty"}{" "}
                         <span className="text-sm text-gray-500">
                           {prod.qty > 1 && <span>(x{prod.qty})</span>}
@@ -332,38 +339,28 @@ export default function OrderSummary({
       </Card>
 
       {!location.pathname.includes("cart") ? (
-        !items?.length ||
-        (!isCashOnDelivery && paymentMethod === "") ||
-        !user?.name ||
-        !user?.address ||
-        !user?.district ||
-        !user?.thana ||
-        !user?.postal_code ||
-        !customerPhone ? (
-          <Button
-            disabled={"disabled"}
-            className="w-full mt-6 bg-gray-300 text-gray-500  py-3 rounded-full transition "
-          >
-            Place Order
-          </Button>
-        ) : (
-          <Button
-            onClick={handleOrderBtn}
-            className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition"
-          >
-            Place Order
-          </Button>
-        )
-      ) : !items?.length ? (
         <Button
-          disabled={"disabled"}
-          className="w-full mt-6 bg-gray-300 text-gray-500  py-3 rounded-full transition "
+          disabled={
+            !items?.length ||
+            !user?.name ||
+            !user?.address ||
+            !user?.district ||
+            !user?.thana ||
+            !user?.postal_code ||
+            !user?.phone ||
+            (!isCashOnDelivery && !mobileBankNumber && paymentMethod === "")
+          }
+          onClick={handleOrderBtn}
+          className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition disabled:bg-gray-300 disabled:text-gray-500"
         >
-          Proceed Checkout
+          Place Order
         </Button>
       ) : (
         <HashLink to={"/checkout#"} state={{ items: items }}>
-          <Button className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition">
+          <Button
+            disabled={!items?.length}
+            className="w-full mt-6 bg-[#00C853] text-white py-3 rounded-full hover:bg-[#00B34A] transition disabled:bg-gray-300 disabled:text-gray-500 "
+          >
             Proceed Checkout
           </Button>
         </HashLink>

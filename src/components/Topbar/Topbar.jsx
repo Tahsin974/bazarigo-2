@@ -1,6 +1,6 @@
 import { Bell, Home, Menu, MessageCircle, User } from "lucide-react";
 import useAuth from "../../Utils/Hooks/useAuth";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HashLink } from "react-router-hash-link";
 import useAxiosSecure from "../../Utils/Hooks/useAxiosSecure";
@@ -25,6 +25,16 @@ export default function Topbar({ setActiveTab, messages }) {
     mutationFn: (id) =>
       axiosSecure.patch(
         `/notifications/${id}/read`,
+        {},
+        { withCredentials: true }
+      ),
+
+    onSuccess: () => refetchNotifications(),
+  });
+  const markAsReadAllMutation = useMutation({
+    mutationFn: () =>
+      axiosSecure.patch(
+        `/notifications/read-all`,
         {},
         { withCredentials: true }
       ),
@@ -75,7 +85,22 @@ export default function Topbar({ setActiveTab, messages }) {
                   )}
                 </div>
               </button>
-              <div className="dropdown dropdown-end">
+              <button
+                tabIndex={0}
+                role="button"
+                onClick={() => setActiveTab("Notifications")}
+                className="btn md:hidden flex btn-circle bg-white text-gray-800 border-0  shadow-none"
+              >
+                <div className="indicator">
+                  <Bell className="h-5" />
+                  {unreadCount > 0 && (
+                    <span className="indicator-item badge badge-xs bg-[#FF0055]  border-0 text-white">
+                      {unreadCount || 0}
+                    </span>
+                  )}
+                </div>
+              </button>
+              <div className="dropdown dropdown-end md:flex hidden">
                 <button
                   tabIndex={0}
                   role="button"
@@ -96,43 +121,54 @@ export default function Topbar({ setActiveTab, messages }) {
                 >
                   {/* Header with title and See All link */}
                   <li className="flex justify-between items-center px-4 py-2 border-b border-gray-200">
-                    <span className="font-semibold text-gray-900">
+                    <span className="font-semibold text-gray-800">
                       Notifications
                     </span>
-                    <button
+
+                    <Link
                       onClick={() => setActiveTab("Notifications")}
                       className="text-sm text-[#FF0055] hover:underline"
                     >
                       See All
-                    </button>
+                    </Link>
                   </li>
 
                   {/* Notifications list */}
-                  {notifications?.length ? (
-                    notifications.map((n) => (
-                      <li
-                        key={n.id}
-                        onClick={() => markAsReadMutation.mutate(n.id)}
-                        className={`flex flex-col px-4 py-3 cursor-pointer transition duration-200 ease-in-out rounded-md mb-1 hover:bg-gray-100 ${
-                          !n.is_read ? "bg-blue-50" : ""
-                        }`}
-                      >
-                        <span className="font-semibold text-gray-900 truncate">
-                          {n.title}
-                        </span>
-                        <span className="text-sm text-gray-600 truncate">
-                          {n.message}
-                        </span>
-                        <span className="text-xs text-gray-400 mt-1">
-                          {new Date(n.created_at).toLocaleString()}
-                        </span>
+                  <>
+                    <button
+                      onClick={() => markAsReadAllMutation.mutate()}
+                      className="bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white px-3 py-1 rounded-full text-xs  transition-shadow my-2  self-end"
+                    >
+                      Mark as read
+                    </button>
+                    {notifications?.length ? (
+                      notifications.map((n) => (
+                        <Link onClick={() => setActiveTab("Notifications")}>
+                          <li
+                            key={n.id}
+                            onClick={() => markAsReadMutation.mutate(n.id)}
+                            className={`flex flex-col px-4 py-3 cursor-pointer transition duration-200 ease-in-out rounded-md mb-1 hover:bg-gray-100 ${
+                              !n.is_read ? "bg-blue-50" : ""
+                            }`}
+                          >
+                            <span className="font-semibold text-gray-900 truncate">
+                              {n.title}
+                            </span>
+                            <span className="text-sm text-gray-600 truncate">
+                              {n.message}
+                            </span>
+                            <span className="text-xs text-gray-400 mt-1">
+                              {new Date(n.created_at).toLocaleString()}
+                            </span>
+                          </li>
+                        </Link>
+                      ))
+                    ) : (
+                      <li className="px-4 py-4 text-center text-gray-500">
+                        No notifications
                       </li>
-                    ))
-                  ) : (
-                    <li className="px-4 py-4 text-center text-gray-500">
-                      No notifications
-                    </li>
-                  )}
+                    )}
+                  </>
                 </ul>
               </div>
             </div>
@@ -142,9 +178,9 @@ export default function Topbar({ setActiveTab, messages }) {
                 <div
                   tabIndex={0}
                   role="button"
-                  className="btn btn-ghost btn-circle avatar border-gray-300 active:border-[#FF0055] hover:border-[#FF0055] shadow-none hover:shadow-none"
+                  className="bg-white  border-gray-300 active:border-[#FF0055] hover:border-[#FF0055] shadow-none hover:shadow-none"
                 >
-                  <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
+                  <div className="w-10 h-10 rounded-full bg-[#FFE5E5] text-[#FF0055] flex items-center justify-center overflow-hidden">
                     {user?.img || user?.profile_img ? (
                       <img
                         alt={user?.name || user?.full_name || "logo"}
@@ -156,7 +192,7 @@ export default function Topbar({ setActiveTab, messages }) {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <User size={24} className="text-gray-500" />
+                      <User size={24} className="text-[#FF0055]" />
                     )}
                   </div>
                 </div>

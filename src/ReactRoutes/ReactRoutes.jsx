@@ -28,6 +28,8 @@ import CheckOutPage from "../Pages/CheckOutPage/CheckOutPage";
 import VerifyOtp from "../Pages/SignUpPage/VerifyOtp";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
 import ErrorPage from "../Pages/ErrorPage/ErrorPage";
+import PasswordResetPanel from "../Pages/SignUpPage/PasswordResetPanel";
+import SetNewPasswordPanel from "../Pages/SignUpPage/SetNewPasswordPanel";
 
 export const router = createBrowserRouter([
   {
@@ -135,6 +137,14 @@ export const router = createBrowserRouter([
       {
         path: "/verify-otp",
         element: <VerifyOtp />,
+      },
+      {
+        path: "/reset",
+        element: <PasswordResetPanel />,
+      },
+      {
+        path: "/change-password",
+        element: <SetNewPasswordPanel />,
       },
       {
         path: "/seller-registration",

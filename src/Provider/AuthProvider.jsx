@@ -18,6 +18,10 @@ export function AuthProvider({ children }) {
       return res.data.user;
     },
     retry: false,
+
+    staleTime: 5 * 60 * 1000, // 5 মিনিট পর্যন্ত fresh data
+    cacheTime: 15 * 60 * 1000, // cache 15 মিনিট রাখবে
+    refetchOnWindowFocus: false, // window focus এ fetch না হবে
   });
 
   const refreshUser = () =>

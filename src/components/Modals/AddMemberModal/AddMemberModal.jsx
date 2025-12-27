@@ -39,26 +39,13 @@ export default function AddMemberModal({ onClose, refetch }) {
     },
   });
 
-  // const handleImageUpload = (e) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-
-  //   const reader = new FileReader();
-  //   reader.onload = () => {
-  //     setImage(reader.result);
-  //   };
-  //   reader.readAsDataURL(file);
-  // };
-
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
-    console.log("File selected:", file);
+
     if (!file) return;
 
     setProfileImage(file); // File object সরাসরি সংরক্ষণ
   };
-
-  console.log(profileImage);
 
   const onSubmit = async (data) => {
     if (!profileImage) {

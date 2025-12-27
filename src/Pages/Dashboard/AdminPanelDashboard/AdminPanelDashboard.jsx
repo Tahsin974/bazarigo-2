@@ -64,6 +64,8 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import ReturnOrderModal from "../../../components/Modals/ReturnOrderModal/ReturnOrderModal";
 
 export default function AdminPanelDashboard() {
   const location = useLocation();
@@ -89,8 +91,8 @@ export default function AdminPanelDashboard() {
     { label: "Sellers", icon: <Store size={18} /> },
     { label: "Payments", icon: <CreditCard size={18} /> },
     { label: "Promotions", icon: <Gift size={18} /> },
-    { label: "Reports", icon: <BarChart3 size={18} /> },
     { label: "Coverage Areas", icon: <Map size={18} /> },
+    { label: "Reports", icon: <BarChart3 size={18} /> },
     { label: "Settings", icon: <Settings size={18} /> },
   ];
 
@@ -216,6 +218,8 @@ export default function AdminPanelDashboard() {
 
   const [activeOrder, setActiveOrder] = useState(null);
   const [orderModalOpen, setOrderModalOpen] = useState(null);
+  const [activeReturnOrderProducts, setActiveReturnOrderProduct] = useState([]);
+  const [returnOrderModalOpen, setReturnOrderModalOpen] = useState(null);
   const [activeReturnRequest, setActiveReturnRequest] = useState(null);
   const [imageModalOpen, setImageModalOpen] = useState(null);
   const [showAddCustomerModal, setAddShowCustomerModal] = useState(false);
@@ -245,7 +249,6 @@ export default function AdminPanelDashboard() {
   }, [active, products, orders, customers, coverageAreas, sellers]);
 
   const toggleSelect = (id) => {
-    console.log(id);
     setSelected((s) =>
       s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
     );
@@ -263,6 +266,7 @@ export default function AdminPanelDashboard() {
         discount: product.discount ?? 0,
         category: product.category ?? "",
         subcategory: product.subcategory ?? "",
+        subcategory_item: product.subcategory_item ?? "",
         description: product.description ?? "",
         stock: product.stock ?? 0,
         brand: product.brand ?? "No Brand",
@@ -365,29 +369,57 @@ export default function AdminPanelDashboard() {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
       const sheetName = workbook.SheetNames[0];
+
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
       // Convert boolean/number fields
-      const products = jsonData.map((item) => ({
-        ...item,
-        isBestSeller: false,
-        isHot: false,
-        isNew: true,
-        isTrending: false,
-        isLimitedStock: false,
-        isExclusive: false,
-        isFlashSale: false,
-        regular_price: Number(item.regular_price || 0),
-        sale_price: Number(item.sale_price || 0),
-        discount: Number(item.discount || 0),
-        rating: Number(item.rating || 0),
-        stock: Number(item.stock || 0),
-        weight: 1,
-        productName: item.productName,
-        images: item.images ? item.images.split(";") : [],
-        extras: item.extras ? JSON.stringify(item.extras) : {},
-      }));
+
+      const products = jsonData.map((item) => {
+        let extras = {};
+
+        if (item.extras) {
+          try {
+            extras = JSON.parse(item.extras);
+
+            // ✅ variants inside extras
+            if (Array.isArray(extras.variants)) {
+              extras.variants = extras.variants.map((v) => ({
+                id: uuidv4(), // 🔥 REQUIRED
+                ...v,
+                stock: Number(v.stock || 0),
+                regular_price: Number(v.regular_price || 0),
+                sale_price: Number(v.sale_price || 0),
+              }));
+            }
+          } catch (e) {
+            console.error(e);
+            extras = {};
+          }
+        }
+
+        return {
+          ...item,
+          isBestSeller: false,
+          isHot: false,
+          isNew: true,
+          isTrending: false,
+          isLimitedStock: false,
+          isExclusive: false,
+          isFlashSale: false,
+
+          regular_price: Number(item.regular_price || 0),
+          sale_price: Number(item.sale_price || 0),
+          discount: Number(item.discount || 0),
+          rating: Number(item.rating || 0),
+          stock: Number(item.stock || 0),
+
+          weight: 1,
+          productName: item.productName,
+          images: item.images ? item.images.split(";") : [],
+          extras, // ✅ variants with id already inside
+        };
+      });
 
       const res = await axiosPublic.post("/products/bulk", products);
 
@@ -415,7 +447,6 @@ export default function AdminPanelDashboard() {
 
       // Reset file input
     } catch (err) {
-      console.log(err);
       Swal.fire({
         icon: "error",
         title: `${err.message}`,
@@ -449,8 +480,6 @@ export default function AdminPanelDashboard() {
           item.is_remote === true || item.is_remote === "true" || false,
       }));
 
-      console.log(postalZones);
-
       // Send to backend
       const res = await axiosPublic.post("/postal-zones/bulk", postalZones);
 
@@ -477,7 +506,6 @@ export default function AdminPanelDashboard() {
         });
       }
     } catch (err) {
-      console.log(err);
       Swal.fire({
         icon: "error",
         title: `${err.message}`,
@@ -500,6 +528,10 @@ export default function AdminPanelDashboard() {
   const openOrderModal = (order) => {
     setOrderModalOpen(true);
     setActiveOrder(order);
+  };
+  const openReturnOrderModal = (products) => {
+    setReturnOrderModalOpen(true);
+    setActiveReturnOrderProduct(products);
   };
   const openPreviewModal = (product) => {
     setPreviewModalOpen(true);
@@ -747,24 +779,13 @@ export default function AdminPanelDashboard() {
     (promoPage - 1) * 6,
     promoPage * 6
   );
-  console.log(paginatedPromotions);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
       <>
         <div className="flex">
           <div className="hidden lg:flex">
-            <Sidebar
-              active={active}
-              setActive={setActive}
-              products={products}
-              orders={orders}
-              payments={payments}
-              customers={customers}
-              sellers={sellers}
-              promotions={promotions}
-              items={navOptions}
-            />
+            <Sidebar active={active} setActive={setActive} items={navOptions} />
           </div>
 
           <div className="flex-1 ">
@@ -772,9 +793,6 @@ export default function AdminPanelDashboard() {
               user={user}
               activeTab={active}
               setActiveTab={setActive}
-              products={products}
-              orders={orders}
-              payments={payments}
               messages={myMessages}
               items={navOptions}
             >
@@ -991,6 +1009,8 @@ export default function AdminPanelDashboard() {
                       returnOrderPage={returnOrderPage}
                       setReturnOrderPage={setReturnOrderPage}
                       returnOrderPageSize={currentPageSize}
+                      refetchReturnOrders={refetchReturnOrders}
+                      openReturnOrderModal={openReturnOrderModal}
                     />
                   )}
 
@@ -1136,6 +1156,12 @@ export default function AdminPanelDashboard() {
             onClose={() => setOrderModalOpen(false)}
             refetch={refetchOrders}
             refetchReturnOrders={refetchReturnOrders}
+          />
+        )}
+        {returnOrderModalOpen && (
+          <ReturnOrderModal
+            products={activeReturnOrderProducts}
+            onClose={() => setReturnOrderModalOpen(false)}
           />
         )}
         {imageModalOpen && (
