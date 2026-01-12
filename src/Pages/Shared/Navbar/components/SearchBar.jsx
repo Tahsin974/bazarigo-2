@@ -67,11 +67,13 @@ export default function SearchBar({
 
       // Navigate to the category page and pass product ID
       navigate(
-        `/categories/${item?.category || "All Products"}?product=${
+        `/categories/${encodeURIComponent(
+          item?.category || "All Products"
+        )}?product=${encodeURIComponent(
           item.title
-        }&subcategory=${item?.subcategory}&subcategory=${
-          item?.subcategory_item
-        }`
+        )}&subcategory=${encodeURIComponent(
+          item?.subcategory
+        )}&subcategory_item=${encodeURIComponent(item?.subcategory_item)}`
       );
     }
     if (item.type === "shop")

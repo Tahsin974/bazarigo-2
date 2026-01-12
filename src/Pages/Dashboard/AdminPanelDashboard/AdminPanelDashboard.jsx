@@ -44,7 +44,7 @@ import FlashSaleView from "./views/FlashSaleView";
 import ZoneView from "./views/ZoneView";
 import NotificationsView from "../../../components/NotificationsView/NotificationsView";
 import MessagesView from "../../../components/MessagesView/MessagesView";
-import { useLocation } from "react-router";
+
 import useMessages from "../../../Utils/Hooks/useMessages";
 import InventoryView from "./views/InventoryView";
 import AddMemberModal from "../../../components/Modals/AddMemberModal/AddMemberModal";
@@ -66,21 +66,32 @@ import {
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import ReturnOrderModal from "../../../components/Modals/ReturnOrderModal/ReturnOrderModal";
+import MyProfileView from "../../../components/MyProfileView/MyProfileView";
+import { useLocation } from "react-router";
 
 export default function AdminPanelDashboard() {
-  const location = useLocation();
-
   const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
+  const { user } = useAuth();
+  const sessionKey = `activeMenu_${user?.id}`;
+  const location = useLocation();
 
-  const [active, setActive] = useState(location?.state || "Dashboard");
+  const [active, setActive] = useState(() => {
+    if (location?.state) {
+      return location.state;
+    } else if (window.location.pathname.includes("/dashboard")) {
+      return sessionStorage.getItem(sessionKey) || "Dashboard";
+    } else {
+      return "Dashboard";
+    }
+  });
+
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [selected, setSelected] = useState([]);
 
   // Datas (Products,Sellers,Orders,FlashSale,Payments,Promotions,Coverage Areas,Returns,Customers,user)
 
-  const { user } = useAuth();
   const navItems = [
     { label: "Dashboard", icon: <Home size={18} /> },
     { label: "Products", icon: <Package size={18} /> },
@@ -201,7 +212,7 @@ export default function AdminPanelDashboard() {
   const [flashSaleProductPage, setFlashSaleProductPage] = useState(1);
   const [returnRequestsPage, setReturnRequestsPage] = useState(1);
 
-  const currentPageSize = 6;
+  const currentPageSize = 10;
 
   // Modal controls
 
@@ -242,12 +253,16 @@ export default function AdminPanelDashboard() {
   // File input ref for bulk upload
   const fileRef = useRef(null);
 
+  // useEffect(() => {
+  //   if (selected.length !== 0) {
+  //     setSelected([]);
+  //   }
+  // }, [active, products, orders, customers, coverageAreas, sellers]);
   useEffect(() => {
     if (selected.length !== 0) {
       setSelected([]);
     }
-  }, [active, products, orders, customers, coverageAreas, sellers]);
-
+  }, [active]);
   const toggleSelect = (id) => {
     setSelected((s) =>
       s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
@@ -779,7 +794,11 @@ export default function AdminPanelDashboard() {
     (promoPage - 1) * 6,
     promoPage * 6
   );
-
+  useEffect(() => {
+    if (window.location.pathname.includes("/dashboard")) {
+      sessionStorage.setItem(sessionKey, active);
+    }
+  }, [active, sessionKey]);
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
       <>
@@ -936,7 +955,7 @@ export default function AdminPanelDashboard() {
                     setInventorySort={setInventorySort}
                     inventoryPage={inventoryPage}
                     setInventoryPage={setInventoryPage}
-                    inventoryPageSize={currentPageSize}
+                    inventoryPageSize={6}
                     filteredInventory={filteredInventory}
                     paginatedInventory={paginatedInventory}
                   />

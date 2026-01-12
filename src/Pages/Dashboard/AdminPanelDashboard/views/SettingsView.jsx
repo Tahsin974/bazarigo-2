@@ -23,6 +23,8 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
     user.product_category || ""
   );
 
+  console.log("Product Category", user);
+
   const [gender, setGender] = useState(user.gender || "");
   const [date, setDate] = useState("");
   const [password, setPassword] = useState("");
@@ -182,6 +184,12 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
     setStoreImg(file);
   };
 
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
   const handleUpdate = async (type, updatedData) => {
     try {
       const { new_password, old_password, ...safedata } = updatedData;
@@ -212,7 +220,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
       // other user data
       formData.append(
         "date_of_birth",
-        date ? new Date(date).toISOString() : user.date_of_birth
+        date ? formatDate(date) : user.date_of_birth
       );
 
       const res = await axiosPublic.put(`/admins/update/${user.id}`, formData, {
@@ -778,7 +786,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
                     store_name: document.getElementById("store_name").value,
                     product_category:
                       mainProductCategory === ""
-                        ? user.product_category
+                        ? user?.product_category
                         : mainProductCategory,
                   })
                 }

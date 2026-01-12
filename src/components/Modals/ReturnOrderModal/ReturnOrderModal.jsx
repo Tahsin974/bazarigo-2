@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import ProductImageGallery from "./ProductImageGallery";
 
 export default function ReturnOrderModal({ products, onClose }) {
-  console.log(products);
 
   return (
     <div>

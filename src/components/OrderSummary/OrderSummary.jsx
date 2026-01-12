@@ -51,9 +51,10 @@ export default function OrderSummary({
 
       setPromoCode("");
     } catch (err) {
+      console.error(err);
       Swal.fire({
         icon: "error",
-        title: err.response?.data?.message || "Something went wrong!",
+        title: "Something went wrong!",
         toast: true,
         position: "top",
         showConfirmButton: false,
@@ -306,26 +307,23 @@ export default function OrderSummary({
           </div>
           {allowPromo && (
             <div className="mt-4">
-              <div className="flex flex-wrap gap-2">
-                <input
-                  type="text"
-                  placeholder="Promo code"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="flex-1 px-4 py-2 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none w-full sm:w-auto"
-                />
-                {!promoCode ? (
-                  <Button className="bg-gray-300 text-gray-500 px-4 py-2 rounded-md  transition ">
-                    Apply
-                  </Button>
-                ) : (
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    type="text"
+                    placeholder="Promo code"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    className="flex-1 px-4 py-2 border rounded-lg focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none w-full sm:w-auto"
+                  />
                   <Button
+                    disabled={!items?.length || !promoCode}
                     onClick={applyPromo}
-                    className="bg-[#00C853] text-white px-4 py-2 rounded-md hover:bg-[#00B34A] transition cursor-pointer"
+                    className="bg-[#00C853] text-white px-4 py-2 rounded-md hover:bg-[#00B34A] transition cursor-pointer disabled:bg-gray-300 disabled:text-gray-500"
                   >
                     Apply
                   </Button>
-                )}
+                </div>
                 {appliedPromo.code && (
                   <p className="text-green-600 mt-1">
                     Promo "{appliedPromo.code}" applied! Discount: ৳

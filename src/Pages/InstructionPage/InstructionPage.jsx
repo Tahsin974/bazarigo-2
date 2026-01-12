@@ -143,30 +143,16 @@ export default function InstructionPage() {
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 mt-2">
                     <span>
-                      <span className="font-semibold">☐ Best Seller</span>{" "}
-                      (সবচেয়ে বেশি বিক্রীত)
-                    </span>
-                    <span>
                       <span className="font-semibold">☐ Hot</span> (জনপ্রিয়তা)
                     </span>
-                    <span>
-                      <span className="font-semibold">☐ Trending</span>{" "}
-                      (ট্রেন্ডিং)
-                    </span>
+
                     <span>
                       <span className="font-semibold">☐ Limited Stock</span>{" "}
                       (সীমিত স্টক)
                     </span>
-                    <span>
-                      <span className="font-semibold">☐ Flash Sale</span>{" "}
-                      (ফ্ল্যাশ সেল)
-                    </span>
+
                     <span>
                       <span className="font-semibold">☑ New</span> (নতুন পণ্য)
-                    </span>
-                    <span>
-                      <span className="font-semibold">☐ Exclusive</span>{" "}
-                      (একচেটিয়া)
                     </span>
                   </div>
                 </div>
@@ -203,7 +189,10 @@ export default function InstructionPage() {
                       *পদ্ধতি:* আপলোড এরিয়াতে ক্লিক করুন অথবা টেনে এনে ছবি/ভিডিও
                       ছাড়ুন।
                     </li>
-                    <li>*ফরম্যাট:* PNG বা JPG ফরম্যাটের ছবি/MP4 ফরম্যাটের ভিডিও ব্যবহার করুন।</li>
+                    <li>
+                      *ফরম্যাট:* PNG বা JPG ফরম্যাটের ছবি/MP4 ফরম্যাটের ভিডিও
+                      ব্যবহার করুন।
+                    </li>
                     <li>*সীমা:* প্রতি ছবির জন্য সর্বোচ্চ ১ মেগাবাইট।</li>
                   </ul>
                 </div>

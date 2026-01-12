@@ -157,16 +157,28 @@ export default function CategoriesPage() {
             "T-Shirts",
             "Shirts",
             "Jeans",
+            "Pants & Trousers",
+            "Shorts",
             "Jackets & Coats",
+            "Hoodies & Sweaters",
             "Dresses",
             "Skirts",
             "Traditional Wear",
+            "Innerwear",
+            "Sportswear",
           ],
           attributes: ["color", "material", "size"],
         },
         {
           name: "Footwear",
-          items: ["Sneakers", "Formal Shoes", "Sandals", "Boots", "Flip-Flops"],
+          items: [
+            "Sneakers",
+            "Formal Shoes",
+            "Baby Shoes",
+            "Sandals",
+            "Boots",
+            "Flip-Flops",
+          ],
           attributes: ["color", "material", "size"],
         },
         {
@@ -186,9 +198,29 @@ export default function CategoriesPage() {
             "Necklaces",
             "Bracelets",
             "Earrings",
+            "Anklets",
             "Sunglasses / Eyewear",
           ],
           attributes: ["color", "size", "material"],
+        },
+        {
+          name: "Head & Face Accessories",
+          items: [
+            "Caps",
+            "Hats",
+            "Beanies",
+            "Hijab",
+            "Scarves",
+            "Fabric Face Masks",
+            "Buffs",
+            "Face Scarves",
+          ],
+          attributes: ["color", "size", "material", "pattern", "style"],
+        },
+        {
+          name: "Belts & Accessories",
+          items: ["Belts", "Suspenders"],
+          attributes: ["color", "material", "size", "buckle type", "style"],
         },
         {
           name: "Kids Accessories",
@@ -255,12 +287,7 @@ export default function CategoriesPage() {
         },
         {
           name: "Beauty Gadgets & Accessories",
-          items: [
-            "Hair Straightener",
-            "Hair Dryer",
-            "Facial Massager",
-            "Manicure Set",
-          ],
+          items: ["Grooming Tool"],
           attributes: ["type", "power", "color", "weight", "size"],
         },
       ],
@@ -303,6 +330,7 @@ export default function CategoriesPage() {
             "Humidifier",
             "Electric Kettle",
             "Smart Lighting",
+            "Home Organizer & Tissue Holder",
           ],
           attributes: ["color", "power", "size", "type", "weight"],
         },
@@ -528,7 +556,7 @@ export default function CategoriesPage() {
   const params = new URLSearchParams(location.search);
   const queryProduct = params.get("product"); // encoded product ID
   const subcategory = params.get("subcategory");
-  const item = params.get("item");
+  const subcategoryItem = decodeURIComponent(params.get("subcategory_item"));
 
   const [highlightedProduct, setHighlightedProduct] = useState(
     queryProduct ? queryProduct : null
@@ -623,8 +651,12 @@ export default function CategoriesPage() {
   useEffect(() => {
     if (categoryName) {
       const findCategory = categories.find((cat) => cat.name === categoryName);
-      if (subcategory && item) {
-        setActiveCategory({ main: categoryName, sub: subcategory, item: item });
+      if (subcategory && subcategoryItem) {
+        setActiveCategory({
+          main: categoryName,
+          sub: subcategory,
+          item: subcategoryItem,
+        });
       } else {
         const firstSub = findCategory?.sub?.[0];
         const firstItem = firstSub?.items?.[0] || null;
@@ -686,7 +718,7 @@ export default function CategoriesPage() {
               setActiveCategory={setActiveCategory}
               openDropdown={openDropdown}
               subcategory={subcategory}
-              item={item}
+              item={subcategoryItem}
               setOpenDropdown={setOpenDropdown}
             />
             {/* Products + controls */}

@@ -29,8 +29,8 @@ export default function CustomerModal({ customer, onClose }) {
     date_of_birth,
     gender,
     payment_methods,
+    recent_orders,
   } = customer;
-  console.log(customer);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -175,7 +175,7 @@ export default function CustomerModal({ customer, onClose }) {
             )}
           </div>
 
-          <div className="bg-gray-50 p-5 rounded-xl shadow-inner">
+          {/* <div className="bg-gray-50 p-5 rounded-xl shadow-inner">
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <ShoppingBag className="text-[#FF0055]" size={18} /> Recent Orders
             </h4>
@@ -193,6 +193,73 @@ export default function CustomerModal({ customer, onClose }) {
                 <span className="text-[#FF0055] font-semibold">$40</span>
               </li>
             </ul>
+          </div> */}
+          <div className="bg-gray-50 p-5 rounded-xl shadow-inner">
+            <h4 className="font-bold text-gray-800 mb-5 flex items-center gap-3 text-lg">
+              <ShoppingBag className="text-[#FF0055]" size={20} /> Recent Orders
+            </h4>
+
+            {recent_orders && recent_orders.length > 0 ? (
+              recent_orders.map((order) => (
+                <div
+                  key={order.order_id}
+                  className="bg-white rounded-xl shadow-md p-5 mb-5 hover:shadow-lg transition-shadow duration-300"
+                >
+                  {/* Order Header */}
+                  <div className="flex justify-between items-center mb-4">
+                    <p className="font-semibold text-gray-700 text-sm sm:text-base">
+                      Order #{order.order_id}
+                    </p>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      {new Date(order.order_date).toLocaleDateString("en-GB")}
+                    </p>
+                  </div>
+
+                  {/* Products List */}
+                  <ul className="text-gray-600 text-sm space-y-2 mb-4">
+                    {order.products.map((product) => (
+                      <li
+                        key={product.product_Id}
+                        className="flex justify-between items-center"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                          <span className="font-medium">
+                            {product.product_name}
+                          </span>
+                        </div>
+                        <span className="text-[#FF0055] font-semibold">
+                          ৳
+                          {(product.sale_price > 0
+                            ? product.sale_price
+                            : product.regular_price
+                          ).toLocaleString("en-IN")}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Total + Delivery */}
+                  <div className="border-t pt-3 flex justify-between items-center ">
+                    <span className="text-gray-700 font-semibold text-sm">
+                      Delivery
+                    </span>
+                    <span className="text-gray-800 font-medium">
+                      ৳{order.delivery_charge?.toLocaleString("en-IN") || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-gray-700 font-semibold text-lg">
+                      Total
+                    </span>
+                    <span className="text-gray-800 font-bold">
+                      ৳{order.total.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400 text-center py-6">No Recent Orders</p>
+            )}
           </div>
         </main>
         {/* Footer */}

@@ -174,7 +174,7 @@ export default function BaseProductDetails({
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
-          variants: selectedVariant,
+          variants: selectedVariant ? selectedVariant : {},
           weight: parseInt(product.weight),
           brand: product?.brand || "No Brand",
           qty: 1,
@@ -264,7 +264,7 @@ export default function BaseProductDetails({
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
-          variants: selectedVariant,
+          variants: selectedVariant ? selectedVariant : {},
           weight: product.weight,
           brand: product?.brand || "No Brand",
           qty: 1,
@@ -421,7 +421,7 @@ export default function BaseProductDetails({
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
-          variants: selectedVariant,
+          variants: selectedVariant ? selectedVariant : {},
           weight: product.weight,
           brand: product?.brand || "No Brand",
           qty: 1,
@@ -485,7 +485,7 @@ export default function BaseProductDetails({
         <Loading />
       ) : (
         <>
-          <section className="container mx-auto xl:px-6 lg:px-6  px-4 md:py-10 py-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <section className="container mx-auto xl:px-6 lg:px-6  px-4 md:py-10 py-6 grid grid-cols-1 lg:grid-cols-2 gap-12 overflow-hidden">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -493,31 +493,45 @@ export default function BaseProductDetails({
               className="flex flex-col gap-4 items-center"
             >
               {product.images && product.images[0] ? (
-                <>
+                <div>
                   {!video && (
-                    // <img
-                    //   src={`${baseUrl}${mainImage}`}
-                    //   alt=""
-                    //   className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
-                    // />
-                    <ReactImageMagnify
-                      {...{
-                        smallImage: {
-                          alt: "Wristwatch by Ted Baker London",
-                          isFluidWidth: true,
-                          src: imgUrl,
-                        },
-                        largeImage: {
-                          src: imgUrl,
-                          width: 1080,
-                          height: 720,
-                        },
-                        enlargedImageContainerDimensions: {
-                          width: "135%",
-                          height: "135%",
-                        },
-                      }}
-                    />
+                    <>
+                      <div className="sm:w-[500px]  w-auto max-h-[500px] rounded-2xl ">
+                        <ReactImageMagnify
+                          {...{
+                            smallImage: {
+                              alt: "Product image",
+
+                              width: 500,
+                              height: 500,
+
+                              src: imgUrl,
+                            },
+                            largeImage: {
+                              src: imgUrl,
+                              width: 1200,
+                              height: 1200,
+                            },
+                            enlargedImageContainerDimensions: {
+                              width: "140%",
+                              height: "100%",
+                            },
+                            imageClassName:
+                              "object-fill rounded-2xl overflow-hidden ",
+                            enlargedImageContainerClassName:
+                              "rounded-2xl overflow-hidden bg-white",
+                            enlargedImageClassName:
+                              "rounded-2xl overflow-hidden ",
+                          }}
+                          className="sm:block hidden"
+                        />
+                      </div>
+                      <img
+                        src={imgUrl}
+                        alt=""
+                        className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105 sm:hidden block"
+                      />
+                    </>
                   )}
                   {video && (
                     <div className="relative group">
@@ -546,7 +560,7 @@ export default function BaseProductDetails({
                       </button>
                     </div>
                   )}
-                </>
+                </div>
               ) : (
                 <div className="w-full  flex items-center justify-center text-gray-400  object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105">
                   No Image

@@ -51,6 +51,13 @@ export default function SettingsView({ active }) {
     setStoreImg(file);
   };
 
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const handleUpdate = async (type, updatedData) => {
     try {
       const { new_password, old_password, ...safedata } = updatedData;
@@ -77,7 +84,7 @@ export default function SettingsView({ active }) {
       // Append DOB separately if needed
       formData.append(
         "date_of_birth",
-        date ? new Date(date).toISOString() : user.date_of_birth
+        date ? formatDate(date) : user.date_of_birth
       );
 
       const res = await axiosPublic.put(

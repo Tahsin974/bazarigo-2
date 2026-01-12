@@ -263,7 +263,7 @@ export default function CartPage() {
                         <motion.div
                           key={item.product_Id}
                           whileHover={{ scale: 1.01 }}
-                          className="bg-white shadow-md rounded-2xl p-6 flex items-center justify-between relative "
+                          className="bg-white shadow-md rounded-2xl md:p-6 p-4 flex items-center justify-between relative "
                         >
                           <input
                             type="checkbox"
@@ -272,7 +272,7 @@ export default function CartPage() {
                             onChange={() => handleSelectItem(item.product_Id)}
                           />
 
-                          <div className="flex items-center gap-6 ms-4">
+                          <div className="flex md:flex-row flex-col items-center gap-6 ms-4">
                             <img
                               src={`${baseUrl}${item.product_img}`}
                               alt={item.product_name}
@@ -316,6 +316,7 @@ export default function CartPage() {
                                           "regular_price",
                                           "sale_price",
                                           "stock",
+                                          "id",
                                         ].includes(key)
                                     )
                                     .map(([variant, value], index, array) => (
@@ -329,52 +330,61 @@ export default function CartPage() {
                                     ))}
                                 </div>
                               </div>
+                              <div className="flex items-center justify-between">
+                                <div className="mt-2 flex items-center gap-2">
+                                  <label className="text-sm text-gray-600">
+                                    Qty:
+                                  </label>
+                                  <div className="flex items-center border rounded-lg w-24">
+                                    <button
+                                      onClick={() =>
+                                        updateQty(
+                                          cart.cart_id,
+                                          item.product_Id,
+                                          Math.max(1, item.qty - 1)
+                                        )
+                                      }
+                                      className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-lg"
+                                    >
+                                      -
+                                    </button>
 
-                              <div className="mt-2 flex items-center gap-2">
-                                <label className="text-sm text-gray-600">
-                                  Qty:
-                                </label>
-                                <div className="flex items-center border rounded-lg w-24">
-                                  <button
-                                    onClick={() =>
-                                      updateQty(
-                                        cart.cart_id,
-                                        item.product_Id,
-                                        Math.max(1, item.qty - 1)
-                                      )
-                                    }
-                                    className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-lg"
-                                  >
-                                    -
-                                  </button>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      value={item.qty}
+                                      onChange={(e) =>
+                                        updateQty(
+                                          cart.cart_id,
+                                          item.product_Id,
+                                          Math.max(1, Number(e.target.value))
+                                        )
+                                      }
+                                      className="w-12 text-center outline-none border-none"
+                                    />
 
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={item.qty}
-                                    onChange={(e) =>
-                                      updateQty(
-                                        cart.cart_id,
-                                        item.product_Id,
-                                        Math.max(1, Number(e.target.value))
-                                      )
-                                    }
-                                    className="w-12 text-center outline-none border-none"
-                                  />
-
-                                  <button
-                                    onClick={() =>
-                                      updateQty(
-                                        cart.cart_id,
-                                        item.product_Id,
-                                        Math.max(1, item.qty + 1)
-                                      )
-                                    }
-                                    className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-r-lg"
-                                  >
-                                    +
-                                  </button>
+                                    <button
+                                      onClick={() =>
+                                        updateQty(
+                                          cart.cart_id,
+                                          item.product_Id,
+                                          Math.max(1, item.qty + 1)
+                                        )
+                                      }
+                                      className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-r-lg"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
                                 </div>
+                                <button
+                                  onClick={() =>
+                                    removeItem(cart.cart_id, item.product_Id)
+                                  }
+                                  className="text-gray-500 hover:text-red-600 cursor-pointer md:hidden flex"
+                                >
+                                  <Trash2 size={20} />
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -382,7 +392,7 @@ export default function CartPage() {
                             onClick={() =>
                               removeItem(cart.cart_id, item.product_Id)
                             }
-                            className="text-gray-500 hover:text-red-600 cursor-pointer"
+                            className="text-gray-500 hover:text-red-600 cursor-pointer md:flex hidden"
                           >
                             <Trash2 size={20} />
                           </button>

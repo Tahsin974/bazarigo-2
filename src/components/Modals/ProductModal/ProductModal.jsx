@@ -132,8 +132,20 @@ export default function ProductModal({ onClose, refetch }) {
       return;
     }
 
+    const cleanedAttributes = Object.fromEntries(
+      Object.entries(allAttributes).map(([key, value]) => [
+        key,
+        typeof value === "string" ? value.trim() : value,
+      ])
+    );
+
     // নতুন variant তৈরি, price এবং stock সবসময় শেষে
-    const { regular_price: rp, sale_price: sp, stock, ...rest } = allAttributes;
+    const {
+      regular_price: rp,
+      sale_price: sp,
+      stock,
+      ...rest
+    } = cleanedAttributes;
 
     const newVariant = {
       ...rest,
@@ -158,6 +170,7 @@ export default function ProductModal({ onClose, refetch }) {
       (acc, key) => ({ ...acc, [key]: "" }),
       {}
     );
+
     setAttributes(cleared);
   };
 
@@ -336,16 +349,28 @@ export default function ProductModal({ onClose, refetch }) {
             "T-Shirts",
             "Shirts",
             "Jeans",
+            "Pants & Trousers",
+            "Shorts",
             "Jackets & Coats",
+            "Hoodies & Sweaters",
             "Dresses",
             "Skirts",
             "Traditional Wear",
+            "Innerwear",
+            "Sportswear",
           ],
           attributes: ["color", "material", "size"],
         },
         {
           name: "Footwear",
-          items: ["Sneakers", "Formal Shoes", "Sandals", "Boots", "Flip-Flops"],
+          items: [
+            "Sneakers",
+            "Formal Shoes",
+            "Baby Shoes",
+            "Sandals",
+            "Boots",
+            "Flip-Flops",
+          ],
           attributes: ["color", "material", "size"],
         },
         {
@@ -365,9 +390,29 @@ export default function ProductModal({ onClose, refetch }) {
             "Necklaces",
             "Bracelets",
             "Earrings",
+            "Anklets",
             "Sunglasses / Eyewear",
           ],
           attributes: ["color", "size", "material"],
+        },
+        {
+          name: "Head & Face Accessories",
+          items: [
+            "Caps",
+            "Hats",
+            "Beanies",
+            "Hijab",
+            "Scarves",
+            "Fabric Face Masks",
+            "Buffs",
+            "Face Scarves",
+          ],
+          attributes: ["color", "size", "material", "pattern", "style"],
+        },
+        {
+          name: "Belts & Accessories",
+          items: ["Belts", "Suspenders"],
+          attributes: ["color", "material", "size", "buckle type", "style"],
         },
         {
           name: "Kids Accessories",
@@ -434,12 +479,7 @@ export default function ProductModal({ onClose, refetch }) {
         },
         {
           name: "Beauty Gadgets & Accessories",
-          items: [
-            "Hair Straightener",
-            "Hair Dryer",
-            "Facial Massager",
-            "Manicure Set",
-          ],
+          items: ["Grooming Tool"],
           attributes: ["type", "power", "color", "weight", "size"],
         },
       ],
@@ -482,6 +522,7 @@ export default function ProductModal({ onClose, refetch }) {
             "Humidifier",
             "Electric Kettle",
             "Smart Lighting",
+            "Home Organizer & Tissue Holder",
           ],
           attributes: ["color", "power", "size", "type", "weight"],
         },
@@ -720,7 +761,9 @@ export default function ProductModal({ onClose, refetch }) {
   const variablesType =
     variants.length > 0
       ? [
-          ...new Set(variants.flatMap((v) => Object.keys(v).toLowerCase())),
+          ...new Set(
+            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase()))
+          ),
         ].filter(
           (k) =>
             k !== "regular_price" &&
@@ -802,7 +845,9 @@ export default function ProductModal({ onClose, refetch }) {
   const tableHeaders =
     variants.length > 0
       ? [
-          ...new Set(variants.flatMap((v) => Object.keys(v).toLowerCase())),
+          ...new Set(
+            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase()))
+          ),
         ].filter((k) => k !== "id")
       : [];
 
@@ -962,6 +1007,28 @@ export default function ProductModal({ onClose, refetch }) {
                   onWheel={(e) => e.target.blur()}
                 />
               </div>
+              {/* Total Stock */}
+              <div>
+                <InputField
+                  type="number"
+                  label=" Total Stock"
+                  className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                  placeholder="Total Stock"
+                  onChange={(e) =>
+                    setForm((s) => ({
+                      ...s,
+                      stock: parseInt(e.target.value) || 0,
+                    }))
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                      e.preventDefault(); // keyboard up/down disable
+                    }
+                  }}
+                  onWheel={(e) => e.target.blur()}
+                />
+              </div>
+
               {/* Discount */}
               <div>
                 <InputField
@@ -984,7 +1051,7 @@ export default function ProductModal({ onClose, refetch }) {
                 />
               </div>
               {/* Rating */}
-              {(!user?.role || !user.role === "seller") && (
+              {user?.role !== "seller" && user?.role !== "moderator" && (
                 <div>
                   <InputField
                     type="number"
@@ -1202,8 +1269,6 @@ export default function ProductModal({ onClose, refetch }) {
                       "isNew",
                       "isTrending",
                       "isLimitedStock",
-                      "isExclusive",
-                      "isFlashSale",
                     ].map((flag) => (
                       <label
                         key={flag}
@@ -1274,10 +1339,11 @@ export default function ProductModal({ onClose, refetch }) {
                           placeholder={`Regular Price`}
                           className=" w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
                           required
-                          defaultValue={
-                            attributes.regular_price ||
-                            form.regular_price ||
-                            null
+                          value={
+                            attributes.regular_price !== undefined &&
+                            attributes.regular_price !== ""
+                              ? attributes.regular_price
+                              : form.regular_price || ""
                           }
                           onChange={(e) => {
                             const val = e.target.value;
@@ -1296,8 +1362,11 @@ export default function ProductModal({ onClose, refetch }) {
                           type="number"
                           placeholder={`Sale Price`}
                           className=" w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
-                          defaultValue={
-                            attributes.sale_price || form.sale_price || null
+                          value={
+                            attributes.sale_price !== undefined &&
+                            attributes.sale_price !== ""
+                              ? attributes.sale_price
+                              : form.sale_price || ""
                           }
                           required
                           onChange={(e) =>
@@ -1315,7 +1384,7 @@ export default function ProductModal({ onClose, refetch }) {
                         />
                       </div>
                     </div>
-                    <div className="">
+                    <div>
                       <div className="flex gap-2  ">
                         <InputField
                           label="Stock"

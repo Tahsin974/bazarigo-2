@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Overview from "./components/OverView/OverView";
 import Cart from "./components/Cart/Cart";
@@ -19,7 +19,6 @@ import useCart from "../../../Utils/Hooks/useCart";
 import MessageModal from "../../../components/Modals/MessageModal/MessageModal";
 import Orders from "./components/Orders/Orders";
 import NotificationsView from "../../../components/NotificationsView/NotificationsView";
-import { useLocation } from "react-router";
 import useMessages from "../../../Utils/Hooks/useMessages";
 import useSuperAdmin from "../../../Utils/Hooks/useSuperAdmin";
 import {
@@ -29,13 +28,12 @@ import {
   Settings,
   ShoppingBag,
   ShoppingCart,
-  Undo2,
 } from "lucide-react";
 import useAxiosSecure from "../../../Utils/Hooks/useAxiosSecure";
 import useNotifications from "../../../Utils/Hooks/useNotifications";
+import { useLocation } from "react-router";
 
 export default function UserAccountDashboard() {
-  const location = useLocation();
   const axiosSecure = useAxiosSecure();
   // Open/Close Menu
   // User
@@ -51,6 +49,18 @@ export default function UserAccountDashboard() {
   ];
 
   const { user } = useAuth();
+  const sessionKey = `activeMenu_${user?.id}`;
+  const location = useLocation();
+  const [active, setActive] = useState(() => {
+    if (location?.state) {
+      return location.state;
+    }
+    if (window.location.pathname.includes("/dashboard")) {
+      return sessionStorage.getItem(sessionKey) || "Overview";
+    } else {
+      return "Overview";
+    }
+  });
 
   const { data: followingLists = [], refetch: refetchFollowingList } = useQuery(
     {
@@ -101,8 +111,6 @@ export default function UserAccountDashboard() {
       },
     });
 
-  const [activeTab, setActiveTab] = useState(location?.state || "Overview");
-
   const openMessageModal = (user) => {
     setActiveMessage(user);
     setMessageModalOpen(true);
@@ -110,12 +118,18 @@ export default function UserAccountDashboard() {
 
   const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
+  useEffect(() => {
+    if (window.location.pathname.includes("/dashboard")) {
+      sessionStorage.setItem(sessionKey, active);
+    }
+  }, [active, sessionKey]);
+
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Side Bar */}
 
       <div className="hidden lg:flex">
-        <Sidebar active={activeTab} setActive={setActiveTab} items={navItems} />
+        <Sidebar active={active} setActive={setActive} items={navItems} />
       </div>
 
       {/* Main Column */}
@@ -124,8 +138,8 @@ export default function UserAccountDashboard() {
         {/* Top Bar */}
         <Drawer
           user={user}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          activeTab={active}
+          setActiveTab={setActive}
           cart={carts}
           messages={myMessages}
           items={navItems}
@@ -135,13 +149,13 @@ export default function UserAccountDashboard() {
               {/* Left: Page Title */}
               <h1 className="xl:text-xl lg:text-xl md:text-xl sm:text-lg font-bold order-1 lg:order-1 flex items-center gap-2">
                 <span className="bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient">
-                  {activeTab}
+                  {active}
                 </span>
               </h1>
 
               {/* Right: Buttons + Admin */}
               <div className="flex flex-wrap items-center gap-3 order-2 lg:order-2">
-                {activeTab === "Messages" && (
+                {active === "Messages" && (
                   <button
                     onClick={() => openMessageModal(bazarigo)}
                     className="btn border-none rounded shadow bg-gradient-to-r from-[#FF0055] to-[#FF7B7B] text-white sm:text-base text-[14px]"
@@ -155,7 +169,7 @@ export default function UserAccountDashboard() {
             <Overview
               orders={orders}
               cart={carts}
-              activeTab={activeTab}
+              activeTab={active}
               unreadCount={unreadCount}
               followingLists={followingLists}
               refetch={refetchFollowingList}
@@ -164,13 +178,13 @@ export default function UserAccountDashboard() {
             <Orders
               orders={orders}
               refetch={refetchOrders}
-              activeTab={activeTab}
+              activeTab={active}
             />
             {/* Cart */}
-            <Cart activeTab={activeTab} />
+            <Cart activeTab={active} />
             {/* Wishlist */}
             <Wishlist
-              activeTab={activeTab}
+              activeTab={active}
               wishlist={wishlists}
               refetch={refetchWishLists}
             />
@@ -178,27 +192,24 @@ export default function UserAccountDashboard() {
             {/* Returns */}
             <Returns
               returnRequests={returnRequests}
-              activeTab={activeTab}
+              activeTab={active}
               refetch={refetchReturnRequests}
             />
 
             {/* Notifications */}
-            <NotificationsView
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            />
+            <NotificationsView activeTab={active} setActiveTab={setActive} />
 
             {/* Messages */}
-            {activeTab === "Messages" && (
+            {active === "Messages" && (
               <MessagesView
                 messages={myMessages}
                 openMessageModal={openMessageModal}
               />
             )}
             {/*Account Settings */}
-            <AccountSettings activeTab={activeTab} />
+            <AccountSettings activeTab={active} />
             {/* My Profile */}
-            <MyProfileView user={user} activeTab={activeTab} />
+            <MyProfileView user={user} activeTab={active} />
           </main>
         </Drawer>
       </div>

@@ -12,14 +12,7 @@ export default function ControlsSection({
   sortOption,
   setSortOption,
 }) {
-  const tags = [
-    "All",
-    "Best Seller",
-    "Exclusive",
-    "Hot",
-    "Limited Stock",
-    "Trending",
-  ];
+  const tags = ["All", "Best Seller", "Hot", "Limited Stock", "Trending"];
   return (
     <section className="py-6 border-b bg-white shadow-sm px-6 space-y-6">
       <div className="w-full">

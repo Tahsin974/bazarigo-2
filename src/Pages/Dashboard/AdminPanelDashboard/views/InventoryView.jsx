@@ -89,6 +89,30 @@ export default function InventoryView({
       });
     }
   };
+  const updateSingleStock = async (productId, change) => {
+    try {
+      const res = await axiosPublic.patch(`/inventory/${user.id}`, {
+        productId,
+
+        change,
+      });
+
+      if (res.data.updatedCount > 0) {
+        refetch();
+        refetchProducts();
+        refetchNotifications();
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: err.response?.data?.message || "Something went wrong",
+        toast: true,
+        position: "top",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  };
 
   // Calculate total stock
   const calculateTotalStock = (product) => {
@@ -267,9 +291,34 @@ export default function InventoryView({
                         </table>
                       </div>
                     ) : (
-                      <p className="text-gray-500 text-sm">
-                        No variants found.
-                      </p>
+                      <>
+                        <div className="flex items-center justify-between bg-gray-50 border rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2 text-gray-500 text-sm">
+                            <Layers size={14} />
+                            <span>No variants available</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 sm:pe-5">
+                            <button
+                              onClick={() => updateSingleStock(p.id, -1)}
+                              className="p-1 flex items-center justify-center rounded 
+                 bg-red-100 hover:bg-red-200 transition"
+                              title="Decrease stock"
+                            >
+                              <Minus size={14} className="text-red-600" />
+                            </button>
+
+                            <button
+                              onClick={() => updateSingleStock(p.id, +1)}
+                              className="p-1 flex items-center justify-center rounded 
+                 bg-green-100 hover:bg-green-200 transition"
+                              title="Increase stock"
+                            >
+                              <Plus size={14} className="text-green-600" />
+                            </button>
+                          </div>
+                        </div>
+                      </>
                     )}
                   </div>
                 ))}

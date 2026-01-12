@@ -38,6 +38,12 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
   const [image, setImage] = useState(null);
   const [gender, setGender] = useState("");
   const [date, setDate] = useState(null);
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
@@ -59,7 +65,7 @@ export default function AuthPanel({ type = "signup", onNavigate = () => {} }) {
         formData.append("email", data.email);
         formData.append("phone", data.phone);
         formData.append("password", data.password);
-        formData.append("date_of_birth", new Date(date).toISOString());
+        formData.append("date_of_birth", formatDate(date));
         formData.append("gender", gender);
         formData.append("address", data.address);
         formData.append("district", data.district);

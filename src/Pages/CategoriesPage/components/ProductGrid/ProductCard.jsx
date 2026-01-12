@@ -168,7 +168,7 @@ export default function ProductCard({ product: item, viewMode }) {
                   <motion.span
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
-                    className="bg-[#FF0055] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    className="bg-[#FF0055] text-white text-sm font-bold px-2 py-0.5 rounded-full"
                   >
                     {item.discount}% OFF
                   </motion.span>

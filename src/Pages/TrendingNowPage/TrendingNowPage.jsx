@@ -7,30 +7,34 @@ import Pagination from "../../components/ui/Pagination";
 import { useRenderPageNumbers } from "../../Utils/Helpers/useRenderPageNumbers";
 
 import Loading from "../../components/Loading/Loading";
+
+import useProducts from "../../Utils/Hooks/useProducts";
 import useTrendingProducts from "../../Utils/Hooks/useTrendingProducts";
 
 export default function TrendingNowPage() {
-  const itemsPerPage = 6;
+  const itemsPerPage = 12;
   const [currentPage, setCurrentPage] = useState(1);
   const [filterTag, setFilterTag] = useState("All");
   const [sortOption, setSortOption] = useState("default");
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: AllProducts = [], isPending } = useTrendingProducts();
+  let { products: AllProducts, loading: isPending } = useProducts();
+  const { data: trendingProducts = [] } = useTrendingProducts();
 
-  const filteredProducts = AllProducts.filter((product) => {
-    const matchesTag =
-      filterTag === "All" ||
-      (filterTag === "Best Seller" && product.isbestSeller) ||
-      (filterTag === "Hot" && product.ishot) ||
-      (filterTag === "Trending" && product.istrending) ||
-      (filterTag === "Limited Stock" && product.islimitedstock) ||
-      (filterTag === "Exclusive" && product.isexclusive);
+  const filteredProducts =
+    filterTag === "Trending"
+      ? (AllProducts = trendingProducts)
+      : AllProducts.filter((product) => {
+          const matchesTag =
+            filterTag === "All" ||
+            (filterTag === "Best Seller" && product.isbestseller) ||
+            (filterTag === "Hot" && product.ishot) ||
+            (filterTag === "Limited Stock" && product.islimitedstock);
 
-    const matchesSearch = product.product_name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesTag && matchesSearch;
-  });
+          const matchesSearch = product.product_name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+          return matchesTag && matchesSearch;
+        });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "priceLowHigh")
@@ -93,6 +97,7 @@ export default function TrendingNowPage() {
     totalPages,
     setCurrentPage
   );
+  console.log(AllProducts);
 
   return (
     <div className="w-full bg-gray-50 font-sans text-gray-800 ">

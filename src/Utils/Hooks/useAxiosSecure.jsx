@@ -53,7 +53,8 @@ export default function useAxiosSecure() {
         }
       }
 
-      return Promise.reject(error);
+      Promise.reject(error);
+      return console.error(error);
     }
   );
 

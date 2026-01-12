@@ -97,9 +97,10 @@ export default function AddMemberModal({ onClose, refetch }) {
         return refetch();
       }
     } catch (error) {
+      console.error(error);
       Swal.fire({
         icon: "error",
-        title: error.response?.data?.message || "Something went wrong",
+        title: "Something Went Wrong",
         toast: true,
         position: "top",
         showConfirmButton: false,

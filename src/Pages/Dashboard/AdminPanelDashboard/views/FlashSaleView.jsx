@@ -94,6 +94,9 @@ export default function FlashSaleView({
     fetchAutoFlashSale();
   }, []);
 
+  const toUnixSeconds = (utcISO) =>
+    Math.floor(new Date(utcISO).getTime() / 1000);
+
   const handleApplySale = async () => {
     if (!startTime || !endTime) {
       return Swal.fire({
@@ -105,6 +108,8 @@ export default function FlashSaleView({
         timer: 1500,
       });
     }
+    const startUTC = startTime.toISOString();
+    const endUTC = endTime.toISOString();
     const minDiscount = 10;
     const maxDiscount = 30;
 
@@ -197,8 +202,6 @@ export default function FlashSaleView({
           ...updatedProd,
           stock: newStock,
         };
-        flashSalePayload.push({ ...flashSaleProd });
-        productPayload.push({ ...updatedProd });
       }
 
       // 🔹 Main product payload (flashSaleStock বাদ)
@@ -214,8 +217,8 @@ export default function FlashSaleView({
 
     const flashSaleRes = await axiosPublic.post("/flash-sale", {
       isActive: true,
-      start_time: Math.floor(new Date(startTime).getTime() / 1000),
-      end_time: Math.floor(new Date(endTime).getTime() / 1000),
+      start_time: toUnixSeconds(startUTC),
+      end_time: toUnixSeconds(endUTC),
       saleProducts: flashSalePayload,
     });
 
@@ -271,6 +274,7 @@ export default function FlashSaleView({
       }
     }
     refetchProducts();
+    window.location.reload();
   };
 
   const flashSaleTotalPages = Math.max(
@@ -349,6 +353,7 @@ export default function FlashSaleView({
 
   useEffect(() => {
     const interval = setInterval(() => {
+      console.log("Refetch");
       refetch();
       refetchProducts();
     }, 60000); // 60 সেকেন্ডে একবার

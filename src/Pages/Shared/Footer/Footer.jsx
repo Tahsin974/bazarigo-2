@@ -1,5 +1,12 @@
-import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa6";
+import {
+  Facebook,
+  Instagram,
+  Mail,
+  Phone,
+  MapPin,
+  Youtube,
+} from "lucide-react";
+import { FaWhatsapp, FaYoutube } from "react-icons/fa6";
 
 import img from "../../../assets/Bazarigo-White.svg";
 export default function Footer() {
@@ -22,15 +29,23 @@ export default function Footer() {
                 <Facebook size={24} />
               </a>
               <a
+                href="https://www.youtube.com/@Bazarigo-Store"
+                aria-label="Follow us on YouTube"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <FaYoutube size={24} />
+              </a>
+              <a
                 href="https://www.instagram.com/bazarigo.store/?utm_source=ig_web_button_share_sheet"
                 aria-label="Follow us on Instagram"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <Instagram size={24} />
               </a>
+
               <a
                 href="https://api.whatsapp.com/send/?phone=%2B8801797454118"
-                aria-label="Follow us on Instagram"
+                aria-label="Contact us on Whatsapp"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <FaWhatsapp size={24} />

@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 export default function ProductImageGallery({ product }) {
   const images = product.product_img || [];
   const [active, setActive] = useState(0);
-  console.log("Images From Gallery:", product);
   const baseUrl = import.meta.env.VITE_BASEURL;
   const videoRef = useRef();
   const [isPaused, setIsPaused] = useState(true);

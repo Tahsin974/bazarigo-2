@@ -324,27 +324,6 @@ export default function MyProfileView({ activeTab }) {
                 </>
               )}
             </div>
-
-            {/* <div className="bg-gray-50 p-5 rounded-xl shadow-inner">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                <ShoppingBag className="text-[#FF0055]" size={18} /> Recent
-                Orders
-              </h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex justify-between border-b pb-2">
-                  <span>Wireless Headphones</span>
-                  <span className="text-[#FF0055] font-semibold">$120</span>
-                </li>
-                <li className="flex justify-between border-b pb-2">
-                  <span>Smart Watch</span>
-                  <span className="text-[#FF0055] font-semibold">$199</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Leather Wallet</span>
-                  <span className="text-[#FF0055] font-semibold">$40</span>
-                </li>
-              </ul>
-            </div> */}
           </main>
         </motion.div>
       )}

@@ -43,10 +43,8 @@ export default function Topbar({ setActiveTab, messages }) {
   });
 
   const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
-  console.log("messages", messages);
 
   const unReadMessage = messages?.filter((m) => m.unread_count > 0).length || 0;
-  console.log(unReadMessage);
 
   return (
     <div>

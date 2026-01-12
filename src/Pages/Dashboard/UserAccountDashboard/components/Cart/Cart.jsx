@@ -270,145 +270,169 @@ export default function Cart({ activeTab }) {
                       ) : (
                         <div className="grid grid-cols-1 gap-4  px-5">
                           {cart.productinfo.map((item) => (
-                            <motion.div
-                              key={item.product_Id}
-                              whileHover={{ scale: 1.01 }}
-                              className="bg-white shadow-md rounded-2xl p-6 flex items-center justify-between relative "
-                            >
-                              <input
-                                type="checkbox"
-                                className="checkbox checkbox-secondary checkbox-xs rounded-sm absolute top-2 left-3"
-                                checked={selectedItems.includes(
-                                  item.product_Id
-                                )}
-                                onChange={() =>
-                                  handleSelectItem(item.product_Id)
-                                }
-                              />
-
-                              <div className="flex items-center gap-6 ms-4">
-                                <img
-                                  src={`${baseUrl}${item.product_img}`}
-                                  alt={item.product_name}
-                                  className="w-20 h-20 rounded-xl object-cover"
+                            <>
+                              <motion.div
+                                key={item.product_Id}
+                                whileHover={{ scale: 1.01 }}
+                                className="bg-white shadow-md rounded-2xl md:p-6 p-4 flex items-center justify-between relative "
+                              >
+                                <input
+                                  type="checkbox"
+                                  className="checkbox checkbox-secondary checkbox-xs rounded-sm absolute top-2 left-3"
+                                  checked={selectedItems.includes(
+                                    item.product_Id
+                                  )}
+                                  onChange={() =>
+                                    handleSelectItem(item.product_Id)
+                                  }
                                 />
-                                <div>
-                                  <h3 className="font-semibold text-gray-800">
-                                    {item.product_name}
-                                  </h3>
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-[#FF0055] font-bold">
-                                      {item.sale_price > 0 ? (
-                                        <>
-                                          ৳
-                                          {item.sale_price.toLocaleString(
-                                            "en-IN"
-                                          )}
-                                        </>
-                                      ) : (
-                                        <>
+
+                                <div className="flex md:flex-row flex-col items-center gap-6 ms-4">
+                                  <img
+                                    src={`${baseUrl}${item.product_img}`}
+                                    alt={item.product_name}
+                                    className="w-20 h-20 rounded-xl object-cover"
+                                  />
+                                  <div>
+                                    <h3 className="font-semibold text-gray-800">
+                                      {item.product_name}
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-[#FF0055] font-bold">
+                                        {item.sale_price > 0 ? (
+                                          <>
+                                            ৳
+                                            {item.sale_price.toLocaleString(
+                                              "en-IN"
+                                            )}
+                                          </>
+                                        ) : (
+                                          <>
+                                            ৳
+                                            {item.regular_price.toLocaleString(
+                                              "en-IN"
+                                            )}
+                                          </>
+                                        )}
+                                      </p>
+                                      {item.sale_price > 0 && (
+                                        <p className="text-gray-400 line-through text-sm">
                                           ৳
                                           {item.regular_price.toLocaleString(
                                             "en-IN"
                                           )}
-                                        </>
+                                        </p>
                                       )}
-                                    </p>
-                                    {item.sale_price > 0 && (
-                                      <p className="text-gray-400 line-through text-sm">
-                                        ৳
-                                        {item.regular_price.toLocaleString(
-                                          "en-IN"
-                                        )}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <div className="flex flex-col gap-1.5">
-                                    <p className="text-xs text-gray-500">
-                                      Brand: {item?.brand || "No Brand"}
-                                    </p>
-
-                                    <div className="flex gap-1.5">
-                                      {Object.entries(item.variants)
-                                        .filter(
-                                          ([key]) =>
-                                            ![
-                                              "regular_price",
-                                              "sale_price",
-                                              "stock",
-                                            ].includes(key)
-                                        )
-                                        .map(
-                                          ([variant, value], index, array) => (
-                                            <p
-                                              className="text-xs text-gray-500"
-                                              key={variant}
-                                            >
-                                              {variant}: {value}
-                                              {index < array.length - 1 && ","}
-                                            </p>
-                                          )
-                                        )}
                                     </div>
-                                  </div>
+                                    <div className="flex flex-col gap-1.5">
+                                      <p className="text-xs text-gray-500">
+                                        Brand: {item?.brand || "No Brand"}
+                                      </p>
 
-                                  <div className="mt-2 flex items-center gap-2">
-                                    <label className="text-sm text-gray-600">
-                                      Qty:
-                                    </label>
-                                    <div className="flex items-center border rounded-lg w-24">
+                                      <div className="flex gap-1.5">
+                                        {Object.entries(item.variants)
+                                          .filter(
+                                            ([key]) =>
+                                              ![
+                                                "regular_price",
+                                                "sale_price",
+                                                "stock",
+                                                "id",
+                                              ].includes(key)
+                                          )
+                                          .map(
+                                            (
+                                              [variant, value],
+                                              index,
+                                              array
+                                            ) => (
+                                              <p
+                                                className="text-xs text-gray-500"
+                                                key={variant}
+                                              >
+                                                {variant}: {value}
+                                                {index < array.length - 1 &&
+                                                  ","}
+                                              </p>
+                                            )
+                                          )}
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                      <div className="mt-2 flex items-center gap-2">
+                                        <label className="text-sm text-gray-600">
+                                          Qty:
+                                        </label>
+                                        <div className="flex items-center border rounded-lg w-24">
+                                          <button
+                                            onClick={() =>
+                                              updateQty(
+                                                cart.cart_id,
+                                                item.product_Id,
+                                                Math.max(1, item.qty - 1)
+                                              )
+                                            }
+                                            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-lg"
+                                          >
+                                            -
+                                          </button>
+
+                                          <input
+                                            type="number"
+                                            min="1"
+                                            value={item.qty}
+                                            onChange={(e) =>
+                                              updateQty(
+                                                cart.cart_id,
+                                                item.product_Id,
+                                                Math.max(
+                                                  1,
+                                                  Number(e.target.value)
+                                                )
+                                              )
+                                            }
+                                            className="w-12 text-center outline-none border-none"
+                                          />
+
+                                          <button
+                                            onClick={() =>
+                                              updateQty(
+                                                cart.cart_id,
+                                                item.product_Id,
+                                                Math.max(1, item.qty + 1)
+                                              )
+                                            }
+                                            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-r-lg"
+                                          >
+                                            +
+                                          </button>
+                                        </div>
+                                      </div>
                                       <button
                                         onClick={() =>
-                                          updateQty(
+                                          removeItem(
                                             cart.cart_id,
-                                            item.product_Id,
-                                            Math.max(1, item.qty - 1)
+                                            item.product_Id
                                           )
                                         }
-                                        className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-lg"
+                                        className="text-gray-500 hover:text-red-600 cursor-pointer md:hidden flex"
                                       >
-                                        -
-                                      </button>
-
-                                      <input
-                                        type="number"
-                                        min="1"
-                                        value={item.qty}
-                                        onChange={(e) =>
-                                          updateQty(
-                                            cart.cart_id,
-                                            item.product_Id,
-                                            Math.max(1, Number(e.target.value))
-                                          )
-                                        }
-                                        className="w-12 text-center outline-none border-none"
-                                      />
-
-                                      <button
-                                        onClick={() =>
-                                          updateQty(
-                                            cart.cart_id,
-                                            item.product_Id,
-                                            Math.max(1, item.qty + 1)
-                                          )
-                                        }
-                                        className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-r-lg"
-                                      >
-                                        +
+                                        <Trash2 size={20} />
                                       </button>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                              <button
-                                onClick={() =>
-                                  removeItem(cart.cart_id, item.product_Id)
-                                }
-                                className="text-gray-500 hover:text-red-600 cursor-pointer"
-                              >
-                                <Trash2 size={20} />
-                              </button>
-                            </motion.div>
+                                <button
+                                  onClick={() =>
+                                    removeItem(cart.cart_id, item.product_Id)
+                                  }
+                                  className="text-gray-500 hover:text-red-600 cursor-pointer md:flex hidden "
+                                >
+                                  <Trash2 size={20} />
+                                </button>
+                              </motion.div>
+                            </>
                           ))}
                         </div>
                       )}

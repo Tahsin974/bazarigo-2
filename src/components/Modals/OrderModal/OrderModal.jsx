@@ -14,7 +14,6 @@ export default function OrderModal({
   refetch,
   refetchReturnOrders,
 }) {
-  console.log("Orderrrrrrr", order);
   const printRef = useRef(null);
 
   const PRIMARY_COLOR = "#FF0055";
@@ -259,7 +258,7 @@ export default function OrderModal({
     }, 400);
     Swal.fire({
       icon: "error",
-      title: "Invoice for Order ID: ${order.id} is being printed!",
+      title: `Invoice  is being printed!`,
       toast: true,
       position: "top",
       showConfirmButton: false,

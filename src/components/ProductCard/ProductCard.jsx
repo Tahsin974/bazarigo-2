@@ -114,21 +114,21 @@ export default function ProductCard({ item, fromFlashSale = false }) {
             {/* Title → Price : 6px */}
             <div className="flex items-center justify-between mt-1.5">
               <div className="flex items-center gap-2">
-                <span className="text-[#FF0055] font-bold ">
+                <span className="text-[#FF0055] font-bold">
                   {item.sale_price > 1
                     ? `৳${item.sale_price.toLocaleString("en-IN")}`
                     : `৳${item.regular_price.toLocaleString("en-IN")}`}
                 </span>
 
                 {item.sale_price > 1 && (
-                  <span className="text-gray-400 line-through text-xs">
+                  <span className="text-gray-400 line-through  font-bold">
                     ৳{item.regular_price.toLocaleString("en-IN")}
                   </span>
                 )}
               </div>
 
               {item.discount > 0 && (
-                <span className="bg-[#FF0055] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                <span className="bg-[#FF0055] text-white text-sm font-bold px-2 py-0.5 rounded-full">
                   {item.discount}% OFF
                 </span>
               )}

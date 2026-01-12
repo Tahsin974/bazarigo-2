@@ -43,7 +43,25 @@ export default function FlashSalePage() {
   if (sort === "priceHigh")
     products = [...products].sort((a, b) => b.sale_price - a.sale_price);
   if (sort === "rating")
-    products = [...products].sort((a, b) => b.rating - a.rating);
+    products = [...products].sort((a, b) => {
+      // Compute b's rating
+      const bRating =
+        b.rating > 0
+          ? b.rating
+          : b.reviews && b.reviews.length > 0
+          ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
+          : 0;
+
+      // Compute a's rating
+      const aRating =
+        a.rating > 0
+          ? a.rating
+          : a.reviews && a.reviews.length > 0
+          ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
+          : 0;
+
+      return bRating - aRating;
+    });
 
   const totalPages = Math.ceil(products.length / itemsPerPage);
 

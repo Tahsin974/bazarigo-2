@@ -10,6 +10,7 @@ export default function useExtractVariants(product) {
     "regular_price",
     "flashSaleStock",
   ];
+
   const variantKeys = Object.keys(variants[0]).filter(
     (key) => !excludedKeys.includes(key)
   );

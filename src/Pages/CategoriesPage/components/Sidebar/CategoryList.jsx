@@ -42,39 +42,66 @@ export default function CategoryList({
   //   });
   // }, [subcategory, item, activeCategory.main]);
 
+  // useEffect(() => {
+  //   categories.forEach((cat, idx) => {
+  //     if (cat.name === activeCategory.main) {
+  //       setOpenDropdown(idx);
+
+  //       if (cat.sub && cat.sub.length > 0) {
+  //         // Find subcategory that matches URL or props
+  //         const matchedSub =
+  //           cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
+
+  //         // Find item inside matchedSub
+  //         const matchedItem =
+  //           matchedSub.items?.find((i) => i === item) ||
+  //           matchedSub.items?.[0] ||
+  //           null;
+
+  //         // Set active category
+  //         setActiveCategory({
+  //           main: cat.name,
+  //           sub: matchedSub.name,
+  //           item: matchedItem,
+  //         });
+
+  //         // Open sub-dropdown for matchedSub
+  //         const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
+  //         if (subIdx !== -1) setOpenSubDropdown(subIdx);
+  //       } else {
+  //         setActiveCategory({ main: cat.name, sub: null, item: null });
+  //         setOpenSubDropdown(null);
+  //       }
+  //     }
+  //   });
+  // }, [subcategory, item, activeCategory.main]);
   useEffect(() => {
-    categories.forEach((cat, idx) => {
-      if (cat.name === activeCategory.main) {
-        setOpenDropdown(idx);
+    const cat = categories.find((c) => c.name === activeCategory.main);
+    if (!cat) return;
 
-        if (cat.sub && cat.sub.length > 0) {
-          // Find subcategory that matches URL or props
-          const matchedSub =
-            cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
+    setOpenDropdown(categories.indexOf(cat));
 
-          // Find item inside matchedSub
-          const matchedItem =
-            matchedSub.items?.find((i) => i === item) ||
-            matchedSub.items?.[0] ||
-            null;
+    if (cat.sub && cat.sub.length > 0) {
+      const matchedSub =
+        cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
+      const matchedItem =
+        matchedSub.items?.find((i) => i === item) ||
+        matchedSub.items?.[0] ||
+        null;
 
-          // Set active category
-          setActiveCategory({
-            main: cat.name,
-            sub: matchedSub.name,
-            item: matchedItem,
-          });
+      setActiveCategory({
+        main: cat.name,
+        sub: matchedSub.name,
+        item: matchedItem,
+      });
 
-          // Open sub-dropdown for matchedSub
-          const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
-          if (subIdx !== -1) setOpenSubDropdown(subIdx);
-        } else {
-          setActiveCategory({ main: cat.name, sub: null, item: null });
-          setOpenSubDropdown(null);
-        }
-      }
-    });
-  }, [subcategory, item, activeCategory.main]);
+      const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
+      if (subIdx !== -1) setOpenSubDropdown(subIdx);
+    } else {
+      setActiveCategory({ main: cat.name, sub: null, item: null });
+      setOpenSubDropdown(null);
+    }
+  }, [subcategory, item]); // main dependency বাদ দেওয়া হলো
 
   return (
     <ul className="space-y-3">

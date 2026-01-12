@@ -59,7 +59,6 @@ export default function ProductItemsSection({
       order_status: status,
       prodId,
     });
-    console.log("Order Status", res.data);
     if (res.data.updatedCount > 0) {
       Swal.fire({
         icon: "success",

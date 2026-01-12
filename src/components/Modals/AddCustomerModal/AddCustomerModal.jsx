@@ -65,9 +65,10 @@ export default function AddCustomerModal({ onClose }) {
         refetch();
       }
     } catch (error) {
+      console.error(error);
       Swal.fire({
         icon: "error",
-        title: error?.response.data.message,
+        title: "Something Went Wrong",
         showConfirmButton: false,
         toast: true,
         position: "top",

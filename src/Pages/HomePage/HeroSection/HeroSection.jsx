@@ -5,10 +5,12 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import useBanners from "../../../Utils/Hooks/useBanners";
 import Loading from "../../../components/Loading/Loading";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HeroSection() {
   const { banners, isPending } = useBanners();
   const baseUrl = import.meta.env.VITE_BASEURL;
+  const showNavigation = banners.length > 1;
 
   return (
     <>
@@ -58,25 +60,93 @@ export default function HeroSection() {
           ) : (
             <section>
               <Carousel
-                showArrows={false}
                 showStatus={false}
-                autoPlay={true}
-                infiniteLoop={true}
+                autoPlay={showNavigation}
+                infiniteLoop={showNavigation}
                 interval={5000}
                 swipeable={true}
                 showThumbs={false}
+                showIndicators={false}
+                showArrows={showNavigation}
+                renderArrowPrev={(onClickHandler, hasPrev, label) =>
+                  showNavigation &&
+                  hasPrev && (
+                    <button
+                      onClick={onClickHandler}
+                      title={label}
+                      className="
+          absolute z-10
+          left-2 sm:left-3
+          top-1/2
+          -translate-y-1/2
+          w-8 h-8 sm:w-14 sm:h-14
+          rounded-full
+          bg-black/20 hover:bg-black/30
+          text-white/80 hover:text-white
+          flex items-center justify-center
+          transition-all duration-300
+          active:scale-95
+        "
+                    >
+                      <ChevronLeft className="w-6 h-6 sm:w-10 sm:h-10" />
+                    </button>
+                  )
+                }
+                renderArrowNext={(onClickHandler, hasNext, label) =>
+                  showNavigation &&
+                  hasNext && (
+                    <button
+                      onClick={onClickHandler}
+                      title={label}
+                      className="
+          absolute z-10
+          right-2 sm:right-3
+          top-1/2
+          -translate-y-1/2
+          w-8 h-8 sm:w-14 sm:h-14
+          rounded-full
+          bg-black/20 hover:bg-black/30
+          text-white/80 hover:text-white
+          flex items-center justify-center
+          transition-all duration-300
+          active:scale-95
+        "
+                    >
+                      <ChevronRight className="w-6 h-6 sm:w-10 sm:h-10" />
+                    </button>
+                  )
+                }
               >
-                {banners.map((banner) => (
-                  <a key={banner.id} target="_blank" href={banner.link}>
-                    <div className="w-full aspect-[16/9] sm:aspect-[16/9] md:aspect-[21/9]">
+                {banners.map((banner) =>
+                  banner?.link === "" ? (
+                    <div
+                      key={banner.id}
+                      className="w-full aspect-[16/9] sm:aspect-[16/9] md:aspect-[21/9]"
+                    >
                       <img
                         src={`${baseUrl}${banner.image}`}
                         alt="Banner"
                         className="w-full h-full object-cover"
                       />
                     </div>
-                  </a>
-                ))}
+                  ) : (
+                    <a
+                      key={banner.id}
+                      href={banner.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <div className="w-full aspect-[16/9] sm:aspect-[16/9] md:aspect-[21/9]">
+                        <img
+                          src={`${baseUrl}${banner.image}`}
+                          alt="Banner"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </a>
+                  )
+                )}
               </Carousel>
             </section>
           )}

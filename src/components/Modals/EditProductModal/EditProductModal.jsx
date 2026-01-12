@@ -7,15 +7,12 @@ import Swal from "sweetalert2";
 import { InputField } from "../../ui/InputField";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
 import { v4 as uuidv4 } from "uuid";
+import useAuth from "../../../Utils/Hooks/useAuth";
 
-export default function EditProductModal({
-  product = {},
-  onClose,
-  refetch,
-  user,
-}) {
+export default function EditProductModal({ product = {}, onClose, refetch }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
   const axiosPublic = useAxiosPublic();
+  const { user } = useAuth();
   const [form, setForm] = useState({
     productName: product.product_name || "",
     brand: product.brand || "No Brand",
@@ -53,7 +50,6 @@ export default function EditProductModal({
   const togglePlayPause = (idx) => {
     const video = videoRefs.current[idx];
     if (!video) return;
-    console.log(video.paused);
 
     if (video.paused) {
       video.play();
@@ -72,7 +68,12 @@ export default function EditProductModal({
   };
 
   const addVariant = () => {
-    const allAttributes = { ...attributes };
+    const allAttributes = Object.fromEntries(
+      Object.entries(attributes).map(([key, value]) => [
+        key,
+        typeof value === "string" ? value.trim() : value,
+      ])
+    );
     const hasAnyValue = Object.values(allAttributes).some(
       (v) => v?.toString().trim() !== ""
     );
@@ -128,17 +129,15 @@ export default function EditProductModal({
       (acc, key) => ({ ...acc, [key]: "" }),
       {}
     );
+
     setAttributes(cleared);
   };
 
   const removeVariant = (id) => {
-    console.log("Removing variant at index:", id);
     const updated = variants.filter((v) => v.id !== id);
-    console.log("Removing variant at index:", updated);
     // 🟢 UPDATED: variant বাদ দিলে total stock পুনরায় হিসাব
     const totalStock = updated.reduce((sum, v) => sum + (v.stock || 0), 0);
     setVariants(updated);
-    console.log("Removing variant at index:", updated);
 
     setForm((prev) => ({
       ...prev,
@@ -146,7 +145,6 @@ export default function EditProductModal({
       extras: { ...prev.extras, variants: updated },
     }));
   };
-  console.log("Variants", variants);
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files || []);
     const maxSizeImage = 2 * 1024 * 1024; // 1MB for images
@@ -163,7 +161,6 @@ export default function EditProductModal({
         validFiles.push(file);
       }
     });
-    console.log(validFiles);
 
     if (hasInvalid) {
       Swal.fire({
@@ -319,16 +316,28 @@ export default function EditProductModal({
             "T-Shirts",
             "Shirts",
             "Jeans",
+            "Pants & Trousers",
+            "Shorts",
             "Jackets & Coats",
+            "Hoodies & Sweaters",
             "Dresses",
             "Skirts",
             "Traditional Wear",
+            "Innerwear",
+            "Sportswear",
           ],
           attributes: ["color", "material", "size"],
         },
         {
           name: "Footwear",
-          items: ["Sneakers", "Formal Shoes", "Sandals", "Boots", "Flip-Flops"],
+          items: [
+            "Sneakers",
+            "Formal Shoes",
+            "Baby Shoes",
+            "Sandals",
+            "Boots",
+            "Flip-Flops",
+          ],
           attributes: ["color", "material", "size"],
         },
         {
@@ -348,9 +357,29 @@ export default function EditProductModal({
             "Necklaces",
             "Bracelets",
             "Earrings",
+            "Anklets",
             "Sunglasses / Eyewear",
           ],
           attributes: ["color", "size", "material"],
+        },
+        {
+          name: "Head & Face Accessories",
+          items: [
+            "Caps",
+            "Hats",
+            "Beanies",
+            "Hijab",
+            "Scarves",
+            "Fabric Face Masks",
+            "Buffs",
+            "Face Scarves",
+          ],
+          attributes: ["color", "size", "material", "pattern", "style"],
+        },
+        {
+          name: "Belts & Accessories",
+          items: ["Belts", "Suspenders"],
+          attributes: ["color", "material", "size", "buckle type", "style"],
         },
         {
           name: "Kids Accessories",
@@ -417,12 +446,7 @@ export default function EditProductModal({
         },
         {
           name: "Beauty Gadgets & Accessories",
-          items: [
-            "Hair Straightener",
-            "Hair Dryer",
-            "Facial Massager",
-            "Manicure Set",
-          ],
+          items: ["Grooming Tool"],
           attributes: ["type", "power", "color", "weight", "size"],
         },
       ],
@@ -465,6 +489,7 @@ export default function EditProductModal({
             "Humidifier",
             "Electric Kettle",
             "Smart Lighting",
+            "Home Organizer & Tissue Holder",
           ],
           attributes: ["color", "power", "size", "type", "weight"],
         },
@@ -704,7 +729,9 @@ export default function EditProductModal({
   const variablesType =
     variants.length > 0
       ? [
-          ...new Set(variants.flatMap((v) => Object.keys(v).toLowerCase())),
+          ...new Set(
+            variants?.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase()))
+          ),
         ].filter(
           (k) =>
             k !== "regular_price" &&
@@ -717,7 +744,11 @@ export default function EditProductModal({
     variants.length > 0
       ? (() => {
           const keys = [
-            ...new Set(variants.flatMap((v) => Object.keys(v).toLowerCase())),
+            ...new Set(
+              variants?.flatMap((v) =>
+                Object.keys(v).map((k) => k.toLowerCase())
+              )
+            ),
           ].filter((k) => k !== "id");
 
           const normalKeys = keys.filter((k) => !LAST_KEYS.includes(k));
@@ -881,6 +912,27 @@ export default function EditProductModal({
                 placeholder="Sale Price"
               />
             </div>
+            <div>
+              <InputField
+                type="number"
+                label="Total Stock"
+                className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                defaultValue={form.stock || 0}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    stock: parseInt(e.target.value) || 0,
+                  }))
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                    e.preventDefault(); // keyboard up/down disable
+                  }
+                }}
+                onWheel={(e) => e.target.blur()}
+                placeholder="Total Stock"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -907,29 +959,32 @@ export default function EditProductModal({
               />
             </div>
             {/* Rating */}
-            <div>
-              <InputField
-                type="number"
-                min="0"
-                max="5"
-                step={0.1}
-                label="Rating (0-5)"
-                className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
-                defaultValue={form.rating || 0}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value);
-                  if (value < 0 || value > 5) {
-                    alert("Please enter a value between 0 and 5");
-                    e.target.value = 0;
-                    setForm((s) => ({ ...s, rating: 0 }));
-                  } else {
-                    setForm((s) => ({ ...s, rating: value }));
-                  }
-                }}
-                onWheel={(e) => e.target.blur()}
-                placeholder="Rating"
-              />
-            </div>
+
+            {user?.role !== "seller" && user?.role !== "moderator" && (
+              <div>
+                <InputField
+                  type="number"
+                  min="0"
+                  max="5"
+                  step={0.1}
+                  label="Rating (0-5)"
+                  className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
+                  defaultValue={form.rating || 0}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    if (value < 0 || value > 5) {
+                      alert("Please enter a value between 0 and 5");
+                      e.target.value = 0;
+                      setForm((s) => ({ ...s, rating: 0 }));
+                    } else {
+                      setForm((s) => ({ ...s, rating: value }));
+                    }
+                  }}
+                  onWheel={(e) => e.target.blur()}
+                  placeholder="Rating"
+                />
+              </div>
+            )}
           </div>
 
           {/* Category & Subcategory */}
@@ -1011,29 +1066,27 @@ export default function EditProductModal({
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {user?.role === "seller" ? (
                 <>
-                  {["isHot", "isNew", "isTrending", "isLimitedStock"].map(
-                    (flag) => (
-                      <label
-                        key={flag}
-                        className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-[#FF0055] transition"
-                      >
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                          checked={form[flag]}
-                          onChange={(e) =>
-                            setForm((s) => ({
-                              ...s,
-                              [flag]: e.target.checked,
-                            }))
-                          }
-                        />
-                        <span className="select-none">
-                          {flag.replace(/([A-Z])/g, " $1").trim()}
-                        </span>
-                      </label>
-                    )
-                  )}
+                  {["isHot", "isNew", "isLimitedStock"].map((flag) => (
+                    <label
+                      key={flag}
+                      className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-[#FF0055] transition"
+                    >
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-secondary checkbox-xs rounded-sm"
+                        checked={form[flag]}
+                        onChange={(e) =>
+                          setForm((s) => ({
+                            ...s,
+                            [flag]: e.target.checked,
+                          }))
+                        }
+                      />
+                      <span className="select-none">
+                        {flag.replace(/([A-Z])/g, " $1").trim()}
+                      </span>
+                    </label>
+                  ))}
                 </>
               ) : (
                 <>
@@ -1043,8 +1096,6 @@ export default function EditProductModal({
                     "isNew",
                     "isTrending",
                     "isLimitedStock",
-                    "isExclusive",
-                    "isFlashSale",
                   ].map((flag) => (
                     <label
                       key={flag}
@@ -1165,7 +1216,7 @@ export default function EditProductModal({
                       <InputField
                         label={v.replace("_", " ")}
                         className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
-                        defaultValue={attributes[v] || ""}
+                        value={attributes[v] || ""}
                         onChange={(e) =>
                           handleAttributeChange(v, e.target.value)
                         }
@@ -1177,8 +1228,11 @@ export default function EditProductModal({
                     <InputField
                       label="Regular Price"
                       className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
-                      defaultValue={
-                        attributes.regular_price || form.regular_price || null
+                      value={
+                        attributes.regular_price !== undefined &&
+                        attributes.regular_price !== ""
+                          ? attributes.regular_price
+                          : form.regular_price || ""
                       }
                       onChange={(e) => {
                         const val = e.target.value;
@@ -1197,8 +1251,11 @@ export default function EditProductModal({
                     <InputField
                       label="Sale Price"
                       className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
-                      defaultValue={
-                        attributes.sale_price || form.sale_price || null
+                      value={
+                        attributes.sale_price !== undefined &&
+                        attributes.sale_price !== ""
+                          ? attributes.sale_price
+                          : form.sale_price || ""
                       }
                       onChange={(e) =>
                         handleAttributeChange(
@@ -1219,7 +1276,7 @@ export default function EditProductModal({
                     <InputField
                       label="Stock"
                       className="  w-full border border-gray-300 rounded-lg px-3 py-3 focus:border-[#FF0055] focus:ring-2 focus:ring-[#FF0055] focus:outline-none shadow-sm bg-white"
-                      defaultValue={attributes.stock || null}
+                      value={attributes.stock || ""}
                       onChange={(e) =>
                         handleAttributeChange("stock", parseInt(e.target.value))
                       }
@@ -1260,73 +1317,6 @@ export default function EditProductModal({
                       </tr>
                     </thead>
                     <tbody>
-                      {/* {variants.map((variant, index) => (
-                        <tr key={variant.id}>
-                          {tableHeaders
-                            .filter((key) => key !== "id")
-                            .map((key) => (
-                              <td key={key}>
-                                <input
-                                  type={
-                                    [
-                                      "stock",
-                                      "regular_price",
-                                      "sale_price",
-                                    ].includes(key)
-                                      ? "number"
-                                      : "text"
-                                  }
-                                  defaultValue={variant[key] || 0}
-                                  className="w-full border bg-white border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-[#FF0055] focus:ring-1 focus:ring-[#FF0055] focus:outline-none shadow min-w-[90px]"
-                                  onChange={(e) => {
-                                    const value = [
-                                      "stock",
-                                      "regular_price",
-                                      "sale_price",
-                                    ].includes(key)
-                                      ? parseInt(e.target.value) || 0
-                                      : e.target.value;
-                                    const updatedVariants = [...variants];
-                                    updatedVariants[index][key] = value;
-                                    // 🟢 UPDATED: stock পরিবর্তন হলে total পুনরায় হিসাব
-                                    const totalStock = updatedVariants.reduce(
-                                      (sum, v) => sum + (v.stock || 0),
-                                      0
-                                    );
-                                    setVariants(updatedVariants);
-                                    setForm((prev) => ({
-                                      ...prev,
-                                      stock: totalStock,
-                                      extras: {
-                                        ...prev.extras,
-                                        variants: updatedVariants,
-                                      },
-                                    }));
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (
-                                      e.key === "ArrowUp" ||
-                                      e.key === "ArrowDown"
-                                    ) {
-                                      e.preventDefault(); // keyboard up/down disable
-                                    }
-                                  }}
-                                  onWheel={(e) => e.target.blur()}
-                                />
-                              </td>
-                            ))}
-                          <td>
-                            <div className="flex items-center justify-center">
-                              <button
-                                onClick={() => removeVariant(variant.id)}
-                                className=" bg-red-100 hover:bg-[#e92323] text-red-600 rounded  px-3 py-2  hover:text-white cursor-pointer"
-                              >
-                                <Trash2 size={20} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))} */}
                       {variants.map((variant) => (
                         <tr key={variant.id}>
                           {tableHeaders

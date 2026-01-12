@@ -20,13 +20,20 @@ function AddPromotionModal({ onClose, refetch }) {
     reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const onSubmit = async (data) => {
     try {
       const payload = {
         ...data,
-        start_date: startDate,
-        end_date: endDate,
+
+        start_date: formatDate(startDate),
+        end_date: formatDate(endDate),
       };
 
       const res = await axiosPublic.post("/promotions", payload);

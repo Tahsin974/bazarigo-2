@@ -83,7 +83,6 @@ function CustomersView({
         refetch();
       }
     } catch (error) {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: error.message,
@@ -94,6 +93,8 @@ function CustomersView({
       });
     }
   };
+
+  console.log(customers);
 
   return (
     <div>

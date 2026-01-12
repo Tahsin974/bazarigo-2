@@ -5,9 +5,12 @@ import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import { InputField } from "../../components/ui/InputField";
 import { useForm } from "react-hook-form";
+import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 export default function PasswordResetPanel({ onNavigate = () => {} }) {
   const [loading, setLoading] = useState(false);
+  const axiosPublic = useAxiosPublic();
 
   const {
     register,
@@ -17,12 +20,30 @@ export default function PasswordResetPanel({ onNavigate = () => {} }) {
   } = useForm({
     mode: "onChange",
   });
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    const { email } = data;
 
     setLoading(true);
     try {
-      //
+      await axiosPublic.post("/forgot-password", { email });
+      Swal.fire({
+        icon: "info",
+        title: "Reset Link sent to your email!",
+        toast: true,
+        position: "top",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.response?.data?.message || "Something went wrong.",
+        toast: true,
+        position: "top",
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } finally {
       setLoading(false);
     }
@@ -73,7 +94,7 @@ export default function PasswordResetPanel({ onNavigate = () => {} }) {
                   type="submit"
                   disabled={loading}
                   onClick={() => onNavigate("new-password")}
-                  className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  transition-colors flex justify-center"
+                  className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  transition-colors flex justify-center disabled:bg-gray-300 disabled:text-gray-500"
                 >
                   {loading ? "Processing..." : "Send Reset Link"}
                 </Button>

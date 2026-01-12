@@ -2,7 +2,8 @@ import { X } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function PreviewModal({ product, onClose }) {
-  const variants = product.extras?.variants.map(({ id, ...rest }) => rest);
+  const variants =
+    product?.extras?.variants?.map(({ id, ...rest }) => rest) || [];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <motion.div

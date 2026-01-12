@@ -29,6 +29,12 @@ export default function SellerRegistrationForm({
   const [mainProductCategory, setMainProductCategory] = useState("");
   const [mobileBankName, setMobileBankName] = useState("");
   const [isAcceptTerms, setIsAcceptTerms] = useState(false);
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -44,7 +50,7 @@ export default function SellerRegistrationForm({
       if (nidBackImg) formData.append("nidBackImg", nidBackImg);
 
       // Other custom fields
-      if (date) formData.append("date_of_birth", new Date(date).toISOString());
+      if (date) formData.append("date_of_birth", formatDate(date));
       if (gender) formData.append("gender", gender);
       if (mainProductCategory)
         formData.append("product_category", mainProductCategory);

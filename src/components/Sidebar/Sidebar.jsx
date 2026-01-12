@@ -17,38 +17,7 @@ export default function Sidebar({ active, setActive, items = [], handleMenu }) {
             <X />
           </button>
         </div>
-        {/* <nav className="p-4 space-y-1">
-          {items.map((item) => (
-            <button
-              key={item}
-              onClick={() => setActive(item)}
-              className={`w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 flex items-center justify-between ${
-                active === item
-                  ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
-                  : "text-gray-700"
-              }`}
-            >
-              <span className="font-medium">{item}</span>
-              <span
-                className={`text-xs text-gray-400 ${
-                  active === item ? "text-white" : "text-gray-400"
-                }`}
-              >
-                {getCount(item, {
-                  products,
-                  orders,
-                  customers,
-                  sellers,
-                  payments,
-                  promotions,
-                  notifications,
-                  cart,
-                  wishlist,
-                })}
-              </span>
-            </button>
-          ))}
-        </nav> */}
+
         <nav className="p-4 space-y-1">
           {items.map(({ label, icon }) => (
             <button

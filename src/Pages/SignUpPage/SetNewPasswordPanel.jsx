@@ -2,13 +2,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Lock, CheckCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { InputField } from "../../components/ui/InputField";
+import { useNavigate, useSearchParams } from "react-router";
+import useAxiosPublic from "../../Utils/Hooks/useAxiosPublic";
 
 export default function SetNewPasswordPanel({ onNavigate = () => {} }) {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("id");
   const [loading, setLoading] = useState(false);
-
+  const axiosPublic = useAxiosPublic();
+  const navigate = useNavigate();
   const [success, setSuccess] = useState(false);
   const {
     register,
@@ -20,11 +25,17 @@ export default function SetNewPasswordPanel({ onNavigate = () => {} }) {
     mode: "onChange",
   });
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    const { password } = data;
 
     setLoading(true);
     try {
+      const res = await axiosPublic.post(`/reset-password/${token}`, {
+        password: password,
+      });
+      if (res.data.updatedCount > 0) {
+        navigate("/sign-up");
+      }
       reset();
       setSuccess(true);
     } finally {
@@ -97,8 +108,8 @@ export default function SetNewPasswordPanel({ onNavigate = () => {} }) {
 
                   <Button
                     type="submit"
-                    disabled={loading}
-                    className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  transition-colors flex justify-center"
+                    disabled={loading || !isValid}
+                    className="w-full bg-[#00C853] hover:bg-[#00B34A] text-white font-semibold py-3 rounded-lg shadow-lg  transition-colors flex justify-center disabled:bg-gray-300 disabled:text-gray-500"
                   >
                     {loading ? "Processing..." : "Reset Password"}
                   </Button>

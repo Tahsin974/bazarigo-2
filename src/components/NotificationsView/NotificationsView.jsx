@@ -1,13 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useNotifications from "../../Utils/Hooks/useNotifications";
+import { useMutation } from "@tanstack/react-query";
+import useAxiosSecure from "../../Utils/Hooks/useAxiosSecure";
 
 export default function NotificationsView({ activeTab }) {
-  const { notifications } = useNotifications();
+  const { notifications, refetchNotifications } = useNotifications();
+  const axiosSecure = useAxiosSecure();
   const [filter, setFilter] = useState("All");
   const filteredNotifications =
     filter === "Unread"
       ? notifications?.filter((n) => !n.is_read) // assuming `read` boolean
       : notifications;
+  const markAsReadMutation = useMutation({
+    mutationFn: (id) =>
+      axiosSecure.patch(
+        `/notifications/${id}/read`,
+        {},
+        { withCredentials: true }
+      ),
+    onSuccess: () => refetchNotifications(),
+  });
+
+  // 🔹 tab open হলেই unread গুলো read করে দেবে
+  useEffect(() => {
+    if (activeTab === "Notifications" && notifications?.length) {
+      const unread = notifications.filter((n) => !n.is_read);
+
+      unread.forEach((n) => {
+        markAsReadMutation.mutate(n.id);
+      });
+    }
+  }, [activeTab, notifications]);
 
   return (
     <div>

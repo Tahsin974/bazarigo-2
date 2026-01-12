@@ -44,6 +44,16 @@ export default function SellerPanelDashboard() {
   const [selected, setSelected] = useState([]);
   const location = useLocation();
   const { user } = useAuth();
+  const sessionKey = `activeMenu_${user?.id}`;
+  const [active, setActive] = useState(() => {
+    if (location?.state) {
+      return location.state;
+    }
+    if (window.location.pathname.includes("/dashboard")) {
+      return sessionStorage.getItem(sessionKey) || "Dashboard";
+    }
+    return "Dashboard";
+  });
   const axiosPublic = useAxiosPublic();
   const { bazarigo } = useSuperAdmin();
   const navItems = [
@@ -102,7 +112,6 @@ export default function SellerPanelDashboard() {
   const { myMessages } = useMessages();
 
   // --- Navigation + global data ---
-  const [active, setActive] = useState(location?.state || "Dashboard");
 
   // Core data
 
@@ -117,7 +126,7 @@ export default function SellerPanelDashboard() {
 
   // Product UI state
 
-  const currentPageSize = 6;
+  const currentPageSize = 10;
 
   // Products filters/pagination
   const [productSearch, setProductSearch] = useState("");
@@ -454,6 +463,11 @@ export default function SellerPanelDashboard() {
       });
     }
   };
+  useEffect(() => {
+    if (window.location.pathname.includes("/dashboard")) {
+      sessionStorage.setItem(sessionKey, active);
+    }
+  }, [active, sessionKey]);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
@@ -597,7 +611,7 @@ export default function SellerPanelDashboard() {
                   setInventorySort={setInventorySort}
                   inventoryPage={inventoryPage}
                   setInventoryPage={setInventoryPage}
-                  inventoryPageSize={currentPageSize}
+                  inventoryPageSize={6}
                   filteredInventory={filteredInventory}
                   paginatedInventory={paginatedInventory}
                 />
@@ -646,8 +660,8 @@ export default function SellerPanelDashboard() {
       {productModalOpen && (
         <ProductModal
           user={user}
-          product={activeProduct}
           onClose={() => setProductModalOpen(false)}
+          refetch={refetchProducts}
         />
       )}
 

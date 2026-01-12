@@ -41,7 +41,6 @@ export default function SendMessage({
     enabled: isMessageOpen,
     refetchInterval: 2000, // প্রতি ২ সেকেন্ডে refresh
   });
-  console.log(user);
 
   // ------------------------
   // Send message

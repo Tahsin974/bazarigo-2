@@ -367,7 +367,7 @@ export default function CheckOutPage() {
                               </li>
                               <li>
                                 আমাদের রকেট নম্বর লিখুন:
-                                <strong>01797-454118</strong>।
+                                <strong>01741-899559</strong>।
                               </li>
                               <li>
                                 টাকার পরিমাণ লিখুন (স্ক্রিনে প্রদর্শিত পরিমাণ
@@ -407,7 +407,7 @@ export default function CheckOutPage() {
                               </li>
                               <li>
                                 আমাদের নগদ নম্বর লিখুন:
-                                <strong>01797-454118</strong>।
+                                <strong>01741-899559</strong>।
                               </li>
                               <li>মোট টাকার পরিমাণ লিখুন।</li>
                               <li>“Reference” ঘরে আপনার অর্ডার নম্বর লিখুন।</li>
@@ -426,17 +426,7 @@ export default function CheckOutPage() {
                       </Card>
                     )}
                   </div>
-                  {/* <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                      onChange={(e) => {
-                        setIsCashOnDelivery(e.target.checked);
-                      }}
-                      disabled={provider !== ""}
-                    />
-                    Cash On Delivery
-                  </label> */}
+
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -485,7 +475,7 @@ export default function CheckOutPage() {
               </Card>
 
               <div className="grid grid-cols-1 gap-5 lg:col-span-2">
-                {checkoutItems.map((checkoutItem) => (
+                {checkoutItems?.map((checkoutItem) => (
                   <div
                     key={checkoutItem.cartid}
                     className="py-5  bg-white rounded-2xl space-y-4"
@@ -553,13 +543,13 @@ export default function CheckOutPage() {
                           <motion.div
                             key={item.product_Id}
                             whileHover={{ scale: 1.01 }}
-                            className="bg-white shadow-md rounded-2xl p-6 flex items-center justify-between "
+                            className="bg-white shadow-md rounded-2xl md:p-6 p-4 flex md:items-center items-end justify-between "
                           >
-                            <div className="flex items-center gap-6">
+                            <div className="flex md:flex-row flex-col items-center  gap-6">
                               <img
                                 src={`${baseUrl}${item.product_img}`}
                                 alt={item.product_name}
-                                className="w-20 h-20 rounded-xl object-cover"
+                                className="w-20 h-20 rounded-xl object-cover "
                               />
                               <div>
                                 <h3 className="font-semibold text-gray-800 ">
@@ -606,6 +596,7 @@ export default function CheckOutPage() {
                                             "regular_price",
                                             "sale_price",
                                             "stock",
+                                            "id",
                                           ].includes(key)
                                       )
                                       .map(([variant, value], index, array) => (
