@@ -1,13 +1,9 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import {
-  ShoppingBag,
   Laptop,
   Shirt,
   Home,
-  Gem,
-  Volleyball,
-  PawPrint,
   Activity,
   Heart,
   ShoppingCart,
@@ -16,45 +12,6 @@ import SectionTitle from "../../../components/SectionTitle/SectionTitle";
 import { HashLink } from "react-router-hash-link";
 
 export default function CategoriesSection() {
-  // const categories = [
-  //   {
-  //     name: "Electronics",
-  //     link: "Electronics",
-  //     icon: <Laptop size={32} className="text-[#007BFF]" />,
-  //     bg: "#E5F5FF",
-  //   },
-  //   {
-  //     name: "Fashions",
-  //     link: "Fashion",
-  //     icon: <Shirt size={32} className="text-[#FF0055]" />,
-  //     bg: "#FFE5E5",
-  //   },
-  //   {
-  //     name: "Groceries",
-  //     link: "Grocery & Food Items",
-  //     icon: <ShoppingBag size={32} className="text-[#F39C12]" />,
-  //     bg: "#FFFBE5",
-  //   },
-  //   {
-  //     name: "Health & Beauty",
-  //     link: "Health & Beauty",
-  //     icon: <Gem size={32} className="text-[#00C48C]" />,
-  //     bg: "#E5FFF2",
-  //   },
-  //   {
-  //     name: "Home & Living",
-  //     link: "Furniture & Home Decor",
-  //     icon: <Home size={32} className="text-[#00C4B8]" />,
-  //     bg: "#E5FFFF",
-  //   },
-  //   {
-  //     name: "Sports",
-  //     link: "Sports & Outdoors",
-  //     icon: <Volleyball size={32} className="text-[#9B59B6]" />,
-  //     bg: "#F5E5FF",
-  //   },
-  // ];
-
   const categories = [
     {
       name: "Electronics",

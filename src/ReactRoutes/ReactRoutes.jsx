@@ -23,7 +23,7 @@ import SellerRegistrationPage from "../Pages/SellerRegistration/SellerRegistrati
 import SellerTermsConditionsPage from "../Pages/SellerTermsConditionsPage/SellerTermsConditionsPage";
 import SellerShopPage from "../Pages/SellerShopPage/SellerShopPage";
 import InstructionPage from "../Pages/InstructionPage/InstructionPage";
-import DataDeletionPage from "../Pages/DataDeletionPage/DataDeletionPage";
+
 import CheckOutPage from "../Pages/CheckOutPage/CheckOutPage";
 import VerifyOtp from "../Pages/SignUpPage/VerifyOtp";
 import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
@@ -170,10 +170,6 @@ export const router = createBrowserRouter([
       {
         path: "/return-refund",
         element: <ReturnRefundPolicyPage />,
-      },
-      {
-        path: "/data-deletion",
-        element: <DataDeletionPage />,
       },
       {
         path: "/instruction",

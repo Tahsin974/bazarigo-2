@@ -22,7 +22,7 @@ export default function ProductCard({ item, fromFlashSale = false }) {
         to={`/product/${btoa(item.id)}#`}
         state={fromFlashSale ? { fromFlashSale: true } : {}}
       >
-        <Card className="rounded-2xl shadow-lg bg-white overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full ">
+        <Card className="rounded-2xl md:shadow shadow-md  bg-white overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300 flex flex-col h-full ">
           <div className="relative">
             {item.images && item.images[0] ? (
               <figure className=" aspect-[1/1] ">

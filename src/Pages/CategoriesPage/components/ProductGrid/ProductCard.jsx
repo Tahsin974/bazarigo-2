@@ -20,7 +20,7 @@ export default function ProductCard({ product: item, viewMode }) {
   return (
     <HashLink to={`/product/${btoa(item.id)}#`}>
       <Card
-        className={`rounded-2xl shadow hover:shadow-lg transition h-full bg-white ${
+        className={`rounded-2xl md:shadow shadow-md hover:shadow-lg transition h-full bg-white ${
           viewMode === "list" ? "flex items-center" : ""
         }`}
       >

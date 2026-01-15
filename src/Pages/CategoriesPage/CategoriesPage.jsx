@@ -708,7 +708,7 @@ export default function CategoriesPage() {
           </motion.p>
         </div>
       </section>
-      <div className="w-full bg-gray-50 text-gray-800 min-h-screen md:py-10 py-6">
+      <div className="w-full bg-gray-100 text-gray-800 min-h-screen md:py-10 py-6">
         <div className="container mx-auto xl:px-6 lg:px-6  px-4 ">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}

@@ -51,7 +51,7 @@ export default function DesktopIcons() {
         <>
           <HashLink
             title="Home"
-            to="/#"
+            to="/"
             aria-label="Shopping Cart"
             className="text-gray-800 cursor-pointer hover:text-[#FF0055] transition-colors"
           >
