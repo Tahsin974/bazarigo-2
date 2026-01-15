@@ -8,9 +8,9 @@ export default function CustomerDetailsSection({
   address,
 }) {
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+    <div className="bg-white sm:p-6 p-4 rounded-2xl shadow-lg border border-gray-200">
       <h3
-        className="text-xl font-bold text-gray-800 mb-4 flex items-center"
+        className="text-xl font-bold text-gray-800 mb-4 flex items-center justify-center sm:justify-start"
         style={{ color: PRIMARY_COLOR }}
       >
         <User size={20} className="mr-2" /> Customer Details

@@ -118,163 +118,164 @@ export default function Orders({ orders, activeTab, refetch }) {
 
                           <div className="grid grid-cols-1 gap-4  px-5">
                             {item.productinfo.map((item) => (
-                              <div className="flex flex-col gap-5">
-                                <div
-                                  key={item.product_Id}
-                                  whileHover={{ scale: 1.01 }}
-                                  className="bg-white shadow-md rounded-2xl p-6 flex items-center justify-between relative"
-                                >
-                                  <span
-                                    className={`px-3 py-1 text-xs rounded-full absolute top-2 right-2 ${
-                                      item.order_status === "Delivered"
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-blue-100 text-blue-700"
-                                    }`}
-                                  >
-                                    {item.order_status}
-                                  </span>
+                              <>
+                                <div className="flex flex-col gap-6">
+                                  {/* Product Card */}
 
-                                  <div className="flex items-center gap-6">
-                                    <img
-                                      src={`${baseUrl}${item.product_img}`}
-                                      alt={item.product_name}
-                                      className="w-20 h-20 rounded-xl object-cover"
-                                    />
-                                    <div>
-                                      <h3 className="font-semibold text-gray-800 max-w-96">
-                                        {item.product_name}
-                                      </h3>
-                                      <div className="flex items-center gap-2">
-                                        <p className="text-[#FF0055] font-bold">
-                                          {item.sale_price > 1 ? (
-                                            <>
-                                              ৳
-                                              {item.sale_price.toLocaleString(
-                                                "en-IN"
-                                              )}
-                                            </>
-                                          ) : (
-                                            <>
+                                  <div
+                                    key={item.product_Id}
+                                    className="bg-white rounded-2xl border border-gray-100 shadow-sm
+             p-4 sm:p-5 lg:p-6
+             flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6
+             overflow-hidden"
+                                  >
+                                    {/* Left: Image + Info */}
+                                    <div className="flex flex-col sm:flex-row gap-4 flex-1 min-w-0">
+                                      {/* Image (fixed box) */}
+                                      <figure className=" shrink-0 aspect-[1/1] sm:aspect-none ">
+                                        <img
+                                          src={`${baseUrl}${item.product_img}`}
+                                          alt={item.product_name}
+                                          className="w-full h-full sm:w-20 sm:h-20 rounded-xl object-cover border"
+                                        />
+                                      </figure>
+
+                                      {/* Content */}
+                                      <div className="flex flex-col gap-1.5 min-w-0">
+                                        {/* Title */}
+                                        <h3 className="font-semibold text-gray-800  text-sm sm:text-base leading-snug break-words">
+                                          {item.product_name}
+                                        </h3>
+
+                                        {/* Price */}
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <span className="text-[#FF0055] font-bold text-sm sm:text-base">
+                                            ৳
+                                            {(item.sale_price > 1
+                                              ? item.sale_price
+                                              : item.regular_price
+                                            ).toLocaleString("en-IN")}
+                                          </span>
+
+                                          {item.sale_price > 1 && (
+                                            <span className="text-xs sm:text-sm text-gray-400 line-through">
                                               ৳
                                               {item.regular_price.toLocaleString(
                                                 "en-IN"
                                               )}
-                                            </>
+                                            </span>
                                           )}
-                                        </p>
-                                        {item.sale_price > 1 && (
-                                          <span className="text-gray-400 line-through ">
-                                            ৳
-                                            {item.regular_price.toLocaleString(
-                                              "en-IN"
-                                            )}
+                                        </div>
+
+                                        {/* Meta */}
+                                        <div className="text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-0.5 break-words">
+                                          <span>
+                                            Brand: {item?.brand || "No Brand"}
                                           </span>
-                                        )}
-                                      </div>
 
-                                      <div className="flex flex-col gap-1.5">
-                                        <p className="text-xs text-gray-500">
-                                          Brand: {item?.brand || "No Brand"}
-                                        </p>
-
-                                        <div className="flex gap-1.5">
-                                          {Object.entries(item.variants)
+                                          {Object.entries(item.variants || {})
                                             .filter(
                                               ([key]) =>
                                                 ![
                                                   "regular_price",
                                                   "sale_price",
                                                   "stock",
+                                                  "id",
                                                 ].includes(key)
                                             )
-                                            .map(
-                                              (
-                                                [variant, value],
-                                                index,
-                                                array
-                                              ) => (
-                                                <p
-                                                  className="text-xs text-gray-500"
-                                                  key={variant}
-                                                >
-                                                  {variant}: {value}
-                                                  {index < array.length - 1 &&
-                                                    ","}
-                                                </p>
-                                              )
-                                            )}
+                                            .map(([variant, value]) => (
+                                              <span key={variant}>
+                                                {variant}: {value}
+                                              </span>
+                                            ))}
                                         </div>
                                       </div>
                                     </div>
+
+                                    {/* Right: Qty */}
+                                    <div className="text-xs sm:text-sm text-gray-500 lg:text-right shrink-0">
+                                      Qty:
+                                      <span className="ml-1 font-medium text-gray-700">
+                                        {item.qty}
+                                      </span>
+                                    </div>
                                   </div>
 
-                                  <div className="text-xs text-gray-500 ms-auto">
-                                    Qty: {item.qty}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="flex items-center justify-between mb-2 ">
-                                    {steps.map((step, idx) => {
-                                      const done =
-                                        idx < getStepIndex(item.order_status);
-                                      return (
-                                        <div key={idx} className="text-center">
+                                  {/* Order Status */}
+                                  <div className="bg-gray-50 rounded-xl p-4 sm:p-5 border">
+                                    {/* Steps */}
+                                    <div className="flex justify-between mb-3">
+                                      {steps.map((step, idx) => {
+                                        const done =
+                                          idx <=
+                                          getStepIndex(item.order_status);
+                                        return (
                                           <div
-                                            className={`${
-                                              done
-                                                ? "bg-[#22C55E] text-white"
-                                                : "bg-gray-200 text-gray-500"
-                                            } w-8 h-8 mx-auto rounded-full flex items-center justify-center`}
+                                            key={idx}
+                                            className="flex-1 text-center"
                                           >
-                                            {idx + 1}
+                                            <div
+                                              className={`mx-auto w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-medium ${
+                                                done
+                                                  ? "bg-green-500 text-white"
+                                                  : "bg-gray-200 text-gray-500"
+                                              }`}
+                                            >
+                                              {idx + 1}
+                                            </div>
+                                            <p
+                                              className={`mt-1 text-[9px] sm:text-xs ${
+                                                done
+                                                  ? "text-green-600"
+                                                  : "text-gray-400"
+                                              }`}
+                                            >
+                                              {step}
+                                            </p>
                                           </div>
-                                          <p
-                                            className={`${
-                                              done
-                                                ? "text-[#22C55E] font-medium"
-                                                : "text-gray-400"
-                                            } sm:text-xs text-[8px] mt-1`}
-                                          >
-                                            {step}
-                                          </p>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                  <div className="relative w-full h-1 bg-gray-200 rounded-full">
-                                    <div
-                                      className="absolute top-0 left-0 h-1  rounded-full bg-[#22C55E]"
-                                      style={{
-                                        width: `${
-                                          (getStepIndex(item.order_status) /
-                                            steps.length) *
-                                          100
-                                        }%`,
-                                      }}
-                                    />
-                                  </div>
-                                  <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                                    <Truck size={16} />
-                                    {order.status === "Delivered" ? (
-                                      <span>Order successfully delivered!</span>
-                                    ) : (
-                                      <span>
-                                        Current Status: {item.order_status}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="flex justify-end mt-3">
-                                    {item.order_status === "Shipped" ||
-                                    item.order_status === "Out for Delivery" ||
-                                    item.order_status === "Delivered" ? (
+                                        );
+                                      })}
+                                    </div>
+
+                                    {/* Progress bar */}
+                                    <div className="relative h-1 bg-gray-200 rounded-full overflow-hidden">
+                                      <div
+                                        className="absolute left-0 top-0 h-full bg-green-500"
+                                        style={{
+                                          width: `${
+                                            (getStepIndex(item.order_status) /
+                                              (steps.length - 1)) *
+                                            100
+                                          }%`,
+                                        }}
+                                      />
+                                    </div>
+
+                                    {/* Status Text */}
+                                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mt-3">
+                                      <Truck size={14} />
+                                      {item.order_status === "Delivered" ? (
+                                        <span className="text-green-600 font-medium">
+                                          Order successfully delivered
+                                        </span>
+                                      ) : (
+                                        <span>
+                                          Current status:{" "}
+                                          <span className="font-medium">
+                                            {item.order_status}
+                                          </span>
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Action */}
+                                    <div className="flex sm:justify-end justify-center mt-4">
                                       <button
-                                        className="bg-gray-300 text-gray-500 flex items-center gap-2 px-3 py-2 rounded  border-none shadow-none "
-                                        disabled="disabled"
-                                      >
-                                        Cancel Order
-                                      </button>
-                                    ) : (
-                                      <button
+                                        disabled={[
+                                          "Shipped",
+                                          "Out for Delivery",
+                                          "Delivered",
+                                        ].includes(item.order_status)}
                                         onClick={() =>
                                           handleCancelOrder(
                                             "Cancelled",
@@ -282,14 +283,14 @@ export default function Orders({ orders, activeTab, refetch }) {
                                             order.order_id
                                           )
                                         }
-                                        className="px-3 py-2 rounded-md bg-[#f72c2c] hover:bg-[#e92323] text-white flex items-center gap-2  border-none shadow-none sm:text-base text-[14px] cursor-pointer"
+                                        className="px-4 py-2 text-sm rounded-md bg-red-500 hover:bg-red-600 text-white transition disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
                                       >
                                         Cancel Order
                                       </button>
-                                    )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
+                              </>
                             ))}
                           </div>
                         </div>

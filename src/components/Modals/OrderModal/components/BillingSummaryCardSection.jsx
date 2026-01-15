@@ -8,7 +8,7 @@ export default function BillingSummaryCardSection({
 }) {
   return (
     <div
-      className="bg-white rounded-2xl shadow-xl border overflow-x-auto space-y-4 p-6"
+      className="bg-white rounded-2xl shadow-xl border overflow-x-auto space-y-4 sm:p-6 p-4"
       style={{ borderColor: PRIMARY_COLOR }}
     >
       <h3

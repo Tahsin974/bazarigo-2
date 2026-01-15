@@ -144,13 +144,18 @@ function PromotionsView({
             {paginatedPromotions.map((p) => (
               <div
                 key={p.id}
-                className="flex flex-col xl:flex-row lg:flex-row md:flex-row items-center justify-between border-b py-2 gap-4"
+                className="flex flex-row items-center justify-between border-b py-2 gap-4 "
               >
                 <div>
-                  <div>
-                    <span className="font-medium"> {p.code}</span>{" "}
-                    <span className="text-xs text-gray-500">{p.discount}</span>
+                  <div className="flex flex-col my-1">
+                    <span className="font-semibold text-gray-900">
+                      {p.code}
+                    </span>
+                    <span className="text-xs text-green-600">
+                      Save ৳{p.discount}
+                    </span>
                   </div>
+
                   <div className="text-xs text-gray-500">
                     {FormattedDate(p.start_date) || "-"} →{" "}
                     {FormattedDate(p.end_date) || "-"}
@@ -159,14 +164,15 @@ function PromotionsView({
                 <div className="flex gap-2 items-center">
                   <button
                     onClick={() => toggleActive(p)}
-                    className={`px-2 py-1 rounded ${
+                    className={`px-2 py-1 transition rounded ${
                       !p.is_active
                         ? "bg-[#00C853] hover:bg-[#00B34A] text-white"
                         : "text-white bg-[#f72c2c] hover:bg-[#e92323]"
                     }`}
                   >
-                    {!p.is_active ? "Active" : "Inactive"}
+                    {!p.is_active ? "Activate" : "Deactivate"}
                   </button>
+
                   {user.role !== "moderator" && (
                     <button
                       onClick={() => removePromo(p.id)}

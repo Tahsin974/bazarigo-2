@@ -83,7 +83,10 @@ function PaymentsView({
               <thead className="bg-gray-50">
                 <tr className="text-black">
                   <th>SL No. </th>
+                  <th>Order ID </th>
+
                   <th>Date</th>
+
                   <th>Amount</th>
                   <th>Method</th>
                   <th>Number</th>
@@ -97,6 +100,10 @@ function PaymentsView({
                       <span className="font-semibold">
                         {(paymentPage - 1) * paymentPageSize + index + 1}
                       </span>
+                    </td>
+
+                    <td>
+                      <span className="font-semibold">{p.order_id}</span>
                     </td>
                     <td>
                       <span className="font-semibold">

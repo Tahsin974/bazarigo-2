@@ -103,7 +103,7 @@ export default function ProductItemsSection({
       style={{ borderColor: PRIMARY_COLOR }}
     >
       <h3
-        className="text-xl font-bold p-6 text-gray-800 flex items-center border-b border-gray-200"
+        className="text-xl font-bold p-6 text-gray-800 flex items-center border-b border-gray-200 justify-center sm:justify-start"
         style={{ color: PRIMARY_COLOR }}
       >
         <DollarSign size={20} className="mr-2" /> Product Details
@@ -127,8 +127,12 @@ export default function ProductItemsSection({
           <tbody>
             {productsWithDelivery.map((prod, index) => (
               <tr key={index} className="border-t">
-                <td>{prod.product_name} </td>
-                <td>{prod?.brand || "No Brand"}</td>
+                <td>
+                  <span className="font-semibold break-words">
+                    {prod.product_name}
+                  </span>
+                </td>
+                <td> {prod?.brand || "No Brand"}</td>
                 <td>{prod.qty}</td>
                 <td>{getEstimatedDelivery(date, prod.delivery_time)}</td>
                 <td>

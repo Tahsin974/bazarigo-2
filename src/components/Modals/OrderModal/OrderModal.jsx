@@ -322,7 +322,7 @@ export default function OrderModal({
           {/* Print Button */}
           <button
             onClick={handlePrint}
-            className="px-6 py-3 font-semibold rounded-full shadow-md transition-all transform hover:scale-[1.03] text-gray-700 flex items-center gap-2 border border-gray-300 hover:bg-gray-100 bg-white"
+            className="sm:px-6 sm:py-3 px-3 py-2 font-semibold rounded-full shadow-md transition-all transform hover:scale-[1.03] text-gray-700 flex items-center gap-2 border border-gray-300 hover:bg-gray-100 bg-white"
           >
             <Printer size={20} />
             Print Invoice
@@ -331,7 +331,7 @@ export default function OrderModal({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="px-8 py-3 font-semibold rounded-full shadow-lg transition-all transform hover:scale-[1.03] text-white"
+            className="sm:px-6 sm:py-3 px-3 py-2 font-semibold rounded-full shadow-lg transition-all transform hover:scale-[1.03] text-white"
             style={{ backgroundColor: PRIMARY_COLOR }}
           >
             Close

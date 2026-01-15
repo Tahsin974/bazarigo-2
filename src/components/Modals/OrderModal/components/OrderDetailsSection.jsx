@@ -39,33 +39,39 @@ export default function OrderDetailsSection({
     );
   };
   return (
-    <div c>
-      <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+    <div>
+      <div className="bg-white sm:p-6 p-4 rounded-2xl shadow-lg border border-gray-200">
         <h3
-          className="text-xl font-bold text-gray-800 mb-4 flex items-center"
+          className="text-xl font-bold text-gray-800 mb-4 flex items-center justify-center sm:justify-start"
           style={{ color: PRIMARY_COLOR }}
         >
           <Hash size={20} className="mr-2" /> Order Information
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="flex flex-col gap-1">
-            <h3 className="text-gray-500">Order ID</h3>
-            <span className="font-bold text-gray-800 text-base">{id}</span>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4  text-sm ">
+          <div className="flex flex-row items-center justify-between md:flex-col gap-1">
+            <h3 className="text-gray-500 text-sm sm:text-base">Order ID</h3>
+            <span className="font-bold text-gray-800 text-sm sm:text-base">
+              {id}
+            </span>
           </div>
-          <div className="flex flex-col gap-1">
-            <h3 className="text-gray-500">Date</h3>
-            <span className="font-semibold text-gray-800 text-base">
+          <div className="flex flex-row items-center justify-between md:flex-col gap-1">
+            <h3 className="text-gray-500 text-sm sm:text-base">Date</h3>
+            <span className="font-semibold text-gray-800 text-sm sm:text-base">
               {formatted}
             </span>
           </div>
-          <div className="flex flex-col gap-1">
-            <h3 className="text-gray-500">Payment Method</h3>
-            <span className="font-semibold text-gray-800 text-base">
+          <div className="flex flex-row items-center justify-between md:flex-col gap-1">
+            <h3 className="text-gray-500 text-sm sm:text-base">
+              Payment Method
+            </h3>
+            <span className="font-semibold text-gray-800 text-sm sm:text-base">
               {paymentMethod}
             </span>
           </div>
-          <div className="flex flex-col gap-1">
-            <h3 className="text-gray-500">Payment Status</h3>
+          <div className="flex flex-row items-center justify-between md:flex-col gap-1">
+            <h3 className="text-gray-500 text-sm sm:text-base">
+              Payment Status
+            </h3>
             {renderStatusBadge(payment_status)}
           </div>
         </div>
