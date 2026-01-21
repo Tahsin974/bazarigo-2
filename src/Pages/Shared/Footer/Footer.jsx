@@ -169,7 +169,7 @@ export default function Footer() {
         </div>
         <hr className="my-8 border-gray-700" />
         <div className="text-center text-gray-500 text-sm">
-          &copy; {new Date().getFullYear()} Bazarigo. All Rights Reserved.
+          &copy; 2025 Bazarigo. All Rights Reserved.
         </div>
       </div>
     </footer>

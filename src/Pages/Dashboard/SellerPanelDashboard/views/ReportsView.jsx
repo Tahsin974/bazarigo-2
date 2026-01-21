@@ -46,7 +46,7 @@ export default function ReportsView({ active }) {
         ? new Date(endDate).toISOString().split("T")[0]
         : "";
       const res = await axiosSecure.get(
-        `/seller-reports/${user.id}?interval=${interval}&startDate=${formattedStart}&endDate=${formattedEnd}&status=${reportFilter}`
+        `/seller-reports/${user.id}?interval=${interval}&startDate=${formattedStart}&endDate=${formattedEnd}&status=${reportFilter}`,
       );
       return res.data;
     },
@@ -71,7 +71,7 @@ export default function ReportsView({ active }) {
     const printWindow = window.open(
       "data:text/html;charset=utf-8,",
       "",
-      "width=900,height=650"
+      "width=900,height=650",
     );
 
     printWindow.document.write(`
@@ -484,7 +484,7 @@ export default function ReportsView({ active }) {
                               </td>
                               <td>
                                 <span className="font-semibold">
-                                  ৳{(p.totalPrice || 0).toLocaleString("en-IN")}
+                                  ৳{(p.amount || 0).toLocaleString("en-IN")}
                                 </span>
                               </td>
                               <td>
@@ -497,7 +497,7 @@ export default function ReportsView({ active }) {
                                   {" "}
                                   ৳
                                   {(p.commissionAmount || 0).toLocaleString(
-                                    "en-IN"
+                                    "en-IN",
                                   )}
                                 </span>
                               </td>
@@ -505,7 +505,7 @@ export default function ReportsView({ active }) {
                                 <span className="font-semibold">
                                   ৳
                                   {(p.sellerEarnings || 0).toLocaleString(
-                                    "en-IN"
+                                    "en-IN",
                                   )}
                                 </span>
                               </td>

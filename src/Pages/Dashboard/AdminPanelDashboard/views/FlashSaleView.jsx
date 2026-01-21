@@ -48,7 +48,7 @@ export default function FlashSaleView({
   const { user } = useAuth();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredProducts.length / productPageSize)
+    Math.ceil(filteredProducts.length / productPageSize),
   );
   const [autoFlashSaleOn, setAutoFlashSaleOn] = useState(true);
 
@@ -139,12 +139,12 @@ export default function FlashSaleView({
 
           const newVariantStock = Math.max(
             (variant.stock ?? 0) - variantFlashStock,
-            0
+            0,
           );
 
           const variantSalePrice = Math.round(
             (variant.regular_price ?? 0) -
-              ((variant.regular_price ?? 0) * discount) / 100
+              ((variant.regular_price ?? 0) * discount) / 100,
           );
           updatedProdVariants.push({
             ...variant,
@@ -160,11 +160,11 @@ export default function FlashSaleView({
 
         const flashSaleTotalStock = flashSaleProdVariants.reduce(
           (sum, v) => sum + (v.stock ?? 0),
-          0
+          0,
         );
         const totalStock = updatedProdVariants.reduce(
           (sum, v) => sum + (v.stock ?? 0),
-          0
+          0,
         );
 
         updatedProd = {
@@ -179,7 +179,7 @@ export default function FlashSaleView({
           stock: flashSaleTotalStock,
           discount,
           sale_price: Math.round(
-            prod.regular_price - (prod.regular_price * discount) / 100
+            prod.regular_price - (prod.regular_price * discount) / 100,
           ),
         };
       } else {
@@ -193,7 +193,7 @@ export default function FlashSaleView({
           ...flashSaleProd,
           stock: flashSaleStock,
           sale_price: Math.round(
-            prod.regular_price - (prod.regular_price * discount) / 100
+            prod.regular_price - (prod.regular_price * discount) / 100,
           ),
           discount,
         };
@@ -279,7 +279,7 @@ export default function FlashSaleView({
 
   const flashSaleTotalPages = Math.max(
     1,
-    Math.ceil((flashSaleProducts?.sale_products || [])?.length / 6)
+    Math.ceil((flashSaleProducts?.sale_products || [])?.length / 6),
   );
 
   const autoSelect = () => {
@@ -288,8 +288,8 @@ export default function FlashSaleView({
         p.rating > 0
           ? p.rating
           : p.reviews && p.reviews.length > 0
-          ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / p.reviews.length
-          : 0;
+            ? p.reviews.reduce((sum, r) => sum + r.rating, 0) / p.reviews.length
+            : 0;
 
       return (avgRating > 4.5 || p.isnew) && p.stock > 30;
     });
@@ -303,13 +303,13 @@ export default function FlashSaleView({
   const renderPageNumbers = useRenderPageNumbers(
     productPage,
     totalPages,
-    setProductPage
+    setProductPage,
   );
 
   const renderPageNumbersForFlashSale = useRenderPageNumbers(
     flashSaleProductPage,
     flashSaleTotalPages,
-    setFlashSaleProductPage
+    setFlashSaleProductPage,
   );
 
   const deleteFlashSale = async (id) => {
@@ -353,7 +353,6 @@ export default function FlashSaleView({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log("Refetch");
       refetch();
       refetchProducts();
     }, 60000); // 60 সেকেন্ডে একবার
@@ -649,8 +648,8 @@ export default function FlashSaleView({
               <tbody>
                 {(flashSaleProducts.sale_products || [])
                   .slice(
-                    (flashSaleProductPage - 1) * 6,
-                    flashSaleProductPage * 6
+                    (flashSaleProductPage - 1) * 10,
+                    flashSaleProductPage * 10,
                   )
                   .map((p) => (
                     <tr key={p.id} className="border-t">

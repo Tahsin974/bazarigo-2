@@ -46,12 +46,12 @@ function ProductsView({
   const { user } = useAuth();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredProducts.length / productPageSize)
+    Math.ceil(filteredProducts.length / productPageSize),
   );
   const renderPageNumbers = useRenderPageNumbers(
     productPage,
     totalPages,
-    setProductPage
+    setProductPage,
   );
 
   const HandleDelete = async (id) => {
@@ -333,11 +333,11 @@ function ProductsView({
                           {Number(p.rating) > 0
                             ? p.rating
                             : p.reviews && p.reviews.length > 0
-                            ? (
-                                p.reviews.reduce((a, r) => a + r.rating, 0) /
-                                p.reviews.length
-                              ).toFixed(1)
-                            : "0.0"}
+                              ? (
+                                  p.reviews.reduce((a, r) => a + r.rating, 0) /
+                                  p.reviews.length
+                                ).toFixed(1)
+                              : "0.0"}
                         </span>
                       </div>
                     </td>

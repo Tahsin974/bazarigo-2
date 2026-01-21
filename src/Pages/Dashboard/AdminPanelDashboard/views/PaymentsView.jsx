@@ -4,6 +4,7 @@ import FormattedDate from "../../../../Utils/Helpers/FormattedDate";
 import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
 import { Banknote, CreditCard } from "lucide-react";
+import Swal from "sweetalert2";
 
 function PaymentsView({
   payments,
@@ -26,11 +27,11 @@ function PaymentsView({
   const axiosPublic = useAxiosPublic();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredPayments.length / paymentPageSize)
+    Math.ceil(filteredPayments.length / paymentPageSize),
   );
   const sellerPaymentsTotalPages = Math.max(
     1,
-    Math.ceil(filteredSellerPayments.length / paymentPageSize)
+    Math.ceil(filteredSellerPayments.length / paymentPageSize),
   );
 
   const handleApprove = async (id, orderId) => {
@@ -39,19 +40,27 @@ function PaymentsView({
       orderId,
     });
     if (res.data.updatedCount > 0) {
-      alert("Payment approved successfully");
+      Swal.fire({
+        icon: "success",
+        title: "Payment Approved Successfully",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        position: "top",
+      });
+
       return refetch();
     }
   };
   const renderPageNumbers = useRenderPageNumbers(
     paymentPage,
     totalPages,
-    setPaymentPage
+    setPaymentPage,
   );
   const renderPageNumbersForSellerPayments = useRenderPageNumbers(
     sellerPaymentsPage,
     sellerPaymentsTotalPages,
-    setSellerPaymentsPage
+    setSellerPaymentsPage,
   );
 
   return (
@@ -209,7 +218,7 @@ function PaymentsView({
                     <td>
                       <span className="font-semibold">
                         {new Date(payment.payment_date).toLocaleDateString(
-                          "en-GB"
+                          "en-GB",
                         )}
                       </span>
                     </td>

@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CategoryList({
   categories,
@@ -11,56 +11,109 @@ export default function CategoryList({
   item,
 }) {
   const [openSubDropdown, setOpenSubDropdown] = useState(null);
+  const userActionRef = useRef(false);
 
+  console.log("CategoryList Rendered", categories);
   // Set initial openDropdown and active subcategory
 
+  // useEffect(() => {
+  //   const cat = categories.find((c) => c.name === activeCategory.main);
+  //   if (!cat) return;
+
+  //   setOpenDropdown(categories.indexOf(cat));
+
+  //   if (cat.sub && cat.sub.length > 0) {
+  //     const matchedSub =
+  //       cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
+  //     const matchedItem =
+  //       matchedSub.items?.find((i) => i === item) ||
+  //       matchedSub.items?.[0] ||
+  //       null;
+
+  //     setActiveCategory({
+  //       main: cat.name,
+  //       sub: matchedSub.name,
+  //       item: matchedItem,
+  //     });
+
+  //     const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
+  //     if (subIdx !== -1) setOpenSubDropdown(subIdx);
+  //   } else {
+  //     setActiveCategory({ main: cat.name, sub: null, item: null });
+  //     setOpenSubDropdown(null);
+  //   }
+  // }, [subcategory, item]); // main dependency বাদ দেওয়া হলো
   useEffect(() => {
-    const cat = categories.find((c) => c.name === activeCategory.main);
-    if (!cat) return;
+    if (userActionRef.current) return;
+    if (!categories?.length) return;
 
-    setOpenDropdown(categories.indexOf(cat));
+    const catIndex = categories.findIndex(
+      (c) => c.name === activeCategory.main,
+    );
+    if (catIndex === -1) return;
 
-    if (cat.sub && cat.sub.length > 0) {
-      const matchedSub =
-        cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
-      const matchedItem =
-        matchedSub.items?.find((i) => i === item) ||
-        matchedSub.items?.[0] ||
-        null;
+    const cat = categories[catIndex];
 
-      setActiveCategory({
-        main: cat.name,
-        sub: matchedSub.name,
-        item: matchedItem,
-      });
+    // open main dropdown
+    setOpenDropdown(catIndex);
 
-      const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
-      if (subIdx !== -1) setOpenSubDropdown(subIdx);
-    } else {
-      setActiveCategory({ main: cat.name, sub: null, item: null });
+    if (!cat.sub?.length) {
+      if (activeCategory.sub !== null || activeCategory.item !== null) {
+        setActiveCategory({
+          main: cat.name,
+          sub: null,
+          item: null,
+        });
+      }
       setOpenSubDropdown(null);
+      return;
     }
-  }, [subcategory, item]); // main dependency বাদ দেওয়া হলো
+
+    const matchedSub =
+      cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
+
+    const matchedItem =
+      matchedSub.items?.find((i) => i === item) ||
+      matchedSub.items?.[0] ||
+      null;
+
+    // 🔒 prevent infinite reset
+    if (
+      activeCategory.sub === matchedSub.name &&
+      activeCategory.item === matchedItem
+    )
+      return;
+
+    setActiveCategory({
+      main: cat.name,
+      sub: matchedSub.name,
+      item: matchedItem,
+    });
+
+    const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
+    setOpenSubDropdown(subIdx !== -1 ? subIdx : null);
+  }, [subcategory, item, categories]);
 
   return (
     <ul className="space-y-3">
       {/* All Products */}
       <li>
         <button
-          onClick={() =>
-            setActiveCategory({ main: "All Products", sub: null, item: null })
-          }
-          className={`w-full text-left font-medium px-3 py-2 rounded-md hover:bg-gray-100 text-[15px] ${
+          onClick={() => {
+            userActionRef.current = true;
+            setActiveCategory({ main: "All Products", sub: null, item: null });
+            setOpenDropdown(null);
+            setOpenSubDropdown(null);
+          }}
+          className={`w-full text-left font-medium px-3 py-2 rounded-md ${
             activeCategory.main === "All Products"
               ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
-              : "text-gray-700"
+              : "hover:bg-gray-100 text-gray-700"
           }`}
         >
           All Products
         </button>
       </li>
-
-      {/* Main Categories */}
 
       {categories.map((cat, idx) => {
         const isActiveMain = activeCategory.main === cat.name;
@@ -69,14 +122,23 @@ export default function CategoryList({
           <li key={cat.name}>
             {/* Main Category */}
             <div
-              className={`flex items-center justify-between px-3 py-2 rounded-md transition-colors duration-200 cursor-pointer hover:bg-gray-100 text-gray-600`}
-              onClick={() => setOpenDropdown(openDropdown === idx ? null : idx)}
+              className="flex items-center justify-between px-3 py-2 rounded-md cursor-pointer hover:bg-gray-100"
+              onClick={() => {
+                userActionRef.current = true;
+                setOpenDropdown(openDropdown === idx ? null : idx);
+                setOpenSubDropdown(null);
+                setActiveCategory({
+                  main: cat.name,
+                  sub: null,
+                  item: null,
+                });
+              }}
             >
               <span className="font-medium">{cat.name}</span>
               {cat.sub?.length > 0 && (
                 <ChevronDown
-                  className={`w-4 h-4 text-gray-400 transform transition-transform duration-200 ${
-                    openDropdown === idx ? "-rotate-180" : "rotate-0"
+                  className={`w-4 h-4 transition-transform ${
+                    openDropdown === idx ? "-rotate-180" : ""
                   }`}
                 />
               )}
@@ -84,7 +146,7 @@ export default function CategoryList({
 
             {/* Subcategories */}
             {openDropdown === idx && cat.sub?.length > 0 && (
-              <ul className="mt-2 ml-4 space-y-1 border-l border-gray-200 pl-2">
+              <ul className="ml-4 mt-2 border-l pl-2 space-y-1">
                 {cat.sub.map((sub, subIdx) => {
                   const isActiveSub =
                     isActiveMain && activeCategory.sub === sub.name;
@@ -92,20 +154,24 @@ export default function CategoryList({
                   return (
                     <li key={sub.name}>
                       <div
-                        className={`flex items-center justify-between px-3 py-2 rounded-md transition-colors duration-200 cursor-pointer hover:bg-gray-100 text-gray-600`}
-                        onClick={() =>
+                        className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => {
+                          userActionRef.current = true;
                           setOpenSubDropdown(
-                            openSubDropdown === subIdx ? null : subIdx
-                          )
-                        }
+                            openSubDropdown === subIdx ? null : subIdx,
+                          );
+                          setActiveCategory({
+                            main: cat.name,
+                            sub: sub.name,
+                            item: null,
+                          });
+                        }}
                       >
                         <span className="text-sm font-medium">{sub.name}</span>
                         {sub.items?.length > 0 && (
                           <ChevronDown
-                            className={`w-3 h-3 text-gray-400 transform transition-transform duration-200 ${
-                              openSubDropdown === subIdx
-                                ? "-rotate-180"
-                                : "rotate-0"
+                            className={`w-3 h-3 transition-transform ${
+                              openSubDropdown === subIdx ? "-rotate-180" : ""
                             }`}
                           />
                         )}
@@ -113,30 +179,29 @@ export default function CategoryList({
 
                       {/* Items */}
                       {openSubDropdown === subIdx && sub.items?.length > 0 && (
-                        <ul className="mt-2 ml-4 space-y-1 border-l border-gray-200 pl-2">
-                          {sub.items.map((item) => {
+                        <ul className="ml-4 mt-2 border-l pl-2 space-y-1">
+                          {sub.items.map((it) => {
                             const isActiveItem =
-                              isActiveSub && activeCategory.item === item;
+                              isActiveSub && activeCategory.item === it;
 
                             return (
-                              <li key={item}>
+                              <li key={it}>
                                 <div
-                                  onClick={() =>
+                                  onClick={() => {
+                                    userActionRef.current = true;
                                     setActiveCategory({
                                       main: cat.name,
                                       sub: sub.name,
-                                      item: item,
-                                    })
-                                  }
-                                  className={`w-full text-left px-3 py-1 rounded-md text-sm transition-colors duration-200 cursor-pointer ${
+                                      item: it,
+                                    });
+                                  }}
+                                  className={`px-3 py-1 rounded-md text-sm cursor-pointer ${
                                     isActiveItem
                                       ? "bg-gradient-to-r from-[#FF7B7B] to-[#FF0055] text-white"
                                       : "hover:bg-gray-100 text-gray-600"
                                   }`}
                                 >
-                                  <span className="text-sm font-medium">
-                                    {item}
-                                  </span>
+                                  {it}
                                 </div>
                               </li>
                             );

@@ -172,7 +172,7 @@ export default function SellerPanelDashboard() {
       data = data.filter(
         (p) =>
           (p.name || "").toLowerCase().includes(q) ||
-          (p.category || "").toLowerCase().includes(q)
+          (p.category || "").toLowerCase().includes(q),
       );
     }
     data = data.sort((a, b) => {
@@ -183,7 +183,9 @@ export default function SellerPanelDashboard() {
           (a.sale_price > 0 ? a.sale_price : a.regular_price)
         );
       else {
-        (a.product_name || "").localeCompare(b.product_name || "");
+        return (a.product_name || "")
+          .toLowerCase()
+          .localeCompare((b.product_name || "").toLowerCase());
       }
     });
 
@@ -192,27 +194,29 @@ export default function SellerPanelDashboard() {
 
   const paginatedProducts = filteredProducts.slice(
     (productPage - 1) * currentPageSize,
-    productPage * currentPageSize
+    productPage * currentPageSize,
   );
   const filteredInventory = useMemo(() => {
     let data = [...inventory];
     if (inventorySearch) {
       const q = inventorySearch.toLowerCase();
       data = data.filter((p) =>
-        (p.product_name || "").toLowerCase().includes(q)
+        (p.product_name || "").toLowerCase().includes(q),
       );
     } else if (inventorySort === "stock")
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
     else
-      data.sort((a, b) =>
-        (a.product_name || "").localeCompare(b.product_name || "")
-      );
+      data.sort((a, b) => {
+        return (a.product_name || "")
+          .toLowerCase()
+          .localeCompare((b.product_name || "").toLowerCase());
+      });
     return data;
   }, [inventory, inventorySearch, inventorySort]);
 
   const paginatedInventory = filteredInventory.slice(
     (inventoryPage - 1) * currentPageSize,
-    inventoryPage * currentPageSize
+    inventoryPage * currentPageSize,
   );
 
   const filteredOrders = useMemo(() => {
@@ -223,7 +227,7 @@ export default function SellerPanelDashboard() {
         (o) =>
           (o.order_id || "").toLowerCase().includes(q) ||
           (o.customer_email || "").toLowerCase().includes(q) ||
-          (o.customer_name || "").toLowerCase().includes(q)
+          (o.customer_name || "").toLowerCase().includes(q),
       );
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
@@ -232,7 +236,7 @@ export default function SellerPanelDashboard() {
 
   const paginatedOrders = filteredOrders.slice(
     (orderPage - 1) * currentPageSize,
-    orderPage * currentPageSize
+    orderPage * currentPageSize,
   );
 
   const filteredReturnOrders = useMemo(() => {
@@ -243,7 +247,7 @@ export default function SellerPanelDashboard() {
         (o) =>
           (o.id || "").toLowerCase().includes(q) ||
           (o.status || "").toLowerCase().includes(q) ||
-          (o.customer || "").toLowerCase().includes(q)
+          (o.customer || "").toLowerCase().includes(q),
       );
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
@@ -252,7 +256,7 @@ export default function SellerPanelDashboard() {
 
   const paginatedReturnOrders = filteredReturnOrders.slice(
     (returnOrderPage - 1) * currentPageSize,
-    returnOrderPage * currentPageSize
+    returnOrderPage * currentPageSize,
   );
 
   const filteredPayments = useMemo(() => {
@@ -262,7 +266,7 @@ export default function SellerPanelDashboard() {
       data = data.filter(
         (p) =>
           (p.method || "").toLowerCase().includes(q) ||
-          (p.status || "").toLowerCase().includes(q)
+          (p.status || "").toLowerCase().includes(q),
       );
     }
     if (paymentSort === "amount") data.sort((a, b) => a.amount - b.amount);
@@ -274,7 +278,7 @@ export default function SellerPanelDashboard() {
 
   const paginatedPayments = filteredPayments.slice(
     (paymentPage - 1) * currentPageSize,
-    paymentPage * currentPageSize
+    paymentPage * currentPageSize,
   );
 
   // --- Handlers & helpers ---
@@ -309,7 +313,7 @@ export default function SellerPanelDashboard() {
 
   const toggleSelect = (id) => {
     setSelected((s) =>
-      s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
+      s.includes(id) ? s.filter((x) => x !== id) : [...s, id],
     );
   };
 

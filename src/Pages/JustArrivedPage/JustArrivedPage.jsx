@@ -13,11 +13,13 @@ export default function JustArrivedPage() {
     "All",
     "Electronics",
     "Fashion",
-    "Groceries",
     "Health & Beauty",
-    "Home & Living",
-    "Sports",
-    "Pet Supplies",
+    "Furniture & Home Decor",
+    "Sports & Outdoors",
+    "Toys & Baby Products",
+    "Automotive & Industrial",
+    "Grocery & Food Items",
+    "Pets & Pet Care",
   ];
 
   const [sortOption, setSortOption] = useState("Newest");
@@ -28,7 +30,7 @@ export default function JustArrivedPage() {
 
   // Filter products
   let filteredProducts = [...allProducts].filter(
-    (p) => category === "All" || p.category === category
+    (p) => category === "All" || p.category === category,
   );
 
   if (search) {
@@ -36,7 +38,7 @@ export default function JustArrivedPage() {
     filteredProducts = filteredProducts.filter(
       (p) =>
         (p.product_name || "").toLowerCase().includes(q) ||
-        (p.category || "").toLowerCase().includes(q)
+        (p.category || "").toLowerCase().includes(q),
     );
   }
 
@@ -48,11 +50,13 @@ export default function JustArrivedPage() {
 
       case "Price: Low to High":
         return (
-          (a.sale_price || a.regular_price) - (b.sale_price || b.regular_price)
+          (a.sale_price > 0 ? a.sale_price : a.regular_price) -
+          (b.sale_price > 0 ? b.sale_price : b.regular_price)
         );
       case "Price: High to Low":
         return (
-          (b.sale_price || b.regular_price) - (a.sale_price || a.regular_price)
+          (b.sale_price > 0 ? b.sale_price : b.regular_price) -
+          (a.sale_price > 0 ? a.sale_price : a.regular_price)
         );
       default:
         return 0;
@@ -61,11 +65,11 @@ export default function JustArrivedPage() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredProducts.length / itemsPerPage)
+    Math.ceil(filteredProducts.length / itemsPerPage),
   );
   const displayedProducts = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (

@@ -27,6 +27,211 @@ function ReportsView({ payments, customers }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  //   const handlePrint = () => {
+  //     const reportContent = document.getElementById("report-content");
+
+  //     if (!reportContent) {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Unable to find printable content. Please try again.",
+  //         toast: true,
+  //         position: "top",
+  //         showConfirmButton: false,
+  //         timer: 3000,
+  //       });
+  //       return;
+  //     }
+
+  //     const printWindow = window.open(
+  //       "data:text/html;charset=utf-8,",
+  //       "",
+  //       "width=900,height=650",
+  //     );
+
+  //     printWindow.document.write(`
+  // <html>
+  // <head>
+  //   <meta charset="UTF-8">
+  //   <title>Bazarigo</title>
+  //   <style>
+  //     html, body {
+  //       margin: 0;
+  //       padding: 0;
+  //       height: 100%;
+  //       font-family: Arial, sans-serif;
+  //     }
+
+  //     body {
+  //       display: table;
+  //       width: 100%;
+  //       height: 100%;
+  //       text-align: center; /* horizontal centering */
+
+  //     }
+
+  //     .container {
+  //       display: table-cell;
+  //       vertical-align: middle; /* vertical centering */
+  //       padding-block: 100px;
+
+  //     }
+
+  //     section {
+  //       margin-bottom: 30px;
+  //       width: 90%;
+  //       max-width: 1200px;
+  //       margin-left: auto;
+  //       margin-right: auto;
+  //       text-align: center;
+  //     }
+
+  //     .card-container {
+  //       display: grid;
+  //       grid-template-columns: repeat(4, minmax(0, 1fr));
+  //       gap: 1rem;
+  //     }
+
+  //     .card {
+  //       background-color: #ffffff;
+  //       padding: 1rem;
+  //       border-radius: 0.25rem;
+  //       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  //       text-align: center;
+  //       border:0.5px solid gray;
+  //     }
+
+  //     .page-break {
+  //       page-break-before: always;
+  //     }
+
+  //     table {
+  //       border-collapse: collapse;
+  //       width: 100%;
+  //       margin-top: 20px;
+  //       font-size: 12px;
+  //     }
+
+  //     th, td {
+  //       border: 1px solid #ddd;
+  //       padding: 4px;
+  //       text-align: center;
+  //     }
+
+  //     th {
+  //       background-color: rgb(240, 240, 240);
+  //       color: black;
+  //     }
+
+  //     tr {
+  //       border-bottom: 1px solid #d1d5dc;
+  //     }
+
+  //     .chart-container {
+
+  //      padding-right:500px;
+  //       margin:50% 50px ;
+  //       text-align: center;
+  //     }
+  //       .table-container {
+  //       padding-block: 100px;
+  //       margin: 30px 50px;
+  //       text-align: center;
+  //     }
+
+  //     h2,h3{
+  //      font-size: 30px;
+  //      padding-bottom:40px;
+  //      }
+  //      .card-title {
+  //         font-size: 0.75rem;
+  //         text-transform: uppercase;
+  //         margin-bottom: 8px;
+  //         font-family: "Roboto";
+  //         font-weight: 400;
+  //       }
+  //   </style>
+  // </head>
+  // <body>
+  //   <div class="container">
+
+  //     <section>
+  //       <h2>Reports Summary</h2>
+  //       <div class="card-container">
+  //         <div class="card"><div class="card-title">Revenue</div><div class="card-value">৳${(
+  //           reports.revenue.toLocaleString("en-IN") || 0
+  //         ).toLocaleString("en-IN")}</div></div>
+  //         <div class="card"><div class="card-title">Orders</div><div class="card-value">${reports.totalOrders.toLocaleString(
+  //           "en-IN",
+  //         )}</div></div>
+  //         <div class="card"><div class="card-title">Customers</div><div class="card-value">${customers?.length.toLocaleString(
+  //           "en-IN",
+  //         )}</div></div>
+  //         <div class="card"><div class="card-title">Sellers</div><div class="card-value">${reports.totalSellers.toLocaleString(
+  //           "en-IN",
+  //         )}</div></div>
+  //         <div class="card"><div class="card-title">Average Order Value</div><div class="card-value">৳${
+  //           reports.averageOrderValue?.toFixed(2) || 0
+  //         }</div></div>
+  //         <div class="card"><div class="card-title">Total Payments</div><div class="card-value">${
+  //           payments?.length.toLocaleString("en-IN") || 0
+  //         }</div></div>
+  //       </div>
+  //     </section>
+
+  //     <section class="chart-container page-break">
+  //       ${reportContent.querySelector("#orders-trend-chart")?.outerHTML || ""}
+  //     </section>
+
+  //     <section class="chart-container page-break">
+  //       ${
+  //         reportContent.querySelector("#products-category-chart")?.outerHTML || ""
+  //       }
+  //     </section>
+
+  //     <section class="chart-container page-break">
+  //       ${reportContent.querySelector("#seller-perfomance")?.outerHTML || ""}
+  //     </section>
+
+  //     <section class="chart-container page-break">
+  //       ${reportContent.querySelector("#top-selling-products")?.outerHTML || ""}
+  //     </section>
+
+  //     <section class="table-container page-break">
+  //       <h3>Seller Commissions</h3>
+  //       ${
+  //         reportContent.querySelector("#seller-commissions-products")
+  //           ?.outerHTML || ""
+  //       }
+  //     </section>
+
+  //     <section class="table-container page-break">
+  //       <h3>Seller Commission Summary</h3>
+  //       ${
+  //         reportContent.querySelector("#seller-commissions-summary")?.outerHTML ||
+  //         ""
+  //       }
+  //     </section>
+  //   </div>
+  // </body>
+  // </html>
+  // `);
+
+  //     printWindow.document.close();
+  //     printWindow.focus();
+  //     setTimeout(() => {
+  //       printWindow.print();
+  //       printWindow.close();
+  //     }, 400);
+
+  //     Swal.fire({
+  //       icon: "error",
+  //       toast: true,
+  //       position: "top",
+  //       showConfirmButton: false,
+  //       timer: 1500,
+  //     });
+  //   };
+
   const handlePrint = () => {
     const reportContent = document.getElementById("report-content");
 
@@ -45,7 +250,7 @@ function ReportsView({ payments, customers }) {
     const printWindow = window.open(
       "data:text/html;charset=utf-8,",
       "",
-      "width=900,height=650"
+      "width=900,height=650",
     );
 
     printWindow.document.write(`
@@ -54,131 +259,60 @@ function ReportsView({ payments, customers }) {
   <meta charset="UTF-8">
   <title>Bazarigo</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      display: table;
-      width: 100%;
-      height: 100%;
-      text-align: center; /* horizontal centering */
-      
-    }
-
-    .container {
-      display: table-cell;
-      vertical-align: middle; /* vertical centering */
-      padding-block: 100px;
-      
-    }
-
-    
-
-    section {
-      margin-bottom: 30px;
-      width: 90%;
-      max-width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;
-    }
-
-    .card-container {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1rem;
-    }
-
-    .card {
-      background-color: #ffffff;
-      padding: 1rem;
-      border-radius: 0.25rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-      text-align: center;
-      border:0.5px solid gray;
-    }
-
-    .page-break {
-      page-break-before: always;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      font-size: 12px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 4px;
-      text-align: center;
-    }
-
-    th {
-      background-color: rgb(240, 240, 240);
-      color: black;
-    }
-
-    tr {
-      border-bottom: 1px solid #d1d5dc;
-    }
-
-    .chart-container {
-  
-     padding-right:500px;
-      margin:50% 50px ;
-      text-align: center;
-    }
-      .table-container {
-      padding-block: 100px;
-      margin: 30px 50px;
-      text-align: center;
-    }
-
-
-    h2,h3{
-     font-size: 30px;
-     padding-bottom:40px;
-     }
-     .card-title {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-        font-family: "Roboto";
-        font-weight: 400;
-      }
+    html, body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { width: 100%; text-align: center; }
+    .container { padding: 50px; }
+    section { margin-bottom: 30px; width: 90%; max-width: 1200px; margin-left: auto; margin-right: auto; text-align: center; }
+    .card-container { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+    .card { background-color: #fff; padding: 1rem; border-radius: 0.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align: center; border:0.5px solid gray; }
+    .card-title { font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; font-family: "Roboto"; font-weight: 400; }
+    .card-value { font-size: 1.5rem; font-weight: bold; }
+    .page-break { page-break-before: always; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; font-size: 12px; }
+    th, td { border: 1px solid #ddd; padding: 4px; text-align: center; }
+    th { background-color: rgb(240, 240, 240); color: black; }
+    tr { border-bottom: 1px solid #d1d5dc; }
+    .chart-container { text-align: center; margin: 50px 0; }
+    .table-container { margin: 30px 50px; text-align: center; }
   </style>
 </head>
 <body>
   <div class="container">
-    
-
     <section>
       <h2>Reports Summary</h2>
       <div class="card-container">
-        <div class="card"><div class="card-title">Revenue</div><div class="card-value">৳${(
-          reports.revenue.toLocaleString("en-IN") || 0
-        ).toLocaleString("en-IN")}</div></div>
-        <div class="card"><div class="card-title">Orders</div><div class="card-value">${reports.totalOrders.toLocaleString(
-          "en-IN"
-        )}</div></div>
-        <div class="card"><div class="card-title">Customers</div><div class="card-value">${customers?.length.toLocaleString(
-          "en-IN"
-        )}</div></div>
-        <div class="card"><div class="card-title">Sellers</div><div class="card-value">${reports.totalSellers.toLocaleString(
-          "en-IN"
-        )}</div></div>
-        <div class="card"><div class="card-title">Average Order Value</div><div class="card-value">৳${
-          reports.averageOrderValue?.toFixed(2) || 0
-        }</div></div>
-        <div class="card"><div class="card-title">Total Payments</div><div class="card-value">${
-          payments?.length.toLocaleString("en-IN") || 0
-        }</div></div>
+        <div class="card">
+          <div class="card-title">Product Revenue</div>
+          <div class="card-value">৳${(reports.productRevenue || 0).toLocaleString("en-IN")}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Delivery Revenue</div>
+          <div class="card-value">৳${(reports.deliveryRevenue || 0).toLocaleString("en-IN")}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Gross Revenue</div>
+          <div class="card-value">৳${(reports.grossRevenue || 0).toLocaleString("en-IN")}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Orders</div>
+          <div class="card-value">${reports.totalOrders.toLocaleString("en-IN")}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Customers</div>
+          <div class="card-value">${customers?.length.toLocaleString("en-IN")}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Sellers</div>
+          <div class="card-value">${reports.totalSellers.toLocaleString("en-IN")}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Average Order Value</div>
+          <div class="card-value">৳${reports.averageOrderValue?.toFixed(2) || 0}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Total Payments</div>
+          <div class="card-value">${payments?.length.toLocaleString("en-IN") || 0}</div>
+        </div>
       </div>
     </section>
 
@@ -187,9 +321,7 @@ function ReportsView({ payments, customers }) {
     </section>
 
     <section class="chart-container page-break">
-      ${
-        reportContent.querySelector("#products-category-chart")?.outerHTML || ""
-      }
+      ${reportContent.querySelector("#products-category-chart")?.outerHTML || ""}
     </section>
 
     <section class="chart-container page-break">
@@ -202,18 +334,12 @@ function ReportsView({ payments, customers }) {
 
     <section class="table-container page-break">
       <h3>Seller Commissions</h3>
-      ${
-        reportContent.querySelector("#seller-commissions-products")
-          ?.outerHTML || ""
-      }
+      ${reportContent.querySelector("#seller-commissions-products")?.outerHTML || ""}
     </section>
 
     <section class="table-container page-break">
       <h3>Seller Commission Summary</h3>
-      ${
-        reportContent.querySelector("#seller-commissions-summary")?.outerHTML ||
-        ""
-      }
+      ${reportContent.querySelector("#seller-commissions-summary")?.outerHTML || ""}
     </section>
   </div>
 </body>
@@ -228,11 +354,12 @@ function ReportsView({ payments, customers }) {
     }, 400);
 
     Swal.fire({
-      icon: "error",
+      icon: "success",
       toast: true,
       position: "top",
       showConfirmButton: false,
       timer: 1500,
+      title: "Print window opened",
     });
   };
 
@@ -250,7 +377,7 @@ function ReportsView({ payments, customers }) {
         ? new Date(endDate).toISOString().split("T")[0]
         : "";
       const res = await axiosSecure.get(
-        `/admin-reports?interval=${reportType}&startDate=${formattedStart}&endDate=${formattedEnd}`
+        `/admin-reports?interval=${reportType}&startDate=${formattedStart}&endDate=${formattedEnd}`,
       );
       return res.data;
     },
@@ -258,29 +385,29 @@ function ReportsView({ payments, customers }) {
 
   const totalPagesForProductsCommission = Math.max(
     1,
-    Math.ceil(reports.productCommissionData?.length / 6)
+    Math.ceil(reports.productCommissionData?.length / 6),
   );
   const totalPages = Math.max(
     1,
-    Math.ceil(reports.productCommissionData?.length / 6)
+    Math.ceil(reports.productCommissionData?.length / 6),
   );
   const renderPageNumbersForProductsCommission = useRenderPageNumbers(
     productsCommissionDataPage,
     totalPagesForProductsCommission,
-    setProductsCommissionDataPage
+    setProductsCommissionDataPage,
   );
   const renderPageNumbers = useRenderPageNumbers(
     sellerCommissionDataPage,
     totalPages,
-    setSellerCommissionDataPage
+    setSellerCommissionDataPage,
   );
   const paginatedProductsCommissionData = reports.productCommissionData?.slice(
     (productsCommissionDataPage - 1) * 6,
-    productsCommissionDataPage * 6
+    productsCommissionDataPage * 6,
   );
   const paginatedSellerCommissionData = reports.sellerCommissionData?.slice(
     (sellerCommissionDataPage - 1) * 6,
-    sellerCommissionDataPage * 6
+    sellerCommissionDataPage * 6,
   );
 
   return (
@@ -333,36 +460,48 @@ function ReportsView({ payments, customers }) {
 
             <div id="report-content" className="space-y-6">
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="bg-white p-4 rounded shadow-sm text-center">
-                  Revenue
-                  <div className="text-2xl font-bold mt-2">
-                    ৳{(reports.revenue || 0).toLocaleString("en-IN")}
+                  <div>Product Revenue</div>
+                  <div className="text-2xl font-bold mt-2 text-green-600">
+                    ৳{(reports.productRevenue || 0).toLocaleString("en-IN")}
                   </div>
                 </div>
+
                 <div className="bg-white p-4 rounded shadow-sm text-center">
-                  Orders
+                  <div>Delivery Revenue</div>
+                  <div className="text-2xl font-bold mt-2 text-blue-600">
+                    ৳{(reports.deliveryRevenue || 0).toLocaleString("en-IN")}
+                  </div>
+                </div>
+
+                <div className="bg-white p-4 rounded shadow-sm text-center">
+                  <div>Gross Revenue</div>
+                  <div className="text-2xl font-bold mt-2">
+                    ৳{(reports.grossRevenue || 0).toLocaleString("en-IN")}
+                  </div>
+                </div>
+
+                <div className="bg-white p-4 rounded shadow-sm text-center">
+                  <div>Orders</div>
                   <div className="text-2xl font-bold mt-2">
                     {reports.totalOrders.toLocaleString("en-IN")}
                   </div>
                 </div>
+
                 <div className="bg-white p-4 rounded shadow-sm text-center">
-                  Customers
-                  <div className="text-2xl font-bold mt-2">
-                    {customers?.length.toLocaleString("en-IN")}
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded shadow-sm text-center">
-                  Sellers
+                  <div>Sellers</div>
                   <div className="text-2xl font-bold mt-2">
                     {reports.totalSellers.toLocaleString("en-IN")}
                   </div>
                 </div>
               </div>
               {/* Additional Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className="bg-white p-4 rounded shadow-sm text-center">
-                  <h4 className="font-medium mb-2">Average Order Value</h4>
+                  <h4 className="font-medium mb-2">
+                    Average Order Value (Product)
+                  </h4>
                   <div className="text-2xl font-bold">
                     ৳
                     {reports.averageOrderValue.toLocaleString("en-IN", {
@@ -371,9 +510,19 @@ function ReportsView({ payments, customers }) {
                     })}
                   </div>
                 </div>
+
+                <div className="bg-white p-4 rounded shadow-sm text-center">
+                  <h4 className="font-medium mb-2">Customers</h4>
+                  <div className="text-2xl font-bold">
+                    {customers?.length.toLocaleString("en-IN")}
+                  </div>
+                </div>
+
                 <div className="bg-white p-4 rounded shadow-sm text-center">
                   <h4 className="font-medium mb-2">Total Payments</h4>
-                  <div className="text-2xl font-bold">{payments?.length}</div>
+                  <div className="text-2xl font-bold">
+                    {payments?.length.toLocaleString("en-IN")}
+                  </div>
                 </div>
               </div>
 
@@ -634,7 +783,7 @@ function ReportsView({ payments, customers }) {
                               <td>
                                 <span className="font-semibold">
                                   {((p.price || 0) * p.quantity).toLocaleString(
-                                    "en-IN"
+                                    "en-IN",
                                   )}
                                 </span>
                               </td>

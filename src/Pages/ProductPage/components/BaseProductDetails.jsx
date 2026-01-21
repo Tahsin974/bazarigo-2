@@ -39,10 +39,15 @@ export default function BaseProductDetails({
   const { refetch: refetchCarts } = useCart();
   const { user } = useAuth();
   const videoRef = useRef();
+  const sliderIntervalRef = useRef(null);
   const [isPaused, setIsPaused] = useState(true);
 
   const axiosPublic = useAxiosPublic();
   const [mainImage, setMainImage] = useState(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const [autoSlide, setAutoSlide] = useState(true);
+
   const video = mainImage ? mainImage.endsWith(".mp4") : false;
   const [selectedVariant, setSelectedVariant] = useState(null);
   const navigate = useNavigate();
@@ -52,12 +57,12 @@ export default function BaseProductDetails({
     if (product.extras?.variants && product.extras.variants.length > 0) {
       // sell_price > 0 অনুযায়ী filter & sort করা
       const filteredVariants = product.extras.variants.filter(
-        (v) => v.sale_price > 0
+        (v) => v.sale_price > 0,
       );
 
       if (filteredVariants.length > 0) {
         const sortedVariants = [...filteredVariants].sort(
-          (a, b) => a.sale_price - b.sale_price
+          (a, b) => a.sale_price - b.sale_price,
         );
         setSelectedVariant(sortedVariants[0]);
       } else {
@@ -79,11 +84,11 @@ export default function BaseProductDetails({
       product.extras?.variants
     ) {
       const optionKeys = Object.keys(product.extras.variants[0]).filter(
-        (k) => !["sale_price", "regular_price", "stock", "id"].includes(k)
+        (k) => !["sale_price", "regular_price", "stock", "id"].includes(k),
       );
 
       const matchedVariant = product.extras.variants.find((variant) =>
-        optionKeys.every((key) => variant[key] === selectedVariant[key])
+        optionKeys.every((key) => variant[key] === selectedVariant[key]),
       );
 
       if (matchedVariant) {
@@ -118,7 +123,7 @@ export default function BaseProductDetails({
     const fetchWishlistStatus = async () => {
       try {
         const res = await axiosPublic.get(
-          `/wishlist?email=${user?.email}&id=${product.id}`
+          `/wishlist?email=${user?.email}&id=${product.id}`,
         );
         setIsSelect(res.data.isInWishlist);
       } catch (err) {
@@ -139,7 +144,7 @@ export default function BaseProductDetails({
       (p) =>
         p.id !== currentProduct.id &&
         (p.subcategory === currentProduct.subcategory ||
-          p.category === currentProduct.category)
+          p.category === currentProduct.category),
     );
 
     // Optional: sort by rating, bestseller, or trending
@@ -162,6 +167,7 @@ export default function BaseProductDetails({
       );
     });
   };
+  const imageOnlyList = getImages(product.images || []);
 
   const handleBuyNowBtn = async (product) => {
     try {
@@ -319,7 +325,7 @@ export default function BaseProductDetails({
         // === Step 3: Add to cart API call ===
         const res = await axiosPublic.post(
           `/carts?email=${user?.email}`,
-          payLoad
+          payLoad,
         );
 
         if (res.data.createdCount > 0 || res.data.updatedCount > 0) {
@@ -396,6 +402,7 @@ export default function BaseProductDetails({
       });
     }
   };
+
   const handleWishlistBtn = async () => {
     const newToggle = !isSelect;
     setIsSelect(newToggle); // UI update
@@ -477,6 +484,25 @@ export default function BaseProductDetails({
   useEffect(() => {
     setIsPaused(true);
   }, [mainImage]);
+  useEffect(() => {
+    if (imageOnlyList.length > 0) {
+      setMainImage(imageOnlyList[0]);
+    }
+  }, [product.images]);
+
+  useEffect(() => {
+    if (isHovering) return;
+    if (!autoSlide || imageOnlyList.length <= 1) return;
+
+    sliderIntervalRef.current = setInterval(() => {
+      setMainImage((prev) => {
+        const index = imageOnlyList.indexOf(prev);
+        return imageOnlyList[(index + 1) % imageOnlyList.length];
+      });
+    }, 3000);
+
+    return () => clearInterval(sliderIntervalRef.current);
+  }, [autoSlide, imageOnlyList]);
 
   if (!product || Object.keys(product).length === 0) return null;
   return (
@@ -493,7 +519,16 @@ export default function BaseProductDetails({
               className="flex flex-col gap-4 items-center"
             >
               {product.images && product.images[0] ? (
-                <div>
+                <div
+                  onMouseEnter={() => {
+                    setIsHovering(true);
+                    setAutoSlide(false);
+                  }}
+                  onMouseLeave={() => {
+                    setIsHovering(false);
+                    setAutoSlide(true);
+                  }}
+                >
                   {!video && (
                     <>
                       <div className="sm:w-[500px]  w-auto max-h-[500px] rounded-2xl ">
@@ -594,14 +629,18 @@ export default function BaseProductDetails({
                               key={i}
                               src={`${baseUrl}${thumb}`}
                               alt=""
-                              className="w-20 h-20 object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer"
-                              onClick={() => setMainImage(thumb)}
+                              className={`w-20 h-20 object-fill rounded-lg border hover:border-[#FF0055] cursor-pointer ${mainImage === thumb ? "border-[#FF0055]" : ""}`}
+                              onClick={() => {
+                                setMainImage(thumb);
+                              }}
                             />
                           )}
                           {isVideo && (
                             <div
                               className="relative w-20 h-20 flex-shrink-0"
-                              onClick={() => setMainImage(thumb)}
+                              onClick={() => {
+                                setMainImage(thumb);
+                              }}
                             >
                               <video
                                 src={
@@ -678,34 +717,55 @@ export default function BaseProductDetails({
               user?.role === "admin" ||
               user?.role === "super admin" ? (
                 <div className="flex items-center justify-between">
-                  <RatingStars
-                    rating={
-                      Number(product.rating) > 0
-                        ? product.rating
-                        : product.reviews && product.reviews.length > 0
-                        ? product.reviews.reduce((a, r) => a + r.rating, 0) /
-                          product.reviews.length
-                        : 0
-                    }
-                    reviews={product.reviews}
-                  />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <RatingStars
+                      rating={
+                        Number(product.rating) > 0
+                          ? product.rating
+                          : product.reviews && product.reviews.length > 0
+                            ? product.reviews.reduce(
+                                (a, r) => a + r.rating,
+                                0,
+                              ) / product.reviews.length
+                            : 0
+                      }
+                      reviews={product.reviews}
+                    />
+                    {product.sold !== undefined && (
+                      <span className="text-gray-500 text-sm font-bold">
+                        • <span>{product.sold.toLocaleString()}</span>{" "}
+                        <span>Sold</span>
+                      </span>
+                    )}
+                  </div>
                   <button className="text-gray-600" onClick={handleShare}>
                     <Share2 size={25} />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <RatingStars
-                    rating={
-                      Number(product.rating) > 0
-                        ? product.rating
-                        : product.reviews && product.reviews.length > 0
-                        ? product.reviews.reduce((a, r) => a + r.rating, 0) /
-                          product.reviews.length
-                        : 0
-                    }
-                    reviews={product.reviews}
-                  />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <RatingStars
+                      rating={
+                        Number(product.rating) > 0
+                          ? product.rating
+                          : product.reviews && product.reviews.length > 0
+                            ? product.reviews.reduce(
+                                (a, r) => a + r.rating,
+                                0,
+                              ) / product.reviews.length
+                            : 0
+                      }
+                      reviews={product.reviews}
+                    />
+                    {product.sold !== undefined && (
+                      <span className="text-gray-500 text-sm font-bold">
+                        • <span>{product.sold.toLocaleString()}</span>{" "}
+                        <span>Sold</span>
+                      </span>
+                    )}
+                  </div>
+
                   <div className="sm:hidden flex items-center gap-4 ">
                     <button
                       onClick={handleWishlistBtn}

@@ -14,8 +14,7 @@ export default function FlashSalePage() {
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
-  // const [displayedProducts, setDisplayedProducts] = useState([]);
+  const itemsPerPage = 8;
 
   const { flashSaleProducts: flashProducts } = useFlashSaleProducts();
 
@@ -23,58 +22,75 @@ export default function FlashSalePage() {
     "All",
     "Electronics",
     "Fashion",
-    "Groceries",
     "Health & Beauty",
-    "Home & Living",
-    "Sports",
-    "Pet Supplies",
+    "Furniture & Home Decor",
+    "Sports & Outdoors",
+    "Toys & Baby Products",
+    "Automotive & Industrial",
+    "Grocery & Food Items",
+    "Pets & Pet Care",
   ];
 
-  let products = (flashProducts?.sale_products || []).filter(
-    (p) => category === "All" || p.category === category
+  const products = flashProducts?.sale_products || [];
+  let filteredProducts = [...products].filter(
+    (p) => category === "All" || p.category === category,
   );
 
   if (search)
-    products = products.filter((p) =>
-      p.product_name.toLowerCase().includes(search.toLowerCase())
+    filteredProducts = filteredProducts.filter((p) =>
+      p.product_name.toLowerCase().includes(search.toLowerCase()),
     );
-  if (sort === "priceLow")
-    products = [...products].sort((a, b) => a.sale_price - b.sale_price);
-  if (sort === "priceHigh")
-    products = [...products].sort((a, b) => b.sale_price - a.sale_price);
-  if (sort === "rating")
-    products = [...products].sort((a, b) => {
-      // Compute b's rating
-      const bRating =
-        b.rating > 0
-          ? b.rating
-          : b.reviews && b.reviews.length > 0
-          ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
-          : 0;
 
-      // Compute a's rating
-      const aRating =
-        a.rating > 0
-          ? a.rating
-          : a.reviews && a.reviews.length > 0
-          ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
-          : 0;
+  filteredProducts.sort((a, b) => {
+    switch (sort) {
+      case "priceLow":
+        return (
+          (a.sale_price > 0 ? a.sale_price : a.regular_price) -
+          (b.sale_price > 0 ? b.sale_price : b.regular_price)
+        );
 
-      return bRating - aRating;
-    });
+      case "priceHigh":
+        return (
+          (b.sale_price > 0 ? b.sale_price : b.regular_price) -
+          (a.sale_price > 0 ? a.sale_price : a.regular_price)
+        );
 
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+      case "rating": {
+        const bRating =
+          b.rating > 0
+            ? b.rating
+            : b.reviews && b.reviews.length > 0
+              ? b.reviews.reduce((sum, r) => sum + r.rating, 0) /
+                b.reviews.length
+              : 0;
 
-  const shuffledProducts = [...products].sort(() => 0.5 - Math.random());
-  const paginated = shuffledProducts.slice(
+        const aRating =
+          a.rating > 0
+            ? a.rating
+            : a.reviews && a.reviews.length > 0
+              ? a.reviews.reduce((sum, r) => sum + r.rating, 0) /
+                a.reviews.length
+              : 0;
+
+        return bRating - aRating;
+      }
+
+      default:
+        return 0;
+    }
+  });
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  const paginated = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const renderPageNumbers = useRenderPageNumbers(
     currentPage,
     totalPages,
-    setCurrentPage
+    setCurrentPage,
   );
 
   return (

@@ -111,7 +111,7 @@ export default function AdminPanelDashboard() {
     user.role !== "moderator"
       ? navItems
       : navItems.filter(
-          (item) => item.label !== "Payments" // moderator থেকে Payments বাদ
+          (item) => item.label !== "Payments", // moderator থেকে Payments বাদ
         );
 
   const { myMessages } = useMessages();
@@ -253,11 +253,6 @@ export default function AdminPanelDashboard() {
   // File input ref for bulk upload
   const fileRef = useRef(null);
 
-  // useEffect(() => {
-  //   if (selected.length !== 0) {
-  //     setSelected([]);
-  //   }
-  // }, [active, products, orders, customers, coverageAreas, sellers]);
   useEffect(() => {
     if (selected.length !== 0) {
       setSelected([]);
@@ -265,7 +260,7 @@ export default function AdminPanelDashboard() {
   }, [active]);
   const toggleSelect = (id) => {
     setSelected((s) =>
-      s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
+      s.includes(id) ? s.filter((x) => x !== id) : [...s, id],
     );
   };
 
@@ -596,36 +591,39 @@ export default function AdminPanelDashboard() {
       data = data.filter(
         (p) =>
           (p.product_name || "").toLowerCase().includes(q) ||
-          (p.category || "").toLowerCase().includes(q)
+          (p.category || "").toLowerCase().includes(q),
       );
     }
+
     data = data.sort((a, b) => {
-      if (productSort === "stock") return (b.stock || 0) - (a.stock || 0);
-      if (productSort === "price")
-        return (
-          (b.sale_price > 0 ? b.sale_price : b.regular_price) -
-          (a.sale_price > 0 ? a.sale_price : a.regular_price)
-        );
-      if (productSort === "rating") {
-        // Compute b's rating
-        const bRating =
-          b.rating > 0
-            ? b.rating
-            : b.reviews && b.reviews.length > 0
-            ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
-            : 0;
+      switch (productSort) {
+        case "stock":
+          return (b.stock || 0) - (a.stock || 0);
 
-        // Compute a's rating
-        const aRating =
-          a.rating > 0
-            ? a.rating
-            : a.reviews && a.reviews.length > 0
-            ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
-            : 0;
+        case "price": {
+          const priceA = a.regular_price;
+          const priceB = b.regular_price;
+          return priceA - priceB; // Low → High
+        }
 
-        return bRating - aRating; // High → Low
-      } else {
-        (a.product_name || "").localeCompare(b.product_name || "");
+        case "rating": {
+          const getRating = (p) =>
+            p.rating > 0
+              ? p.rating
+              : p.reviews?.length
+                ? p.reviews.reduce((s, r) => s + r.rating, 0) / p.reviews.length
+                : 0;
+
+          return getRating(b) - getRating(a);
+        }
+
+        case "name":
+          return (a.product_name || "")
+            .toLowerCase()
+            .localeCompare((b.product_name || "").toLowerCase());
+
+        default:
+          return 0;
       }
     });
 
@@ -637,20 +635,22 @@ export default function AdminPanelDashboard() {
     if (inventorySearch) {
       const q = inventorySearch.toLowerCase();
       data = data.filter((p) =>
-        (p.product_name || "").toLowerCase().includes(q)
+        (p.product_name || "").toLowerCase().includes(q),
       );
     } else if (inventorySort === "stock")
       data.sort((a, b) => (a.stock || 0) - (b.stock || 0));
     else
-      data.sort((a, b) =>
-        (a.product_name || "").localeCompare(b.product_name || "")
-      );
+      data.sort((a, b) => {
+        return (a.product_name || "")
+          .toLowerCase()
+          .localeCompare((b.product_name || "").toLowerCase());
+      });
     return data;
   }, [inventory, inventorySearch, inventorySort]);
 
   const paginatedInventory = filteredInventory.slice(
     (inventoryPage - 1) * currentPageSize,
-    inventoryPage * currentPageSize
+    inventoryPage * currentPageSize,
   );
 
   // 📦 Orders Filtering & Sorting
@@ -662,7 +662,7 @@ export default function AdminPanelDashboard() {
         (o) =>
           (o.order_id || "").toLowerCase().includes(q) ||
           (o.customer_email || "").toLowerCase().includes(q) ||
-          (o.customer_name || "").toLowerCase().includes(q)
+          (o.customer_name || "").toLowerCase().includes(q),
       );
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
@@ -678,7 +678,7 @@ export default function AdminPanelDashboard() {
         (o) =>
           (o.order_id || "").toLowerCase().includes(q) ||
           (o.customer_email || "").toLowerCase().includes(q) ||
-          (o.customer_name || "").toLowerCase().includes(q)
+          (o.customer_name || "").toLowerCase().includes(q),
       );
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
@@ -693,7 +693,7 @@ export default function AdminPanelDashboard() {
       data = data.filter(
         (c) =>
           (c.name || "").toLowerCase().includes(q) ||
-          (c.email || "").toLowerCase().includes(q)
+          (c.email || "").toLowerCase().includes(q),
       );
     }
     data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
@@ -708,7 +708,7 @@ export default function AdminPanelDashboard() {
       data = data.filter(
         (s) =>
           (s.name || "").toLowerCase().includes(q) ||
-          (s.email || "").toLowerCase().includes(q)
+          (s.email || "").toLowerCase().includes(q),
       );
     }
     data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
@@ -724,7 +724,7 @@ export default function AdminPanelDashboard() {
         (p) =>
           (p.seller_name || "").toLowerCase().includes(q) ||
           (p.method || "").toLowerCase().includes(q) ||
-          (p.status || "").toLowerCase().includes(q)
+          (p.status || "").toLowerCase().includes(q),
       );
     }
 
@@ -739,7 +739,7 @@ export default function AdminPanelDashboard() {
         (p) =>
           (p.id || "").toLowerCase().includes(q) ||
           (p.method || "").toLowerCase().includes(q) ||
-          (p.status || "").toLowerCase().includes(q)
+          (p.status || "").toLowerCase().includes(q),
       );
     }
     data.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
@@ -760,39 +760,39 @@ export default function AdminPanelDashboard() {
 
   const paginatedReturnRequests = returnRequests.slice(
     (returnRequestsPage - 1) * currentPageSize,
-    returnRequestsPage * currentPageSize
+    returnRequestsPage * currentPageSize,
   );
   const paginatedProducts = filteredProducts.slice(
     (productPage - 1) * currentPageSize,
-    productPage * currentPageSize
+    productPage * currentPageSize,
   );
   const paginatedOrders = filteredOrders.slice(
     (orderPage - 1) * currentPageSize,
-    orderPage * currentPageSize
+    orderPage * currentPageSize,
   );
   const paginatedReturnOrders = filteredReturnOrders.slice(
     (returnOrderPage - 1) * currentPageSize,
-    returnOrderPage * currentPageSize
+    returnOrderPage * currentPageSize,
   );
   const paginatedCustomers = filteredCustomers.slice(
     (customerPage - 1) * currentPageSize,
-    customerPage * currentPageSize
+    customerPage * currentPageSize,
   );
   const paginatedSellers = filteredSellers.slice(
     (sellerPage - 1) * currentPageSize,
-    sellerPage * currentPageSize
+    sellerPage * currentPageSize,
   );
   const paginatedPayments = filteredPayments.slice(
     (paymentPage - 1) * currentPageSize,
-    paymentPage * currentPageSize
+    paymentPage * currentPageSize,
   );
   const paginatedSellerPayments = filteredSellerPayments.slice(
     (sellerPaymentsPage - 1) * currentPageSize,
-    sellerPaymentsPage * currentPageSize
+    sellerPaymentsPage * currentPageSize,
   );
   const paginatedPromotions = filteredPromotions.slice(
     (promoPage - 1) * 6,
-    promoPage * 6
+    promoPage * 6,
   );
   useEffect(() => {
     if (window.location.pathname.includes("/dashboard")) {

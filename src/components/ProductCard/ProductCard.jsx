@@ -49,12 +49,12 @@ export default function ProductCard({ item, fromFlashSale = false }) {
                   item.isbestseller && item.isnew && item.islimitedstock
                     ? "bottom-3 left-3"
                     : item.isnew
-                    ? "top-3 right-3 "
-                    : item.isbestseller
-                    ? "top-3 left-3"
-                    : item.islimitedstock
-                    ? "top-3 right-3"
-                    : "top-3 left-3"
+                      ? "top-3 right-3 "
+                      : item.isbestseller
+                        ? "top-3 left-3"
+                        : item.islimitedstock
+                          ? "top-3 right-3"
+                          : "top-3 left-3"
                 }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full    animate-pulse`}
               >
                 Trending
@@ -71,8 +71,8 @@ export default function ProductCard({ item, fromFlashSale = false }) {
                   item.isbestseller && item.isnew
                     ? "bottom-3 right-3"
                     : item.isnew
-                    ? "top-3 right-3 "
-                    : "top-3 left-3"
+                      ? "top-3 right-3 "
+                      : "top-3 left-3"
                 }  bg-[#FF0055] text-white text-xs font-bold px-3 py-1 rounded-full    animate-pulse`}
               >
                 Limited Stock
@@ -135,9 +135,9 @@ export default function ProductCard({ item, fromFlashSale = false }) {
             </div>
 
             {/* Price → Reviews : 8px */}
-            <div className="flex items-center gap-1 mt-2">
+            <div className="flex items-center gap-3 mt-2">
               <Rating
-                emptySymbol={<Star size={18} className=" text-gray-300" />}
+                emptySymbol={<Star size={18} className="text-gray-300" />}
                 fullSymbol={
                   <Star size={18} className="text-[#FFD700] fill-[#FFD700]" />
                 }
@@ -145,12 +145,17 @@ export default function ProductCard({ item, fromFlashSale = false }) {
                   Number(item.rating) > 0
                     ? item.rating
                     : item.reviews && item.reviews.length > 0
-                    ? item.reviews.reduce((a, r) => a + r.rating, 0) /
-                      item.reviews.length
-                    : 0
+                      ? item.reviews.reduce((a, r) => a + r.rating, 0) /
+                        item.reviews.length
+                      : 0
                 }
                 readonly
               />
+              {item.sold !== undefined && (
+                <span className="text-gray-500 text-sm flex items-center gap-1 whitespace-nowrap mb-0.5 font-bold">
+                  • <span>{item.sold.toLocaleString()}</span> <span>Sold</span>
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>

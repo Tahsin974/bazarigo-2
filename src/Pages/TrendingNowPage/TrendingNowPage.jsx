@@ -53,16 +53,16 @@ export default function TrendingNowPage() {
         b.rating > 0
           ? b.rating
           : b.reviews && b.reviews.length > 0
-          ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
-          : 0;
+            ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
+            : 0;
 
       // Compute a's rating
       const aRating =
         a.rating > 0
           ? a.rating
           : a.reviews && a.reviews.length > 0
-          ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
-          : 0;
+            ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
+            : 0;
 
       return bRating - aRating; // High → Low
     }
@@ -74,7 +74,7 @@ export default function TrendingNowPage() {
 
   const paginatedProducts = sortedProducts.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const containerVariants = {
@@ -95,9 +95,8 @@ export default function TrendingNowPage() {
   const renderPageNumbers = useRenderPageNumbers(
     currentPage,
     totalPages,
-    setCurrentPage
+    setCurrentPage,
   );
-  console.log(AllProducts);
 
   return (
     <div className="w-full bg-gray-50 font-sans text-gray-800 ">

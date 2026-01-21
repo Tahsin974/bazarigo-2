@@ -31,13 +31,13 @@ function CustomersView({
   const { user } = useAuth();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredCustomers.length / customerPageSize)
+    Math.ceil(filteredCustomers.length / customerPageSize),
   );
 
   const renderPageNumbers = useRenderPageNumbers(
     customerPage,
     totalPages,
-    setCustomerPage
+    setCustomerPage,
   );
   const handleBulkDelete = async () => {
     if (selected.length === 0) {
@@ -93,8 +93,6 @@ function CustomersView({
       });
     }
   };
-
-  console.log(customers);
 
   return (
     <div>

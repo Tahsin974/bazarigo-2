@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const axiosSecure = axios.create({
-  // baseURL: "https://api.bazarigo.com",
   baseURL: import.meta.env.VITE_BASEURL,
 
   withCredentials: true,
@@ -17,7 +16,7 @@ export default function useAxiosSecure() {
     function (error) {
       // Do something with request error
       return console.error(error);
-    }
+    },
   );
   // Response interceptor
   axiosSecure.interceptors.response.use(
@@ -34,7 +33,7 @@ export default function useAxiosSecure() {
           await axios.post(
             `${baseUrl}/token/refresh`,
             {},
-            { withCredentials: true }
+            { withCredentials: true },
           );
 
           // Retry original request
@@ -47,7 +46,7 @@ export default function useAxiosSecure() {
             await axios.post(
               `${baseUrl}/logout`,
               {},
-              { withCredentials: true }
+              { withCredentials: true },
             );
           }
         }
@@ -55,7 +54,7 @@ export default function useAxiosSecure() {
 
       Promise.reject(error);
       return console.error(error);
-    }
+    },
   );
 
   return axiosSecure;

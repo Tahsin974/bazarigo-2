@@ -30,7 +30,7 @@ export default function CategoriesPage() {
   const [visibleCount, setVisibleCount] = useState(itemsPerPage);
 
   const [loading, setLoading] = useState(false);
-
+  const { products } = useProducts();
   const categories = [
     {
       name: "Electronics",
@@ -550,8 +550,6 @@ export default function CategoriesPage() {
     },
   ];
 
-  const { products } = useProducts();
-
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const queryProduct = params.get("product"); // encoded product ID
@@ -559,7 +557,7 @@ export default function CategoriesPage() {
   const subcategoryItem = decodeURIComponent(params.get("subcategory_item"));
 
   const [highlightedProduct, setHighlightedProduct] = useState(
-    queryProduct ? queryProduct : null
+    queryProduct ? queryProduct : null,
   );
 
   const filteredProducts = products.filter((product) => {
@@ -600,28 +598,28 @@ export default function CategoriesPage() {
         b.rating > 0
           ? b.rating
           : b.reviews && b.reviews.length > 0
-          ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
-          : 0;
+            ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / b.reviews.length
+            : 0;
 
       // Compute a's rating
       const aRating =
         a.rating > 0
           ? a.rating
           : a.reviews && a.reviews.length > 0
-          ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
-          : 0;
+            ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / a.reviews.length
+            : 0;
 
       return bRating - aRating; // High → Low
     }
   });
   const totalPages = Math.max(
     1,
-    Math.ceil(sortedProducts.length / itemsPerPage)
+    Math.ceil(sortedProducts.length / itemsPerPage),
   );
   const startIndex = (currentPage - 1) * itemsPerPage;
   const pageProducts = sortedProducts.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + itemsPerPage,
   );
   const visibleProducts = sortedProducts.slice(0, visibleCount);
 
@@ -677,13 +675,52 @@ export default function CategoriesPage() {
   const renderPageNumbers = useRenderPageNumbers(
     currentPage,
     totalPages,
-    setCurrentPage
+    setCurrentPage,
   );
   useEffect(() => {
     if (queryProduct) {
       setHighlightedProduct(queryProduct);
     }
   }, [queryProduct]);
+  const availableMap = products.reduce((acc, p) => {
+    if (!acc[p.category]) acc[p.category] = {};
+    if (!acc[p.category][p.subcategory])
+      acc[p.category][p.subcategory] = new Set();
+    acc[p.category][p.subcategory].add(p.subcategory_item);
+    return acc;
+  }, {});
+
+  const filteredCategories = categories
+    .map((cat) => {
+      const availableSub = availableMap[cat.name];
+      if (!availableSub) return null;
+
+      const filteredSub = cat.sub
+        .map((sub) => {
+          const availableItems = availableSub[sub.name];
+          if (!availableItems) return null;
+
+          const filteredItems = sub.items.filter((item) =>
+            availableItems.has(item),
+          );
+
+          if (filteredItems.length === 0) return null;
+
+          return {
+            ...sub,
+            items: filteredItems,
+          };
+        })
+        .filter(Boolean);
+
+      if (filteredSub.length === 0) return null;
+
+      return {
+        ...cat,
+        sub: filteredSub,
+      };
+    })
+    .filter(Boolean);
 
   return (
     <section>
@@ -713,7 +750,7 @@ export default function CategoriesPage() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
             <Sidebar
-              categories={categories}
+              categories={filteredCategories}
               activeCategory={activeCategory}
               setActiveCategory={setActiveCategory}
               openDropdown={openDropdown}
@@ -731,7 +768,7 @@ export default function CategoriesPage() {
                     {mode === "pagination"
                       ? `${startIndex + 1} - ${Math.min(
                           startIndex + itemsPerPage,
-                          sortedProducts.length
+                          sortedProducts.length,
                         )}`
                       : `1 - ${Math.min(visibleCount, sortedProducts.length)}`}
                   </span>
@@ -844,7 +881,7 @@ export default function CategoriesPage() {
                     <button
                       onClick={() =>
                         setMode(
-                          mode === "pagination" ? "infinite" : "pagination"
+                          mode === "pagination" ? "infinite" : "pagination",
                         )
                       }
                       className="text-sm underline text-gray-600"

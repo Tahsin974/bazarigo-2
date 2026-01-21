@@ -15,10 +15,17 @@ export default function FilterSection({ filter, setFilter }) {
             <option value="all">All</option>
             <option value="Electronics">Electronics</option>
             <option value="Fashion">Fashion</option>
-            <option value="Groceries">Groceries</option>
             <option value="Health & Beauty">Health & Beauty</option>
-            <option value="Home & Living">Home & Living</option>
-            <option value="Sports">Sports</option>
+            <option value="Furniture & Home Decor">
+              Furniture & Home Decor
+            </option>
+            <option value="Sports & Outdoors">Sports & Outdoors</option>
+            <option value="Toys & Baby Products">Toys & Baby Products</option>
+            <option value="Automotive & Industrial">
+              Automotive & Industrial
+            </option>
+            <option value="Grocery & Food Items">Grocery & Food Items</option>
+            <option value="Pets & Pet Care">Pets & Pet Care</option>
           </SelectField>
         </div>
       </section>

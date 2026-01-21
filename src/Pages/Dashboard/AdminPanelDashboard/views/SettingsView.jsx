@@ -23,7 +23,6 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
     user.product_category || ""
   );
 
-  console.log("Product Category", user);
 
   const [gender, setGender] = useState(user.gender || "");
   const [date, setDate] = useState("");

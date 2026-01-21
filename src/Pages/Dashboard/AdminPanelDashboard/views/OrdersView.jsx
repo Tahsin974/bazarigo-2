@@ -42,28 +42,28 @@ function OrdersView({
   const { user } = useAuth();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredOrders.length / orderPageSize)
+    Math.ceil(filteredOrders.length / orderPageSize),
   );
 
   const returnOrdersTotalPages = Math.max(
     1,
-    Math.ceil(filteredReturnOrders.length / returnOrderPageSize)
+    Math.ceil(filteredReturnOrders.length / returnOrderPageSize),
   );
 
   const activeOrders = paginatedOrders.filter(
-    (order) => order.order_status !== "Cancelled"
+    (order) => order.order_status !== "Cancelled",
   );
 
   const renderPageNumbers = useRenderPageNumbers(
     orderPage,
     totalPages,
-    setOrderPage
+    setOrderPage,
   );
 
   const renderReturnPageNumbers = useRenderPageNumbers(
     returnOrderPage,
     returnOrdersTotalPages,
-    setReturnOrderPage
+    setReturnOrderPage,
   );
 
   const handleBulkDelete = async () => {
@@ -277,7 +277,9 @@ function OrdersView({
                         )}
 
                         <td>
-                          <span className="font-semibold">{o.order_id}</span>{" "}
+                          <span className="font-semibold">
+                            {o.order_id}
+                          </span>{" "}
                         </td>
                         <td>
                           <span className="font-semibold">
