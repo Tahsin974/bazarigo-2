@@ -45,7 +45,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
   });
   const videoRefs = useRef([]); // All refs stored here
   const [pausedVideos, setPausedVideos] = useState(
-    form.images.reduce((acc, _, i) => ({ ...acc, [i]: true }), {})
+    form.images.reduce((acc, _, i) => ({ ...acc, [i]: true }), {}),
   ); // Store pause state per index
   const togglePlayPause = (idx) => {
     const video = videoRefs.current[idx];
@@ -72,20 +72,20 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
       Object.entries(attributes).map(([key, value]) => [
         key,
         typeof value === "string" ? value.trim() : value,
-      ])
+      ]),
     );
     const hasAnyValue = Object.values(allAttributes).some(
-      (v) => v?.toString().trim() !== ""
+      (v) => v?.toString().trim() !== "",
     );
     if (!hasAnyValue) return;
 
     let isExactDuplicate = false;
     variants.forEach((v) => {
       const keysToCheck = Object.keys(allAttributes).filter(
-        (key) => !["regular_price", "sale_price", "stock"].includes(key)
+        (key) => !["regular_price", "sale_price", "stock"].includes(key),
       );
       const allMatch = keysToCheck.every(
-        (key) => v[key] === allAttributes[key]
+        (key) => v[key] === allAttributes[key],
       );
       if (allMatch) isExactDuplicate = true;
     });
@@ -113,7 +113,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
     // 🟢 UPDATED: মোট stock হিসাব করা হচ্ছে
     const totalStock = updatedVariants.reduce(
       (sum, v) => sum + (v.stock || 0),
-      0
+      0,
     );
 
     setForm((prev) => ({
@@ -127,7 +127,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
 
     const cleared = Object.keys(allAttributes).reduce(
       (acc, key) => ({ ...acc, [key]: "" }),
-      {}
+      {},
     );
 
     setAttributes(cleared);
@@ -715,7 +715,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
   const availableSubcategories = subcategories?.sub || [];
 
   const subcategoryItem = availableSubcategories.find(
-    (sub) => sub.name === form.subcategory
+    (sub) => sub.name === form.subcategory,
   );
   const availableSubcategoryItems = subcategoryItem
     ? subcategoryItem?.items
@@ -730,14 +730,16 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
     variants.length > 0
       ? [
           ...new Set(
-            variants?.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase()))
+            variants?.flatMap((v) =>
+              Object.keys(v).map((k) => k.toLowerCase()),
+            ),
           ),
         ].filter(
           (k) =>
             k !== "regular_price" &&
             k !== "sale_price" &&
             k !== "stock" &&
-            k !== "id"
+            k !== "id",
         )
       : getVariantsFor(subcategoryItem).map((v) => String(v).toLowerCase());
   const tableHeaders =
@@ -746,8 +748,8 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
           const keys = [
             ...new Set(
               variants?.flatMap((v) =>
-                Object.keys(v).map((k) => k.toLowerCase())
-              )
+                Object.keys(v).map((k) => k.toLowerCase()),
+              ),
             ),
           ].filter((k) => k !== "id");
 
@@ -794,7 +796,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
 
       // আগের image path গুলো বের করা
       const existingPaths = form.images.filter(
-        (item) => typeof item === "string"
+        (item) => typeof item === "string",
       );
 
       // backend এ পাঠানো
@@ -1180,12 +1182,11 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
                           </button>
                         </>
                       )}
-
                       <button
                         onClick={() => removeImage(i)}
-                        className="absolute top-1 right-1 w-6 h-6 text-white rounded-full flex items-center justify-center text-sm transition"
+                        className="absolute top-1 right-1 bg-gray-800/80 hover:bg-gray-800  text-white  p-1  cursor-pointer"
                       >
-                        <X size={18} />
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   );
@@ -1208,7 +1209,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
               <div className="px-5 py-5 bg-[#F9FAFB] rounded-2xl border-gray-300 border space-y-4">
                 <div
                   className={`grid ${getGridCols(
-                    variablesType.length
+                    variablesType.length,
                   )} gap-4 mt-2`}
                 >
                   {variablesType.map((v, i) => (
@@ -1260,7 +1261,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
                       onChange={(e) =>
                         handleAttributeChange(
                           "sale_price",
-                          parseInt(e.target.value)
+                          parseInt(e.target.value),
                         )
                       }
                       onKeyDown={(e) => {
@@ -1347,12 +1348,12 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
                                     const updatedVariants = variants.map((v) =>
                                       v.id === variant.id
                                         ? { ...v, [key]: value }
-                                        : v
+                                        : v,
                                     );
 
                                     const totalStock = updatedVariants.reduce(
                                       (sum, v) => sum + (v.stock || 0),
-                                      0
+                                      0,
                                     );
 
                                     setVariants(updatedVariants);

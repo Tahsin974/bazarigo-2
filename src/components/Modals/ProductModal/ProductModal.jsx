@@ -61,7 +61,7 @@ export default function ProductModal({ onClose, refetch }) {
 
     // অন্তত একটি value আছে কিনা
     const hasAnyValue = Object.values(allAttributes).some(
-      (v) => String(v).trim() !== ""
+      (v) => String(v).trim() !== "",
     );
     if (!hasAnyValue) return;
 
@@ -71,23 +71,24 @@ export default function ProductModal({ onClose, refetch }) {
     variants.forEach((v) => {
       // duplicate/overlap check: আগের variant-এর keys (price/stock ছাড়া)
       const keysToCheck = Object.keys(v).filter(
-        (key) => !["regular_price", "sale_price", "stock"].includes(key)
+        (key) => !["regular_price", "sale_price", "stock"].includes(key),
       );
 
       // ✅ Exact duplicate: আগের variant-এর সব key নতুন variant-এ value মিলছে
       const allMatch = keysToCheck.every(
-        (key) => v[key] === allAttributes[key]
+        (key) => v[key] === allAttributes[key],
       );
 
       // কোন attribute মিলেছে
       const matchCount = keysToCheck.filter(
-        (key) => v[key] && v[key] === allAttributes[key]
+        (key) => v[key] && v[key] === allAttributes[key],
       ).length;
 
       // 🔹 নতুন attribute আছে কি না
       const newAttributesCount = Object.keys(allAttributes).filter(
         (key) =>
-          !["regular_price", "sale_price", "stock"].includes(key) && !(key in v)
+          !["regular_price", "sale_price", "stock"].includes(key) &&
+          !(key in v),
       ).length;
 
       // ✅ Partial overlap: কিছু match হয়েছে + নতুন attribute আছে
@@ -107,7 +108,7 @@ export default function ProductModal({ onClose, refetch }) {
         if (result.isConfirmed) {
           const cleared = Object.keys(allAttributes).reduce(
             (acc, key) => ({ ...acc, [key]: "" }),
-            {}
+            {},
           );
           return setAttributes(cleared);
         }
@@ -124,7 +125,7 @@ export default function ProductModal({ onClose, refetch }) {
         if (result.isConfirmed) {
           const cleared = Object.keys(allAttributes).reduce(
             (acc, key) => ({ ...acc, [key]: "" }),
-            {}
+            {},
           );
           return setAttributes(cleared);
         }
@@ -136,7 +137,7 @@ export default function ProductModal({ onClose, refetch }) {
       Object.entries(allAttributes).map(([key, value]) => [
         key,
         typeof value === "string" ? value.trim() : value,
-      ])
+      ]),
     );
 
     // নতুন variant তৈরি, price এবং stock সবসময় শেষে
@@ -168,7 +169,7 @@ export default function ProductModal({ onClose, refetch }) {
     // ইনপুট ক্লিয়ার
     const cleared = Object.keys(allAttributes).reduce(
       (acc, key) => ({ ...acc, [key]: "" }),
-      {}
+      {},
     );
 
     setAttributes(cleared);
@@ -748,7 +749,7 @@ export default function ProductModal({ onClose, refetch }) {
   const availableSubcategories = subcategories?.sub || [];
 
   const subcategoryItem = availableSubcategories.find(
-    (sub) => sub.name === form.subcategory
+    (sub) => sub.name === form.subcategory,
   );
   const availableSubcategoryItems = subcategoryItem
     ? subcategoryItem?.items
@@ -762,14 +763,14 @@ export default function ProductModal({ onClose, refetch }) {
     variants.length > 0
       ? [
           ...new Set(
-            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase()))
+            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase())),
           ),
         ].filter(
           (k) =>
             k !== "regular_price" &&
             k !== "sale_price" &&
             k !== "stock" &&
-            k !== "id"
+            k !== "id",
         )
       : getVariantsFor(subcategoryItem).map((v) => String(v).toLowerCase());
   const handleCreate = async () => {
@@ -846,7 +847,7 @@ export default function ProductModal({ onClose, refetch }) {
     variants.length > 0
       ? [
           ...new Set(
-            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase()))
+            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase())),
           ),
         ].filter((k) => k !== "id")
       : [];
@@ -896,7 +897,7 @@ export default function ProductModal({ onClose, refetch }) {
 
   const handleChange = useCallback(
     (newContent) => setForm((s) => ({ ...s, description: newContent })),
-    []
+    [],
   );
 
   return (
@@ -1216,12 +1217,11 @@ export default function ProductModal({ onClose, refetch }) {
                             </button>
                           </>
                         )}
-
                         <button
                           onClick={() => removeImage(i)}
-                          className="absolute top-1 right-1 w-6 h-6 text-white rounded-full flex items-center justify-center text-sm transition"
+                          className="absolute top-1 right-1 bg-gray-800/80 hover:bg-gray-800  text-white  p-1  cursor-pointer"
                         >
-                          <X size={18} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     );
@@ -1305,7 +1305,7 @@ export default function ProductModal({ onClose, refetch }) {
                 <div className="px-5 py-5 bg-[#F9FAFB] rounded-2xl border-gray-300 border space-y-4">
                   <div
                     className={`grid ${getGridCols(
-                      variablesType?.length
+                      variablesType?.length,
                     )}   gap-4 `}
                   >
                     {variablesType.map((type, idx) => (
@@ -1349,7 +1349,7 @@ export default function ProductModal({ onClose, refetch }) {
                             const val = e.target.value;
                             handleAttributeChange(
                               "regular_price",
-                              parseInt(val)
+                              parseInt(val),
                             );
                           }}
                         />
@@ -1372,7 +1372,7 @@ export default function ProductModal({ onClose, refetch }) {
                           onChange={(e) =>
                             handleAttributeChange(
                               "sale_price",
-                              parseInt(e.target.value)
+                              parseInt(e.target.value),
                             )
                           }
                           onKeyDown={(e) => {
@@ -1395,7 +1395,7 @@ export default function ProductModal({ onClose, refetch }) {
                           onChange={(e) =>
                             handleAttributeChange(
                               "stock",
-                              parseInt(e.target.value)
+                              parseInt(e.target.value),
                             )
                           }
                           onKeyDown={(e) => {
