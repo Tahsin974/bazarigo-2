@@ -18,6 +18,17 @@ export default function SearchBar({
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
 
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
+  };
+
   // Debounce input
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300);
@@ -68,12 +79,12 @@ export default function SearchBar({
       // Navigate to the category page and pass product ID
       navigate(
         `/categories/${encodeURIComponent(
-          item?.category || "All Products"
+          item?.category || "All Products",
         )}?product=${encodeURIComponent(
-          item.title
+          item.title,
         )}&subcategory=${encodeURIComponent(
-          item?.subcategory
-        )}&subcategory_item=${encodeURIComponent(item?.subcategory_item)}`
+          item?.subcategory,
+        )}&subcategory_item=${encodeURIComponent(item?.subcategory_item)}`,
       );
     }
     if (item.type === "shop")
@@ -119,7 +130,7 @@ export default function SearchBar({
                   <div className="flex items-center gap-1.5">
                     <img
                       className="h-10 w-10  rounded"
-                      src={`${baseUrl}${item.images[0]}`}
+                      src={`${baseUrl}${getImages(item.images)[0]}`}
                       alt={item.title}
                     />
                     <span>{item.title}</span>
@@ -134,24 +145,3 @@ export default function SearchBar({
     </div>
   );
 }
-
-// import { Search } from "lucide-react";
-
-// export default function SearchBar({
-//   placeholder = "Search for products...",
-//   className = "",
-// }) {
-//   return (
-//     <div className={`w-full relative ${className}`}>
-//       <Search
-//         size={18}
-//         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-//       />
-//       <input
-//         type="text"
-//         placeholder={placeholder}
-//         className="w-full pl-12 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FF0055] transition-all duration-300 focus:shadow-lg focus:scale-[1.02]"
-//       />
-//     </div>
-//   );
-// }
