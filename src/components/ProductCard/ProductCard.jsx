@@ -27,7 +27,7 @@ export default function ProductCard({ item, fromFlashSale = false }) {
             {item.images && item.images[0] ? (
               <figure className=" aspect-[1/1] ">
                 <img
-                  src={`${baseUrl}${getImages(item.images)[0]}`}
+                  src={`${baseUrl}${item.thumbnail ? item.thumbnail : getImages(item.images)[0]}`}
                   alt=""
                   className="w-full h-full object-fill rounded-t-2xl transition-transform duration-300 group-hover:scale-105"
                 />

@@ -167,8 +167,16 @@ export default function BaseProductDetails({
       );
     });
   };
-  const imageOnlyList = getImages(product.images || []);
+  // const imageOnlyList = getImages(product.images || []);
+  const imageOnlyList = [
+    ...(product.thumbnail ? [product.thumbnail] : []),
+    ...getImages(product.images || []),
+  ];
 
+  const mediaAssets = [
+    ...(product.thumbnail ? [product.thumbnail] : []),
+    ...(product.images || []),
+  ];
   const handleBuyNowBtn = async (product) => {
     try {
       if (user && user.email) {
@@ -176,7 +184,9 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: getImages(product.images)[0],
+          product_img: product.thumbnail
+            ? product.thumbnail
+            : getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -266,7 +276,9 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: getImages(product.images)[0],
+          product_img: product.thumbnail
+            ? product.thumbnail
+            : getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -424,7 +436,9 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: getImages(product.images)[0],
+          product_img: product.thumbnail
+            ? product.thumbnail
+            : getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -481,9 +495,22 @@ export default function BaseProductDetails({
       setIsSelect(!newToggle); // UI revert if error
     }
   };
+  // useEffect(() => {
+  //   setIsPaused(true);
+  // }, [mainImage]);
   useEffect(() => {
-    setIsPaused(true);
+    const video = videoRef.current;
+    if (!video) return;
+
+    // autoplay hole
+    if (!video.paused) {
+      console.log("video is playing");
+      setIsPaused(false);
+    } else {
+      setIsPaused(true);
+    }
   }, [mainImage]);
+
   useEffect(() => {
     if (imageOnlyList.length > 0) {
       setMainImage(imageOnlyList[0]);
@@ -492,6 +519,8 @@ export default function BaseProductDetails({
 
   useEffect(() => {
     if (isHovering) return;
+    if (!isPaused) return;
+    if (videoRef.current) return;
     if (!autoSlide || imageOnlyList.length <= 1) return;
 
     sliderIntervalRef.current = setInterval(() => {
@@ -505,6 +534,7 @@ export default function BaseProductDetails({
   }, [autoSlide, imageOnlyList]);
 
   if (!product || Object.keys(product).length === 0) return null;
+
   return (
     <div className="w-full bg-white text-gray-800 font-sans">
       {isPending ? (
@@ -572,12 +602,24 @@ export default function BaseProductDetails({
                     <div className="relative group">
                       <video
                         ref={videoRef}
-                        controls
                         src={`${baseUrl}${mainImage}`}
                         className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                        onPlay={() => setIsPaused(false)}
+                        onPause={() => setIsPaused(true)}
                         onEnded={() => setIsPaused(true)}
+                        // more options বাদ
+                        onClick={() => {
+                          if (videoRef.current.paused) {
+                            videoRef.current.play();
+                            setIsPaused(false);
+                          } else {
+                            videoRef.current.pause();
+                            setIsPaused(true);
+                          }
+                        }}
                         controlsList="nodownload noremoteplayback" // more options বাদ
                         disablePictureInPicture
+                        autoPlay
                       />
                       <button
                         onClick={() => {
@@ -619,7 +661,7 @@ export default function BaseProductDetails({
                     id="thumbScroll"
                     className="flex gap-4 overflow-x-auto no-scrollbar mx-3"
                   >
-                    {product.images.map((thumb, i) => {
+                    {mediaAssets.map((thumb, i) => {
                       const isVideo = thumb.endsWith(".mp4");
 
                       return (

@@ -293,7 +293,7 @@ function ProductsView({
                         <div className="avatar">
                           <div className="mask mask-squircle h-12 w-12">
                             <img
-                              src={`${baseUrl}${getImages(p.images)[0]}`}
+                              src={`${baseUrl}${p.thumbnail ? p.thumbnail : getImages(p.images)[0]}`}
                               alt={p.name}
                             />
                           </div>

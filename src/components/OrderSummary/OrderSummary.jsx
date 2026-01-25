@@ -32,11 +32,11 @@ export default function OrderSummary({
     try {
       const res = await axiosPublic.post("/apply-promo", {
         userId: user.id,
-        code: promoCode.toUpperCase(),
+        code: promoCode,
       });
 
       setAppliedPromo({
-        code: promoCode.toUpperCase(),
+        code: promoCode,
         discount: res.data.discount || 0,
       });
 
@@ -89,14 +89,14 @@ export default function OrderSummary({
 
   const deliveryPerItem = items.reduce(
     (sum, item) => sum + item.deliveries.total_delivery_charge,
-    0
+    0,
   );
   // fresh subtotal + delivery
   let baseTotal = subtotal + deliveryPerItem;
 
   // appliedPromo শুধু টাকার মান (discount)
   let total = appliedPromo.discount
-    ? Math.max(0, baseTotal - appliedPromo.discount)
+    ? Math.max(0, baseTotal - (baseTotal * appliedPromo.discount) / 100)
     : baseTotal;
 
   const handleOrderBtn = async () => {
@@ -186,7 +186,7 @@ export default function OrderSummary({
             // seller এর total weight
             const totalWeight = item.productinfo.reduce(
               (sum, prod) => sum + (parseFloat(prod.weight) || 0),
-              0
+              0,
             );
             const newSubtotal = item.productinfo.reduce((sum, prod) => {
               const price =
@@ -217,7 +217,7 @@ export default function OrderSummary({
             });
 
             return { ...item, deliveries };
-          })
+          }),
         );
 
         // যদি state রাখতে চাও
@@ -326,8 +326,8 @@ export default function OrderSummary({
                 </div>
                 {appliedPromo.code && (
                   <p className="text-green-600 mt-1">
-                    Promo "{appliedPromo.code}" applied! Discount: ৳
-                    {appliedPromo.discount}
+                    Promo "{appliedPromo.code}" applied! Discount:
+                    {appliedPromo.discount}%
                   </p>
                 )}
               </div>

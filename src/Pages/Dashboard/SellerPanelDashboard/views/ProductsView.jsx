@@ -36,12 +36,12 @@ function ProductsView({
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredProducts.length / productPageSize)
+    Math.ceil(filteredProducts.length / productPageSize),
   );
   const renderPageNumbers = useRenderPageNumbers(
     productPage,
     totalPages,
-    setProductPage
+    setProductPage,
   );
 
   const HandleDelete = async (id) => {
@@ -260,7 +260,7 @@ function ProductsView({
                             <div className="avatar">
                               <div className="mask mask-squircle h-12 w-12">
                                 <img
-                                  src={`${baseUrl}${getImages(p.images)[0]}`}
+                                  src={`${baseUrl}${p.thumbnail ? p.thumbnail : getImages(p.images)[0]}`}
                                   alt={p.name}
                                 />
                               </div>
@@ -300,13 +300,13 @@ function ProductsView({
                               {Number(p.rating) > 0
                                 ? p.rating
                                 : p.reviews && p.reviews.length > 0
-                                ? (
-                                    p.reviews.reduce(
-                                      (a, r) => a + r.rating,
-                                      0
-                                    ) / p.reviews.length
-                                  ).toFixed(1)
-                                : "0.0"}
+                                  ? (
+                                      p.reviews.reduce(
+                                        (a, r) => a + r.rating,
+                                        0,
+                                      ) / p.reviews.length
+                                    ).toFixed(1)
+                                  : "0.0"}
                             </span>
                           </div>
                         </td>

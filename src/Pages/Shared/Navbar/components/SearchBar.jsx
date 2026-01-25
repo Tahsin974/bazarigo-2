@@ -18,17 +18,6 @@ export default function SearchBar({
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
 
-  const getImages = (images) => {
-    return images.filter((img) => {
-      const lower = img.toLowerCase();
-      return !(
-        lower.endsWith(".mp4") ||
-        lower.endsWith(".webm") ||
-        lower.endsWith(".mov")
-      );
-    });
-  };
-
   // Debounce input
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query), 300);
@@ -92,6 +81,16 @@ export default function SearchBar({
     setQuery("");
     setShowSuggestions(false);
   };
+  const getImages = (images) => {
+    return images.filter((img) => {
+      const lower = img.toLowerCase();
+      return !(
+        lower.endsWith(".mp4") ||
+        lower.endsWith(".webm") ||
+        lower.endsWith(".mov")
+      );
+    });
+  };
 
   return (
     <div className="w-full relative" ref={ref}>
@@ -130,7 +129,7 @@ export default function SearchBar({
                   <div className="flex items-center gap-1.5">
                     <img
                       className="h-10 w-10  rounded"
-                      src={`${baseUrl}${getImages(item.images)[0]}`}
+                      src={`${baseUrl}${item.thumbnail ? item.thumbnail : getImages(item.images)[0]}`}
                       alt={item.title}
                     />
                     <span>{item.title}</span>

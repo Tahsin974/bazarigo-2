@@ -1,8 +1,15 @@
 import { useRef, useState } from "react";
 import SelectField from "../../ui/SelectField";
 import TextEditor from "../../ui/TextEditor";
-import UploadImages from "../../ui/UploadImages";
-import { Pause, Play, Trash2, X } from "lucide-react";
+import {
+  Film,
+  ImageIcon,
+  Pause,
+  Play,
+  Trash2,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import Swal from "sweetalert2";
 import { InputField } from "../../ui/InputField";
 import useAxiosPublic from "../../../Utils/Hooks/useAxiosPublic";
@@ -26,6 +33,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
     description: product.description || "",
     stock: product.stock || 0,
     images: product.images || [],
+    thumbnail: product.thumbnail || null,
     extras: product.extras || {},
     isBestSeller: product.isbestseller || false,
     isHot: product.ishot || false,
@@ -43,22 +51,14 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
     sellerName: product.sellerName || "",
     sellerStoreName: product.sellerStoreName || "",
   });
+
+  const [thumbnail, setThumbnail] = useState(product.thumbnail || null);
   const videoRefs = useRef([]); // All refs stored here
+  const mediaURLs = useRef({});
+
   const [pausedVideos, setPausedVideos] = useState(
     form.images.reduce((acc, _, i) => ({ ...acc, [i]: true }), {}),
   ); // Store pause state per index
-  const togglePlayPause = (idx) => {
-    const video = videoRefs.current[idx];
-    if (!video) return;
-
-    if (video.paused) {
-      video.play();
-      setPausedVideos((p) => ({ ...p, [idx]: false }));
-    } else {
-      video.pause();
-      setPausedVideos((p) => ({ ...p, [idx]: true }));
-    }
-  };
 
   const [attributes, setAttributes] = useState({});
   const [variants, setVariants] = useState(product.extras?.variants || []);
@@ -179,6 +179,11 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
       ...prev,
       images: [...validFiles, ...(prev.images || [])],
     }));
+  };
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setThumbnail(file); // no base64 needed now
   };
 
   const removeImage = (index) => {
@@ -790,6 +795,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
       formData.append("stock", form.stock);
       formData.append("brand", form.brand);
       formData.append("weight", form.weight);
+      formData.append("thumbnail", thumbnail);
       formData.append("extras", JSON.stringify(form.extras));
 
       // Multer-এর জন্য প্রতিটি ফাইল আলাদা append করুন
@@ -827,6 +833,67 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
       }
     } catch (err) {
       console.error(err.response?.data || err.message);
+    }
+  };
+
+  const renderThumbnailContent = () => {
+    if (!thumbnail) {
+      return (
+        <div className="flex flex-col items-center justify-center space-y-2 p-4">
+          <div className="p-3 bg-pink-50 rounded-full group-hover:bg-pink-100 transition-colors">
+            <UploadCloud size={28} className="text-[#FF0055]" />
+          </div>
+          <div className="space-y-1 text-center">
+            <p className="text-sm font-medium text-gray-700">
+              <span className="text-[#FF0055]">Click to upload</span>
+            </p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+              JPG, PNG Required
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    const src =
+      typeof thumbnail === "string"
+        ? thumbnail.includes("/uploads")
+          ? `${baseUrl}${thumbnail}`
+          : thumbnail
+        : URL.createObjectURL(thumbnail);
+
+    return (
+      <img
+        src={src}
+        alt="thumbnail"
+        className="w-full h-full object-fill rounded-lg"
+      />
+    );
+  };
+  const togglePlayPause = async (i) => {
+    const currentVideo = videoRefs.current[i];
+    if (!currentVideo) return;
+
+    try {
+      // 🔴 pause all other videos
+      videoRefs.current.forEach((v, idx) => {
+        if (v && idx !== i) {
+          v.pause();
+          setPausedVideos((p) => ({ ...p, [idx]: true }));
+        }
+      });
+
+      if (currentVideo.paused) {
+        await currentVideo.play();
+        currentVideo.muted = false; // auto-play muted
+        setPausedVideos((p) => ({ ...p, [i]: false }));
+      } else {
+        currentVideo.pause();
+        currentVideo.muted = true;
+        setPausedVideos((p) => ({ ...p, [i]: true }));
+      }
+    } catch (err) {
+      console.error("Video play blocked:", err);
     }
   };
 
@@ -1120,80 +1187,134 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
               )}
             </div>
           </div>
-          {/* Images */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Upload Image
-            </label>
-            <UploadImages video={true} handleImageUpload={handleImageChange}>
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {(form.images || []).map((src, i) => {
-                  if (!src) return null;
 
-                  const isVideo =
-                    (typeof src === "object" &&
-                      src.type?.startsWith("video")) ||
-                    (typeof src === "string" && /\.(mp4|webm|mov)$/i.test(src));
+          <section className="border border-gray-200 rounded-3xl p-5 bg-gray-50 space-y-4">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Thumbnail Section */}
+              <div className="flex-shrink-0 w-full md:w-48">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                  Product Thumbnail
+                </h3>
+                <div
+                  className={`relative group aspect-square flex items-center justify-center border-2 border-dashed rounded-2xl overflow-hidden transition-all ${
+                    thumbnail
+                      ? "border-emerald-500 bg-emerald-50"
+                      : "border-gray-300 bg-gray-50 hover:border-[#FF0055]"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    name={name}
+                    accept=".jpg,.jpeg,.png"
+                    onChange={handleImageUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
 
-                  let mediaURL = "";
-                  if (typeof src === "object") {
-                    mediaURL = URL.createObjectURL(src);
-                  } else if (typeof src === "string") {
-                    mediaURL = src.includes("/uploads")
-                      ? `${baseUrl}${src}`
-                      : src;
-                  }
+                  {renderThumbnailContent()}
 
-                  return (
-                    <div
-                      key={i}
-                      className="w-full h-24 rounded overflow-hidden relative flex justify-center items-center bg-gray-100"
-                    >
-                      {/* IMAGE */}
-                      {!isVideo && (
-                        <img
-                          src={mediaURL}
-                          alt={`media-${i}`}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-
-                      {/* VIDEO */}
-                      {isVideo && (
-                        <>
-                          <video
-                            ref={(el) => (videoRefs.current[i] = el)}
-                            src={mediaURL}
-                            className="w-full h-full object-cover"
-                            onEnded={() =>
-                              setPausedVideos((p) => ({ ...p, [i]: true }))
-                            }
-                          />
-
-                          <button
-                            onClick={() => togglePlayPause(i)}
-                            className="absolute bottom-2 left-2 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-md transition duration-200 ease-in-out "
-                          >
-                            {pausedVideos[i] ? (
-                              <Play size={16} />
-                            ) : (
-                              <Pause size={16} />
-                            )}
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={() => removeImage(i)}
-                        className="absolute top-1 right-1 bg-gray-800/80 hover:bg-gray-800  text-white  p-1  cursor-pointer"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  );
-                })}
+                  {thumbnail && (
+                    <span className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-md">
+                      THUMBNAIL
+                    </span>
+                  )}
+                </div>
               </div>
-            </UploadImages>
-          </div>
+
+              {/* Product Images Section */}
+              <div className="flex-grow">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                  Product Images / Videos
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {(form.images || []).map((src, i) => {
+                    const isVideo =
+                      (src instanceof File && src.type.startsWith("video")) ||
+                      (typeof src === "string" &&
+                        /\.(mp4|webm|mov)$/i.test(src));
+
+                    let mediaURL = "";
+
+                    if (src instanceof File) {
+                      if (!mediaURLs.current[i]) {
+                        mediaURLs.current[i] = URL.createObjectURL(src);
+                      }
+                      mediaURL = mediaURLs.current[i];
+                    } else if (typeof src === "string") {
+                      mediaURL = src.includes("/uploads")
+                        ? `${baseUrl}${src}`
+                        : src;
+                    }
+
+                    return (
+                      <div
+                        key={i}
+                        className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 group border"
+                      >
+                        {!isVideo ? (
+                          <img
+                            src={mediaURL}
+                            alt=""
+                            className="w-full h-full object-cover group-hover:scale-110 transition"
+                          />
+                        ) : (
+                          <div className="relative w-full h-full">
+                            <video
+                              ref={(el) => (videoRefs.current[i] = el)}
+                              src={mediaURL}
+                              playsInline
+                              muted
+                              preload="metadata"
+                              className="w-full h-full object-cover"
+                              onEnded={() =>
+                                setPausedVideos((p) => ({ ...p, [i]: true }))
+                              }
+                            />
+
+                            <button
+                              onClick={() => togglePlayPause(i)}
+                              className="absolute inset-0 m-auto w-10 h-10 bg-black/60 hover:bg-black/80 
+             rounded-full flex items-center justify-center text-white"
+                            >
+                              {pausedVideos[i] !== false ? (
+                                <Play size={18} />
+                              ) : (
+                                <Pause size={18} />
+                              )}
+                            </button>
+
+                            <span className="absolute bottom-2 left-2 bg-black/60 text-white p-1 rounded">
+                              <Film size={12} />
+                            </span>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => removeImage(i)}
+                          className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow hover:bg-red-500 hover:text-white"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    );
+                  })}
+
+                  {/* Add More */}
+                  <div className="relative aspect-square border-2 border-dashed rounded-2xl flex flex-col items-center justify-center bg-gray-50 cursor-pointer">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={handleImageChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <ImageIcon size={22} className="text-gray-400" />
+                    <span className="text-[11px] text-gray-500 mt-2">
+                      Add More
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Variants */}
 

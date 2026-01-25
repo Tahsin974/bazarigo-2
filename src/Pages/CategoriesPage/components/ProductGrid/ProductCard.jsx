@@ -37,7 +37,7 @@ export default function ProductCard({ product: item, viewMode }) {
               }`}
             >
               <img
-                src={`${baseUrl}${getImages(item.images)[0]}`}
+                src={`${baseUrl}${item.thumbnail ? item.thumbnail : getImages(item.images)[0]}`}
                 alt=""
                 className={`  h-full w-full object-fill rounded-t-2xl transition-transform duration-300 group-hover:scale-105`}
               />

@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Info, Pause, Play, Trash2, X } from "lucide-react";
+import {
+  Film,
+  ImageIcon,
+  Info,
+  Pause,
+  Play,
+  Trash2,
+  UploadCloud,
+  X,
+} from "lucide-react";
 import SelectField from "../../ui/SelectField";
 import { motion } from "framer-motion";
-import UploadImages from "../../ui/UploadImages";
 
 import Swal from "sweetalert2";
 import TextEditor from "../../ui/TextEditor";
@@ -16,8 +24,16 @@ export default function ProductModal({ onClose, refetch }) {
   const [attributes, setAttributes] = useState({});
   const [variants, setVariants] = useState([]);
   const { user } = useAuth();
-  const videoRef = useRef();
-  const [isPaused, setIsPaused] = useState(true);
+  // const videoRef = useRef();
+  // const [isPaused, setIsPaused] = useState(true);
+  const videoRef = useRef([]);
+  const mediaURLs = useRef({});
+
+  const [isPaused, setIsPaused] = useState({});
+
+  const baseUrl = import.meta.env.VITE_BASEURL;
+
+  const [thumbnail, setThumbnail] = useState(null);
 
   const [form, setForm] = useState(() => ({
     id: null,
@@ -41,6 +57,7 @@ export default function ProductModal({ onClose, refetch }) {
     brand: "",
     weight: 1,
     images: [],
+    thumbnail: null,
     extras: {},
     createdAt: new Date().toLocaleString("en-CA", {
       timeZone: "Asia/Dhaka",
@@ -213,6 +230,11 @@ export default function ProductModal({ onClose, refetch }) {
       ...prev,
       images: [...(prev.images || []), ...validFiles],
     }));
+  };
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setThumbnail(file); // no base64 needed now
   };
 
   const removeImage = (index) => {
@@ -797,6 +819,9 @@ export default function ProductModal({ onClose, refetch }) {
         // Normal fields যোগ করুন
         for (let key in form) {
           if (key !== "images") {
+            if (key === "thumbnail") {
+              formData.append(key, thumbnail);
+            }
             if (key === "extras") {
               formData.append(key, JSON.stringify(form[key]));
             } else {
@@ -875,6 +900,7 @@ export default function ProductModal({ onClose, refetch }) {
       brand: "",
       weight: 1,
       images: [],
+      thumbnail: null,
       extras: {},
       createdAt: new Date().toLocaleString("en-CA", {
         timeZone: "Asia/Dhaka",
@@ -899,6 +925,67 @@ export default function ProductModal({ onClose, refetch }) {
     (newContent) => setForm((s) => ({ ...s, description: newContent })),
     [],
   );
+
+  const renderThumbnailContent = () => {
+    if (!thumbnail) {
+      return (
+        <div className="flex flex-col items-center justify-center space-y-2 p-4">
+          <div className="p-3 bg-pink-50 rounded-full group-hover:bg-pink-100 transition-colors">
+            <UploadCloud size={28} className="text-[#FF0055]" />
+          </div>
+          <div className="space-y-1 text-center">
+            <p className="text-sm font-medium text-gray-700">
+              <span className="text-[#FF0055]">Click to upload</span>
+            </p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider">
+              JPG, PNG Required
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    const src =
+      typeof thumbnail === "string"
+        ? thumbnail.includes("/uploads")
+          ? `${baseUrl}${thumbnail}`
+          : thumbnail
+        : URL.createObjectURL(thumbnail);
+
+    return (
+      <img
+        src={src}
+        alt="thumbnail"
+        className="w-full h-full object-fill rounded-lg"
+      />
+    );
+  };
+  const togglePlayPause = async (i) => {
+    const currentVideo = videoRef.current[i];
+    if (!currentVideo) return;
+
+    try {
+      // 🔴 pause all other videos
+      videoRef.current.forEach((v, idx) => {
+        if (v && idx !== i) {
+          v.pause();
+          setIsPaused((p) => ({ ...p, [idx]: true }));
+        }
+      });
+
+      if (currentVideo.paused) {
+        await currentVideo.play();
+        currentVideo.muted = false; // auto-play muted
+        setIsPaused((p) => ({ ...p, [i]: false }));
+      } else {
+        currentVideo.pause();
+        currentVideo.muted = true;
+        setIsPaused((p) => ({ ...p, [i]: true }));
+      }
+    } catch (err) {
+      console.error("Video play blocked:", err);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -1165,70 +1252,125 @@ export default function ProductModal({ onClose, refetch }) {
                 <TextEditor value={form.description} onChange={handleChange} />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Image
-              </label>
-              <UploadImages video={true} handleImageUpload={onImageChange}>
-                <div className="mt-3 grid grid-cols-4 gap-2">
-                  {(form.images || []).map((file, i) => {
-                    const isVideo = file.type.startsWith("video");
-                    const mediaURL = URL.createObjectURL(file); // File থেকে preview
 
-                    return (
-                      <div
-                        key={i}
-                        className="w-full h-24 rounded overflow-hidden relative flex justify-center items-center bg-gray-100"
-                      >
-                        {!isVideo && (
-                          <img
-                            src={mediaURL}
-                            alt={`media-${i}`}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
+            {/* Product Images / Videos Section */}
+            <section className="border border-gray-200 rounded-3xl p-5 bg-gray-50 space-y-4">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Thumbnail Section */}
+                <div className="flex-shrink-0 w-full md:w-48">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    Product Thumbnail
+                  </h3>
+                  <div
+                    className={`relative group aspect-square flex items-center justify-center border-2 border-dashed rounded-2xl overflow-hidden transition-all ${
+                      thumbnail
+                        ? "border-emerald-500 bg-emerald-50"
+                        : "border-gray-300 bg-gray-50 hover:border-[#FF0055]"
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      name={name}
+                      accept=".jpg,.jpeg,.png"
+                      onChange={handleImageUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
 
-                        {isVideo && (
-                          <>
-                            <video
-                              ref={videoRef}
-                              src={mediaURL}
-                              className="w-full h-full object-cover"
-                              onEnded={() => setIsPaused(true)}
-                            />
+                    {renderThumbnailContent()}
 
-                            <button
-                              onClick={() => {
-                                if (videoRef.current.paused) {
-                                  videoRef.current.play();
-                                  setIsPaused(false);
-                                } else {
-                                  videoRef.current.pause();
-                                  setIsPaused(true);
-                                }
-                              }}
-                              className="absolute bottom-2 left-2 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-md transition duration-200 ease-in-out "
-                            >
-                              {isPaused ? (
-                                <Play size={16} />
-                              ) : (
-                                <Pause size={16} />
-                              )}
-                            </button>
-                          </>
-                        )}
-                        <button
-                          onClick={() => removeImage(i)}
-                          className="absolute top-1 right-1 bg-gray-800/80 hover:bg-gray-800  text-white  p-1  cursor-pointer"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    );
-                  })}
+                    {thumbnail && (
+                      <span className="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-md">
+                        THUMBNAIL
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </UploadImages>
-            </div>
+
+                {/* Product Images Section */}
+                <div className="flex-grow">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    Product Images / Videos
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {(form.images || []).map((file, i) => {
+                      const isVideo = file.type.startsWith("video");
+                      if (!mediaURLs.current[i]) {
+                        mediaURLs.current[i] = URL.createObjectURL(file);
+                      }
+                      const mediaURL = mediaURLs.current[i];
+
+                      // const mediaURL = URL.createObjectURL(file);
+
+                      return (
+                        <div
+                          key={i}
+                          className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 group border"
+                        >
+                          {!isVideo ? (
+                            <img
+                              src={mediaURL}
+                              alt=""
+                              className="w-full h-full object-cover group-hover:scale-110 transition"
+                            />
+                          ) : (
+                            <div className="relative w-full h-full">
+                              <video
+                                ref={(el) => (videoRef.current[i] = el)}
+                                src={mediaURL}
+                                playsInline
+                                muted
+                                preload="metadata"
+                                className="w-full h-full object-cover"
+                                onEnded={() =>
+                                  setIsPaused((p) => ({ ...p, [i]: true }))
+                                }
+                              />
+
+                              <button
+                                onClick={() => togglePlayPause(i)}
+                                className="absolute inset-0 m-auto w-10 h-10 bg-black/60 hover:bg-black/80 
+             rounded-full flex items-center justify-center text-white"
+                              >
+                                {isPaused[i] !== false ? (
+                                  <Play size={18} />
+                                ) : (
+                                  <Pause size={18} />
+                                )}
+                              </button>
+
+                              <span className="absolute bottom-2 left-2 bg-black/60 text-white p-1 rounded">
+                                <Film size={12} />
+                              </span>
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => removeImage(i)}
+                            className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow hover:bg-red-500 hover:text-white"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      );
+                    })}
+
+                    {/* Add More */}
+                    <div className="relative aspect-square border-2 border-dashed rounded-2xl flex flex-col items-center justify-center bg-gray-50 cursor-pointer">
+                      <input
+                        type="file"
+                        multiple
+                        onChange={onImageChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <ImageIcon size={22} className="text-gray-400" />
+                      <span className="text-[11px] text-gray-500 mt-2">
+                        Add More
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* Badge */}
 

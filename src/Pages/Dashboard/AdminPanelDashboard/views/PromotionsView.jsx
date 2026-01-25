@@ -83,6 +83,7 @@ function PromotionsView({
         });
       }
     } catch (error) {
+      console.log(error);
       Swal.fire({
         icon: "error",
         title: `${error.message}`,
@@ -96,13 +97,13 @@ function PromotionsView({
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredPromotions.length / promoPageSize)
+    Math.ceil(filteredPromotions.length / promoPageSize),
   );
 
   const renderPageNumbers = useRenderPageNumbers(
     promoPage,
     totalPages,
-    setPromoPage
+    setPromoPage,
   );
   return (
     <div>
@@ -152,7 +153,7 @@ function PromotionsView({
                       {p.code}
                     </span>
                     <span className="text-xs text-green-600">
-                      Save ৳{p.discount}
+                      Save {p.discount}%
                     </span>
                   </div>
 
