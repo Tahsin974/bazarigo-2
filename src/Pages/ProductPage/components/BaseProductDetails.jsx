@@ -389,10 +389,21 @@ export default function BaseProductDetails({
   };
 
   const handleShare = async (product) => {
+    const shareUrl = `${import.meta.env.VITE_FRONTEND_URL}/product/${product.id}`; // encoded id backend handles redirect
+
+    // Clean description
+    const cleanDescription = product.description
+      ? product.description
+          .replace(/<[^>]*>/g, "")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 120) + "..."
+      : "Take a look at this great product!";
+
     const shareData = {
-      title: product.name || "Check this product",
-      text: product.description || "Take a look at this great product!",
-      url: window.location.href,
+      title: product.product_name || "Check this product",
+      text: cleanDescription,
+      url: shareUrl,
     };
 
     if (navigator.share) {
@@ -402,8 +413,7 @@ export default function BaseProductDetails({
         console.error("Sharing failed:", err);
       }
     } else {
-      // Fallback: copy link
-      navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl);
       Swal.fire({
         icon: "success",
         title: "Link copied to clipboard!",
@@ -495,9 +505,7 @@ export default function BaseProductDetails({
       setIsSelect(!newToggle); // UI revert if error
     }
   };
-  // useEffect(() => {
-  //   setIsPaused(true);
-  // }, [mainImage]);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -548,7 +556,7 @@ export default function BaseProductDetails({
               transition={{ duration: 0.6 }}
               className="flex flex-col gap-4 items-center"
             >
-              {product.images && product.images[0] ? (
+              {product.thumbnail || (product.images && product.images[0]) ? (
                 <div
                   onMouseEnter={() => {
                     setIsHovering(true);
@@ -644,7 +652,8 @@ export default function BaseProductDetails({
                 </div>
               )}
 
-              {product.images && product.images.length > 0 && (
+              {(product.thumbnail ||
+                (product.images && product.images.length > 0)) && (
                 <div className="relative mt-4 flex justify-center px-6">
                   <button
                     onClick={() => {
@@ -780,7 +789,10 @@ export default function BaseProductDetails({
                       </span>
                     )}
                   </div>
-                  <button className="text-gray-600" onClick={handleShare}>
+                  <button
+                    className="text-gray-600"
+                    onClick={() => handleShare(product)}
+                  >
                     <Share2 size={25} />
                   </button>
                 </div>
@@ -818,7 +830,10 @@ export default function BaseProductDetails({
                         className={` ${isSelect && "fill-red-600"} `}
                       />
                     </button>
-                    <button onClick={handleShare} className="text-gray-600">
+                    <button
+                      onClick={() => handleShare(product)}
+                      className="text-gray-600"
+                    >
                       <Share2 size={25} />
                     </button>
                   </div>
@@ -879,7 +894,7 @@ export default function BaseProductDetails({
                           />
                         </button>
                         <button
-                          onClick={handleShare}
+                          onClick={() => handleShare(product)}
                           className="bg-gray-100 text-gray-600 px-4 py-3 sm:px-8  sm:py-4 rounded-full shadow hover:bg-gray-200 transition flex justify-center items-center cursor-pointer"
                         >
                           <Share2 className="w-5 h-5" />

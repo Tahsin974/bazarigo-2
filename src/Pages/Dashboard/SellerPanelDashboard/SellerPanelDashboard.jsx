@@ -335,6 +335,7 @@ export default function SellerPanelDashboard() {
         brand: product.brand ?? "No Brand",
         weight: product.weight ?? 1,
         images: (product.images || []).join(";"), // multiple images separated by ;
+        thumbnail: product.thumbnail,
         extras: JSON.stringify(product.extras || {}, null, 2),
       }));
     }

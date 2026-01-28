@@ -324,10 +324,9 @@ export default function OrderSummary({
                     Apply
                   </Button>
                 </div>
-                {appliedPromo.code && (
+                {appliedPromo.code && appliedPromo.is_used && (
                   <p className="text-green-600 mt-1">
-                    Promo "{appliedPromo.code}" applied! Discount:
-                    {appliedPromo.discount}%
+                    Promo code applied: {appliedPromo.discount}% off
                   </p>
                 )}
               </div>

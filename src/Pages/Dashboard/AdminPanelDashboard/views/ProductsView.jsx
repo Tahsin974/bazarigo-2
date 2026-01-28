@@ -159,6 +159,7 @@ function ProductsView({
             toast: true,
             position: "top",
           });
+          return window.location.reload();
         } else {
           Swal.fire({
             icon: "error",

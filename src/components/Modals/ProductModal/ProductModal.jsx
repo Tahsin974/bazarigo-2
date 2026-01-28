@@ -24,8 +24,9 @@ export default function ProductModal({ onClose, refetch }) {
   const [attributes, setAttributes] = useState({});
   const [variants, setVariants] = useState([]);
   const { user } = useAuth();
-  // const videoRef = useRef();
-  // const [isPaused, setIsPaused] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   const videoRef = useRef([]);
   const mediaURLs = useRef({});
 
@@ -814,6 +815,9 @@ export default function ProductModal({ onClose, refetch }) {
       });
     } else {
       try {
+        setLoading(true); // 🔴 loading start
+        setUploadProgress(0);
+
         const formData = new FormData();
 
         // Normal fields যোগ করুন
@@ -839,6 +843,15 @@ export default function ProductModal({ onClose, refetch }) {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          onUploadProgress: (progressEvent) => {
+            if (!progressEvent.total) return;
+
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+
+            setUploadProgress(percent);
+          },
         });
 
         if (res.data.createdCount > 0) {
@@ -855,6 +868,9 @@ export default function ProductModal({ onClose, refetch }) {
         }
       } catch (err) {
         console.error(err.response?.data || err.message);
+      } finally {
+        setLoading(false); // 🔴 loading end
+        setUploadProgress(0);
       }
     }
   };
@@ -986,6 +1002,29 @@ export default function ProductModal({ onClose, refetch }) {
       console.error("Video play blocked:", err);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="fixed top-0 left-0 w-screen h-screen bg-black/40 flex items-center justify-center z-50">
+        <div className="bg-white px-6 py-5 rounded-xl shadow w-72 space-y-3">
+          <p className="text-sm font-medium text-gray-700 text-center">
+            Uploading product...
+          </p>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div
+              className="h-full bg-[#00C853] transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+
+          {/* Percentage */}
+          <p className="text-xs text-gray-600 text-center">{uploadProgress}%</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -1253,14 +1292,17 @@ export default function ProductModal({ onClose, refetch }) {
               </div>
             </div>
 
-            {/* Product Images / Videos Section */}
-            <section className="border border-gray-200 rounded-3xl p-5 bg-gray-50 space-y-4">
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* Thumbnail Section */}
-                <div className="flex-shrink-0 w-full md:w-48">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                    Product Thumbnail
-                  </h3>
+            <section className="border border-gray-200 rounded-3xl p-6 bg-gray-50 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {" "}
+                {/* PRODUCT THUMBNAIL */}
+                <div className="bg-white border rounded-2xl p-5 space-y-3 h-max">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      Product Thumbnail
+                    </h3>
+                  </div>
+
                   <div
                     className={`relative group aspect-square flex items-center justify-center border-2 border-dashed rounded-2xl overflow-hidden transition-all ${
                       thumbnail
@@ -1270,7 +1312,7 @@ export default function ProductModal({ onClose, refetch }) {
                   >
                     <input
                       type="file"
-                      name={name}
+                      name={"thumbnail"}
                       accept=".jpg,.jpeg,.png"
                       onChange={handleImageUpload}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
@@ -1283,23 +1325,31 @@ export default function ProductModal({ onClose, refetch }) {
                         THUMBNAIL
                       </span>
                     )}
+                    {thumbnail && (
+                      <button
+                        onClick={() => setThumbnail(null)}
+                        className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow hover:bg-red-500 hover:text-white z-20"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
+                {/* PRODUCT MEDIA GALLERY */}
+                <div className="bg-white border rounded-2xl p-5 space-y-3 md:col-span-2">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      Product Media Gallery
+                    </h3>
+                  </div>
 
-                {/* Product Images Section */}
-                <div className="flex-grow">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                    Product Images / Videos
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {(form.images || []).map((file, i) => {
                       const isVideo = file.type.startsWith("video");
                       if (!mediaURLs.current[i]) {
                         mediaURLs.current[i] = URL.createObjectURL(file);
                       }
                       const mediaURL = mediaURLs.current[i];
-
-                      // const mediaURL = URL.createObjectURL(file);
 
                       return (
                         <div
@@ -1355,15 +1405,18 @@ export default function ProductModal({ onClose, refetch }) {
                     })}
 
                     {/* Add More */}
-                    <div className="relative aspect-square border-2 border-dashed rounded-2xl flex flex-col items-center justify-center bg-gray-50 cursor-pointer">
+                    <div className="relative aspect-square border-2 border-dashed border-gray-300 bg-gray-50 hover:border-[#FF0055] rounded-2xl flex flex-col items-center justify-center  cursor-pointer group">
                       <input
                         type="file"
                         multiple
                         onChange={onImageChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <ImageIcon size={22} className="text-gray-400" />
-                      <span className="text-[11px] text-gray-500 mt-2">
+                      <ImageIcon
+                        size={22}
+                        className="text-gray-400 group-hover:text-[#FF0055]"
+                      />
+                      <span className="text-[11px] text-gray-500 mt-2 group-hover:text-[#FF0055]">
                         Add More
                       </span>
                     </div>

@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import ProductDetails from "./components/ProductDetails";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router";
@@ -8,7 +8,16 @@ import Loading from "../../components/Loading/Loading";
 
 export default function ProductPage() {
   const { id } = useParams();
-  const encodedId = atob(id);
+  // const encodedId = atob(id);
+  const navigate = useNavigate();
+  let encodedId;
+  try {
+    encodedId = atob(id); // যদি Base64 হয় তবে ডিকোড হবে
+  } catch (e) {
+    console.error(e);
+    navigate(`/product/${btoa(id)}`, { replace: true });
+    // যদি Base64 না হয় (যেমন রিলোড দিলে), তবে যা আছে তাই থাকবে
+  }
 
   const axiosPublic = useAxiosPublic();
   const location = useLocation();

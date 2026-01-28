@@ -24,7 +24,7 @@ export default function ProductCard({ item, fromFlashSale = false }) {
       >
         <Card className="rounded-2xl md:shadow shadow-md  bg-white overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300 flex flex-col h-full ">
           <div className="relative">
-            {item.images && item.images[0] ? (
+            {item.thumbnail || (item.images && item.images[0]) ? (
               <figure className=" aspect-[1/1] ">
                 <img
                   src={`${baseUrl}${item.thumbnail ? item.thumbnail : getImages(item.images)[0]}`}

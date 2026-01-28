@@ -30,7 +30,7 @@ export default function ProductCard({ product: item, viewMode }) {
             "h-48 flex-shrink-0 overflow-hidden rounded-lg"
           }`}
         >
-          {item.images && item.images[0] ? (
+          {item.thumbnail || (item.images && item.images[0]) ? (
             <figure
               className={`  ${
                 viewMode === "list" ? "h-full w-48 " : "aspect-[1/1] "

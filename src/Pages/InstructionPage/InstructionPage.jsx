@@ -3,6 +3,7 @@ import img1 from "../../assets/Instruction/Instraction 1.png";
 import img2 from "../../assets/Instruction/Instraction 2.JPG";
 import img3 from "../../assets/Instruction/Instraction 3.png";
 import img4 from "../../assets/Instruction/Instraction 4.png";
+import img5 from "../../assets/Instruction/Instraction 5.png";
 import useAxiosSecure from "../../Utils/Hooks/useAxiosSecure";
 
 export default function InstructionPage() {
@@ -167,22 +168,27 @@ export default function InstructionPage() {
               <div className="md:w-1/2 mb-4 md:mb-0">
                 <img
                   src={img3}
-                  alt="ছবি/ভিডিও আপলোড এবং ব্যাজ বিভাগ"
+                  alt="থাম্বনেইল, ছবি/ভিডিও আপলোড এবং ভেরিয়েন্ট বিভাগ"
                   className="rounded-lg w-full h-auto object-cover border border-gray-200"
                 />
                 <img
                   src={img4}
-                  alt="ছবি/ভিডিও আপলোড এবং ব্যাজ বিভাগ"
+                  alt="থাম্বনেইল, ছবি/ভিডিও আপলোড এবং ভেরিয়েন্ট বিভাগ"
+                  className="rounded-lg w-full h-auto object-cover border border-gray-200"
+                />
+                <img
+                  src={img5}
+                  alt="থাম্বনেইল, ছবি/ভিডিও আপলোড এবং ভেরিয়েন্ট বিভাগ"
                   className="rounded-lg w-full h-auto object-cover border border-gray-200"
                 />
               </div>
               <div className="md:w-1/2 space-y-16">
                 <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200">
                   <h3 className="text-xl font-medium mb-2 text-[#FF0055]">
-                    ৪. ছবি/ভিডিও আপলোড (Upload Image/Video)
+                    ৪. থাম্বনেইল ও ছবি/ভিডিও আপলোড (Upload Image/Video)
                   </h3>
                   <p className="text-gray-700">
-                    পণ্যের জন্য একটি আকর্ষণীয় ছবি/ভিডিও আপলোড করুন।
+                    পণ্যের জন্য একটি আকর্ষণীয় থাম্বনেইল ও ছবি/ভিডিও আপলোড করুন।
                   </p>
                   <ul className="text-sm text-gray-600 list-disc pl-5 mt-2">
                     <li>

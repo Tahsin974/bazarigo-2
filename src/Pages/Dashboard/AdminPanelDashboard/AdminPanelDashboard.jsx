@@ -282,6 +282,7 @@ export default function AdminPanelDashboard() {
         brand: product.brand ?? "No Brand",
         weight: product.weight ?? 1,
         images: (product.images || []).join(";"),
+        thumbnail: product.thumbnail,
         extras: JSON.stringify(product.extras || {}, null, 2),
       }));
     }
