@@ -4,6 +4,7 @@ import img2 from "../../assets/Instruction/Instraction 2.JPG";
 import img3 from "../../assets/Instruction/Instraction 3.png";
 import img4 from "../../assets/Instruction/Instraction 4.png";
 import img5 from "../../assets/Instruction/Instraction 5.png";
+import img6 from "../../assets/Instruction/Instraction 6.png";
 import useAxiosSecure from "../../Utils/Hooks/useAxiosSecure";
 
 export default function InstructionPage() {
@@ -162,7 +163,7 @@ export default function InstructionPage() {
           </section>
           <section>
             <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-l-4 border-[#FF0055] pl-4">
-              ধাপ ৪ ও ৫: ছবি/ভিডিও আপলোড ও ভেরিয়েন্ট যোগ
+              ধাপ ৪, ৫ ও ৬: ছবি/ভিডিও, ভেরিয়েন্ট ও ভেরিয়েন্ট ইমেজ যোগ
             </h2>
             <div className="md:flex md:space-x-6">
               <div className="md:w-1/2 mb-4 md:mb-0">
@@ -179,6 +180,11 @@ export default function InstructionPage() {
                 <img
                   src={img5}
                   alt="থাম্বনেইল, ছবি/ভিডিও আপলোড এবং ভেরিয়েন্ট বিভাগ"
+                  className="rounded-lg w-full h-auto object-cover border border-gray-200"
+                />
+                <img
+                  src={img6}
+                  alt="ভেরিয়েন্ট ছবি আপলোড"
                   className="rounded-lg w-full h-auto object-cover border border-gray-200"
                 />
               </div>
@@ -233,6 +239,48 @@ export default function InstructionPage() {
                       </span>{" "}
                       যদি পণ্যের কোনো ভেরিয়েন্ট না থাকে, তবে এই অংশটি খালি
                       রাখুন।
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 bg-[#f4f4f5] rounded-lg border border-gray-200 mt-6">
+                  <h3 className="text-xl font-medium mb-2 text-[#FF0055]">
+                    ৬. ভেরিয়েন্ট ইমেজ (Variant Images – Optional)
+                  </h3>
+
+                  <p className="text-gray-700">
+                    এই পণ্যের জন্য বিভিন্ন রং বা ডিজাইনের ছবি যোগ করুন। এই
+                    ছবিগুলো নির্দিষ্ট কোনো ভেরিয়েন্টের সাথে যুক্ত নয়, বরং সব
+                    ভেরিয়েন্টের জন্য প্রযোজ্য।
+                  </p>
+
+                  <ul className="text-sm text-gray-700 list-disc pl-5 mt-2 space-y-1">
+                    <li>
+                      <span className="font-bold">একাধিক রংয়ের ছবি:</span> যেমন
+                      Red, Blue, Black – প্রতিটি রঙের ১ বা একাধিক ছবি দিতে
+                      পারেন।
+                    </li>
+                    <li>
+                      <span className="font-bold">
+                        ভেরিয়েন্টের সাথে bind নয়:
+                      </span>{" "}
+                      এই ছবিগুলো কোনো নির্দিষ্ট size / price / stock ভেরিয়েন্টের
+                      সাথে যুক্ত হবে না।
+                    </li>
+                    <li>
+                      <span className="font-bold">ক্রেতার সুবিধা:</span> ক্রেতা
+                      অর্ডার করার আগে পণ্যের উপলব্ধ রং বা ডিজাইন দেখে নিতে
+                      পারবে।
+                    </li>
+                    <li>
+                      <span className="font-bold">ঐচ্ছিক (Optional):</span> ছবি
+                      না দিলেও পণ্য যোগ করা যাবে।
+                    </li>
+                  </ul>
+
+                  <div className="mt-4 p-3 bg-white border border-gray-300 rounded-md text-sm text-gray-600">
+                    <p>
+                      <span className="font-bold text-[#FF0055]">নোট:</span> রং
+                      অনুযায়ী পরিষ্কার ছবি দিলে ভুল রং ডেলিভারির সম্ভাবনা কমে।
                     </p>
                   </div>
                 </div>

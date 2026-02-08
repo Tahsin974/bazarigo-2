@@ -87,21 +87,11 @@ export default function ReportsView({ active }) {
        color: #333;
        
      }
- 
- 
-     
- 
+
      .page-break {
    page-break-before: always;
    
      }
- 
-   
- 
-   
-    
- 
-   
      table {
        border-collapse: collapse;
        width: 100%;
@@ -131,8 +121,6 @@ export default function ReportsView({ active }) {
       text-align: center;
     }
 
-
-
        h2,h3,h4,h5{
      font-size: 30px;
     
@@ -150,10 +138,7 @@ export default function ReportsView({ active }) {
  </head>
  
  <body>
-  
- 
-   
- 
+
    <section class="chart-container ">
      ${reportContent.querySelector("#revenue-chart")?.outerHTML || ""}
    </section>

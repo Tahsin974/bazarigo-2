@@ -14,12 +14,11 @@ export default function JustArrivedPage() {
     "Electronics",
     "Fashion",
     "Health & Beauty",
-    "Furniture & Home Decor",
+    "Home & Living",
+    "Grocery & Food",
     "Sports & Outdoors",
-    "Toys & Baby Products",
-    "Automotive & Industrial",
-    "Grocery & Food Items",
-    "Pets & Pet Care",
+    "Toys & Kids",
+    "Pet Supplies",
   ];
 
   const [sortOption, setSortOption] = useState("Newest");

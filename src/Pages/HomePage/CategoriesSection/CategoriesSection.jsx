@@ -30,12 +30,6 @@ export default function CategoriesSection() {
       bg: "#FFE5E5",
     },
     {
-      name: "Groceries",
-      link: "Grocery & Food Items",
-      icon: <ShoppingCart size={32} className="text-[#F39C12]" />,
-      bg: "#FFFBE5",
-    },
-    {
       name: "Health & Beauty",
       link: "Health & Beauty",
       icon: <Heart size={32} className="text-[#00C48C]" />,
@@ -43,9 +37,15 @@ export default function CategoriesSection() {
     },
     {
       name: "Home Decor",
-      link: "Furniture & Home Decor",
+      link: "Home & Living",
       icon: <Home size={32} className="text-[#00C4B8]" />,
       bg: "#E5FFFF",
+    },
+    {
+      name: "Groceries",
+      link: "Grocery & Food",
+      icon: <ShoppingCart size={32} className="text-[#F39C12]" />,
+      bg: "#FFFBE5",
     },
     {
       name: "Sports",
@@ -54,14 +54,8 @@ export default function CategoriesSection() {
       bg: "#F5E5FF",
     },
     {
-      name: "Tools",
-      link: "Automotive & Industrial",
-      icon: <Wrench size={32} className="text-[#FF8C00]" />,
-      bg: "#FFF0E5",
-    },
-    {
       name: "Pet Care",
-      link: "Pets & Pet Care",
+      link: "Pet Supplies",
       icon: <PawPrint size={32} className="text-[#6C63FF]" />,
       bg: "#EDE5FF",
     },

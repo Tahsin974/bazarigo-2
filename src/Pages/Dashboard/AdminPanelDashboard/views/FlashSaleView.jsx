@@ -43,7 +43,7 @@ export default function FlashSaleView({
   setEndTime,
 }) {
   const axiosPublic = useAxiosPublic();
-  const formData = new FormData();
+
   const baseUrl = import.meta.env.VITE_BASEURL;
   const { user } = useAuth();
   const totalPages = Math.max(
@@ -130,8 +130,8 @@ export default function FlashSaleView({
       let updatedProdVariants = [];
       let flashSaleProdVariants = [];
 
-      if (prod.extras?.variants?.length > 0) {
-        prod.extras.variants.map((variant) => {
+      if (prod?.variants?.length > 0) {
+        prod.variants.map((variant) => {
           const minStock = variant.stock > 50 ? 40 : 2;
           const maxStock = variant.stock > 50 ? 45 : 5;
           const variantFlashStock =
@@ -169,13 +169,13 @@ export default function FlashSaleView({
 
         updatedProd = {
           ...updatedProd,
-          extras: { ...prod.extras, variants: updatedProdVariants },
+          variants: updatedProdVariants,
           stock: totalStock,
         };
 
         flashSaleProd = {
           ...flashSaleProd,
-          extras: { ...prod.extras, variants: flashSaleProdVariants },
+          variants: flashSaleProdVariants,
           stock: flashSaleTotalStock,
           discount,
           sale_price: Math.round(
@@ -241,6 +241,7 @@ export default function FlashSaleView({
 
     for (const prod of productPayload) {
       try {
+        const formData = new FormData();
         formData.append("productName", prod.product_name);
         formData.append("regular_price", prod.regular_price);
         formData.append("sale_price", prod.sale_price);
@@ -258,7 +259,7 @@ export default function FlashSaleView({
         formData.append("description", prod.description);
         formData.append("stock", prod.stock);
         formData.append("brand", prod?.brand);
-        formData.append("extras", JSON.stringify(prod.extras));
+        formData.append("variants", JSON.stringify(prod?.variants));
         formData.append("existingPaths", JSON.stringify(prod.images));
 
         // যদি নতুন images থাকে

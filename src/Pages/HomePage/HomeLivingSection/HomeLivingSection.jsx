@@ -1,21 +1,19 @@
 import { motion } from "framer-motion";
-import Loading from "../../../components/Loading/Loading";
 import { HashLink } from "react-router-hash-link";
-import ProductCard from "../../../components/ProductCard/ProductCard";
-
+import Loading from "../../../components/Loading/Loading";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
-import useAutomotiveCategoryProducts from "../../../Utils/Hooks/useAutomotiveCategoryProducts";
+import ProductCard from "../../../components/ProductCard/ProductCard";
+import useHomeLivingCategoryProducts from "../../../Utils/Hooks/useHomeLivingCategoryProducts";
 
-export default function AutomotiveIndustrialSection() {
-  const { data: products = [], isPending } = useAutomotiveCategoryProducts();
-
+export default function HomeLivingSection() {
+  const { data: products = [], isPending } = useHomeLivingCategoryProducts();
   return (
     <section className="md:py-10 py-6 bg-gray-50">
       {isPending ? (
         <Loading />
       ) : (
         <div className="container mx-auto xl:px-6 lg:px-6  px-4">
-          <SectionTitle title={"Automotive & Industrial"} showViewAll={false} />
+          <SectionTitle title={"Home & Living"} showViewAll={false} />
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product, index) => (
               <motion.div

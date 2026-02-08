@@ -50,15 +50,15 @@ export default function BaseProductDetails({
 
   const video = mainImage ? mainImage.endsWith(".mp4") : false;
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedVariantImage, setSelectedVariantImage] = useState(null);
   const navigate = useNavigate();
   const encodedId = btoa(product.seller_id);
   const imgUrl = `${baseUrl}${mainImage}`;
+
   useEffect(() => {
-    if (product.extras?.variants && product.extras.variants.length > 0) {
+    if (product?.variants && product.variants.length > 0) {
       // sell_price > 0 অনুযায়ী filter & sort করা
-      const filteredVariants = product.extras.variants.filter(
-        (v) => v.sale_price > 0,
-      );
+      const filteredVariants = product.variants.filter((v) => v.sale_price > 0);
 
       if (filteredVariants.length > 0) {
         const sortedVariants = [...filteredVariants].sort(
@@ -67,10 +67,10 @@ export default function BaseProductDetails({
         setSelectedVariant(sortedVariants[0]);
       } else {
         // যদি সব sell_price 0 হয়, তাহলে প্রথম variant select করা
-        setSelectedVariant(product.extras.variants[0]);
+        setSelectedVariant(product.variants[0]);
       }
     }
-  }, [product.extras?.variants]);
+  }, [product?.variants]);
 
   useEffect(() => {
     if (product.images && product.images.length > 0) {
@@ -81,13 +81,13 @@ export default function BaseProductDetails({
     if (
       selectedVariant &&
       Object.keys(selectedVariant).length > 0 &&
-      product.extras?.variants
+      product?.variants
     ) {
-      const optionKeys = Object.keys(product.extras.variants[0]).filter(
+      const optionKeys = Object.keys(product.variants[0]).filter(
         (k) => !["sale_price", "regular_price", "stock", "id"].includes(k),
       );
 
-      const matchedVariant = product.extras.variants.find((variant) =>
+      const matchedVariant = product.variants.find((variant) =>
         optionKeys.every((key) => variant[key] === selectedVariant[key]),
       );
 
@@ -184,9 +184,11 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: product.thumbnail
-            ? product.thumbnail
-            : getImages(product.images)[0],
+          product_img: selectedVariantImage
+            ? selectedVariantImage
+            : product.thumbnail
+              ? product.thumbnail
+              : getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -276,9 +278,11 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: product.thumbnail
-            ? product.thumbnail
-            : getImages(product.images)[0],
+          product_img: selectedVariantImage
+            ? selectedVariantImage
+            : product.thumbnail
+              ? product.thumbnail
+              : getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -446,9 +450,11 @@ export default function BaseProductDetails({
           product_Id: product.id,
           product_name: product.product_name,
           sale_price: sale_price,
-          product_img: product.thumbnail
-            ? product.thumbnail
-            : getImages(product.images)[0],
+          product_img: selectedVariantImage
+            ? selectedVariantImage
+            : product.thumbnail
+              ? product.thumbnail
+              : getImages(product.images)[0],
           product_category: product.category,
           isflashsale: product.isflashsale,
           regular_price: regular_price,
@@ -512,7 +518,6 @@ export default function BaseProductDetails({
 
     // autoplay hole
     if (!video.paused) {
-      console.log("video is playing");
       setIsPaused(false);
     } else {
       setIsPaused(true);
@@ -864,6 +869,32 @@ export default function BaseProductDetails({
                 selected={selectedVariant}
                 setSelected={setSelectedVariant}
               />
+
+              {product.variants_images?.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {product.variants_images.map((variantImg, index) => (
+                    <div
+                      key={variantImg + index}
+                      className="relative w-20 h-20 cursor-pointer transition-transform duration-200 hover:scale-105"
+                    >
+                      <img
+                        src={`${baseUrl}${variantImg}`}
+                        alt={`Variant image ${index + 1} of ${product.name || "product"}`}
+                        onClick={() => setSelectedVariantImage(variantImg)}
+                        className="w-full h-full object-cover rounded-lg shadow-sm"
+                      />
+
+                      {selectedVariantImage === variantImg && (
+                        <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                          <span className="text-white text-[10px] px-2 py-1 rounded-full bg-[#00C853] font-semibold">
+                            Selected
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-8 flex flex-wrap gap-4">
                 {user?.role !== "seller" &&

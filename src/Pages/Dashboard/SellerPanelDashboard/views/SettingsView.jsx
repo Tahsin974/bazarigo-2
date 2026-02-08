@@ -19,7 +19,7 @@ export default function SettingsView({ active }) {
   const [nidBackImg, setNidBackImg] = useState(null);
   const [provider, setProvider] = useState(user.mobile_bank_name);
   const [mainProductCategory, setMainProductCategory] = useState(
-    user.product_category || ""
+    user.product_category || "",
   );
 
   const [gender, setGender] = useState(user.gender || "");
@@ -33,10 +33,12 @@ export default function SettingsView({ active }) {
     { value: "All Categories", label: "All Categories" },
     { value: "Electronics", label: "Electronics" },
     { value: "Fashion", label: "Fashion" },
-    { value: "Groceries", label: "Groceries" },
     { value: "Health & Beauty", label: "Health & Beauty" },
     { value: "Home & Living", label: "Home & Living" },
-    { value: "Sports", label: "Sports" },
+    { value: "Grocery & Food", label: "Grocery & Food" },
+    { value: "Sports & Outdoors", label: "Sports & Outdoors" },
+    { value: "Toys & Kids", label: "Toys & Kids" },
+    { value: "Pet Supplies", label: "Pet Supplies" },
   ];
 
   const handleProfileImageUpload = (e) => {
@@ -84,7 +86,7 @@ export default function SettingsView({ active }) {
       // Append DOB separately if needed
       formData.append(
         "date_of_birth",
-        date ? formatDate(date) : user.date_of_birth
+        date ? formatDate(date) : user.date_of_birth,
       );
 
       const res = await axiosPublic.put(
@@ -92,7 +94,7 @@ export default function SettingsView({ active }) {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
+        },
       );
 
       if (res.data.updatedCount > 0) {
@@ -575,7 +577,7 @@ export default function SettingsView({ active }) {
                     handleUpdate("Payment Information", {
                       mobile_bank_name: provider || user.mobile_bank_name,
                       mobile_bank_account_number: document.getElementById(
-                        "mobile_bank_account_number"
+                        "mobile_bank_account_number",
                       ).value,
                       bank_name: document.getElementById("bankName").value,
                       branch_name: document.getElementById("branchName").value,

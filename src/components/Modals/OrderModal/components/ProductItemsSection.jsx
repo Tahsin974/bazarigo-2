@@ -14,10 +14,11 @@ export default function ProductItemsSection({
 }) {
   const axiosPublic = useAxiosPublic();
   const { user } = useAuth();
+  const baseURL = import.meta.env.VITE_BASEURL;
   const productsWithDelivery = items?.flatMap((item) => {
     return item.productinfo.map((prod) => ({
       ...prod,
-      cart_id: item.cartid,
+      cart_id: item.cart_id,
       delivery_time: item.deliveries.delivery_time,
     }));
   });
@@ -50,7 +51,7 @@ export default function ProductItemsSection({
     const options = { month: "short", day: "numeric" };
     return `${minDate.toLocaleDateString(
       "en-US",
-      options
+      options,
     )} – ${maxDate.toLocaleDateString("en-US", options)}`;
   }
 
@@ -127,10 +128,76 @@ export default function ProductItemsSection({
           <tbody>
             {productsWithDelivery.map((prod, index) => (
               <tr key={index} className="border-t">
-                <td>
+                {/* <td>
                   <span className="font-semibold break-words">
                     {prod.product_name}
                   </span>
+                </td> */}
+                <td className="py-4 px-4 text-left">
+                  <div className="flex items-center gap-3">
+                    {/* Product Image */}
+                    {prod.product_img ? (
+                      <img
+                        src={`${baseURL}${prod.product_img}`}
+                        alt={prod.product_name}
+                        className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg text-gray-400 text-xs">
+                        No Image
+                      </div>
+                    )}
+
+                    {/* Name & Dynamic Variants */}
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold text-gray-800 break-words">
+                        {prod.product_name}
+                      </span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {prod.variants &&
+                          // If variants is an object
+                          !Array.isArray(prod.variants) &&
+                          Object.entries(prod.variants)
+                            .filter(
+                              ([key]) =>
+                                ![
+                                  "id",
+                                  "regular_price",
+                                  "sale_price",
+                                  "stock",
+                                ].includes(key),
+                            )
+                            .map(([key, value], idx) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-1 text-xs border rounded bg-gray-100 text-gray-700"
+                              >
+                                {key.charAt(0).toUpperCase() + key.slice(1)}:{" "}
+                                {value}
+                              </span>
+                            ))}
+
+                        {Array.isArray(prod.variants) &&
+                          // If variants is array of objects
+                          prod.variants.map((variant, vidx) =>
+                            Object.entries(variant)
+                              .filter(
+                                ([key]) =>
+                                  !["id", "price", "stock"].includes(key),
+                              )
+                              .map(([key, value], idx) => (
+                                <span
+                                  key={`${vidx}-${idx}`}
+                                  className="px-2 py-1 text-xs border rounded bg-gray-100 text-gray-700"
+                                >
+                                  {key.charAt(0).toUpperCase() + key.slice(1)}:{" "}
+                                  {value}
+                                </span>
+                              )),
+                          )}
+                      </div>
+                    </div>
+                  </div>
                 </td>
                 <td> {prod?.brand || "No Brand"}</td>
                 <td>{prod.qty}</td>
@@ -154,7 +221,7 @@ export default function ProductItemsSection({
                         }
                         disabled={prod.order_status === "returned"}
                         className={`appearance-none focus:outline-none rounded-lg py-2 pl-2 pr-10 text-sm font-medium  shadow-sm  transition duration-150 cursor-pointer   ${renderStatus(
-                          prod.order_status
+                          prod.order_status,
                         )}`}
                         style={{ fontFamily: "Poppins", fontWeight: 700 }}
                       >

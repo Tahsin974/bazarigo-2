@@ -13,36 +13,6 @@ export default function CategoryList({
   const [openSubDropdown, setOpenSubDropdown] = useState(null);
   const userActionRef = useRef(false);
 
-  console.log("CategoryList Rendered", categories);
-  // Set initial openDropdown and active subcategory
-
-  // useEffect(() => {
-  //   const cat = categories.find((c) => c.name === activeCategory.main);
-  //   if (!cat) return;
-
-  //   setOpenDropdown(categories.indexOf(cat));
-
-  //   if (cat.sub && cat.sub.length > 0) {
-  //     const matchedSub =
-  //       cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
-  //     const matchedItem =
-  //       matchedSub.items?.find((i) => i === item) ||
-  //       matchedSub.items?.[0] ||
-  //       null;
-
-  //     setActiveCategory({
-  //       main: cat.name,
-  //       sub: matchedSub.name,
-  //       item: matchedItem,
-  //     });
-
-  //     const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
-  //     if (subIdx !== -1) setOpenSubDropdown(subIdx);
-  //   } else {
-  //     setActiveCategory({ main: cat.name, sub: null, item: null });
-  //     setOpenSubDropdown(null);
-  //   }
-  // }, [subcategory, item]); // main dependency বাদ দেওয়া হলো
   useEffect(() => {
     if (userActionRef.current) return;
     if (!categories?.length) return;

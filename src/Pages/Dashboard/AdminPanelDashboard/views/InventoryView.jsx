@@ -28,14 +28,14 @@ export default function InventoryView({
   const { user } = useAuth();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredInventory.length / inventoryPageSize)
+    Math.ceil(filteredInventory.length / inventoryPageSize),
   );
   const { refetchNotifications } = useNotifications();
 
   const renderPageNumbers = useRenderPageNumbers(
     inventoryPage,
     totalPages,
-    setInventoryPage
+    setInventoryPage,
   );
 
   const updateAllStocks = async (productId, change) => {
@@ -45,7 +45,7 @@ export default function InventoryView({
         {
           change,
           productId,
-        }
+        },
       );
 
       if (res.data.updated) {
@@ -65,15 +65,15 @@ export default function InventoryView({
     }
   };
 
-  const updateVariantStock = async (productId, variantIndex, change) => {
+  const updateVariantStock = async (productId, variantId, change) => {
     try {
       const res = await axiosPublic.patch(`/inventory/${user.id}`, {
         productId,
-        variantIndex,
+        variantId, // send variantId instead of variantIndex
         change,
       });
 
-      if (res.data.updatedCount > 0) {
+      if (res.data.totalStock !== undefined) {
         refetch();
         refetchProducts();
         refetchNotifications();
@@ -89,15 +89,16 @@ export default function InventoryView({
       });
     }
   };
+
+  // 🔹 Main product (no variant) stock update
   const updateSingleStock = async (productId, change) => {
     try {
       const res = await axiosPublic.patch(`/inventory/${user.id}`, {
         productId,
-
         change,
       });
 
-      if (res.data.updatedCount > 0) {
+      if (res.data.totalStock !== undefined) {
         refetch();
         refetchProducts();
         refetchNotifications();
@@ -114,11 +115,10 @@ export default function InventoryView({
     }
   };
 
-  // Calculate total stock
   const calculateTotalStock = (product) => {
-    if (!product.extras?.variants || product.extras.variants.length === 0)
+    if (!product?.variants || product.variants.length === 0)
       return product.stock;
-    return product.extras.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+    return product.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
   };
 
   return (
@@ -201,18 +201,18 @@ export default function InventoryView({
                       </div>
                     </div>
 
-                    {p.extras?.variants && p.extras.variants.length > 0 ? (
+                    {p?.variants && p.variants.length > 0 ? (
                       <div className="overflow-x-auto bg-white rounded-box shadow-sm">
                         <table className="table text-center w-full">
                           <thead className="text-black">
                             <tr>
-                              {Object.keys(p.extras.variants[0])
+                              {Object.keys(p.variants[0])
                                 .filter(
                                   (k) =>
                                     k !== "id" &&
                                     k !== "stock" &&
                                     k !== "sale_price" &&
-                                    k !== "regular_price"
+                                    k !== "regular_price",
                                 )
                                 .map((key) => (
                                   <th key={key} className="capitalize">
@@ -226,7 +226,7 @@ export default function InventoryView({
                             </tr>
                           </thead>
                           <tbody>
-                            {p.extras.variants.map((v, i) => (
+                            {p?.variants.map((v, i) => (
                               <tr key={i}>
                                 {Object.keys(v)
                                   .filter(
@@ -234,7 +234,7 @@ export default function InventoryView({
                                       k !== "id" &&
                                       k !== "stock" &&
                                       k !== "sale_price" &&
-                                      k !== "regular_price"
+                                      k !== "regular_price",
                                   )
                                   .map((key) => (
                                     <td key={key}>
@@ -263,7 +263,7 @@ export default function InventoryView({
                                   <div className="flex justify-center items-center gap-2">
                                     <button
                                       onClick={() =>
-                                        updateVariantStock(p.id, i, -1)
+                                        updateVariantStock(p.id, v.id, -1)
                                       }
                                       className="p-1 rounded bg-red-100 hover:bg-red-200"
                                     >
@@ -274,7 +274,7 @@ export default function InventoryView({
                                     </button>
                                     <button
                                       onClick={() =>
-                                        updateVariantStock(p.id, i, +1)
+                                        updateVariantStock(p.id, v.id, +1)
                                       }
                                       className="p-1 rounded bg-green-100 hover:bg-green-200"
                                     >

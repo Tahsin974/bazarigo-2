@@ -265,10 +265,32 @@ export default function AdminPanelDashboard() {
   };
 
   const handleExport = () => {
-    let rows = [];
+    if (active !== "Products") return;
 
-    if (active === "Products") {
-      rows = products.map((product) => ({
+    const wb = XLSX.utils.book_new();
+
+    // --- Helper: normalize variant ---
+    const normalizeVariant = (v) => {
+      if (v.attributes) return v;
+      const { id, tempId, regular_price, sale_price, stock, ...rest } = v;
+      return {
+        id,
+        tempId,
+        attributes: rest,
+        regular_price: regular_price || 0,
+        sale_price: sale_price || 0,
+        stock: stock || 0,
+      };
+    };
+
+    // --- Products sheet ---
+    const productRows = products.map((product) => {
+      const parsedVariants = (product.variants || []).map(normalizeVariant);
+      const totalStock = parsedVariants.length
+        ? parsedVariants.reduce((sum, v) => sum + (v.stock || 0), 0)
+        : product.stock || 0;
+
+      return {
         id: product.id,
         productName: product.product_name,
         regular_price: product.regular_price ?? 0,
@@ -278,76 +300,74 @@ export default function AdminPanelDashboard() {
         subcategory: product.subcategory ?? "",
         subcategory_item: product.subcategory_item ?? "",
         description: product.description ?? "",
-        stock: product.stock ?? 0,
+        stock: totalStock,
         brand: product.brand ?? "No Brand",
         weight: product.weight ?? 1,
         images: (product.images || []).join(";"),
         thumbnail: product.thumbnail,
-        extras: JSON.stringify(product.extras || {}, null, 2),
-      }));
-    }
+      };
+    });
 
-    if (active === "Orders")
-      rows = orders.map(({ items, ...rest }) => ({
-        ...rest,
-        items_count: items.length,
-      }));
-
-    if (active === "Customers") rows = customers;
-    if (active === "Sellers") rows = sellers;
-    if (active === "Payments") {
-      // Export payments.xlsx
-      if (payments.length) {
-        const wb1 = XLSX.utils.book_new();
-        const ws1 = XLSX.utils.json_to_sheet(payments);
-        ws1["!cols"] = Object.keys(payments[0] || {}).map((key) => ({
-          wch: Math.max(key.length, 20),
-        }));
-        XLSX.utils.book_append_sheet(wb1, ws1, "Payments"); // fresh workbook, কোনো conflict নেই
-        XLSX.writeFile(wb1, "Payments_export.xlsx");
-      }
-
-      // Export sellerPayments.xlsx
-      if (sellerPayments.length) {
-        const wb2 = XLSX.utils.book_new(); // fresh workbook
-        const ws2 = XLSX.utils.json_to_sheet(sellerPayments);
-        ws2["!cols"] = Object.keys(sellerPayments[0] || {}).map((key) => ({
-          wch: Math.max(key.length, 20),
-        }));
-        XLSX.utils.book_append_sheet(wb2, ws2, "SellerPayments");
-        XLSX.writeFile(wb2, "SellerPayments_export.xlsx");
-      }
-
-      return;
-    }
-
-    if (active === "Promotions") rows = promotions.map((p) => ({ ...p }));
-    if (active === "Coverage Areas")
-      rows = coverageAreas.map((zone) => ({
-        division: zone.division,
-        district: zone.district,
-        thana: zone.thana,
-        place: zone.place,
-        postal_code: zone.postal_code,
-        latitude: zone.latitude,
-        longitude: zone.longitude,
-        isRemote: zone.is_remote ? "Hard To Reach" : "Normal",
-      }));
-
-    if (!rows.length) return alert("Nothing to export for this section");
-
-    // Create Excel workbook
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(rows);
-
-    // Optional: set column widths
-    const colWidths = Object.keys(rows[0]).map((key) => ({
+    const productSheet = XLSX.utils.json_to_sheet(productRows);
+    productSheet["!cols"] = Object.keys(productRows[0] || {}).map((key) => ({
       wch: Math.max(key.length, 20),
     }));
-    ws["!cols"] = colWidths;
+    XLSX.utils.book_append_sheet(wb, productSheet, "Products");
 
-    XLSX.utils.book_append_sheet(wb, ws, active);
-    XLSX.writeFile(wb, `${active}_export.xlsx`);
+    // --- Variants sheet ---
+    const variantRows = [];
+    const allAttributeKeys = new Set();
+
+    products.forEach((product) => {
+      const parsedVariants = (product.variants || []).map(normalizeVariant);
+      parsedVariants.forEach((v) => {
+        const row = {
+          productId: product.id,
+          productName: product.product_name,
+          regular_price: v.regular_price,
+          sale_price: v.sale_price,
+          stock: v.stock,
+        };
+
+        // Spread attributes
+        if (v.attributes) {
+          Object.entries(v.attributes).forEach(([key, value]) => {
+            row[key] = value;
+            allAttributeKeys.add(key);
+          });
+        }
+
+        variantRows.push(row);
+      });
+    });
+
+    if (variantRows.length) {
+      const columns = [
+        "productId",
+        "productName",
+        "regular_price",
+        "sale_price",
+        "stock",
+        ...Array.from(allAttributeKeys),
+      ];
+
+      // Ensure all rows have all columns
+      variantRows.forEach((row) => {
+        columns.forEach((col) => {
+          if (!(col in row)) row[col] = "";
+        });
+      });
+
+      const variantSheet = XLSX.utils.json_to_sheet(variantRows, {
+        header: columns,
+      });
+      variantSheet["!cols"] = columns.map((key) => ({
+        wch: Math.max(key.length, 20),
+      }));
+      XLSX.utils.book_append_sheet(wb, variantSheet, "Variants");
+    }
+
+    XLSX.writeFile(wb, "Products_export.xlsx");
   };
 
   const selectAll = () => {
@@ -374,40 +394,35 @@ export default function AdminPanelDashboard() {
   };
 
   const handleBulkUpload = async () => {
-    const file = fileRef.current.files[0]; // get file from ref
+    const file = fileRef.current.files[0];
 
     try {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
-      const sheetName = workbook.SheetNames[0];
 
-      const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      // --- Products sheet ---
+      const productSheet = workbook.Sheets["Products"];
+      const productData = XLSX.utils.sheet_to_json(productSheet, {
+        defval: "",
+      });
 
-      // Convert boolean/number fields
+      // --- Variants sheet ---
+      const variantSheet = workbook.Sheets["Variants"];
+      const variantData = XLSX.utils.sheet_to_json(variantSheet, {
+        defval: "",
+      });
 
-      const products = jsonData.map((item) => {
-        let extras = {};
-
-        if (item.extras) {
-          try {
-            extras = JSON.parse(item.extras);
-
-            // ✅ variants inside extras
-            if (Array.isArray(extras.variants)) {
-              extras.variants = extras.variants.map((v) => ({
-                id: uuidv4(), // 🔥 REQUIRED
-                ...v,
-                stock: Number(v.stock || 0),
-                regular_price: Number(v.regular_price || 0),
-                sale_price: Number(v.sale_price || 0),
-              }));
-            }
-          } catch (e) {
-            console.error(e);
-            extras = {};
-          }
-        }
+      const products = productData.map((item) => {
+        // --- find variants belonging to this product ---
+        const parsedVariants = variantData
+          .filter((v) => v.productId === item.productId)
+          .map((v) => ({
+            id: uuidv4(),
+            attributes: JSON.parse(v.attributes || "{}"),
+            stock: Number(v.stock || 0),
+            regular_price: Number(v.regular_price || 0),
+            sale_price: Number(v.sale_price || 0),
+          }));
 
         return {
           ...item,
@@ -424,50 +439,47 @@ export default function AdminPanelDashboard() {
           discount: Number(item.discount || 0),
           rating: Number(item.rating || 0),
           stock: Number(item.stock || 0),
-
           weight: 1,
-          productName: item.productName,
           images: item.images ? item.images.split(";") : [],
-          extras, // ✅ variants with id already inside
+          variants: parsedVariants,
         };
       });
 
+      // Send to backend
       const res = await axiosPublic.post("/products/bulk", products);
-
       if (res.data.insertedCount > 0) {
         Swal.fire({
           icon: "success",
-          title: "Product Upload Successfully",
-          showConfirmButton: false,
+          title: "Products Uploaded Successfully",
           toast: true,
           position: "top",
           timer: 1500,
+          showConfirmButton: false,
         });
         refetchProducts();
-        return (fileRef.current.value = null);
+        fileRef.current.value = null;
       } else {
         Swal.fire({
           icon: "error",
-          title: "Opps! Try Again",
-          showConfirmButton: false,
+          title: "Oops! Try Again",
           toast: true,
           position: "top",
           timer: 1500,
+          showConfirmButton: false,
         });
       }
-
-      // Reset file input
     } catch (err) {
       Swal.fire({
         icon: "error",
         title: `${err.message}`,
-        showConfirmButton: false,
         toast: true,
         position: "top",
         timer: 1500,
+        showConfirmButton: false,
       });
     }
   };
+
   const handleBulkUploadPostalZones = async () => {
     const file = fileRef.current.files[0]; // file picker থেকে ফাইল
 

@@ -22,7 +22,7 @@ export default function CartPage() {
     setSelectedItems((prev) =>
       prev.includes(productId)
         ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
+        : [...prev, productId],
     );
   };
 
@@ -34,14 +34,14 @@ export default function CartPage() {
     setSelectedItems((prev) =>
       allSelected
         ? prev.filter((id) => !productIds.includes(id))
-        : [...prev, ...productIds.filter((id) => !prev.includes(id))]
+        : [...prev, ...productIds.filter((id) => !prev.includes(id))],
     );
   };
 
   // ✅ Global select all (সব কার্টের সব প্রোডাক্ট)
   const handleSelectAllGlobal = () => {
     const allProductIds = carts.flatMap((cart) =>
-      cart.productinfo.map((p) => p.product_Id)
+      cart.productinfo.map((p) => p.product_Id),
     );
     const allSelected = allProductIds.every((id) => selectedItems.includes(id));
     setSelectedItems(allSelected ? [] : allProductIds);
@@ -123,7 +123,7 @@ export default function CartPage() {
     .map((cart) => ({
       ...cart,
       productinfo: cart.productinfo.filter((item) =>
-        selectedItems.includes(item.product_Id)
+        selectedItems.includes(item.product_Id),
       ),
     }))
     // যেসব cart এ কিছুই select হয়নি, সেগুলো বাদ
@@ -232,7 +232,7 @@ export default function CartPage() {
                     <div className="mb-0.5">
                       <SelectAllCheckbox
                         allSelected={cart.productinfo.every((item) =>
-                          selectedItems.includes(item.product_Id)
+                          selectedItems.includes(item.product_Id),
                         )}
                         toggleSelectAll={() => handleSelectAll(cart)}
                         isShowCounter={false}
@@ -291,7 +291,7 @@ export default function CartPage() {
                                   ) : (
                                     <>
                                       {item.regular_price.toLocaleString(
-                                        "en-IN"
+                                        "en-IN",
                                       )}
                                     </>
                                   )}
@@ -317,7 +317,7 @@ export default function CartPage() {
                                           "sale_price",
                                           "stock",
                                           "id",
-                                        ].includes(key)
+                                        ].includes(key),
                                     )
                                     .map(([variant, value], index, array) => (
                                       <p
@@ -341,7 +341,7 @@ export default function CartPage() {
                                         updateQty(
                                           cart.cart_id,
                                           item.product_Id,
-                                          Math.max(1, item.qty - 1)
+                                          Math.max(1, item.qty - 1),
                                         )
                                       }
                                       className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-lg"
@@ -357,7 +357,7 @@ export default function CartPage() {
                                         updateQty(
                                           cart.cart_id,
                                           item.product_Id,
-                                          Math.max(1, Number(e.target.value))
+                                          Math.max(1, Number(e.target.value)),
                                         )
                                       }
                                       className="w-12 text-center outline-none border-none"
@@ -368,7 +368,7 @@ export default function CartPage() {
                                         updateQty(
                                           cart.cart_id,
                                           item.product_Id,
-                                          Math.max(1, item.qty + 1)
+                                          Math.max(1, item.qty + 1),
                                         )
                                       }
                                       className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-r-lg"

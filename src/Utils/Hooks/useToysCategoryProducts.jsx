@@ -6,9 +6,9 @@ export default function useToysCategoryProducts() {
   const axiosPublic = useAxiosPublic();
 
   const { data, isPending } = useQuery({
-    queryKey: ["toys-baby-products"],
+    queryKey: ["toys-kids"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/toys-baby-products");
+      const res = await axiosPublic.get("/toys-kids");
       return res.data.products;
     },
   });

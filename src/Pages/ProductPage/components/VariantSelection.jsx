@@ -16,7 +16,7 @@ export default function VariantSelection({ product, selected, setSelected }) {
     <div className="mt-6 space-y-6">
       {/* বাটন সেকশন */}
       {variants.map((variant) => (
-        <div key={variant.name} className="mb-4 flex items-center gap-4">
+        <div key={variant.id} className="mb-4 flex items-center gap-4">
           <h4 className="font-semibold capitalize flex-shrink-0">
             {variant.name.replace("_", " ")} :
           </h4>

@@ -1,16 +1,15 @@
-import useAxiosPublic from "./useAxiosPublic";
 import { useQuery } from "@tanstack/react-query";
+import useAxiosPublic from "./useAxiosPublic";
 
-export default function useAutomotiveCategoryProducts() {
+export default function useHomeLivingCategoryProducts() {
   const axiosPublic = useAxiosPublic();
 
   const { data, isPending } = useQuery({
-    queryKey: ["automotive-industrial"],
+    queryKey: ["home-living"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/automotive-industrial");
+      const res = await axiosPublic.get("/home-living");
       return res.data.products;
     },
   });
-
   return { data, isPending };
 }

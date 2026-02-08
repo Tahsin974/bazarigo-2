@@ -13,7 +13,7 @@ export default function GroceryFoodItemsSection() {
         <Loading />
       ) : (
         <div className="container mx-auto xl:px-6 lg:px-6  px-4">
-          <SectionTitle title={"Grocery & Food Items"} showViewAll={false} />
+          <SectionTitle title={"Grocery & Food"} showViewAll={false} />
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product, index) => (
               <motion.div

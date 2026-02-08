@@ -120,29 +120,23 @@ export default function SellerTermsConditionsPage() {
                     <td className="px-4 py-2 border">10%</td>
                   </tr>
                   <tr className="border-t">
-                    <td className="px-4 py-2 border">Furniture & Home Decor</td>
+                    <td className="px-4 py-2 border">Home & Living</td>
                     <td className="px-4 py-2 border">6%</td>
+                  </tr>
+                  <tr className="border-t">
+                    <td className="px-4 py-2 border">Grocery & Food</td>
+                    <td className="px-4 py-2 border">3%</td>
                   </tr>
                   <tr className="border-t">
                     <td className="px-4 py-2 border">Sports & Outdoors</td>
                     <td className="px-4 py-2 border">6%</td>
                   </tr>
                   <tr className="border-t">
-                    <td className="px-4 py-2 border">Toys & Baby Products</td>
+                    <td className="px-4 py-2 border">Toys & Kids</td>
                     <td className="px-4 py-2 border">5%</td>
                   </tr>
                   <tr className="border-t">
-                    <td className="px-4 py-2 border">
-                      Automotive & Industrial
-                    </td>
-                    <td className="px-4 py-2 border">5%</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="px-4 py-2 border">Grocery & Food Items</td>
-                    <td className="px-4 py-2 border">3%</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="px-4 py-2 border">Pets & Pet Care</td>
+                    <td className="px-4 py-2 border">Pet Supplies</td>
                     <td className="px-4 py-2 border">4%</td>
                   </tr>
                 </tbody>

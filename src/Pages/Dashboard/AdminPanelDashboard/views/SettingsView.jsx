@@ -20,9 +20,8 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
   const [profileImg, setProfileImg] = useState(null);
   const [storeImg, setStoreImg] = useState(null);
   const [mainProductCategory, setMainProductCategory] = useState(
-    user.product_category || ""
+    user.product_category || "",
   );
-
 
   const [gender, setGender] = useState(user.gender || "");
   const [date, setDate] = useState("");
@@ -35,10 +34,12 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
     { value: "All Categories", label: "All Categories" },
     { value: "Electronics", label: "Electronics" },
     { value: "Fashion", label: "Fashion" },
-    { value: "Groceries", label: "Groceries" },
     { value: "Health & Beauty", label: "Health & Beauty" },
     { value: "Home & Living", label: "Home & Living" },
-    { value: "Sports", label: "Sports" },
+    { value: "Grocery & Food", label: "Grocery & Food" },
+    { value: "Sports & Outdoors", label: "Sports & Outdoors" },
+    { value: "Toys & Kids", label: "Toys & Kids" },
+    { value: "Pet Supplies", label: "Pet Supplies" },
   ];
 
   const toggleActive = async (admin) => {
@@ -219,7 +220,7 @@ function SettingsView({ setShowAddUserModal, admins, refetchAdmins }) {
       // other user data
       formData.append(
         "date_of_birth",
-        date ? formatDate(date) : user.date_of_birth
+        date ? formatDate(date) : user.date_of_birth,
       );
 
       const res = await axiosPublic.put(`/admins/update/${user.id}`, formData, {

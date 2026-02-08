@@ -29,6 +29,7 @@ export default function ProductModal({ onClose, refetch }) {
 
   const videoRef = useRef([]);
   const mediaURLs = useRef({});
+  const thumbnailRef = useRef(null);
 
   const [isPaused, setIsPaused] = useState({});
 
@@ -58,8 +59,9 @@ export default function ProductModal({ onClose, refetch }) {
     brand: "",
     weight: 1,
     images: [],
+    variants_images: [],
     thumbnail: null,
-    extras: {},
+
     createdAt: new Date().toLocaleString("en-CA", {
       timeZone: "Asia/Dhaka",
       hour12: false,
@@ -73,6 +75,10 @@ export default function ProductModal({ onClose, refetch }) {
   const handleAttributeChange = (attr, value) => {
     setAttributes((prev) => ({ ...prev, [attr]: value }));
   };
+  const addedVariants = variants.map((v) => {
+    const { attributes, tempId, ...rest } = v; // attributes spread + tempId separate
+    return { ...rest, ...attributes, id: tempId }; // combine everything
+  });
 
   const addVariant = () => {
     const allAttributes = { ...attributes };
@@ -151,56 +157,47 @@ export default function ProductModal({ onClose, refetch }) {
       return;
     }
 
-    const cleanedAttributes = Object.fromEntries(
-      Object.entries(allAttributes).map(([key, value]) => [
-        key,
-        typeof value === "string" ? value.trim() : value,
-      ]),
+    const tempId = uuidv4();
+    const cleanAttributes = Object.fromEntries(
+      Object.entries(attributes).filter(
+        ([key, value]) =>
+          !["regular_price", "sale_price", "stock"].includes(key) &&
+          String(value).trim() !== "",
+      ),
     );
-
-    // নতুন variant তৈরি, price এবং stock সবসময় শেষে
-    const {
-      regular_price: rp,
-      sale_price: sp,
-      stock,
-      ...rest
-    } = cleanedAttributes;
-
     const newVariant = {
-      ...rest,
-      id: uuidv4(),
-      regular_price: rp || form.regular_price || 0,
-      sale_price: sp || form.sale_price || 0,
-      stock: stock || 0,
+      tempId,
+      attributes: { ...cleanAttributes }, // সব custom attributes এখানে
+      regular_price: attributes.regular_price || form.regular_price || 0,
+      sale_price: attributes.sale_price || form.sale_price || 0,
+      stock: attributes.stock || 0,
     };
+    const updatedVariants = [...variants, newVariant];
 
-    setVariants((prev) => [...prev, newVariant]);
-
-    setForm((prevForm) => ({
-      ...prevForm,
-      extras: {
-        ...prevForm.extras,
-        variants: [...(prevForm.extras?.variants || []), newVariant],
-      },
+    setVariants(updatedVariants);
+    const totalStock = updatedVariants.reduce(
+      (sum, v) => sum + (v.stock || 0),
+      0,
+    );
+    setForm((prev) => ({
+      ...prev,
+      stock: totalStock,
     }));
 
-    // ইনপুট ক্লিয়ার
-    const cleared = Object.keys(allAttributes).reduce(
-      (acc, key) => ({ ...acc, [key]: "" }),
-      {},
+    // input clear
+    setAttributes(
+      Object.keys(attributes).reduce((acc, key) => ({ ...acc, [key]: "" }), {}),
     );
-
-    setAttributes(cleared);
   };
 
   const handleRemoveVariant = (id) => {
-    const updatedVariants = variants.filter((v) => v.id !== id);
+    const updatedVariants = addedVariants.filter((v) => v.id !== id);
     setVariants(updatedVariants);
   };
 
   const onImageChange = (e) => {
     const files = Array.from(e.target.files || []);
-    const maxSizeImage = 2 * 1024 * 1024; // 1MB
+    const maxSizeImage = 2 * 1024 * 1024;
     const validFiles = [];
     let hasInvalid = false;
 
@@ -211,7 +208,10 @@ export default function ProductModal({ onClose, refetch }) {
         file.type.startsWith("image") ||
         file.type.startsWith("video")
       ) {
-        validFiles.push(file);
+        validFiles.push({
+          id: uuidv4(), // ⭐ unique id
+          file,
+        });
       }
     });
 
@@ -226,23 +226,82 @@ export default function ProductModal({ onClose, refetch }) {
 
     if (validFiles.length === 0) return;
 
-    // Update state with files directly (for FormData)
     setForm((prev) => ({
       ...prev,
       images: [...(prev.images || []), ...validFiles],
     }));
   };
+
+  const onVariantImageChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    const maxSizeImage = 2 * 1024 * 1024; // 2MB
+    const validFiles = [];
+    let hasInvalidSize = false;
+    let hasInvalidType = false;
+
+    files.forEach((file) => {
+      if (!file.type.startsWith("image/")) {
+        hasInvalidType = true;
+        return;
+      }
+
+      if (file.size > maxSizeImage) {
+        hasInvalidSize = true;
+        return;
+      }
+
+      validFiles.push({
+        id: uuidv4(), // ✅ নতুন UUID
+        file,
+        url: null, // নতুন ফাইলের জন্য url নেই
+      });
+    });
+
+    if (hasInvalidType) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid file type!",
+        text: "Only image files are allowed.",
+        confirmButtonColor: "#FF0055",
+      });
+    }
+
+    if (hasInvalidSize) {
+      Swal.fire({
+        icon: "error",
+        title: "Image too large!",
+        text: "Each image must be less than 2MB.",
+        confirmButtonColor: "#FF0055",
+      });
+    }
+
+    if (validFiles.length === 0) return;
+
+    setForm((prev) => ({
+      ...prev,
+      variants_images: [...(prev.variants_images || []), ...validFiles],
+    }));
+
+    e.target.value = ""; // same file reselect fix
+  };
+
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setThumbnail(file); // no base64 needed now
   };
 
-  const removeImage = (index) => {
+  const removeImage = (id) => {
     setForm((s) => ({
       ...s,
-      images: s.images.filter((_, i) => i !== index),
+      images: s.images.filter((img) => img.id !== id),
     }));
+
+    // URL clean up (memory leak avoid)
+    if (mediaURLs.current[id]) {
+      URL.revokeObjectURL(mediaURLs.current[id]);
+      delete mediaURLs.current[id];
+    }
   };
 
   // 🔽 Define subcategories for each category
@@ -252,114 +311,190 @@ export default function ProductModal({ onClose, refetch }) {
       name: "Electronics",
       sub: [
         {
-          name: "Mobile Phones & Accessories",
-          items: [
-            "Smartphones",
-            "Feature Phones",
-            "Phone Cases & Covers",
-            "Chargers & Cables",
-            "Power Banks",
-            "Screen Protectors",
-            "Mobile Gadgets & Wearables",
-          ],
+          name: "Mobile Phones",
+          items: ["Smartphone", "Feature Phone"],
           attributes: [
-            "color",
             "model",
             "ram",
             "storage",
+            "screen size",
+            "battery capacity",
             "warranty",
-            "weight",
           ],
         },
         {
-          name: "Computers & Accessories",
-          items: [
-            "Laptops",
-            "Desktops",
-            "Monitors",
-            "Keyboards & Mouse",
-            "Storage Devices",
-            "Networking Equipment",
-            "Printers & Scanners",
-            "Laptop Bags & Sleeves",
-            "Computer Gadgets & Accessories",
-          ],
+          name: "Tablets & Readers",
+          items: ["Tablet", "E-Reader"],
           attributes: [
+            "model",
+            "ram",
+            "storage",
+            "screen size",
+            "battery capacity",
+            "warranty",
+          ],
+        },
+        {
+          name: "Mobile Accessories",
+          items: [
+            "Charger",
+            "USB Cable",
+            "Power Bank",
+            "Battery",
+            "Mobile Cover",
+            "Screen Protector",
+            "Camera Lens Protector",
+            "Charging Dock",
+            "Mobile Stand",
+            "Mobile Mouse & Keyboard",
+            "Selfie Stick",
+            "Tripod",
+            "Smart Watch",
+            "Ring Light",
+            "Phone Cooling Fan",
+            "SIM Ejector Pin",
+          ],
+          attributes: ["type", "compatibility", "color", "size"],
+        },
+        {
+          name: "Audio & Headphones",
+          items: [
+            "Earphone",
+            "Earbuds",
+            "Headphone",
+            "Speaker",
+            "Sound Bar",
+            "Home Theater",
+            "Karaoke System",
+            "Microphone",
+            "Audio Interface",
+            "Sound Card",
+          ],
+          attributes: ["type", "connectivity", "battery life"],
+        },
+        {
+          name: "Computers & Laptops",
+          items: ["Laptop", "Desktop", "Mini PC", "All In One PC", "Monitor"],
+          attributes: [
+            "model",
             "processor",
             "ram",
             "storage",
-            "graphics",
-            "color",
+            "screen size",
             "warranty",
             "weight",
           ],
         },
         {
-          name: "Gaming",
-          items: ["Gaming Consoles", "Game Controllers", "Gaming Accessories"],
+          name: "Computer Accessories",
+          items: [
+            "Keyboard",
+            "Mouse",
+            "Mouse Pad",
+            "Laptop Stand",
+            "Monitor Stand",
+            "Cooling Pad",
+            "Laptop Charger",
+            "Laptop Battery",
+            "Keyboard Cover",
+            "Screen Protector",
+            "Laptop Bag",
+            "USB Hub",
+            "Docking Station",
+            "Hard Disk",
+            "SSD",
+            "Pen Drive",
+            "Memory Card",
+            "Card Reader",
+            "Webcam",
+            "Headphone Stand",
+          ],
+          attributes: ["type", "compatibility", "size"],
+        },
+        {
+          name: "Printers & Scanners",
+          items: [
+            "Printer",
+            "Scanner",
+            "Photocopy Machine",
+            "Printer Ink",
+            "POS Machine",
+            "Barcode Scanner",
+            "Barcode Printer",
+            "Label Printer",
+            "Cash Drawer",
+            "Money Counter",
+            "Paper Shredder",
+          ],
+          attributes: ["type", "connectivity", "warranty", "size", "weight"],
+        },
+        {
+          name: "Television & Display",
+          items: [
+            "Television",
+            "Set Top Box",
+            "Streaming Device",
+            "Projector",
+            "Projector Screen",
+            "Television Remote",
+            "Television Stand",
+            "Television Wall Mount",
+          ],
           attributes: [
-            "color",
-            "compatibility",
-            "platform",
+            "screen size",
+            "resolution",
+            "smart tv",
+            "warranty",
+            "weight",
+          ],
+        },
+        {
+          name: "Power & Electricals",
+          items: [
+            "UPS",
+            "Inverter",
+            "Solar Panel",
+            "Solar Charge Controller",
+            "Solar Battery",
+            "Voltage Stabilizer",
+            "Extension Board",
+            "Electrical Wire",
+            "Power Cable",
+            "Plug",
+            "Switch",
+            "Socket",
+            "Circuit Breaker",
+            "Fuse",
+            "Emergency Light",
+          ],
+          attributes: ["type", "capacity", "voltage", "size", "weight"],
+        },
+        {
+          name: "Camera & Security",
+          items: [
+            "Camera",
+            "Lens",
+            "Filter",
+            "Battery",
+            "Charger",
+            "Tripod",
+            "Gimbal",
+            "Bag",
+            "Drone",
+            "CCTV",
+            "IP Camera",
+            "PTZ Camera",
+            "DVR",
+            "NVR",
+            "Video Door Bell",
+            "Smart Door Lock",
+          ],
+          attributes: [
+            "type",
+            "resolution",
+            "night vision",
+            "warranty",
             "size",
-            "warranty",
-            "weight",
-          ],
-        },
-        {
-          name: "Audio & Video",
-          items: [
-            "Headphones & Earphones",
-            "Speakers",
-            "Home Audio Systems",
-            "Televisions & Accessories",
-            "Projectors & Screens",
-            "Audio Cables & Adapters",
-            "Streaming Devices & Media Players",
-          ],
-          attributes: [
-            "color",
-            "connectivity",
-            "power",
-            "type",
-            "warranty",
-            "weight",
-          ],
-        },
-        {
-          name: "Cameras & Photography",
-          items: [
-            "Digital Cameras",
-            "DSLR & Mirrorless Cameras",
-            "Camera Lenses",
-            "Tripods & Stabilizers",
-            "Memory Cards",
-            "Camera Bags & Accessories",
-            "Photography Gadgets & Accessories",
-          ],
-          attributes: ["lens", "resolution", "type", "warranty", "weight"],
-        },
-        {
-          name: "Home Appliances",
-          items: [
-            "Refrigerators",
-            "Washing Machines",
-            "Microwaves",
-            "Air Conditioners",
-            "Heaters",
-            "Fans",
-            "Vacuum Cleaners",
-            "Kitchen Appliances",
-            "Small Home Appliances & Gadgets",
-          ],
-          attributes: [
-            "capacity",
-            "color",
-            "energy rating",
-            "power",
-            "type",
-            "warranty",
-            "weight",
           ],
         },
       ],
@@ -368,85 +503,167 @@ export default function ProductModal({ onClose, refetch }) {
       name: "Fashion",
       sub: [
         {
-          name: "Clothing",
+          name: "Men's Clothing",
           items: [
-            "T-Shirts",
-            "Shirts",
-            "Jeans",
-            "Pants & Trousers",
+            "T-Shirt",
+            "Polo Shirt",
+            "Shirt",
+            "Pant",
             "Shorts",
-            "Jackets & Coats",
-            "Hoodies & Sweaters",
-            "Dresses",
-            "Skirts",
-            "Traditional Wear",
-            "Innerwear",
-            "Sportswear",
+            "Joggers",
+            "Panjabi",
+            "Sherwani",
+            "Lungi",
+            "Pajama",
+            "Kurta",
+            "Jacket",
+            "Coat",
+            "Hoodie",
+            "Sweater",
+            "Sweatshirt",
+            "Cardigan",
+            "Blazer",
+            "Waistcoat",
+            "Raincoat",
+            "Thermal Inner",
           ],
-          attributes: ["color", "material", "size"],
+          attributes: ["type", "size", "material", "color"],
+        },
+        {
+          name: "Women's Clothing",
+          items: [
+            "Top",
+            "T-Shirt",
+            "Shirt",
+            "Kurti",
+            "Tunic",
+            "Jacket",
+            "Coat",
+            "Hoodie",
+            "Sweater",
+            "Blazer",
+            "Gown",
+            "Skirt",
+            "Palazzo",
+            "Leggings",
+            "Jeggings",
+            "Saree",
+            "Salwar Kameez",
+            "Three Piece",
+            "Two Piece",
+            "Nighty",
+            "Loungewear",
+            "Hijab",
+            "Niqab",
+            "Burqa",
+            "Shawl",
+            "Dupatta",
+          ],
+          attributes: ["type", "size", "material", "color"],
+        },
+        {
+          name: "Kids' Clothing",
+          items: [
+            "Kids T-Shirt",
+            "Kids Polo Shirt",
+            "Kids Shirt",
+            "Kids Pant",
+            "Kids Shorts",
+            "Kids Sweatshirt",
+            "Kids Jacket",
+            "Kids Hoodie",
+            "Kids Sweater",
+            "Kids Dress",
+            "Baby T-Shirt",
+            "Baby Shirt",
+            "Baby Pant",
+            "Baby Jumpsuit",
+            "Baby Romper",
+            "Baby Frock",
+            "Baby Pajama",
+          ],
+          attributes: ["age", "type", "size", "material", "color"],
+        },
+        {
+          name: "Inner & Sleepwear",
+          items: [
+            "Bra",
+            "Panty",
+            "Lingerie Set",
+            "Nightwear Set",
+            "Boxer",
+            "Trunk",
+            "Brief",
+            "Vest",
+            "Thermal Wear",
+          ],
+          attributes: ["type", "size", "color", "material"],
         },
         {
           name: "Footwear",
           items: [
-            "Sneakers",
-            "Formal Shoes",
+            "Shoes",
+            "Sandal",
+            "Slipper",
+            "Flip Flop",
+            "Loafer",
+            "Boot",
+            "Heel",
+            "Flat",
+            "Wedge",
+            "Kids Shoes",
+            "Kids Sandal",
+            "Kids Slipper",
+            "Kids Flip Flop",
+            "Kids Loafer",
             "Baby Shoes",
-            "Sandals",
-            "Boots",
-            "Flip-Flops",
+            "Baby Sandal",
+            "Baby Slipper",
           ],
-          attributes: ["color", "material", "size"],
+          attributes: ["type", "size", "material", "color"],
         },
         {
-          name: "Bags",
-          items: ["Backpacks", "Handbags", "Wallets", "Travel Bags"],
-          attributes: ["color", "material", "size", "type"],
-        },
-        {
-          name: "Watches & Timepieces",
-          items: ["Analog Watches", "Digital Watches", "Smartwatches"],
-          attributes: ["color", "material", "size", "type", "water resistance"],
-        },
-        {
-          name: "Jewelry & Accessories",
+          name: "Fashion Accessories",
           items: [
-            "Rings",
-            "Necklaces",
-            "Bracelets",
-            "Earrings",
-            "Anklets",
-            "Sunglasses / Eyewear",
+            "Wrist Watch",
+            "Smart Watch Strap",
+            "Sunglass",
+            "Optical Frame",
+            "Belt",
+            "Wallet",
+            "Card Holder",
+            "Handbag",
+            "Shoulder Bag",
+            "Tote Bag",
+            "Backpack",
+            "Travel Bag",
+            "Luggage",
+            "Cap",
+            "Hat",
+            "Tie",
+            "Fabric Mask",
+            "Scarf",
+            "Socks",
+            "Gloves",
+            "Umbrella",
           ],
-          attributes: ["color", "size", "material"],
+          attributes: ["type", "size", "material", "color"],
         },
         {
-          name: "Head & Face Accessories",
+          name: "Jewelry",
           items: [
-            "Caps",
-            "Hats",
-            "Beanies",
-            "Hijab",
-            "Scarves",
-            "Fabric Face Masks",
-            "Buffs",
-            "Face Scarves",
+            "Necklace",
+            "Pendant",
+            "Earring",
+            "Nose Pin",
+            "Ring",
+            "Bracelet",
+            "Bangle",
+            "Anklet",
+            "Toe Ring",
+            "Bridal Jewelry",
           ],
-          attributes: ["color", "size", "material", "pattern", "style"],
-        },
-        {
-          name: "Belts & Accessories",
-          items: ["Belts", "Suspenders"],
-          attributes: ["color", "material", "size", "buckle type", "style"],
-        },
-        {
-          name: "Kids Accessories",
-          items: [
-            "Kids Backpack",
-            "Kids Watch",
-            "Hair Accessories",
-            "Hats & Caps",
-          ],
-          attributes: ["age group", "color", "material", "size", "type"],
+          attributes: ["type", "size", "material", "color"],
         },
       ],
     },
@@ -454,313 +671,617 @@ export default function ProductModal({ onClose, refetch }) {
       name: "Health & Beauty",
       sub: [
         {
-          name: "Skincare",
+          name: "Skin Care",
           items: [
-            "Face Cream",
-            "Sunscreen",
             "Face Wash",
-            "Serums",
-            "Face Masks",
+            "Cleanser",
+            "Scrub",
+            "Exfoliator",
+            "Mask",
+            "Cream",
+            "Moisturizer",
+            "Sunscreen",
+            "Toner",
+            "Serum",
+            "Face Oil",
           ],
-          attributes: ["size", "skin type", "type"],
+          attributes: ["type", "skin type", "volume", "weight"],
         },
         {
-          name: "Haircare",
+          name: "Hair Care",
           items: [
             "Shampoo",
             "Conditioner",
             "Hair Oil",
-            "Hair Serums",
-            "Hair Styling Products",
+            "Serum",
+            "Mask",
+            "Color",
+            "Spray",
+            "Gel",
+            "Wax",
           ],
-          attributes: ["hair type", "size", "type"],
+          attributes: ["type", "hair type", "volume", "weight"],
         },
         {
-          name: "Makeup & Cosmetics",
-          items: ["Lipstick", "Foundation", "Eyeliner", "Eyeshadow", "Blush"],
-          attributes: ["shade", "size", "type"],
+          name: "Makeup",
+          items: [
+            "Foundation",
+            "BB Cream",
+            "CC Cream",
+            "Concealer",
+            "Powder",
+            "Blush",
+            "Highlighter",
+            "Bronzer",
+            "Eyeshadow",
+            "Eyeliner",
+            "Kajal",
+            "Mascara",
+            "Lipstick",
+            "Lip Balm",
+            "Lip Gloss",
+            "Nail Polish",
+            "Remover",
+          ],
+          attributes: ["type", "shade", "volume", "weight"],
+        },
+        {
+          name: "Beauty Tools",
+          items: [
+            "Makeup Brush",
+            "Makeup Sponge",
+            "Face Roller",
+            "Massager",
+            "Facial Steamer",
+            "Hair Dryer",
+            "Straightener",
+            "Curler",
+            "Trimmer",
+            "Shaver",
+            "Epilator",
+          ],
+          attributes: ["type", "power source", "size", "color"],
         },
         {
           name: "Personal Care",
           items: [
-            "Toothpaste",
+            "Soap",
             "Body Wash",
+            "Shower Gel",
+            "Body Lotion",
+            "Body Butter",
+            "Body Scrub",
+            "Hand Wash",
+            "Hand Cream",
+            "Foot Cream",
+            "Toothpaste",
+            "Toothbrush",
+            "Mouthwash",
             "Deodorant",
-            "Shaving Products",
-            "Hand Sanitizer",
+            "Perfume",
+            "Talcum Powder",
           ],
-          attributes: ["quantity", "type"],
+          attributes: ["type", "quantity", "volume", "weight"],
         },
         {
-          name: "Fragrances",
-          items: ["Perfume", "Body Spray", "Cologne"],
-          attributes: ["type", "volumn"],
+          name: "Feminine & Baby Products",
+          items: [
+            "Sanitary Napkin",
+            "Panty Liner",
+            "Menstrual Cup",
+            "Pregnancy Test Kit",
+            "Baby Shampoo",
+            "Baby Soap",
+            "Baby Lotion",
+            "Baby Oil",
+            "Baby Powder",
+          ],
+          attributes: ["type", "quantity", "volume", "weight"],
         },
         {
-          name: "Health Supplements",
-          items: ["Vitamins", "Protein Powder", "Herbal Supplements"],
-          attributes: ["quantity", "size", "type"],
-        },
-        {
-          name: "Beauty Gadgets & Accessories",
-          items: ["Grooming Tool"],
-          attributes: ["type", "power", "color", "weight", "size"],
+          name: "Medical Supplies",
+          items: [
+            "Thermometer",
+            "Blood Pressure Machine",
+            "Glucometer",
+            "Pulse Oximeter",
+            "Nebulizer",
+            "Heating Pad",
+            "Hot Water Bag",
+            "Medical Mask",
+            "Sanitizer",
+            "Vitamins",
+            "Supplements",
+            "First Aid Kit",
+            "Bandage",
+            "Gauze",
+            "Medical Gloves",
+          ],
+          attributes: ["type", "certification", "expiry date", "weight"],
         },
       ],
     },
     {
-      name: "Furniture & Home Decor",
+      name: "Home & Living",
       sub: [
         {
           name: "Furniture",
-          items: ["Sofa", "Bed", "Dining Table", "Chair", "Wardrobe"],
-          attributes: ["color", "dimension", "material", "type", "weight"],
+          items: [
+            "Sofa",
+            "Chair",
+            "Table",
+            "Bed",
+            "Mattress",
+            "Wardrobe",
+            "Cabinet",
+            "Drawer",
+            "Shelf",
+            "Shoe Rack",
+            "Storage Rack",
+            "Television Cabinet",
+            "Dressing Table",
+            "Prayer Stool",
+          ],
+          attributes: ["type", "material", "color", "dimensions", "weight"],
         },
         {
-          name: "Home Decor",
-          items: ["Wall Art", "Lamps", "Rugs", "Clocks", "Decorative Items"],
-          attributes: ["color", "material", "size", "type"],
+          name: "Home Appliances",
+          items: [
+            "Refrigerator",
+            "Deep Freezer",
+            "Washing Machine",
+            "Oven",
+            "Rice Cooker",
+            "Pressure Cooker",
+            "Induction Stove",
+            "Electric Stove",
+            "Gas Stove",
+            "Air Fryer",
+            "Sandwich Maker",
+            "Toaster",
+            "Blender",
+            "Juicer",
+            "Mixer Grinder",
+            "Yogurt Maker",
+            "Food Processor",
+            "Electric Kettle",
+            "Coffee Maker",
+            "Vacuum Cleaner",
+            "Iron",
+            "Sewing Machine",
+            "Fan",
+            "Air Cooler",
+            "Room Heater",
+            "Water Heater",
+            "Geyser",
+            "Water Purifier",
+            "Air Conditioner",
+            "Air Purifier",
+            "Humidifier",
+            "Dehumidifier",
+          ],
+          attributes: [
+            "type",
+            "capacity",
+            "size",
+            "color",
+            "warranty",
+            "weight",
+          ],
         },
         {
           name: "Kitchen & Dining",
-          items: ["Cookware", "Dinnerware", "Cutlery", "Kitchen Storage"],
-          attributes: [
-            "capacity",
-            "color",
-            "material",
-            "size",
-            "type",
-            "weight",
-          ],
-        },
-        {
-          name: "Bedding & Bath",
-          items: ["Bedsheets", "Pillows", "Towels", "Blankets"],
-          attributes: ["color", "material", "size", "type", "weight"],
-        },
-        {
-          name: "Home Gadgets & Accessories",
           items: [
-            "Air Purifier",
-            "Smart Plugs",
-            "Humidifier",
-            "Electric Kettle",
-            "Smart Lighting",
-            "Home Organizer & Tissue Holder",
-          ],
-          attributes: ["color", "power", "size", "type", "weight"],
-        },
-      ],
-    },
-    {
-      name: "Sports & Outdoors",
-      sub: [
-        {
-          name: "Exercise & Fitness",
-          items: ["Treadmill", "Dumbbells", "Yoga Mat", "Resistance Bands"],
-          attributes: ["material", "resistance", "type", "weight"],
-        },
-        {
-          name: "Outdoor & Adventure",
-          items: [
-            "Tents",
-            "Sleeping Bags",
-            "Camping Lantern",
-            "Hiking Backpack",
-          ],
-          attributes: [
-            "capacity",
-            "color",
-            "material",
-            "size",
-            "type",
-            "weight",
-          ],
-        },
-        {
-          name: "Sports Equipment",
-          items: [
-            "Football",
-            "Cricket Bat & Ball",
-            "Badminton Set",
-            "Basketball",
-          ],
-          attributes: ["color", "material", "size", "type", "weight"],
-        },
-        {
-          name: "Sports Gadgets & Accessories",
-          items: [
+            "Cooking Pot",
+            "Saucepan",
+            "Frying Pan",
+            "Wok",
+            "Knife",
+            "Chopper",
+            "Peeler",
+            "Grater",
+            "Spoon",
+            "Fork",
+            "Plate",
+            "Bowl",
+            "Glass",
+            "Mug",
             "Water Bottle",
-            "Fitness Tracker",
-            "Sports Gloves",
-            "Gym Bag",
-          ],
-          attributes: ["color", "material", "size", "type", "weight"],
-        },
-      ],
-    },
-    {
-      name: "Toys & Baby Products",
-      sub: [
-        {
-          name: "Baby Care",
-          items: ["Diapers", "Baby Wipes", "Baby Lotion", "Feeding Bottles"],
-          attributes: ["age group", "quantity", "size", "type", "weight"],
-        },
-        {
-          name: "Toys",
-          items: [
-            "Stuffed Animals",
-            "Educational Toys",
-            "Action Figures",
-            "Puzzles",
+            "Lunch Box",
+            "Food Container",
+            "Spice Box",
+            "Oil Dispenser",
+            "Cutting Board",
+            "Kitchen Scale",
+            "Dish Rack",
           ],
           attributes: [
-            "age group",
-            "color",
-            "material",
-            "size",
             "type",
+            "material",
+            "color",
+            "size",
+            "capacity",
             "weight",
           ],
         },
         {
-          name: "Kids Gadgets & Accessories",
+          name: "Home Essentials",
           items: [
-            "Baby Monitor",
-            "Baby Carrier",
-            "Kids Watch",
-            "Kids Backpack",
+            "Pillow",
+            "Cushion",
+            "Bed Sheet",
+            "Pillow Cover",
+            "Blanket",
+            "Comforter",
+            "Quilt",
+            "Curtain",
+            "Carpet",
+            "Rug",
+            "Mat",
+            "Doormat",
+            "Mosquito Net",
+            "Laundry Basket",
+            "Laundry Bag",
+            "Tissue Box Organizer",
+            "Hanger",
+            "Iron Board",
           ],
-          attributes: ["age group", "power", "type", "weight"],
+          attributes: ["type", "material", "color", "size", "weight"],
+        },
+        {
+          name: "Lighting & Décor",
+          items: [
+            "Bulbs",
+            "Lights",
+            "Lamps",
+            "Wall Clock",
+            "Photo Frame",
+            "Mirror",
+            "Flower Vase",
+            "Artificial Flower",
+          ],
+          attributes: ["type", "dimensions", "color"],
+        },
+        {
+          name: "Bathroom & Cleaning",
+          items: [
+            "Bucket",
+            "Bathroom Mug",
+            "Water Drum",
+            "Bathroom Mat",
+            "Toilet Brush",
+            "Toilet Cleaner",
+            "Bathroom Shelf",
+            "Soap Dispenser",
+            "Toothbrush Holder",
+            "Shower Head",
+            "Tap",
+            "Water Valve",
+            "Cleaning Brush",
+            "Floor Cleaner",
+            "Glass Cleaner",
+            "Mop",
+            "Wiper",
+          ],
+          attributes: ["type", "quantity", "volume", "color", "size"],
+        },
+        {
+          name: "Hardware & Tools",
+          items: [
+            "Hammer",
+            "Screwdriver",
+            "Plier",
+            "Wrench",
+            "Measuring Tape",
+            "Digital Weighing Scale",
+            "Mechanical Scale",
+            "Cutter",
+            "Drill Machine",
+            "Drill Bit",
+            "Screw",
+            "Nail",
+            "Nut",
+            "Bolt",
+            "Padlock",
+          ],
+          attributes: ["type", "material", "size", "weight"],
+        },
+        {
+          name: "Religious & Spiritual",
+          items: [
+            "Prayer Mat",
+            "Tasbih",
+            "Holy Books",
+            "Book Stand",
+            "Agarbatti",
+            "Dhoop",
+            "Diya",
+            "Puja Thali",
+            "Bell",
+            "Religious Idol",
+            "Wall Frame",
+            "Photo Frame",
+            "Prayer Cap",
+            "Attar",
+            "Rudraksha",
+            "Spiritual Bracelet",
+            "Yantra",
+            "Talisman",
+            "Festival Decoration",
+            "Donation Box",
+          ],
+          attributes: ["type", "material", "color", "size", "occasion"],
         },
       ],
     },
     {
-      name: "Automotive & Industrial",
+      name: "Grocery & Food",
       sub: [
         {
-          name: "Car Accessories",
+          name: "Staples & Grains",
           items: [
-            "Car Cover",
-            "Seat Covers",
-            "Car Vacuum Cleaner",
-            "Dashboard Camera",
+            "Rice",
+            "Wheat",
+            "Flour",
+            "Semolina",
+            "Lentil",
+            "Chickpea",
+            "Green Pea",
           ],
-          attributes: ["compatibility", "size", "type", "quantity", "weight"],
-        },
-        {
-          name: "Motorbike Accessories",
-          items: [
-            "Helmets",
-            "Gloves",
-            "Motorbike Cover",
-            "Handlebar Accessories",
-          ],
-          attributes: [
-            "color",
-            "compatibility",
-            "material",
-            "size",
-            "type",
-            "weight",
-          ],
-        },
-        {
-          name: "Tools & Equipment",
-          items: ["Wrench Set", "Screwdrivers", "Power Drill", "Tool Box"],
-          attributes: ["material", "size", "type", "weight"],
-        },
-        {
-          name: "Safety & Security",
-          items: [
-            "CCTV Camera",
-            "Car Alarm",
-            "Fire Extinguisher",
-            "First Aid Kit",
-            "Security Sensors & Gadgets",
-          ],
-          attributes: ["power", "size", "type", "weight"],
-        },
-        {
-          name: "Automotive Gadgets & Accessories",
-          items: [
-            "GPS Navigator",
-            "Car Charger",
-            "Jump Starter",
-            "Tire Inflator",
-          ],
-          attributes: ["color", "compatibility", "material", "type"],
-        },
-      ],
-    },
-    {
-      name: "Grocery & Food Items",
-      sub: [
-        {
-          name: "Beverages",
-          items: ["Tea", "Coffee", "Soft Drinks", "Juices"],
-          attributes: ["flavor", "type", "volume", "weight"],
-        },
-        {
-          name: "Snacks & Confectionery",
-          items: ["Chips", "Biscuits", "Chocolates", "Nuts"],
-          attributes: ["size", "type", "weight"],
+          attributes: ["type", "weight", "quantity", "volume"],
         },
         {
           name: "Cooking Essentials",
-          items: ["Cooking Oil", "Spices", "Flour", "Sugar"],
-          attributes: ["quantity", "size", "type", "weight"],
-        },
-        {
-          name: "Dairy & Eggs",
-          items: ["Milk", "Cheese", "Yogurt", "Eggs"],
-          attributes: ["quantity", "size", "type", "weight"],
-        },
-        {
-          name: "Organic & Imported Items",
           items: [
-            "Organic Honey",
-            "Imported Chocolate",
-            "Gluten-Free Products",
-            "Organic Cereals",
+            "Salt",
+            "Sugar",
+            "Molasses",
+            "Oil",
+            "Ghee",
+            "Butter",
+            "Spice",
           ],
-          attributes: ["quantity", "size", "type", "weight"],
+          attributes: ["type", "weight", "quantity", "volume"],
         },
         {
-          name: "Specialty Foods & Gourmet Items",
+          name: "Dairy & Protein",
+          items: ["Milk", "Powder Milk", "Yogurt", "Cheese", "Egg"],
+          attributes: ["type", "weight", "quantity", "volume"],
+        },
+        {
+          name: "Meat & Fish",
+          items: ["Chicken", "Beef", "Mutton", "Fish"],
+          attributes: ["type", "quantity", "weight"],
+        },
+        {
+          name: "Snacks",
           items: [
-            "Sauces & Condiments",
-            "Gourmet Snacks",
-            "Premium Coffee/Tea",
-            "Exotic Spices",
+            "Biscuit",
+            "Cookies",
+            "Cake",
+            "Chocolate",
+            "Candy",
+            "Chips",
+            "Chanachur",
+            "Muri",
+            "Chira",
+            "Popcorn",
           ],
-          attributes: ["quantity", "size", "type", "weight"],
+          attributes: ["type", "weight", "quantity", "volume"],
+        },
+        {
+          name: "Frozen & Packaged Food",
+          items: [
+            "Frozen Paratha",
+            "Ice Cream",
+            "Nugget",
+            "Singara",
+            "Sausage",
+            "Ready Meal",
+          ],
+          attributes: ["type", "weight", "quantity", "volume"],
+        },
+        {
+          name: "Beverages",
+          items: [
+            "Tea",
+            "Coffee",
+            "Mineral Water",
+            "Soft Drink",
+            "Energy Drink",
+            "Juice",
+            "Syrup",
+          ],
+          attributes: ["type", "weight", "quantity", "volume"],
+        },
+        {
+          name: "Baby Food & Formula",
+          items: ["Baby Food", "Baby Cereal"],
+          attributes: ["age", "type", "weight", "quantity", "volume"],
+        },
+        {
+          name: "Condiments & Spreads",
+          items: ["Honey", "Jam", "Pickle", "Sauce"],
+          attributes: ["type", "weight", "quantity", "volume"],
         },
       ],
     },
     {
-      name: "Pets & Pet Care",
+      name: "Sports & Outdoor",
+      sub: [
+        {
+          name: "Sports Equipment",
+          items: [
+            "Cricket Equipment",
+            "Football Equipment",
+            "Basketball Equipment",
+            "Volleyball Equipment",
+            "Badminton Equipment",
+            "Tennis Equipment",
+            "Table Tennis Equipment",
+          ],
+          attributes: ["type", "size", "color", "material", "weight"],
+        },
+        {
+          name: "Sports Accessories",
+          items: [
+            "Cricket Accessories",
+            "Football Accessories",
+            "Basketball Accessories",
+            "Volleyball Accessories",
+            "Badminton Accessories",
+            "Tennis Accessories",
+            "Table Tennis Accessories",
+          ],
+          attributes: ["type", "color", "size", "material"],
+        },
+        {
+          name: "Fitness & Exercise",
+          items: ["Gym Equipment"],
+          attributes: ["type", "color", "size", "material", "weight"],
+        },
+        {
+          name: "Cycling",
+          items: ["Bicycle", "Helmet", "Light", "Lock"],
+          attributes: ["type", "size", "color", "material", "weight"],
+        },
+        {
+          name: "Camping & Hiking",
+          items: [
+            "Camping Tent",
+            "Sleeping Bag",
+            "Camping Chair",
+            "Camping Table",
+            "Hiking Backpack",
+            "Hiking Stick",
+          ],
+          attributes: ["type", "size", "color", "material", "weight"],
+        },
+        {
+          name: "Fishing",
+          items: ["Fishing Rod", "Fishing Reel"],
+          attributes: ["type", "color", "size", "material"],
+        },
+      ],
+    },
+    {
+      name: "Toys & Kids",
+      sub: [
+        {
+          name: "Toys",
+          items: [
+            "Soft Toy",
+            "Teddy Bear",
+            "Doll",
+            "Action Figure",
+            "Remote Control Car",
+            "Remote Control Drone",
+            "Puzzle",
+            "Board Game",
+            "Building Blocks",
+            "Musical Toy",
+            "Educational Toy",
+            "Science Kit",
+          ],
+          attributes: ["type", "age", "size", "color", "material"],
+        },
+        {
+          name: "Baby care & Essentials",
+          items: [
+            "Diaper",
+            "Wipes",
+            "Kids Water Bottle",
+            "Feeder",
+            "Sterilizer",
+          ],
+          attributes: ["type", "age", "quantity", "size"],
+        },
+        {
+          name: "Baby Gear",
+          items: [
+            "Walker",
+            "Stroller",
+            "Carrier",
+            "Crib",
+            "Bed",
+            "Mosquito Net",
+          ],
+          attributes: ["type", "age", "color", "material", "size", "weight"],
+        },
+        {
+          name: "Learning & School Supplies",
+          items: ["School Bag", "Lunch Bag", "Stationery", "Books"],
+          attributes: ["type", "size", "color", "material"],
+        },
+      ],
+    },
+    {
+      name: "Pet Supplies",
       sub: [
         {
           name: "Pet Food",
-          items: ["Dog Food", "Cat Food", "Bird Feed", "Fish Food"],
-          attributes: ["flavor", "quantity", "size", "type", "weight"],
+          items: [
+            "Cat Food",
+            "Dog Food",
+            "Bird Food",
+            "Fish Food",
+            "Turtle Food",
+            "Rabbit Food",
+          ],
+          attributes: ["age", "weight", "quantity", "volume"],
         },
         {
           name: "Pet Accessories",
-          items: ["Pet Collar & Leash", "Pet Bed", "Pet Toys", "Pet Bowls"],
-          attributes: ["color", "material", "size", "type", "weight"],
+          items: [
+            "Pet Bed",
+            "Pet Cage",
+            "Pet House",
+            "Pet Carrier",
+            "Pet Leash",
+            "Pet Collar",
+            "Pet Harness",
+            "Pet Diaper",
+            "Pet Wipes",
+            "Pet Training Pad",
+            "Pet Food Bowl",
+            "Pet Water Fountain",
+            "Pet Litter Box",
+            "Pet Litter Tray & Scooper",
+          ],
+          attributes: ["age", "type", "size", "color", "material", "weight"],
         },
         {
-          name: "Pet Care Products",
-          items: ["Pet Shampoo", "Pet Grooming Tools", "Flea & Tick Treatment"],
-          attributes: ["quantity", "size", "type", "weight"],
+          name: "Pet Care",
+          items: [
+            "Pet Shampoo",
+            "Pet Conditioner",
+            "Pet Brush",
+            "Pet Nail Cutter",
+            "Pet Toothbrush",
+            "Pet Toothpaste",
+            "Pet Medicine",
+            "Pet Vitamin",
+            "Pet Odor Spray",
+            "Pet Flea & Tick Treatment",
+            "Pet Lice Treatment",
+            "Pet Ear Cleaner",
+            "Pet Eye Cleaner",
+            "Pet First Aid Kit",
+            "Pet Litter",
+          ],
+          attributes: ["type", "age", "volume", "quantity", "weight"],
         },
         {
-          name: "Pet Gadgets & Accessories",
-          items: ["Automatic Feeder", "Pet Camera", "Pet Tracker"],
-          attributes: ["power", "quantity", "type", "weight"],
+          name: "Aquarium Supplies",
+          items: [
+            "Aquarium Tank",
+            "Aquarium Stand",
+            "Aquarium Filter",
+            "Aquarium Light",
+            "Oxygen Pump",
+            "Aquarium Heater",
+          ],
+          attributes: ["type", "size", "color", "material", "weight"],
         },
       ],
     },
@@ -786,23 +1307,23 @@ export default function ProductModal({ onClose, refetch }) {
     variants.length > 0
       ? [
           ...new Set(
-            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase())),
+            variants.flatMap((v) => {
+              const { attributes } = v;
+              return [
+                ...Object.keys(attributes ?? {}).map((k) => k.toLowerCase()),
+              ];
+            }),
           ),
-        ].filter(
-          (k) =>
-            k !== "regular_price" &&
-            k !== "sale_price" &&
-            k !== "stock" &&
-            k !== "id",
-        )
+        ]
       : getVariantsFor(subcategoryItem).map((v) => String(v).toLowerCase());
+
   const handleCreate = async () => {
     if (
       form.productName.trim() === "" ||
       form.category.trim() === "" ||
       form.subcategory.trim() === "" ||
       form.subcategory_item.trim() === "" ||
-      form.images.length === 0 ||
+      (form.images.length === 0 && !thumbnail) ||
       form.regular_price <= 0
     ) {
       return Swal.fire({
@@ -822,22 +1343,24 @@ export default function ProductModal({ onClose, refetch }) {
 
         // Normal fields যোগ করুন
         for (let key in form) {
-          if (key !== "images") {
+          if (key !== "images" && key !== "variants_images") {
             if (key === "thumbnail") {
               formData.append(key, thumbnail);
             }
-            if (key === "extras") {
-              formData.append(key, JSON.stringify(form[key]));
-            } else {
-              formData.append(key, form[key]);
-            }
+
+            formData.append(key, form[key]);
           }
         }
 
         // Images & videos যোগ করুন
         (form.images || []).forEach((file) => {
-          formData.append("images", file); // Multer single/multiple জন্য একই নাম
+          formData.append("images", file.file); // Multer single/multiple জন্য একই নাম
         });
+        (form.variants_images || []).forEach((file) => {
+          formData.append("variants_images", file.file); // Multer single/multiple জন্য একই নাম
+        });
+
+        formData.append("variants", JSON.stringify(variants));
 
         const res = await axiosPublic.post("/products", formData, {
           headers: {
@@ -888,9 +1411,17 @@ export default function ProductModal({ onClose, refetch }) {
     variants.length > 0
       ? [
           ...new Set(
-            variants.flatMap((v) => Object.keys(v).map((k) => k.toLowerCase())),
+            variants.flatMap((v) => {
+              const { attributes, regular_price, sale_price, stock } = v;
+              return [
+                ...Object.keys(attributes ?? {}).map((k) => k.toLowerCase()),
+                ...Object.keys({ regular_price, sale_price, stock }).map((k) =>
+                  k.toLowerCase(),
+                ),
+              ];
+            }),
           ),
-        ].filter((k) => k !== "id")
+        ]
       : [];
 
   useEffect(() => {
@@ -916,8 +1447,8 @@ export default function ProductModal({ onClose, refetch }) {
       brand: "",
       weight: 1,
       images: [],
+      variants_images: [],
       thumbnail: null,
-      extras: {},
       createdAt: new Date().toLocaleString("en-CA", {
         timeZone: "Asia/Dhaka",
         hour12: false,
@@ -976,27 +1507,28 @@ export default function ProductModal({ onClose, refetch }) {
       />
     );
   };
-  const togglePlayPause = async (i) => {
-    const currentVideo = videoRef.current[i];
+
+  const togglePlayPause = async (id) => {
+    const currentVideo = videoRef.current[id];
     if (!currentVideo) return;
 
     try {
       // 🔴 pause all other videos
-      videoRef.current.forEach((v, idx) => {
-        if (v && idx !== i) {
+      Object.entries(videoRef.current).forEach(([key, v]) => {
+        if (v && key !== id) {
           v.pause();
-          setIsPaused((p) => ({ ...p, [idx]: true }));
+          setIsPaused((p) => ({ ...p, [key]: true }));
         }
       });
 
       if (currentVideo.paused) {
         await currentVideo.play();
-        currentVideo.muted = false; // auto-play muted
-        setIsPaused((p) => ({ ...p, [i]: false }));
+        currentVideo.muted = false;
+        setIsPaused((p) => ({ ...p, [id]: false }));
       } else {
         currentVideo.pause();
         currentVideo.muted = true;
-        setIsPaused((p) => ({ ...p, [i]: true }));
+        setIsPaused((p) => ({ ...p, [id]: true }));
       }
     } catch (err) {
       console.error("Video play blocked:", err);
@@ -1220,7 +1752,6 @@ export default function ProductModal({ onClose, refetch }) {
                       ...s,
                       category: e.target.value,
                       subcategory: "",
-                      extras: {},
                     }))
                   }
                   isWide={true}
@@ -1314,6 +1845,7 @@ export default function ProductModal({ onClose, refetch }) {
                       type="file"
                       name={"thumbnail"}
                       accept=".jpg,.jpeg,.png"
+                      ref={thumbnailRef}
                       onChange={handleImageUpload}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
@@ -1327,7 +1859,11 @@ export default function ProductModal({ onClose, refetch }) {
                     )}
                     {thumbnail && (
                       <button
-                        onClick={() => setThumbnail(null)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setThumbnail(null);
+                          thumbnailRef.current.value = null;
+                        }}
                         className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow hover:bg-red-500 hover:text-white z-20"
                       >
                         <Trash2 size={16} />
@@ -1344,16 +1880,19 @@ export default function ProductModal({ onClose, refetch }) {
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {(form.images || []).map((file, i) => {
+                    {(form.images || []).map((item) => {
+                      const { id, file } = item; // ✅ id destructure
                       const isVideo = file.type.startsWith("video");
-                      if (!mediaURLs.current[i]) {
-                        mediaURLs.current[i] = URL.createObjectURL(file);
+
+                      if (!mediaURLs.current[id]) {
+                        mediaURLs.current[id] = URL.createObjectURL(file); // ✅ id-based
                       }
-                      const mediaURL = mediaURLs.current[i];
+
+                      const mediaURL = mediaURLs.current[id];
 
                       return (
                         <div
-                          key={i}
+                          key={id} // ✅ index → id
                           className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 group border"
                         >
                           {!isVideo ? (
@@ -1365,23 +1904,24 @@ export default function ProductModal({ onClose, refetch }) {
                           ) : (
                             <div className="relative w-full h-full">
                               <video
-                                ref={(el) => (videoRef.current[i] = el)}
+                                ref={(el) => (videoRef.current[id] = el)} // ✅ id-based
                                 src={mediaURL}
                                 playsInline
                                 muted
                                 preload="metadata"
                                 className="w-full h-full object-cover"
-                                onEnded={() =>
-                                  setIsPaused((p) => ({ ...p, [i]: true }))
+                                onEnded={
+                                  () =>
+                                    setIsPaused((p) => ({ ...p, [id]: true })) // ✅ id-based
                                 }
                               />
 
                               <button
-                                onClick={() => togglePlayPause(i)}
+                                onClick={() => togglePlayPause(id)} // ✅ id-based
                                 className="absolute inset-0 m-auto w-10 h-10 bg-black/60 hover:bg-black/80 
-             rounded-full flex items-center justify-center text-white"
+              rounded-full flex items-center justify-center text-white"
                               >
-                                {isPaused[i] !== false ? (
+                                {isPaused[id] !== false ? (
                                   <Play size={18} />
                                 ) : (
                                   <Pause size={18} />
@@ -1395,7 +1935,7 @@ export default function ProductModal({ onClose, refetch }) {
                           )}
 
                           <button
-                            onClick={() => removeImage(i)}
+                            onClick={() => removeImage(id)} // ✅ index → id
                             className="absolute top-2 right-2 p-1.5 bg-white rounded-lg shadow hover:bg-red-500 hover:text-white"
                           >
                             <Trash2 size={16} />
@@ -1614,6 +2154,96 @@ export default function ProductModal({ onClose, refetch }) {
                   </div>
                 </div>
 
+                <section className="border border-gray-200 rounded-3xl p-6 bg-gradient-to-br from-gray-50 to-white space-y-6 my-6">
+                  {/* Header */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      Variant Image Gallery
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      Optional images for this variant
+                    </p>
+                  </div>
+
+                  {/* Gallery */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {(form.variants_images || []).map((item) => {
+                      const id = item.id || uuidv4(); // যদি কোনো UUID না থাকে, নতুন বানানো হবে
+                      let mediaURL = "";
+
+                      if (item.file instanceof File) {
+                        if (!mediaURLs.current[id]) {
+                          mediaURLs.current[id] = URL.createObjectURL(
+                            item.file,
+                          );
+                        }
+                        mediaURL = mediaURLs.current[id];
+                      } else if (typeof item === "string" || item.url) {
+                        mediaURL = item.url
+                          ? item.url
+                          : item.startsWith("/uploads")
+                            ? `${baseUrl}${item}`
+                            : item;
+                      }
+
+                      return (
+                        <div
+                          key={id}
+                          className="relative group rounded-2xl overflow-hidden border bg-gray-100 aspect-square"
+                        >
+                          {/* Image */}
+                          <img
+                            src={mediaURL}
+                            alt=""
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                          />
+
+                          {/* Remove */}
+                          <button
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                variants_images: prev.variants_images.filter(
+                                  (img) => img.id !== id,
+                                ),
+                              }))
+                            }
+                            className="absolute top-2 right-2 p-1.5 bg-white/90 
+        rounded-lg shadow opacity-0 group-hover:opacity-100 
+        hover:bg-red-500 hover:text-white transition"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      );
+                    })}
+
+                    {/* Add Image */}
+                    <label
+                      className="relative aspect-square rounded-2xl border-2 border-dashed 
+      border-gray-300 hover:border-[#FF0055] bg-gray-50 
+      flex flex-col items-center justify-center cursor-pointer 
+      transition group"
+                    >
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={onVariantImageChange}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+
+                      <ImageIcon
+                        size={26}
+                        className="text-gray-400 group-hover:text-[#FF0055]"
+                      />
+                      <span className="text-xs text-gray-500 mt-2 group-hover:text-[#FF0055]">
+                        Add Images
+                      </span>
+                    </label>
+                  </div>
+                </section>
+
                 {variants.length > 0 && (
                   <div className="overflow-x-auto bg-white rounded-box shadow-sm my-4">
                     <table className="table text-center w-full">
@@ -1628,7 +2258,7 @@ export default function ProductModal({ onClose, refetch }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {variants.map((variant) => (
+                        {addedVariants.map((variant) => (
                           <tr key={variant.id}>
                             {tableHeaders
                               .filter((key) => key !== "id")

@@ -17,10 +17,12 @@ export default function BusinessDetails({
     { value: "All Categories", label: "All Categories" },
     { value: "Electronics", label: "Electronics" },
     { value: "Fashion", label: "Fashion" },
-    { value: "Groceries", label: "Groceries" },
     { value: "Health & Beauty", label: "Health & Beauty" },
     { value: "Home & Living", label: "Home & Living" },
-    { value: "Sports", label: "Sports" },
+    { value: "Grocery & Food", label: "Grocery & Food" },
+    { value: "Sports & Outdoors", label: "Sports & Outdoors" },
+    { value: "Toys & Kids", label: "Toys & Kids" },
+    { value: "Pet Supplies", label: "Pet Supplies" },
   ];
   return (
     <div>
