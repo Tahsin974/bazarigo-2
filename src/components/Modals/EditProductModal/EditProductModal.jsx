@@ -289,6 +289,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "model",
             "ram",
             "storage",
+            "color",
             "screen size",
             "battery capacity",
             "warranty",
@@ -301,6 +302,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "model",
             "ram",
             "storage",
+            "color",
             "screen size",
             "battery capacity",
             "warranty",
@@ -331,9 +333,9 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
         {
           name: "Audio & Headphones",
           items: [
-            "Earphone",
+            "Earphones",
             "Earbuds",
-            "Headphone",
+            "Headphones",
             "Speaker",
             "Sound Bar",
             "Home Theater",
@@ -342,7 +344,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Audio Interface",
             "Sound Card",
           ],
-          attributes: ["type", "connectivity", "battery life"],
+          attributes: ["type", "connectivity", "color", "battery life"],
         },
         {
           name: "Computers & Laptops",
@@ -352,6 +354,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "processor",
             "ram",
             "storage",
+            "color",
             "screen size",
             "warranty",
             "weight",
@@ -381,7 +384,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Webcam",
             "Headphone Stand",
           ],
-          attributes: ["type", "compatibility", "size"],
+          attributes: ["type", "compatibility", "color", "size"],
         },
         {
           name: "Printers & Scanners",
@@ -398,7 +401,14 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Money Counter",
             "Paper Shredder",
           ],
-          attributes: ["type", "connectivity", "warranty", "size", "weight"],
+          attributes: [
+            "type",
+            "connectivity",
+            "color",
+            "warranty",
+            "size",
+            "weight",
+          ],
         },
         {
           name: "Television & Display",
@@ -415,6 +425,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
           attributes: [
             "screen size",
             "resolution",
+            "color",
             "smart tv",
             "warranty",
             "weight",
@@ -439,7 +450,14 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Fuse",
             "Emergency Light",
           ],
-          attributes: ["type", "capacity", "voltage", "size", "weight"],
+          attributes: [
+            "type",
+            "capacity",
+            "color",
+            "voltage",
+            "size",
+            "weight",
+          ],
         },
         {
           name: "Camera & Security",
@@ -464,6 +482,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
           attributes: [
             "type",
             "resolution",
+            "color",
             "night vision",
             "warranty",
             "size",
@@ -810,6 +829,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Gas Stove",
             "Air Fryer",
             "Sandwich Maker",
+            "Waffle Maker",
             "Toaster",
             "Blender",
             "Juicer",
@@ -831,6 +851,8 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Air Purifier",
             "Humidifier",
             "Dehumidifier",
+            "Electric Insect Trap",
+            "Electric Rat Trap",
           ],
           attributes: [
             "type",
@@ -865,7 +887,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Oil Dispenser",
             "Cutting Board",
             "Kitchen Scale",
-            "Dish Rack",
+            "Dumpling Maker",
           ],
           attributes: [
             "type",
@@ -877,7 +899,60 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
           ],
         },
         {
+          name: "Cleaning Supplies",
+          items: [
+            "Air Freshener",
+            "Bleach",
+            "Broom",
+            "Cleaning Brush",
+            "Cleaning Cloth",
+            "Cleaning Duster",
+            "Cleaning Gloves",
+            "Dish Wash Gloves",
+            "Dishwashing Liquid",
+            "Dishwashing Sponge",
+            "Disinfectant Spray",
+            "Drain Cleaner Tool",
+            "Dustpan",
+            "Floor Cleaner",
+            "Floor Disinfectant",
+            "Garbage Bag",
+            "Glass Cleaner",
+            "Kitchen Gloves",
+            "Microfiber Cloth",
+            "Mop",
+            "Steel Wool",
+            "Toilet Brush",
+            "Toilet Cleaner",
+            "Toilet Freshener",
+            "Toilet Plunger",
+            "Wiper",
+            "Scrubber",
+          ],
+          attributes: [
+            "type",
+            "material",
+            "color",
+            "size",
+            "quantity",
+            "volume",
+            "weight",
+          ],
+        },
+        {
           name: "Home Essentials",
+          items: [
+            "Curtain",
+            "Carpet",
+            "Rug",
+            "Mat",
+            "Doormat",
+            "Tissue Box Organizer",
+          ],
+          attributes: ["type", "material", "color", "size", "weight"],
+        },
+        {
+          name: "Bedding",
           items: [
             "Pillow",
             "Cushion",
@@ -886,17 +961,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
             "Blanket",
             "Comforter",
             "Quilt",
-            "Curtain",
-            "Carpet",
-            "Rug",
-            "Mat",
-            "Doormat",
             "Mosquito Net",
-            "Laundry Basket",
-            "Laundry Bag",
-            "Tissue Box Organizer",
-            "Hanger",
-            "Iron Board",
           ],
           attributes: ["type", "material", "color", "size", "weight"],
         },
@@ -915,25 +980,30 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
           attributes: ["type", "dimensions", "color"],
         },
         {
-          name: "Bathroom & Cleaning",
+          name: "Laundry",
+          items: [
+            "Laundry Basket",
+            "Laundry Bag",
+            "Detergent Powder",
+            "Detergent Liquid",
+            "Iron Board",
+            "Hanger",
+          ],
+          attributes: ["type", "quantity", "weight", "color", "size"],
+        },
+        {
+          name: "Bathroom",
           items: [
             "Bucket",
             "Bathroom Mug",
             "Water Drum",
             "Bathroom Mat",
-            "Toilet Brush",
-            "Toilet Cleaner",
             "Bathroom Shelf",
             "Soap Dispenser",
             "Toothbrush Holder",
             "Shower Head",
             "Tap",
             "Water Valve",
-            "Cleaning Brush",
-            "Floor Cleaner",
-            "Glass Cleaner",
-            "Mop",
-            "Wiper",
           ],
           attributes: ["type", "quantity", "volume", "color", "size"],
         },
@@ -1890,7 +1960,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
                           <img
                             src={mediaURL}
                             alt=""
-                            className="w-full h-full object-cover group-hover:scale-110 transition"
+                            className="w-full h-full object-fill group-hover:scale-110 transition"
                           />
                         ) : (
                           <div className="relative w-full h-full">
@@ -1900,7 +1970,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
                               playsInline
                               muted
                               preload="metadata"
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-fill"
                               onEnded={() =>
                                 setPausedVideos((p) => ({ ...p, [id]: true }))
                               }
@@ -2099,7 +2169,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
                         <img
                           src={previewUrl}
                           alt=""
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                          className="w-full h-full object-fill transition-transform duration-300 group-hover:scale-110"
                         />
 
                         <button
@@ -2111,7 +2181,7 @@ export default function EditProductModal({ product = {}, onClose, refetch }) {
                               ),
                             }))
                           }
-                          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-lg shadow opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition"
+                          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-lg shadow md:opacity-0 md:group-hover:opacity-100 hover:bg-red-500 hover:text-white transition"
                         >
                           <Trash2 size={16} />
                         </button>

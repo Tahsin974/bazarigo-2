@@ -668,7 +668,7 @@ export default function SellerPanelDashboard() {
                   setInventorySort={setInventorySort}
                   inventoryPage={inventoryPage}
                   setInventoryPage={setInventoryPage}
-                  inventoryPageSize={6}
+                  inventoryPageSize={currentPageSize}
                   filteredInventory={filteredInventory}
                   paginatedInventory={paginatedInventory}
                 />

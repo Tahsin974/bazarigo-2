@@ -143,8 +143,9 @@ export default function BaseProductDetails({
     const related = products.filter(
       (p) =>
         p.id !== currentProduct.id &&
-        (p.subcategory === currentProduct.subcategory ||
-          p.category === currentProduct.category),
+        p.subcategory_item === currentProduct.subcategory_item &&
+        p.subcategory === currentProduct.subcategory &&
+        p.category === currentProduct.category,
     );
 
     // Optional: sort by rating, bestseller, or trending
@@ -393,7 +394,7 @@ export default function BaseProductDetails({
   };
 
   const handleShare = async (product) => {
-    const shareUrl = `${import.meta.env.VITE_FRONTEND_URL}/product/${product.id}`; // encoded id backend handles redirect
+    const shareUrl = `${import.meta.env.VITE_FRONTEND_URL}/product/${product.id}?v=${Date.now()}`; // encoded id backend handles redirect
 
     // Clean description
     const cleanDescription = product.description
@@ -574,14 +575,13 @@ export default function BaseProductDetails({
                 >
                   {!video && (
                     <>
-                      <div className="sm:w-[500px]  w-auto max-h-[500px] rounded-2xl ">
+                      <div className="sm:w-[500px]  w-auto  rounded-2xl ">
                         <ReactImageMagnify
                           {...{
                             smallImage: {
                               alt: "Product image",
 
-                              width: 500,
-                              height: 500,
+                              isFluidWidth: true,
 
                               src: imgUrl,
                             },
@@ -590,14 +590,20 @@ export default function BaseProductDetails({
                               width: 1200,
                               height: 1200,
                             },
+                            shouldUsePositiveSpaceLens: false,
+                            lensStyle: {
+                              backgroundColor: "transparent",
+                            },
+
                             enlargedImageContainerDimensions: {
                               width: "140%",
                               height: "100%",
                             },
+
                             imageClassName:
                               "object-fill rounded-2xl overflow-hidden ",
                             enlargedImageContainerClassName:
-                              "rounded-2xl overflow-hidden bg-white",
+                              "rounded-2xl overflow-hidden bg-white z-20",
                             enlargedImageClassName:
                               "rounded-2xl overflow-hidden ",
                           }}
@@ -616,7 +622,7 @@ export default function BaseProductDetails({
                       <video
                         ref={videoRef}
                         src={`${baseUrl}${mainImage}`}
-                        className="sm:w-[500px]  w-auto max-h-[500px] object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                        className="sm:w-[500px]  w-auto object-fill rounded-2xl transition-transform duration-300 group-hover:scale-105"
                         onPlay={() => setIsPaused(false)}
                         onPause={() => setIsPaused(true)}
                         onEnded={() => setIsPaused(true)}
@@ -863,6 +869,23 @@ export default function BaseProductDetails({
               <p className="text-sm sm:text-base md:text-lg">
                 <strong>Brand:</strong> {product?.brand || "No Brand"}
               </p>
+              <section className="container mx-auto px-0 py-5 border-t border-b  border-gray-300 md:block hidden mt-5">
+                <div>
+                  <h3 className="text-xl font-bold mb-3">Description</h3>
+                  <div className="mt-3 text-gray-600 leading-relaxed">
+                    {product.description ? (
+                      <div
+                        className="ql-editor"
+                        dangerouslySetInnerHTML={{
+                          __html: product.description,
+                        }}
+                      ></div>
+                    ) : (
+                      <p>No description available for this product.</p>
+                    )}
+                  </div>
+                </div>
+              </section>
 
               <VariantSelection
                 product={product}
@@ -870,31 +893,33 @@ export default function BaseProductDetails({
                 setSelected={setSelectedVariant}
               />
 
-              {product.variants_images?.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {product.variants_images.map((variantImg, index) => (
-                    <div
-                      key={variantImg + index}
-                      className="relative w-20 h-20 cursor-pointer transition-transform duration-200 hover:scale-105"
-                    >
-                      <img
-                        src={`${baseUrl}${variantImg}`}
-                        alt={`Variant image ${index + 1} of ${product.name || "product"}`}
-                        onClick={() => setSelectedVariantImage(variantImg)}
-                        className="w-full h-full object-cover rounded-lg shadow-sm"
-                      />
+              <div>
+                {product.variants_images?.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-3 ">
+                    {product.variants_images.map((variantImg, index) => (
+                      <div
+                        key={variantImg + index}
+                        className="relative w-20 h-20 cursor-pointer transition-transform duration-200 hover:scale-105 z-10"
+                      >
+                        <img
+                          src={`${baseUrl}${variantImg}`}
+                          alt={`Variant image ${index + 1} of ${product.name || "product"}`}
+                          onClick={() => setSelectedVariantImage(variantImg)}
+                          className="w-full h-full object-fill rounded-lg shadow-sm"
+                        />
 
-                      {selectedVariantImage === variantImg && (
-                        <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
-                          <span className="text-white text-[10px] px-2 py-1 rounded-full bg-[#00C853] font-semibold">
-                            Selected
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                        {selectedVariantImage === variantImg && (
+                          <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                            <span className="text-white text-[10px] px-2 py-1 rounded-full bg-[#00C853] font-semibold">
+                              Selected
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div className="mt-8 flex flex-wrap gap-4">
                 {user?.role !== "seller" &&
@@ -949,10 +974,10 @@ export default function BaseProductDetails({
             </motion.div>
           </section>
 
-          <section className="container mx-auto xl:px-6 lg:px-6 px-4 py-12 border-t border-gray-300">
+          <section className="container mx-auto xl:px-6 lg:px-6 px-4 py-12 border-t border-gray-300 md:hidden block">
             <div>
-              <h3 className="text-xl font-bold mb-6">Description</h3>
-              <div className="mt-6 text-gray-600 leading-relaxed">
+              <h3 className="text-xl font-bold mb-3">Description</h3>
+              <div className="mt-3 text-gray-600 leading-relaxed">
                 {product.description ? (
                   <div
                     className="ql-editor"

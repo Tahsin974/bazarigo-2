@@ -48,6 +48,7 @@ function ProductsView({
     1,
     Math.ceil(filteredProducts.length / productPageSize),
   );
+
   const renderPageNumbers = useRenderPageNumbers(
     productPage,
     totalPages,
