@@ -7,6 +7,7 @@ import BillingSummaryCardSection from "./components/BillingSummaryCardSection";
 import { Printer } from "lucide-react";
 import { useRef } from "react";
 import Swal from "sweetalert2";
+import logo from "../../../assets/Bazarigo.svg";
 
 export default function OrderModal({
   onClose,
@@ -48,7 +49,7 @@ export default function OrderModal({
     printWindow.document.write(`
     <html>
                 <head>
-                    <title>Invoice - ${order.orderId}</title>
+                    <title>Invoice - ${order.order_id}</title>
                     <style>
                         body { 
                             font-family: 'Inter', sans-serif; 
@@ -76,11 +77,25 @@ export default function OrderModal({
                            
                             
                         }
+                            .invoice-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center horizontally */
+    
+}
+
+                          
+
+                        .logo{
+    width:200px;
+    margin-bottom:12px;
+}
                             .invoice{
-                            color:${PRIMARY_COLOR};
+                            color:#A9A9A9;
                              padding-bottom:10px;
-                             font-size: 25px;
+                             font-size: 30px;
                             }
+                             
                             .date{
                             text-align:center;
                             font-size: 15px;
@@ -105,6 +120,9 @@ export default function OrderModal({
                             display: flex;
                             flex-direction: column;
                         }
+                            .info-grid div * {
+    margin: 4px;
+}
                         .info-grid span:first-child {
                             color: #888;
                         }
@@ -159,10 +177,13 @@ export default function OrderModal({
                 </head>
                 <body>
                     <div class="invoice-header">
-                        <h1><span class="invoice">Invoice</span> <span>
+                        <img src=${logo} class="logo" />
+
+                    
+                        <h1><span class="invoice">Invoice</span> <span >
                         #${order.order_id}
                         </span></h1>
-                        <p class="date">Date: ${order.order_date}</p>
+                        <p class="date">Date: ${new Date(order.order_date).toLocaleDateString("en-GB")}</p>
                     </div>
 
                     <div class="section-title">Customer Information</div>
@@ -171,14 +192,10 @@ export default function OrderModal({
                             <strong>Contact Details</strong>
                             <p>Name: ${order.customer_name}</p>
                             <p>Phone: ${order.customer_phone}</p>
-                            <p>Email: ${order.customer_email}</p>
                         </div>
                         <div class="address-box">
                             <strong>Shipping Address</strong>
-                            <p>${order.customer_address.replace(
-                              /,/g,
-                              ",<br>"
-                            )}</p>
+                            <p>${order.customer_address.replace(/,/g, ",")}</p>
                         </div>
                     </div>
 
@@ -206,10 +223,10 @@ export default function OrderModal({
                                     <td style="text-align:right">৳${
                                       item.sale_price > 0
                                         ? item.sale_price.toLocaleString(
-                                            "en-IN"
+                                            "en-IN",
                                           )
                                         : item.regular_price.toLocaleString(
-                                            "en-IN"
+                                            "en-IN",
                                           )
                                     }</td>
                                     <td style="text-align:right">৳${(
@@ -218,7 +235,7 @@ export default function OrderModal({
                                         : item.regular_price) * item.qty
                                     ).toLocaleString("en-IN")}</td>
                                 </tr>
-                            `
+                            `,
                               )
                               .join("")}
                         </tbody>
@@ -233,7 +250,7 @@ export default function OrderModal({
                                 ? i.sale_price
                                 : i.regular_price) *
                                 i.qty,
-                            0
+                            0,
                           )
                           .toLocaleString("en-IN")}</span></div>
                         <div><span>Delivery Charge</span><span>৳${
@@ -242,7 +259,7 @@ export default function OrderModal({
                         
                        
                         <div class="total"><span>Total Payable</span><span>৳${order.total.toLocaleString(
-                          "en-IN"
+                          "en-IN",
                         )}</span></div>
                     </div>
                 </body>

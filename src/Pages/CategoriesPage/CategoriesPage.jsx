@@ -1094,24 +1094,30 @@ export default function CategoriesPage() {
   );
 
   const filteredProducts = products.filter((product) => {
-    // Check category match
-    const matchesTag =
-      activeCategory.main === "All Products" ||
-      (product.category === activeCategory.main &&
-        product.subcategory === activeCategory.sub &&
-        product.subcategory_item === activeCategory.item);
+    let matchesTag = true;
 
-    // Check product highlight / search safely
+    if (activeCategory.main !== "All Products") {
+      matchesTag = product.category === activeCategory.main;
+    }
+
+    if (activeCategory.sub) {
+      matchesTag = matchesTag && product.subcategory === activeCategory.sub;
+    }
+
+    if (activeCategory.item) {
+      matchesTag =
+        matchesTag && product.subcategory_item === activeCategory.item;
+    }
+
     const matchesSearch =
       highlightedProduct && product.product_name
         ? product.product_name
             .toLowerCase()
             .includes(highlightedProduct.toLowerCase())
-        : true; // যদি highlightedProduct না থাকে, সব match হবে
+        : true;
 
     return matchesTag && matchesSearch;
   });
-
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "Newest")
       return new Date(b.createdAt) - new Date(a.createdAt);

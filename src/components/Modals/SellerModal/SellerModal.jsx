@@ -25,6 +25,8 @@ import { HashLink } from "react-router-hash-link";
 import { CiBank } from "react-icons/ci";
 export default function SellerModal({ onClose, seller }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
+
+  const encodedId = btoa(seller.id);
   const formatter = new Intl.NumberFormat("en", {
     notation: "compact",
     compactDisplay: "short",
@@ -90,8 +92,7 @@ export default function SellerModal({ onClose, seller }) {
             </div>
           </div>
           <HashLink
-            state={{ id: seller.id }}
-            to={`/seller-page/${seller.store_name}/store#`}
+            to={`/seller-page/${seller.store_name}/store?id=${encodedId}#`}
           >
             <Button className="px-3 py-2 bg-orange-400 hover:bg-orange-500 text-white rounded  cursor-pointer">
               Visit Store
