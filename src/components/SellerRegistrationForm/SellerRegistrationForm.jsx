@@ -79,6 +79,7 @@ export default function SellerRegistrationForm({
           setIsAcceptTerms(false);
           setDate(null);
           refetch();
+          window.location.reload();
           return;
         }
       } else {
@@ -121,6 +122,7 @@ export default function SellerRegistrationForm({
         timer: 1500,
         toast: true,
         position: "top",
+        showConfirmButton: false,
       });
     }
   };

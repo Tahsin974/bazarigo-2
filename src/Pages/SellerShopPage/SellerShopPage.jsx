@@ -39,10 +39,11 @@ export default function SellerShopPage() {
   const { data: sellerDetails = {}, isPending: sellerLoad } = useQuery({
     queryKey: ["sellerDetails"],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/sellers/${sellerId}`);
+      const res = await axiosPublic.get(`/sellers/${sellerId}`);
       return res.data.seller;
     },
   });
+
   const filteredProducts =
     filter === "all"
       ? sellerProducts
@@ -50,12 +51,12 @@ export default function SellerShopPage() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredProducts.length / itemsPerPage)
+    Math.ceil(filteredProducts.length / itemsPerPage),
   );
 
   const displayedProducts = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const mutation = useMutation({

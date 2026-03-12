@@ -1,4 +1,4 @@
-import { MessageSquare, Star } from "lucide-react";
+import { MessageSquare, Share2, Star } from "lucide-react";
 import Rating from "react-rating";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
@@ -8,6 +8,7 @@ import useAuth from "../../../Utils/Hooks/useAuth";
 import { RatingStars } from "../../../components/ui/RatingStars";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "react-router";
 export default function SellerHeader({
   setIsMessageOpen,
   seller,
@@ -19,6 +20,9 @@ export default function SellerHeader({
     notation: "compact",
     compactDisplay: "short",
   });
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const axiosPublic = useAxiosPublic();
   const [isFollowing, setIsFollowing] = useState(false);
@@ -107,13 +111,17 @@ export default function SellerHeader({
   };
   useEffect(() => {
     const checkFollowing = async () => {
+      if (!user?.id || !sellerId) return;
+
       const res = await axiosPublic.get(
-        `/following/check/${user.id}/${sellerId}`
+        `/following/check/${user.id}/${sellerId}`,
       );
+
       setIsFollowing(res.data.isFollowing);
     };
+
     checkFollowing();
-  }, []);
+  }, [user, sellerId]);
 
   const reviews = sellerDetails.reviews || [];
   const ratings = (
@@ -122,7 +130,7 @@ export default function SellerHeader({
       : 0
   ).toFixed(1);
   useEffect(() => {
-    if (!sellerDetails?.reviews) return;
+    if (!sellerDetails?.reviews || !user?.id) return;
 
     const review = sellerDetails.reviews.find((r) => r.customerId === user.id);
 
@@ -153,28 +161,27 @@ export default function SellerHeader({
               className="flex items-center justify-center md:justify-start gap-2 mb-4"
             >
               {" "}
-              {user.role === "customer" ? (
-                <>
-                  {!submitted ? (
-                    <Controller
-                      control={control}
-                      name="rating"
-                      render={({ field }) => (
-                        <RatingStars
-                          rating={field.value}
-                          onRate={(value) => {
-                            field.onChange(value);
-                            handleSubmit(onSubmit)();
-                          }}
-                          // যদি কম্পোনেন্ট সাপোর্ট করে
-                        />
-                      )}
-                    />
-                  ) : (
-                    <>
+              {user?.role ? (
+                user.role === "customer" ? (
+                  <>
+                    {!submitted ? (
+                      <Controller
+                        control={control}
+                        name="rating"
+                        render={({ field }) => (
+                          <RatingStars
+                            rating={field.value}
+                            onRate={(value) => {
+                              field.onChange(value);
+                              handleSubmit(onSubmit)();
+                            }}
+                          />
+                        )}
+                      />
+                    ) : (
                       <Rating
                         emptySymbol={
-                          <Star size={18} className=" text-gray-300" />
+                          <Star size={18} className="text-gray-300" />
                         }
                         fullSymbol={
                           <Star
@@ -185,26 +192,55 @@ export default function SellerHeader({
                         initialRating={ratings}
                         readonly
                       />
-                    </>
-                  )}
+                    )}
 
-                  <span className="text-sm text-white font-bold">
-                    ({ratings}/5 • {formatter.format(reviews.length)} reviews)
-                  </span>
-                </>
+                    <span className="text-sm text-white font-bold">
+                      ({ratings}/5 • {formatter.format(reviews.length)} reviews)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Rating
+                      emptySymbol={<Star size={18} className="text-gray-300" />}
+                      fullSymbol={
+                        <Star
+                          size={18}
+                          className="text-[#FFD700] fill-[#FFD700]"
+                        />
+                      }
+                      initialRating={ratings}
+                      readonly
+                    />
+                    <span className="text-sm text-white font-bold">
+                      ({ratings}/5 • {formatter.format(reviews.length)} reviews)
+                    </span>
+                  </>
+                )
               ) : (
                 <>
-                  <Rating
-                    emptySymbol={<Star size={18} className=" text-gray-300" />}
-                    fullSymbol={
-                      <Star
-                        size={18}
-                        className="text-[#FFD700] fill-[#FFD700]"
-                      />
-                    }
-                    initialRating={ratings}
-                    readonly
+                  <RatingStars
+                    rating={0}
+                    onRate={() => {
+                      Swal.fire({
+                        title: "You Are Not Logged In",
+                        text: "Please login first to give rating",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#00C853",
+                        cancelButtonColor: "#f72c2c",
+                        confirmButtonText: "Yes, Login",
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          navigate("/sign-up", {
+                            state: {
+                              pathName: location.pathname + location.search,
+                            },
+                          });
+                        }
+                      });
+                    }}
                   />
+
                   <span className="text-sm text-white font-bold">
                     ({ratings}/5 • {formatter.format(reviews.length)} reviews)
                   </span>
@@ -212,31 +248,99 @@ export default function SellerHeader({
               )}
             </div>
 
-            {sellerId !== user.id && (
-              <div className="flex  gap-4">
-                <Button
-                  onClick={() => handleFollow(user.id, sellerId)}
-                  className={` bg-white text-[#FF0055]
-                
-     font-semibold 
-    px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
-    text-sm sm:text-base md:text-lg 
-    rounded-full 
-    hover:bg-gray-100 transition-transform transform hover:scale-105
-  `}
-                >
-                  {isFollowing ? "Followed" : "Follow"}
-                </Button>
+            <div className="flex gap-4">
+              {sellerId !== user?.id && (
+                <>
+                  <Button
+                    onClick={() => {
+                      if (!user?.role) {
+                        Swal.fire({
+                          title: "You Are Not Logged In",
+                          text: "Please login first to follow seller",
+                          icon: "warning",
+                          showCancelButton: true,
+                          confirmButtonColor: "#00C853",
+                          cancelButtonColor: "#f72c2c",
+                          confirmButtonText: "Yes, Login",
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            navigate("/sign-up", {
+                              state: {
+                                pathName: location.pathname + location.search,
+                              },
+                            });
+                          }
+                        });
+                        return;
+                      }
+                      handleFollow(user.id, sellerId);
+                    }}
+                    className="bg-white text-[#FF0055] font-semibold 
+        px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
+        text-sm sm:text-base md:text-lg 
+        rounded-full 
+        hover:bg-gray-100 transition-transform transform hover:scale-105"
+                  >
+                    {isFollowing ? "Followed" : "Follow"}
+                  </Button>
 
-                <Button
-                  onClick={() => setIsMessageOpen(true)}
-                  className="bg-transparent border-2 border-white text-white px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
-  text-sm sm:text-base md:text-lg  rounded-full hover:bg-white hover:text-[#FF0055] transition"
-                >
-                  <MessageSquare className="inline w-5 h-5 mr-2" /> Message
-                </Button>
-              </div>
-            )}
+                  <Button
+                    onClick={() => {
+                      if (!user?.role) {
+                        Swal.fire({
+                          title: "You Are Not Logged In",
+                          text: "Please login first to message seller",
+                          icon: "warning",
+                          showCancelButton: true,
+                          confirmButtonColor: "#00C853",
+                          cancelButtonColor: "#f72c2c",
+                          confirmButtonText: "Yes, Login",
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            navigate("/sign-up", {
+                              state: {
+                                pathName: location.pathname + location.search,
+                              },
+                            });
+                          }
+                        });
+                        return;
+                      }
+                      setIsMessageOpen(true);
+                    }}
+                    className="bg-transparent border-2 border-white text-white 
+        px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 
+        text-sm sm:text-base md:text-lg  
+        rounded-full hover:bg-white hover:text-[#FF0055] transition"
+                  >
+                    <MessageSquare className="inline w-5 h-5 mr-2" /> Message
+                  </Button>
+                </>
+              )}
+              <Button
+                onClick={() => {
+                  const url = window.location.href;
+
+                  if (navigator.share) {
+                    navigator.share({
+                      title: "Check this seller store",
+                      url: url,
+                    });
+                  } else {
+                    navigator.clipboard.writeText(url);
+                    Swal.fire({
+                      icon: "success",
+                      title: "Link Copied!",
+                      text: "Store link copied to clipboard",
+                      timer: 1500,
+                      showConfirmButton: false,
+                    });
+                  }
+                }}
+              >
+                <Share2 className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>

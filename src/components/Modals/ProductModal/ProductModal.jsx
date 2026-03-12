@@ -516,6 +516,18 @@ export default function ProductModal({ onClose, refetch }) {
             "size",
           ],
         },
+        {
+          name: "Special Bundles",
+          items: ["Combo Pack", "Mystery Box"],
+          attributes: [
+            "type",
+            "size",
+            "material",
+            "color",
+            "weight",
+            "warranty",
+          ],
+        },
       ],
     },
     {
@@ -684,6 +696,11 @@ export default function ProductModal({ onClose, refetch }) {
           ],
           attributes: ["type", "size", "material", "color"],
         },
+        {
+          name: "Special Bundles",
+          items: ["Combo Pack", "Mystery Box"],
+          attributes: ["type", "size", "material", "color"],
+        },
       ],
     },
     {
@@ -817,6 +834,11 @@ export default function ProductModal({ onClose, refetch }) {
             "Medical Gloves",
           ],
           attributes: ["type", "certification", "expiry date", "weight"],
+        },
+        {
+          name: "Special Bundles",
+          items: ["Combo Pack", "Mystery Box"],
+          attributes: ["type", "size", "material", "color", "weight", "volume"],
         },
       ],
     },
@@ -1082,6 +1104,19 @@ export default function ProductModal({ onClose, refetch }) {
           ],
           attributes: ["type", "material", "color", "size", "occasion"],
         },
+        {
+          name: "Special Bundles",
+          items: ["Combo Pack", "Mystery Box"],
+          attributes: [
+            "type",
+            "size",
+            "material",
+            "color",
+            "weight",
+            "volume",
+            "quantity",
+          ],
+        },
       ],
     },
     {
@@ -1173,6 +1208,11 @@ export default function ProductModal({ onClose, refetch }) {
           name: "Condiments & Spreads",
           items: ["Honey", "Jam", "Pickle", "Sauce"],
           attributes: ["type", "weight", "quantity", "volume"],
+        },
+        {
+          name: "Special Bundles",
+          items: ["Combo Pack", "Mystery Box"],
+          attributes: ["type", "weight", "volume", "quantity"],
         },
       ],
     },
