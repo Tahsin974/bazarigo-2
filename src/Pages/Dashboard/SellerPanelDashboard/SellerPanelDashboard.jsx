@@ -87,11 +87,7 @@ export default function SellerPanelDashboard() {
     },
   });
 
-  const {
-    data: orders = [],
-
-    refetch: refetchOrders,
-  } = useQuery({
+  const { data: orders = [] } = useQuery({
     queryKey: ["seller-orders"],
     queryFn: async () => {
       const res = await axiosSecure.get(`/orders/seller/${user.id}`);
@@ -634,14 +630,7 @@ export default function SellerPanelDashboard() {
                   orders={orders}
                   returns={returns}
                   openOrderModal={openOrderModal}
-                  selected={selected}
-                  toggleSelect={toggleSelect}
-                  refetch={refetchOrders}
                   refetchReturnsOrders={refetchReturnsOrders}
-                  allSelected={
-                    selected.length === orders.length && orders.length > 0
-                  }
-                  toggleSelectAll={selectAll}
                   orderPage={orderPage}
                   setOrderPage={setOrderPage}
                   orderPageSize={currentPageSize}

@@ -184,7 +184,7 @@ function ReportsView({ payments, customers }) {
   );
   const totalPages = Math.max(
     1,
-    Math.ceil(reports.productCommissionData?.length / 6),
+    Math.ceil(reports.sellerCommissionData?.length / 6),
   );
   const renderPageNumbersForProductsCommission = useRenderPageNumbers(
     productsCommissionDataPage,
@@ -502,7 +502,15 @@ function ReportsView({ payments, customers }) {
 
                         <XAxis dataKey="label" type="category" />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip
+                          contentStyle={{
+                            maxWidth: window.innerWidth < 640 ? 150 : 250, // prevent overflow
+                            whiteSpace: "normal",
+                            wordWrap: "break-word",
+                            fontSize: 12,
+                          }}
+                          cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                        />
                         <Bar
                           dataKey="value"
                           fill="url(#barGradient)" // Gradient fill applied
@@ -555,7 +563,7 @@ function ReportsView({ payments, customers }) {
                                 </span>
                               </td>
                               <td>
-                                <span className="font-semibold">
+                                <span className="font-semibold text-left leading-tight">
                                   {p.productName}
                                 </span>{" "}
                               </td>

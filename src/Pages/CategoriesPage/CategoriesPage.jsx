@@ -273,6 +273,7 @@ export default function CategoriesPage() {
             "Lungi",
             "Pajama",
             "Kurta",
+            "Katua",
             "Jacket",
             "Coat",
             "Hoodie",
@@ -293,6 +294,7 @@ export default function CategoriesPage() {
             "T-Shirt",
             "Shirt",
             "Kurti",
+            "Katua",
             "Tunic",
             "Jacket",
             "Coat",
@@ -328,6 +330,8 @@ export default function CategoriesPage() {
             "Kids Shorts",
             "Kids Sweatshirt",
             "Kids Jacket",
+            "Kids Katua",
+            "Kids Kurta",
             "Kids Hoodie",
             "Kids Sweater",
             "Kids Dress",
@@ -1333,8 +1337,6 @@ export default function CategoriesPage() {
               activeCategory={activeCategory}
               setActiveCategory={setActiveCategory}
               openDropdown={openDropdown}
-              subcategory={subcategory}
-              item={subcategoryItem}
               setOpenDropdown={setOpenDropdown}
             />
             {/* Products + controls */}

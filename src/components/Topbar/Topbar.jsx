@@ -26,7 +26,7 @@ export default function Topbar({ setActiveTab, messages }) {
       axiosSecure.patch(
         `/notifications/${id}/read`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       ),
 
     onSuccess: () => refetchNotifications(),
@@ -36,7 +36,7 @@ export default function Topbar({ setActiveTab, messages }) {
       axiosSecure.patch(
         `/notifications/read-all`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       ),
 
     onSuccess: () => refetchNotifications(),
@@ -72,10 +72,10 @@ export default function Topbar({ setActiveTab, messages }) {
             <div className="flex items-center md:gap-3">
               <button
                 onClick={() => setActiveTab("Messages")}
-                className="btn  btn-circle bg-white text-gray-800 border-0  shadow-none"
+                className="btn  btn-circle bg-white text-gray-800 border-0  shadow-none hover:text-[#FF0055]"
               >
                 <div className="indicator">
-                  <MessageCircle className="h-5" />
+                  <MessageCircle className="h-5 " />
                   {unReadMessage > 0 && (
                     <span className="indicator-item badge badge-xs bg-[#FF0055]  border-0 text-white">
                       {unReadMessage || 0}
@@ -87,10 +87,10 @@ export default function Topbar({ setActiveTab, messages }) {
                 tabIndex={0}
                 role="button"
                 onClick={() => setActiveTab("Notifications")}
-                className="btn md:hidden flex btn-circle bg-white text-gray-800 border-0  shadow-none"
+                className="btn md:hidden flex btn-circle bg-white text-gray-800 hover:text-[#FF0055] border-0  shadow-none"
               >
-                <div className="indicator">
-                  <Bell className="h-5" />
+                <div className="indicator ">
+                  <Bell className="h-5 " />
                   {unreadCount > 0 && (
                     <span className="indicator-item badge badge-xs bg-[#FF0055]  border-0 text-white">
                       {unreadCount || 0}
@@ -102,7 +102,7 @@ export default function Topbar({ setActiveTab, messages }) {
                 <button
                   tabIndex={0}
                   role="button"
-                  className="btn  btn-circle bg-white text-gray-800 border-0  shadow-none"
+                  className="btn  btn-circle bg-white text-gray-800 hover:text-[#FF0055] border-0  shadow-none"
                 >
                   <div className="indicator">
                     <Bell className="h-5" />

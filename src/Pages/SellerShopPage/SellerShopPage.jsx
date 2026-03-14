@@ -66,6 +66,7 @@ export default function SellerShopPage() {
         sender_role: user.role,
         receiver_id: sellerId,
         receiver_role: "seller",
+        receiver_email: sellerDetails?.email,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(["conversation", user?.id, sellerId]);
@@ -122,6 +123,7 @@ export default function SellerShopPage() {
                     senderRole={user.role}
                     receiverId={sellerId}
                     receiverRole={"seller"}
+                    receiverEmail={sellerDetails?.email}
                     user={sellerDetails}
                   />
                 </main>

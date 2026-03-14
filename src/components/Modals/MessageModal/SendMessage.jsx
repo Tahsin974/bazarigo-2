@@ -11,6 +11,7 @@ export default function SendMessage({
   receiverId,
   receiverRole,
   user,
+  receiverEmail,
 }) {
   const baseUrl = import.meta.env.VITE_BASEURL;
   const [content, setContent] = useState("");
@@ -52,20 +53,7 @@ export default function SendMessage({
   // ------------------------
   // Send message
   // ------------------------
-  // const mutation = useMutation({
-  //   mutationFn: () =>
-  //     axiosPublic.post("/send", {
-  //       sender_id: senderId,
-  //       sender_role: senderRole,
-  //       receiver_id: receiverId,
-  //       receiver_role: receiverRole,
-  //       content,
-  //     }),
-  //   onSuccess: () => {
-  //     setContent("");
-  //     queryClient.invalidateQueries(["conversation", senderId, receiverId]);
-  //   },
-  // });
+
   const mutation = useMutation({
     mutationFn: () => {
       const formData = new FormData();
@@ -73,6 +61,7 @@ export default function SendMessage({
       formData.append("sender_role", senderRole);
       formData.append("receiver_id", receiverId);
       formData.append("receiver_role", receiverRole);
+      formData.append("receiver_email", receiverEmail);
       formData.append("content", content);
 
       if (image) {

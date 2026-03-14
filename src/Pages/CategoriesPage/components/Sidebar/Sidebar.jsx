@@ -6,8 +6,6 @@ export default function Sidebar({
   setActiveCategory,
   openDropdown,
   setOpenDropdown,
-  subcategory,
-  item,
 }) {
   return (
     <aside className="w-full md:w-auto">
@@ -21,8 +19,6 @@ export default function Sidebar({
             setActiveCategory={setActiveCategory}
             openDropdown={openDropdown}
             setOpenDropdown={setOpenDropdown}
-            subcategory={subcategory}
-            item={item}
           />
         </div>
       </div>

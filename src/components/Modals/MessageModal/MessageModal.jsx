@@ -38,6 +38,7 @@ export default function MessageModal({ onClose, senderId, senderRole, user }) {
               senderRole={senderRole}
               receiverId={user.user_id}
               receiverRole={user.role}
+              receiverEmail={user.email}
               user={user}
             />
           </main>

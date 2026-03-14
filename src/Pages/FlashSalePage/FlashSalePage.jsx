@@ -34,6 +34,9 @@ export default function FlashSalePage() {
   let filteredProducts = [...products].filter(
     (p) => category === "All" || p.category === category,
   );
+  const filteredCategories = categories.filter(
+    (cat) => cat === "All" || products.some((p) => p.category === cat),
+  );
 
   if (search)
     filteredProducts = filteredProducts.filter((p) =>
@@ -96,7 +99,7 @@ export default function FlashSalePage() {
     <div className="w-full bg-white font-sans text-gray-800">
       <FlashSaleCountdown />
       <SearchFilterSort
-        categories={categories}
+        categories={filteredCategories}
         category={category}
         setCategory={setCategory}
         search={search}

@@ -20,6 +20,9 @@ export default function JustArrivedPage() {
     "Toys & Kids",
     "Pet Supplies",
   ];
+  const filteredCategories = categories.filter(
+    (cat) => cat === "All" || allProducts.some((p) => p.category === cat),
+  );
 
   const [sortOption, setSortOption] = useState("Newest");
   const [category, setCategory] = useState("All");
@@ -107,7 +110,7 @@ export default function JustArrivedPage() {
                   selectValue={category}
                   selectValueChange={(e) => setCategory(e.target.value)}
                 >
-                  {categories.map((cat, idx) => (
+                  {filteredCategories.map((cat, idx) => (
                     <option key={idx} value={cat}>
                       {cat}
                     </option>

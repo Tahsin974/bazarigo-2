@@ -1,9 +1,7 @@
-import Swal from "sweetalert2";
 import { useRenderPageNumbers } from "../../../../Utils/Helpers/useRenderPageNumbers";
-import useAxiosPublic from "../../../../Utils/Hooks/useAxiosPublic";
-import DeleteAllBtn from "../../../../components/ui/DeleteAllBtn";
+
 import SearchField from "../../../../components/ui/SearchField";
-import SelectAllCheckbox from "../../../../components/ui/SelectAllCheckbox";
+
 import { Eye } from "lucide-react";
 import Pagination from "../../../../components/ui/Pagination";
 import Loading from "../../../../components/Loading/Loading";
@@ -12,10 +10,7 @@ function OrdersView({
   active,
   orders,
   returns,
-  selected,
-  toggleSelect,
-  allSelected,
-  toggleSelectAll,
+
   orderPage,
   setOrderPage,
   orderSearch,
@@ -31,105 +26,32 @@ function OrdersView({
   returnOrderSearch,
   setReturnOrderSearch,
   openOrderModal,
-  refetch,
 }) {
-  const axiosPublic = useAxiosPublic();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredOrders.length / orderPageSize)
+    Math.ceil(filteredOrders.length / orderPageSize),
   );
 
   const returnOrdersTotalPages = Math.max(
     1,
-    Math.ceil(filteredReturnOrders.length / returnOrderPageSize)
+    Math.ceil(filteredReturnOrders.length / returnOrderPageSize),
   );
 
-  // const updateStatus = (orderId, newStatus) => {
-  //   setOrders((prev) =>
-  //     prev.map((order) =>
-  //       order.orderId === orderId ? { ...order, status: newStatus } : order
-  //     )
-  //   );
-  // };
-
   const activeOrders = paginatedOrders.filter(
-    (order) => order.order_status !== "Cancelled"
+    (order) => order.order_status !== "Cancelled",
   );
 
   const renderPageNumbers = useRenderPageNumbers(
     orderPage,
     totalPages,
-    setOrderPage
+    setOrderPage,
   );
 
   const renderReturnPageNumbers = useRenderPageNumbers(
     returnOrderPage,
     returnOrdersTotalPages,
-    setReturnOrderPage
+    setReturnOrderPage,
   );
-
-  const handleBulkDelete = async () => {
-    if (selected.length === 0) {
-      Swal.fire({
-        icon: "info",
-        title: "No orders selected",
-        showConfirmButton: false,
-        timer: 1500,
-        toast: true,
-        position: "top",
-      });
-      return;
-    }
-
-    try {
-      const result = await Swal.fire({
-        icon: "warning",
-        title: "Are you sure you want to delete selected orders?",
-        showCancelButton: true,
-        confirmButtonColor: "#00C853",
-        cancelButtonColor: "#f72c2c",
-        confirmButtonText: "Yes",
-        cancelButtonText: "No",
-      });
-
-      if (result.isConfirmed) {
-        const res = await axiosPublic.delete("/orders/bulk-delete", {
-          data: { ids: selected },
-        });
-
-        if (res.data.deletedCount > 0) {
-          Swal.fire({
-            icon: "success",
-            title: "Selected Products deleted successfully",
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true,
-            position: "top",
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops! Try again",
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true,
-            position: "top",
-          });
-        }
-
-        refetch();
-      }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: error.message,
-        showConfirmButton: false,
-        toast: true,
-        position: "top",
-        timer: 1500,
-      });
-    }
-  };
 
   const getProductsTotal = (order) => {
     const products = order.order_items.flatMap((item) => {
@@ -160,13 +82,6 @@ function OrdersView({
                     Active Orders ({orders.length.toLocaleString("en-IN")})
                   </h3>
                 </div>
-
-                <div className="ml-2  flex gap-2 justify-end w-full md:order-2 order-1  ">
-                  <DeleteAllBtn
-                    selected={selected}
-                    bulkDelete={handleBulkDelete}
-                  />
-                </div>
               </div>
             </div>
 
@@ -186,14 +101,6 @@ function OrdersView({
                       {/* head */}
                       <thead className="text-black">
                         <tr>
-                          <th>
-                            <SelectAllCheckbox
-                              selected={selected}
-                              allSelected={allSelected}
-                              toggleSelectAll={toggleSelectAll}
-                              isShowCounter={false}
-                            />
-                          </th>
                           <th># Order</th>
                           <th>Customer Name</th>
                           <th>Total</th>
@@ -205,14 +112,6 @@ function OrdersView({
                       <tbody className="">
                         {activeOrders.map((o) => (
                           <tr key={o.orderId} className="border-t">
-                            <td>
-                              <input
-                                type="checkbox"
-                                className="checkbox checkbox-secondary checkbox-xs rounded-sm"
-                                checked={selected.includes(o.order_id)}
-                                onChange={() => toggleSelect(o.order_id)}
-                              />
-                            </td>
                             <td>
                               <span className="font-semibold">
                                 {o.order_id}
