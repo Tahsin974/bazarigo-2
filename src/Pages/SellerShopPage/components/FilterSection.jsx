@@ -1,7 +1,21 @@
 import { Filter } from "lucide-react";
 import SelectField from "../../../components/ui/SelectField";
 
-export default function FilterSection({ filter, setFilter }) {
+export default function FilterSection({ filter, setFilter, products }) {
+  const categories = [
+    "All",
+    "Electronics",
+    "Fashion",
+    "Health & Beauty",
+    "Home & Living",
+    "Grocery & Food",
+    "Sports & Outdoors",
+    "Toys & Kids",
+    "Pet Supplies",
+  ];
+  const filteredCategories = categories.filter(
+    (cat) => cat === "All" || products.some((p) => p.category === cat),
+  );
   return (
     <div>
       <section className="py-8 px-6 md:px-12 bg-white shadow-sm flex sm:flex-row flex-col sm:justify-between justify-center gap-3 items-center max-w-6xl mx-auto">
@@ -12,15 +26,11 @@ export default function FilterSection({ filter, setFilter }) {
             selectValue={filter}
             selectValueChange={(e) => setFilter(e.target.value)}
           >
-            <option value="all">All</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Fashion">Fashion</option>
-            <option value="Health & Beauty">Health & Beauty</option>
-            <option value="Home & Living">Home & Living</option>
-            <option value="Grocery & Food">Grocery & Food</option>
-            <option value="Sports & Outdoors">Sports & Outdoors</option>
-            <option value="Toys & Kids">Toys & Kids</option>
-            <option value="Pet Supplies">Pet Supplies</option>
+            {filteredCategories.map((cat, idx) => (
+              <option key={idx} value={cat}>
+                {cat}
+              </option>
+            ))}
           </SelectField>
         </div>
       </section>

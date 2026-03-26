@@ -126,7 +126,7 @@ export default function HeroSection() {
                       <img
                         src={`${baseUrl}${banner.image}`}
                         alt="Banner"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-fill"
                       />
                     </div>
                   ) : (
@@ -141,11 +141,11 @@ export default function HeroSection() {
                         <img
                           src={`${baseUrl}${banner.image}`}
                           alt="Banner"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-fill"
                         />
                       </div>
                     </a>
-                  )
+                  ),
                 )}
               </Carousel>
             </section>

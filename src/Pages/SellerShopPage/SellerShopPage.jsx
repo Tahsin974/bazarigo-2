@@ -18,7 +18,7 @@ export default function SellerShopPage() {
   const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
   const { seller } = useParams();
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("All");
   const [isMessageOpen, setIsMessageOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +45,7 @@ export default function SellerShopPage() {
   });
 
   const filteredProducts =
-    filter === "all"
+    filter === "All"
       ? sellerProducts
       : sellerProducts.filter((p) => p.category.includes(filter));
 
@@ -93,7 +93,11 @@ export default function SellerShopPage() {
             sellerDetails={sellerDetails}
           />
           {/* Filter Section */}
-          <FilterSection filter={filter} setFilter={setFilter} />
+          <FilterSection
+            filter={filter}
+            setFilter={setFilter}
+            products={sellerProducts}
+          />
           {/* Product Grid */}
           <ProductGrid
             filteredProducts={filteredProducts}

@@ -7,63 +7,19 @@ export default function CategoryList({
   setActiveCategory,
   openDropdown,
   setOpenDropdown,
+  subcategory,
+  item,
 }) {
   const [openSubDropdown, setOpenSubDropdown] = useState(null);
   const userActionRef = useRef(false);
-
-  // useEffect(() => {
-  //   if (userActionRef.current) return;
-  //   if (!categories?.length) return;
-
-  //   const catIndex = categories.findIndex(
-  //     (c) => c.name === activeCategory.main,
-  //   );
-  //   if (catIndex === -1) return;
-
-  //   const cat = categories[catIndex];
-
-  //   // open main dropdown
-  //   setOpenDropdown(catIndex);
-
-  //   if (!cat.sub?.length) {
-  //     if (activeCategory.sub !== null || activeCategory.item !== null) {
-  //       setActiveCategory({
-  //         main: cat.name,
-  //         sub: null,
-  //         item: null,
-  //       });
-  //     }
-  //     setOpenSubDropdown(null);
-  //     return;
-  //   }
-
-  //   const matchedSub =
-  //     cat.sub.find((s) => s.name === subcategory) || cat.sub[0];
-
-  //   const matchedItem =
-  //     matchedSub.items?.find((i) => i === item) ||
-  //     matchedSub.items?.[0] ||
-  //     null;
-
-  //   // 🔒 prevent infinite reset
-  //   if (
-  //     activeCategory.sub === matchedSub.name &&
-  //     activeCategory.item === matchedItem
-  //   )
-  //     return;
-
-  //   setActiveCategory({
-  //     main: cat.name,
-  //     sub: matchedSub.name,
-  //     item: matchedItem,
-  //   });
-
-  //   const subIdx = cat.sub.findIndex((s) => s.name === matchedSub.name);
-  //   setOpenSubDropdown(subIdx !== -1 ? subIdx : null);
-  // }, [subcategory, item, categories]);
+  const isSyncedRef = useRef(false);
 
   useEffect(() => {
-    if (userActionRef.current) return;
+    userActionRef.current = false;
+  }, [subcategory, item]);
+
+  useEffect(() => {
+    if (isSyncedRef.current) return;
     if (!categories?.length) return;
 
     const catIndex = categories.findIndex(
@@ -72,18 +28,46 @@ export default function CategoryList({
     if (catIndex === -1) return;
 
     const cat = categories[catIndex];
-
-    // Open only main category
     setOpenDropdown(catIndex);
 
-    // Reset subcategory/item selection and keep sub-dropdown closed
+    if (!cat.sub?.length) {
+      setOpenSubDropdown(null);
+      if (activeCategory.sub !== null || activeCategory.item !== null) {
+        setActiveCategory({ main: cat.name, sub: null, item: null });
+      }
+      return;
+    }
+
+    const matchedSub = cat.sub.find((s) => s.name === subcategory) || null;
+    const matchedItem = matchedSub?.items?.includes(item) ? item : null;
+
+    // ------------------- UPDATED PART -------------------
+    const isSameCategory =
+      activeCategory.sub === (matchedSub?.name || null) &&
+      activeCategory.item === matchedItem;
+
+    // Even if category is the same, dropdown index should update
+    const subIdx = matchedSub
+      ? cat.sub.findIndex((s) => s.name === matchedSub.name)
+      : null;
+
+    setOpenSubDropdown(subIdx !== -1 ? subIdx : null);
+
+    // Skip updating activeCategory only if it is the same
+    if (isSameCategory) {
+      console.log("Matched Item:", matchedItem);
+      console.log("Matched Subcategory:", matchedSub);
+      return; // <-- Only skip state update, dropdown still synced
+    }
+    // -----------------------------------------------------
+
     setActiveCategory({
       main: cat.name,
-      sub: null,
-      item: null,
+      sub: matchedSub?.name || null,
+      item: matchedItem,
     });
-    setOpenSubDropdown(null);
-  }, [categories]);
+  }, [subcategory, item, categories]);
+
   return (
     <>
       <ul className="space-y-3">
@@ -92,6 +76,8 @@ export default function CategoryList({
           <button
             onClick={() => {
               userActionRef.current = true;
+              isSyncedRef.current = true;
+
               setActiveCategory({
                 main: "All Products",
                 sub: null,
@@ -122,6 +108,8 @@ export default function CategoryList({
                 }`}
                 onClick={() => {
                   userActionRef.current = true;
+                  isSyncedRef.current = true;
+
                   setOpenDropdown(openDropdown === idx ? null : idx);
                   setOpenSubDropdown(null);
                   setActiveCategory({
@@ -154,6 +142,8 @@ export default function CategoryList({
                           className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-100"
                           onClick={() => {
                             userActionRef.current = true;
+                            isSyncedRef.current = true;
+
                             setOpenSubDropdown(
                               openSubDropdown === subIdx ? null : subIdx,
                             );
@@ -189,6 +179,8 @@ export default function CategoryList({
                                     <div
                                       onClick={() => {
                                         userActionRef.current = true;
+                                        isSyncedRef.current = true;
+
                                         setActiveCategory({
                                           main: cat.name,
                                           sub: sub.name,

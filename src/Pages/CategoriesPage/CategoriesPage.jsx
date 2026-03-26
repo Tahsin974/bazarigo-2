@@ -13,6 +13,13 @@ import { motion } from "framer-motion";
 export default function CategoriesPage() {
   // State & logic ...existing code...
   const { categoryName } = useParams();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const queryProduct = params.get("product"); // encoded product ID
+  const subcategory = params.get("subcategory");
+  const subcategoryItem = params.get("subcategory_item")
+    ? decodeURIComponent(params.get("subcategory_item"))
+    : null;
 
   const [activeCategory, setActiveCategory] = useState({
     main: categoryName || "All Products",
@@ -1127,41 +1134,38 @@ export default function CategoriesPage() {
     },
   ];
 
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const queryProduct = params.get("product"); // encoded product ID
-  const subcategory = params.get("subcategory");
-  const subcategoryItem = decodeURIComponent(params.get("subcategory_item"));
-
   const [highlightedProduct, setHighlightedProduct] = useState(
     queryProduct ? queryProduct : null,
   );
 
   const filteredProducts = products.filter((product) => {
-    let matchesTag = true;
-
-    if (activeCategory.main !== "All Products") {
-      matchesTag = product.category === activeCategory.main;
-    }
-
-    if (activeCategory.sub) {
-      matchesTag = matchesTag && product.subcategory === activeCategory.sub;
-    }
-
-    if (activeCategory.item) {
-      matchesTag =
-        matchesTag && product.subcategory_item === activeCategory.item;
-    }
-
     const matchesSearch =
       highlightedProduct && product.product_name
         ? product.product_name
             .toLowerCase()
             .includes(highlightedProduct.toLowerCase())
-        : true;
+        : false;
 
-    return matchesTag && matchesSearch;
+    if (highlightedProduct) {
+      return matchesSearch; // 🔥 only search
+    }
+
+    const matchesMain =
+      !activeCategory.main || activeCategory.main === "All Products"
+        ? true
+        : product.category === activeCategory.main;
+
+    const matchesSub = activeCategory.sub
+      ? product.subcategory === activeCategory.sub
+      : true;
+
+    const matchesItem = activeCategory.item
+      ? product.subcategory_item === activeCategory.item
+      : true;
+
+    return matchesMain && matchesSub && matchesItem;
   });
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === "Newest")
       return new Date(b.createdAt) - new Date(a.createdAt);
@@ -1229,6 +1233,7 @@ export default function CategoriesPage() {
     setCurrentPage(1);
     setVisibleCount(itemsPerPage);
   }, [activeCategory.main, sortOption, mode]);
+
   useEffect(() => {
     if (categoryName) {
       const findCategory = categories.find((cat) => cat.name === categoryName);
@@ -1265,6 +1270,9 @@ export default function CategoriesPage() {
       setHighlightedProduct(queryProduct);
     }
   }, [queryProduct]);
+  useEffect(() => {
+    setHighlightedProduct(null);
+  }, [activeCategory]);
   const availableMap = products.reduce((acc, p) => {
     if (!acc[p.category]) acc[p.category] = {};
     if (!acc[p.category][p.subcategory])
@@ -1338,6 +1346,8 @@ export default function CategoriesPage() {
               setActiveCategory={setActiveCategory}
               openDropdown={openDropdown}
               setOpenDropdown={setOpenDropdown}
+              subcategory={subcategory}
+              subcategoryItem={subcategoryItem}
             />
             {/* Products + controls */}
             <section className="flex-1">
