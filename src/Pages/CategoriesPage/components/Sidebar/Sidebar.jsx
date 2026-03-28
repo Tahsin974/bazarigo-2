@@ -8,6 +8,7 @@ export default function Sidebar({
   setOpenDropdown,
   subcategory,
   subcategoryItem,
+  setHighlightedProduct,
 }) {
   return (
     <aside className="w-full md:w-auto">
@@ -23,6 +24,7 @@ export default function Sidebar({
             setOpenDropdown={setOpenDropdown}
             subcategory={subcategory}
             item={subcategoryItem}
+            setHighlightedProduct={setHighlightedProduct}
           />
         </div>
       </div>

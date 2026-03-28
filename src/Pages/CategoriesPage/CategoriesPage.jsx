@@ -1140,10 +1140,10 @@ export default function CategoriesPage() {
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
-      highlightedProduct && product.product_name
+      highlightedProduct?.name && product.product_name
         ? product.product_name
             .toLowerCase()
-            .includes(highlightedProduct.toLowerCase())
+            .includes(highlightedProduct.name.toLowerCase())
         : false;
 
     if (highlightedProduct) {
@@ -1267,12 +1267,10 @@ export default function CategoriesPage() {
   );
   useEffect(() => {
     if (queryProduct) {
-      setHighlightedProduct(queryProduct);
+      setHighlightedProduct({ name: queryProduct, category: categoryName });
     }
   }, [queryProduct]);
-  useEffect(() => {
-    setHighlightedProduct(null);
-  }, [activeCategory]);
+
   const availableMap = products.reduce((acc, p) => {
     if (!acc[p.category]) acc[p.category] = {};
     if (!acc[p.category][p.subcategory])
@@ -1348,6 +1346,7 @@ export default function CategoriesPage() {
               setOpenDropdown={setOpenDropdown}
               subcategory={subcategory}
               subcategoryItem={subcategoryItem}
+              setHighlightedProduct={setHighlightedProduct}
             />
             {/* Products + controls */}
             <section className="flex-1">

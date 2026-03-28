@@ -9,6 +9,7 @@ export default function CategoryList({
   setOpenDropdown,
   subcategory,
   item,
+  setHighlightedProduct,
 }) {
   const [openSubDropdown, setOpenSubDropdown] = useState(null);
   const userActionRef = useRef(false);
@@ -55,8 +56,6 @@ export default function CategoryList({
 
     // Skip updating activeCategory only if it is the same
     if (isSameCategory) {
-      console.log("Matched Item:", matchedItem);
-      console.log("Matched Subcategory:", matchedSub);
       return; // <-- Only skip state update, dropdown still synced
     }
     // -----------------------------------------------------
@@ -77,6 +76,7 @@ export default function CategoryList({
             onClick={() => {
               userActionRef.current = true;
               isSyncedRef.current = true;
+              setHighlightedProduct(null);
 
               setActiveCategory({
                 main: "All Products",
@@ -109,6 +109,7 @@ export default function CategoryList({
                 onClick={() => {
                   userActionRef.current = true;
                   isSyncedRef.current = true;
+                  setHighlightedProduct(null);
 
                   setOpenDropdown(openDropdown === idx ? null : idx);
                   setOpenSubDropdown(null);
@@ -143,6 +144,7 @@ export default function CategoryList({
                           onClick={() => {
                             userActionRef.current = true;
                             isSyncedRef.current = true;
+                            setHighlightedProduct(null);
 
                             setOpenSubDropdown(
                               openSubDropdown === subIdx ? null : subIdx,
@@ -180,6 +182,7 @@ export default function CategoryList({
                                       onClick={() => {
                                         userActionRef.current = true;
                                         isSyncedRef.current = true;
+                                        setHighlightedProduct(null);
 
                                         setActiveCategory({
                                           main: cat.name,
