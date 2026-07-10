@@ -61,52 +61,7 @@ export default function CheckOutPage() {
     setCustomerDistrict(e.target.value);
     setCustomerThana(""); // cascade reset
   };
-  const removeItem = async (cartId, productId) => {
-    try {
-      // 🔹 কনফার্মেশন ডায়ালগ দেখাও
-      const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "This product will be removed from your cart.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#00C853",
-        cancelButtonColor: "#f72c2c",
-        confirmButtonText: "Yes",
-        cancelButtonText: "No",
-      });
 
-      // 🔹 ইউজার কনফার্ম করলে ডিলিট রিকোয়েস্ট পাঠাও
-      if (result.isConfirmed) {
-        const { data } = await axiosPublic.patch("/carts/remove-product", {
-          cartId,
-          productId,
-        });
-
-        if (data.deletedCount) {
-          await Swal.fire({
-            title: "Removed!",
-            text: "Product has been removed successfully.",
-            icon: "success",
-            timer: 1500,
-            showConfirmButton: false,
-            toast: true,
-            position: "top",
-          });
-          refetch();
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      Swal.fire({
-        title: "Error!",
-        text: "Something went wrong while removing the product.",
-        icon: "error",
-        showConfirmButton: false,
-        toast: true,
-        position: "top",
-      });
-    }
-  };
   function getEstimatedDelivery(orderDateStr, timeStr) {
     const orderDate = new Date(orderDateStr);
     orderDate.setDate(orderDate.getDate() + 3);
@@ -665,14 +620,6 @@ export default function CheckOutPage() {
                                 </div>
                               </div>
                             </div>
-                            <button
-                              onClick={() =>
-                                removeItem(checkoutItem.cartid, item.product_Id)
-                              }
-                              className="text-gray-500 hover:text-red-600 cursor-pointer"
-                            >
-                              <Trash2 size={20} />
-                            </button>
                           </motion.div>
                         ))}
                       </div>

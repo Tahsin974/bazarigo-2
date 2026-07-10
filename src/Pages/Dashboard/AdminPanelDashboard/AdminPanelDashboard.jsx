@@ -457,7 +457,6 @@ export default function AdminPanelDashboard() {
       setSelected(selected.length === id.length ? [] : id);
     }
   };
-  console.log("selected:", selected);
 
   const handleBulkUpload = async () => {
     const file = fileRef.current.files[0];
@@ -590,7 +589,6 @@ export default function AdminPanelDashboard() {
         });
       }
     } catch (err) {
-      console.log(err);
       Swal.fire({
         icon: "error",
         title: `${err.message}`,

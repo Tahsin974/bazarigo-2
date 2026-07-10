@@ -38,7 +38,7 @@ function SellersView({
   const { user } = useAuth();
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredSellers.length / sellerPageSize)
+    Math.ceil(filteredSellers.length / sellerPageSize),
   );
   const handleAccept = async (id) => {
     const res = await axiosPublic.patch(`/sellers/${id}/status`, {
@@ -97,7 +97,6 @@ function SellersView({
           });
           return refetch();
         } else {
-          console.log("Bulk delete response:", res.data);
           Swal.fire({
             icon: "error",
             title: "Oops! Try again",
@@ -123,7 +122,7 @@ function SellersView({
   const renderPageNumbers = useRenderPageNumbers(
     sellerPage,
     totalPages,
-    setSellerPage
+    setSellerPage,
   );
 
   return (

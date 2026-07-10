@@ -16,19 +16,19 @@ export default function CartPage() {
   const axiosPublic = useAxiosPublic();
   const { carts, refetch } = useCart();
   const [selectedItems, setSelectedItems] = useState([]);
-
+  const getItemKey = (item) =>
+    `${item.product_Id}-${item.product_img}-${JSON.stringify(item.variants)}`;
   // ✅ handle single checkbox select/unselect
-  const handleSelectItem = (productId) => {
+
+  const handleSelectItem = (item) => {
+    const key = getItemKey(item);
     setSelectedItems((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId],
+      prev.includes(key) ? prev.filter((id) => id !== key) : [...prev, key],
     );
   };
-
   // ✅ handle select all for a single seller/cart
   const handleSelectAll = (cart) => {
-    const productIds = cart.productinfo.map((p) => p.product_Id);
+    const productIds = cart.productinfo.map(getItemKey);
     const allSelected = productIds.every((id) => selectedItems.includes(id));
 
     setSelectedItems((prev) =>
@@ -41,7 +41,7 @@ export default function CartPage() {
   // ✅ Global select all (সব কার্টের সব প্রোডাক্ট)
   const handleSelectAllGlobal = () => {
     const allProductIds = carts.flatMap((cart) =>
-      cart.productinfo.map((p) => p.product_Id),
+      cart.productinfo.map(getItemKey),
     );
     const allSelected = allProductIds.every((id) => selectedItems.includes(id));
     setSelectedItems(allSelected ? [] : allProductIds);
@@ -119,22 +119,25 @@ export default function CartPage() {
   {
     /* filteredSelectedItems তৈরি করা হলো */
   }
+
+  //   // যেসব cart এ কিছুই select হয়নি, সেগুলো বাদ
+  //   .filter((cart) => cart.productinfo.length > 0);
   const filteredSelectedItems = carts
     .map((cart) => ({
       ...cart,
       productinfo: cart.productinfo.filter((item) =>
-        selectedItems.includes(item.product_Id),
+        selectedItems.includes(getItemKey(item)),
       ),
     }))
-    // যেসব cart এ কিছুই select হয়নি, সেগুলো বাদ
     .filter((cart) => cart.productinfo.length > 0);
-
-  const updateQty = async (cartId, productId, newQty) => {
+  const updateQty = async (cartId, productId, newQty, variants, productImg) => {
     try {
       const res = await axiosPublic.patch("/carts/update-qty", {
         cartId,
         productId,
         newQty,
+        variants,
+        productImg,
       });
       if (res.data.updatedCount > 0) {
         return refetch();
@@ -145,7 +148,7 @@ export default function CartPage() {
   };
 
   // ✅ Remove product (auto delete empty cart)
-  const removeItem = async (cartId, productId) => {
+  const removeItem = async (cartId, productId, variants, productImg) => {
     try {
       // 🔹 কনফার্মেশন ডায়ালগ দেখাও
       const result = await Swal.fire({
@@ -164,6 +167,8 @@ export default function CartPage() {
         const { data } = await axiosPublic.patch("/carts/remove-product", {
           cartId,
           productId,
+          variants,
+          productImg,
         });
 
         if (data.deletedCount) {
@@ -209,8 +214,8 @@ export default function CartPage() {
                   <SelectAllCheckbox
                     allSelected={
                       carts
-                        .flatMap((c) => c.productinfo.map((p) => p.product_Id))
-                        .every((id) => selectedItems.includes(id)) &&
+                        .flatMap((c) => c.productinfo.map(getItemKey))
+                        .every((key) => selectedItems.includes(key)) &&
                       carts.length > 0
                     }
                     toggleSelectAll={handleSelectAllGlobal}
@@ -232,7 +237,7 @@ export default function CartPage() {
                     <div className="mb-0.5">
                       <SelectAllCheckbox
                         allSelected={cart.productinfo.every((item) =>
-                          selectedItems.includes(item.product_Id),
+                          selectedItems.includes(getItemKey(item)),
                         )}
                         toggleSelectAll={() => handleSelectAll(cart)}
                         isShowCounter={false}
@@ -268,8 +273,8 @@ export default function CartPage() {
                           <input
                             type="checkbox"
                             className="checkbox checkbox-secondary checkbox-xs rounded-sm absolute top-2 left-3"
-                            checked={selectedItems.includes(item.product_Id)}
-                            onChange={() => handleSelectItem(item.product_Id)}
+                            checked={selectedItems.includes(getItemKey(item))}
+                            onChange={() => handleSelectItem(item)}
                           />
 
                           <div className="flex md:flex-row flex-col items-center gap-6 ms-4">
@@ -342,6 +347,8 @@ export default function CartPage() {
                                           cart.cart_id,
                                           item.product_Id,
                                           Math.max(1, item.qty - 1),
+                                          item.variants,
+                                          item.product_img,
                                         )
                                       }
                                       className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-l-lg"
@@ -358,6 +365,8 @@ export default function CartPage() {
                                           cart.cart_id,
                                           item.product_Id,
                                           Math.max(1, Number(e.target.value)),
+                                          item.variants,
+                                          item.product_img,
                                         )
                                       }
                                       className="w-12 text-center outline-none border-none"
@@ -369,6 +378,8 @@ export default function CartPage() {
                                           cart.cart_id,
                                           item.product_Id,
                                           Math.max(1, item.qty + 1),
+                                          item.variants,
+                                          item.product_img,
                                         )
                                       }
                                       className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-r-lg"
@@ -379,7 +390,12 @@ export default function CartPage() {
                                 </div>
                                 <button
                                   onClick={() =>
-                                    removeItem(cart.cart_id, item.product_Id)
+                                    removeItem(
+                                      cart.cart_id,
+                                      item.product_Id,
+                                      item.variants,
+                                      item.product_img,
+                                    )
                                   }
                                   className="text-gray-500 hover:text-red-600 cursor-pointer md:hidden flex"
                                 >
@@ -390,7 +406,12 @@ export default function CartPage() {
                           </div>
                           <button
                             onClick={() =>
-                              removeItem(cart.cart_id, item.product_Id)
+                              removeItem(
+                                cart.cart_id,
+                                item.product_Id,
+                                item.variants,
+                                item.product_img,
+                              )
                             }
                             className="text-gray-500 hover:text-red-600 cursor-pointer md:flex hidden"
                           >
